@@ -1,3 +1,5 @@
+import { InvalidNumberPlayersError } from '@/game/errors/invalid-number-players';
+
 export interface IProphecyMat {
   suns: number;
 }
@@ -25,6 +27,6 @@ export function calculateInitialSunTokens(numPlayers: number): IProphecyMat {
       suns: 13,
     };
   } else {
-    throw new Error('Invalid number of players');
+    throw new InvalidNumberPlayersError();
   }
 }

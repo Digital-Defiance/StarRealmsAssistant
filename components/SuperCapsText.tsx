@@ -1,20 +1,10 @@
+// SuperCapsText.tsx
 import React, { forwardRef } from 'react';
-import { Typography, Box, TypographyProps } from '@mui/material';
-import { styled } from '@mui/system';
+import { Typography, TypographyProps } from '@mui/material';
 
-interface SuperCapsTextProps extends TypographyProps {
+interface SuperCapsTextProps extends TypographyProps<'span'> {
   fontSize?: number;
 }
-
-const StyledTypography = styled(Typography)(({ theme }) => ({
-  fontFamily: 'CharlemagneStdBold',
-  display: 'inline-block',
-}));
-
-const FirstLetter = styled('span')(({ theme }) => ({
-  textTransform: 'uppercase',
-  fontSize: '105%',
-}));
 
 const SuperCapsText = forwardRef<HTMLSpanElement, SuperCapsTextProps>(
   ({ children, fontSize = 24, ...props }, ref) => {
@@ -26,12 +16,21 @@ const SuperCapsText = forwardRef<HTMLSpanElement, SuperCapsTextProps>(
     const restOfText = children.slice(1);
 
     return (
-      <Box component="span" sx={{ display: 'inline-flex', alignItems: 'baseline' }} ref={ref}>
-        <StyledTypography {...props} sx={{ fontSize, lineHeight: 1, ...props.sx }}>
-          <FirstLetter>{firstLetter}</FirstLetter>
-          {restOfText}
-        </StyledTypography>
-      </Box>
+      <Typography
+        ref={ref}
+        component="span"
+        {...props}
+        sx={{
+          display: 'inline-block',
+          fontFamily: 'CharlemagneStdBold',
+          fontSize: fontSize,
+          lineHeight: 1,
+          ...props.sx,
+        }}
+      >
+        <span style={{ textTransform: 'uppercase', fontSize: '105%' }}>{firstLetter}</span>
+        {restOfText}
+      </Typography>
     );
   }
 );

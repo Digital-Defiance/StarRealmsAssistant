@@ -1,44 +1,12 @@
-import { calculateInitialSupply } from '@/game/dominion-lib';
+import { EmptyGameState } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
-import { NO_PLAYER, MIN_PLAYERS } from '@/game/constants';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 
 // Define the shape of the context
 interface GameContextProps {
   gameState: IGame;
   setGameState: React.Dispatch<React.SetStateAction<IGame>>;
 }
-
-export const EmptyGameState: IGame = {
-  currentStep: 1,
-  players: [],
-  supply: calculateInitialSupply(MIN_PLAYERS, false, false),
-  options: {
-    curses: true,
-    expansions: { prosperity: false, renaissance: false, risingSun: false },
-    mats: {
-      coffersVillagers: false,
-      debt: false,
-      favors: false,
-    },
-  },
-  currentTurn: 1,
-  risingSun: {
-    prophecy: 0,
-    greatLeaderProphecy: false,
-  },
-  currentPlayerIndex: NO_PLAYER,
-  firstPlayerIndex: NO_PLAYER,
-  selectedPlayerIndex: NO_PLAYER,
-  log: [
-    {
-      timestamp: new Date(),
-      action: GameLogActionWithCount.START_GAME,
-      playerIndex: NO_PLAYER,
-    },
-  ],
-};
 
 // Create the context
 const GameContext = createContext<GameContextProps | undefined>(undefined);

@@ -1,5 +1,14 @@
 import React from 'react';
-import { Box, Typography, Link, Container, Paper, List, ListItem, ListItemText } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Link,
+  Container,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+} from '@mui/material';
 import { Image, Platform, StyleSheet } from 'react-native';
 import { useAssets } from 'expo-asset';
 import DominionTransparentLogo from '@/assets/images/Dominion-tx.png';
@@ -51,7 +60,10 @@ export default function HomeScreen() {
       <Box sx={{ flexGrow: 1, py: 4 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Box>
-            <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Paper
+              elevation={3}
+              sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+            >
               <Box
                 sx={{
                   width: '100%',
@@ -65,11 +77,15 @@ export default function HomeScreen() {
               >
                 {renderLogo()}
               </Box>
-              <Typography variant="h4" sx={{ fontFamily: 'CharlemagneStdBold', textAlign: 'center', mb: 2 }}>
+              <Typography
+                variant="h4"
+                sx={{ fontFamily: 'CharlemagneStdBold', textAlign: 'center', mb: 2 }}
+              >
                 Unofficial Dominion Assistant
               </Typography>
               <Typography variant="body1" paragraph align="center">
-                This React Native application enhances your Dominion gameplay experience with comprehensive features for game management, scoring, and player interaction.
+                This React Native application enhances your Dominion gameplay experience with
+                comprehensive features for game management, scoring, and player interaction.
               </Typography>
             </Paper>
           </Box>
@@ -106,13 +122,35 @@ export default function HomeScreen() {
                   About
                 </Typography>
                 <Typography variant="body1" paragraph>
-                  This application is created by <Link href="https://digitaldefiance.org" target="_blank" rel="noopener noreferrer">Digital Defiance</Link> and <Link href="https://github.com/JessicaMulein" target="_blank" rel="noopener noreferrer">Jessica Mulein</Link>. It is an open-source project and not affiliated with or endorsed by the makers of Dominion or Donald X Vaccarino.
+                  This application is created by{' '}
+                  <Link
+                    href="https://digitaldefiance.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Digital Defiance
+                  </Link>{' '}
+                  and{' '}
+                  <Link
+                    href="https://github.com/JessicaMulein"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Jessica Mulein
+                  </Link>
+                  . It is an open-source project and not affiliated with or endorsed by the makers
+                  of Dominion or Donald X Vaccarino.
                 </Typography>
                 <Typography variant="body1" paragraph>
                   For more information, contributions, or to report issues, please visit our{' '}
-                  <Link href="https://github.com/Digital-Defiance/DominionAssistant" target="_blank" rel="noopener noreferrer">
+                  <Link
+                    href="https://github.com/Digital-Defiance/DominionAssistant"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     GitHub repository
-                  </Link>.
+                  </Link>
+                  .
                 </Typography>
                 <Typography variant="body1" paragraph>
                   Please note that this tool requires the physical game of Dominion to play.

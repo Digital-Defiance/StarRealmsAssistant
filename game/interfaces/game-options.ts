@@ -1,11 +1,8 @@
-import { IMatsEnabled } from './mats-enabled';
+import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
+import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 
 export interface IGameOptions {
   curses: boolean;
-  expansions: {
-    prosperity: boolean;
-    renaissance: boolean;
-    risingSun: boolean;
-  };
+  expansions: IExpansionsEnabled;
   mats: IMatsEnabled;
 }

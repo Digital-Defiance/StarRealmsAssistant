@@ -1,5 +1,5 @@
-export interface SavedGameMetadata {
+export interface ISavedGameMetadata {
   id: string;
   name: string;
-  savedAt: Date;
+  savedAt: Date | string;
 }

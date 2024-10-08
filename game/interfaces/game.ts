@@ -1,10 +1,10 @@
 import { IGameSupply } from '@/game/interfaces/game-supply';
-import { IPlayer } from './player';
-import { IRenaissanceFeatures } from './set-features/renaissance';
-import { IRisingSunFeatures } from './set-features/rising-sun';
-import { ILogEntry } from './log-entry';
-import { IGameOptions } from './game-options';
-import { CurrentStep } from '../enumerations/current-step';
+import { IPlayer } from '@/game/interfaces/player';
+import { IRenaissanceFeatures } from '@/game/interfaces/set-features/renaissance';
+import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
+import { ILogEntry } from '@/game/interfaces/log-entry';
+import { IGameOptions } from '@/game/interfaces/game-options';
+import { CurrentStep } from '@/game/enumerations/current-step';
 
 export interface IGame {
   players: IPlayer[];
@@ -18,4 +18,5 @@ export interface IGame {
   selectedPlayerIndex: number;
   log: ILogEntry[];
   currentStep: CurrentStep;
+  setsRequired: number;
 }

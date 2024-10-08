@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useGameContext } from '@/components/GameContext';
-import { saveGame, loadGame, getSavedGamesList, deleteSavedGame } from '@/game/dominion-lib';
-import { SavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
+import { addLogEntry } from '@/game/dominion-lib.log';
+import {
+  saveGame,
+  loadGame,
+  getSavedGamesList,
+  deleteSavedGame,
+} from '@/game/dominion-lib.load-save';
+import { ISavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 import {
   Box,
   Typography,
@@ -20,14 +26,41 @@ import {
 } from '@mui/material';
 import { ArrowRight as ArrowRightIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { CurrentStep } from '@/game/enumerations/current-step';
+import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { ILogEntry } from '@/game/interfaces/log-entry';
+import { NO_PLAYER } from '@/game/constants';
+import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
+import { useAlert } from '@/components/AlertContext';
 
 const LoadSaveGame: React.FC = () => {
+  const { showAlert } = useAlert();
   const [openDialog, setOpenDialog] = useState(false);
   const [openOverwriteDialog, setOpenOverwriteDialog] = useState(false);
   const { gameState, setGameState } = useGameContext();
-  const [savedGames, setSavedGames] = useState<SavedGameMetadata[]>([]);
+  const [savedGames, setSavedGames] = useState<ISavedGameMetadata[]>([]);
   const [saveName, setSaveName] = useState('');
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+
+  /**
+   * Add a log entry to the game log.
+   * @param playerIndex
+   * @param action
+   * @param count
+   * @param correction If true, this log entry is a correction to a previous entry.
+   * @param linkedAction If provided, an ID of a linked action. Some actions are part of a chain and should be linked for undo functionality.
+   * @returns
+   */
+  const addLogEntrySetGameState = (): ILogEntry => {
+    let newLog: ILogEntry | undefined;
+    setGameState((prevGame) => {
+      newLog = addLogEntry(prevGame, NO_PLAYER, GameLogActionWithCount.LOAD_GAME);
+      return prevGame;
+    });
+    if (!newLog) {
+      throw new FailedAddLogEntryError();
+    }
+    return newLog;
+  };
 
   useEffect(() => {
     loadSavedGamesList();
@@ -45,20 +78,29 @@ const LoadSaveGame: React.FC = () => {
         setOpenOverwriteDialog(true);
       } else {
         // If no game is selected, save as a new game
-        await saveGame(gameState, saveName);
-        setSaveName('');
-        loadSavedGamesList();
+        const result = await saveGame(gameState, saveName);
+        if (!result) {
+          showAlert('Failed to save game', 'An error occurred while saving the game.');
+        } else {
+          addLogEntrySetGameState();
+          setSaveName('');
+          loadSavedGamesList();
+        }
       }
     }
   };
 
   const handleOverwriteConfirm = async () => {
     if (gameState && saveName && selectedGameId) {
-      await saveGame(gameState, saveName, selectedGameId);
+      const result = await saveGame(gameState, saveName, selectedGameId);
       setOpenOverwriteDialog(false);
-      setSaveName('');
-      setSelectedGameId(null);
-      loadSavedGamesList();
+      if (!result) {
+        showAlert('Failed to save game', 'An error occurred while saving the game.');
+      } else {
+        setSaveName('');
+        setSelectedGameId(null);
+        loadSavedGamesList();
+      }
     }
   };
 
@@ -99,7 +141,7 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
-  const handleSelectGame = (game: SavedGameMetadata) => {
+  const handleSelectGame = (game: ISavedGameMetadata) => {
     setSelectedGameId(game.id);
     setSaveName(game.name);
   };

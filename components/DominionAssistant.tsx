@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AddPlayerNames from '@/components/AddPlayerNames';
 import SelectFirstPlayer from '@/components/SelectFirstPlayer';
 import SetGameOptions from '@/components/SetGameOptions';
@@ -6,9 +6,20 @@ import GameScreen from '@/components/GameScreen';
 import EndGame from '@/components/EndGame';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
-import { EmptyGameState, useGameContext } from '@/components/GameContext';
+import { useGameContext } from '@/components/GameContext';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { NO_PLAYER } from '@/game/constants';
+import { NO_PLAYER, StepTransitions } from '@/game/constants';
+import {
+  EmptyGameState,
+  incrementTurnCountersAndPlayerIndices,
+  resetPlayerTurnCounters,
+} from '@/game/dominion-lib';
+import { canUndoAction, undoAction } from '@/game/dominion-lib.undo';
+import { addLogEntry } from '@/game/dominion-lib.log';
+import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
+import { AlertProvider, useAlert } from '@/components/AlertContext';
+import AlertDialog from '@/components/AlertDialog';
+import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 
 interface DominionAssistantProps {
   route: unknown;
@@ -17,34 +28,29 @@ interface DominionAssistantProps {
 
 const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation }) => {
   const { gameState, setGameState } = useGameContext();
+  const [canUndo, setCanUndo] = useState(false);
+  const { showAlert } = useAlert();
+
+  useEffect(() => {
+    setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
+  }, [gameState.log]);
+
+  const undoLastAction = () => {
+    setGameState((prevGame) => {
+      const { game, success } = undoAction(prevGame, prevGame.log.length - 1);
+      if (!success) {
+        showAlert('Undo Failed', 'Unable to undo the last action.');
+        return prevGame;
+      }
+      return game;
+    });
+  };
 
   const nextStep = () => {
-    setGameState((prevState) => {
-      let nextStep: CurrentStep;
-
-      switch (prevState.currentStep) {
-        case CurrentStep.AddPlayerNames:
-          nextStep = CurrentStep.SelectFirstPlayer;
-          break;
-        case CurrentStep.SelectFirstPlayer:
-          nextStep = CurrentStep.SetGameOptions;
-          break;
-        case CurrentStep.SetGameOptions:
-          nextStep = CurrentStep.GameScreen;
-          break;
-        case CurrentStep.GameScreen:
-          nextStep = CurrentStep.EndGame;
-          break;
-        case CurrentStep.EndGame:
-        default:
-          nextStep = prevState.currentStep; // No change if we're already at the end
-      }
-
-      return {
-        ...prevState,
-        currentStep: nextStep,
-      };
-    });
+    setGameState((prevState) => ({
+      ...prevState,
+      currentStep: StepTransitions[prevState.currentStep] || prevState.currentStep,
+    }));
   };
 
   /**
@@ -52,30 +58,35 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
    * @param playerIndex
    * @param action
    * @param count
+   * @param correction If true, this log entry is a correction to a previous entry.
+   * @param linkedAction If provided, an ID of a linked action. Some actions are part of a chain and should be linked for undo functionality.
    * @returns
    */
-  const addLogEntry = (
+  const addLogEntrySetGameState = (
     playerIndex: number,
     action: GameLogActionWithCount,
     count?: number,
-    correction?: boolean
-  ) => {
-    const playerName = playerIndex > -1 ? gameState.players[playerIndex].name : undefined;
-    const newLog: ILogEntry = {
-      timestamp: new Date(),
-      action,
-      playerIndex,
-      playerName,
-      count,
-      correction,
-    };
+    correction?: boolean,
+    linkedAction?: string,
+    playerTurnDetails?: IPlayerGameTurnDetails[]
+  ): ILogEntry => {
+    let newLog: ILogEntry | undefined;
     setGameState((prevGame) => {
-      if (!prevGame) return prevGame;
-      return {
-        ...prevGame,
-        log: [...prevGame.log, newLog],
-      };
+      newLog = addLogEntry(
+        prevGame,
+        playerIndex,
+        action,
+        count,
+        correction,
+        linkedAction,
+        playerTurnDetails
+      );
+      return prevGame;
     });
+    if (!newLog) {
+      throw new FailedAddLogEntryError();
+    }
+    return newLog;
   };
 
   /**
@@ -90,32 +101,23 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   };
 
   const nextTurn = () => {
-    addLogEntry(NO_PLAYER, GameLogActionWithCount.NEXT_TURN);
+    addLogEntrySetGameState(
+      NO_PLAYER,
+      GameLogActionWithCount.NEXT_TURN,
+      undefined,
+      undefined,
+      undefined,
+      gameState.players.map((player) => player.turn)
+    );
     setGameState((prevGame) => {
-      const nextPlayerIndex = (prevGame.currentPlayerIndex + 1) % prevGame.players.length;
-      const updatedPlayers = prevGame.players.map((player, index) => {
-        if (index === nextPlayerIndex || index === prevGame.currentPlayerIndex) {
-          return {
-            ...player,
-            turn: { ...player.newTurn },
-          };
-        }
-        return player;
-      });
-
-      return {
-        ...prevGame,
-        currentPlayerIndex: nextPlayerIndex,
-        selectedPlayerIndex: nextPlayerIndex,
-        currentTurn: (prevGame.currentTurn || 0) + 1,
-        players: updatedPlayers,
-      };
+      const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
+      return resetPlayerTurnCounters(updatedGame);
     });
   };
 
   const endGame = () => {
     setGameState((prevState) => {
-      addLogEntry(NO_PLAYER, GameLogActionWithCount.END_GAME);
+      addLogEntrySetGameState(NO_PLAYER, GameLogActionWithCount.END_GAME);
 
       return {
         ...prevState,
@@ -132,19 +134,32 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   };
 
   switch (gameState.currentStep) {
-    case 1:
+    case CurrentStep.AddPlayerNames:
       return <AddPlayerNames nextStep={nextStep} />;
-    case 2:
+    case CurrentStep.SelectFirstPlayer:
       return <SelectFirstPlayer nextStep={nextStep} />;
-    case 3:
+    case CurrentStep.SetGameOptions:
       return <SetGameOptions startGame={startGame} />;
-    case 4:
-      return <GameScreen nextTurn={nextTurn} endGame={endGame} addLogEntry={addLogEntry} />;
-    case 5:
+    case CurrentStep.GameScreen:
+      return (
+        <GameScreen
+          nextTurn={nextTurn}
+          endGame={endGame}
+          addLogEntry={addLogEntrySetGameState}
+          undoLastAction={undoLastAction}
+        />
+      );
+    case CurrentStep.EndGame:
       return <EndGame game={gameState} onNewGame={resetGame} />;
     default:
       return null;
   }
 };
+const DominionAssistantWithAlert: React.FC<DominionAssistantProps> = (props) => (
+  <AlertProvider>
+    <DominionAssistant {...props} />
+    <AlertDialog />
+  </AlertProvider>
+);
 
-export default DominionAssistant;
+export default DominionAssistantWithAlert;

@@ -2,7 +2,7 @@ import React from 'react';
 import { Typography, Paper, TableContainer, Table, TableBody } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
-import { getStartDateFromLog } from '@/game/dominion-lib';
+import { getStartDateFromLog } from '@/game/dominion-lib.log';
 
 const GameLog: React.FC = () => {
   const { gameState, setGameState } = useGameContext();

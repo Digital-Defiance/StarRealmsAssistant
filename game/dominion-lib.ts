@@ -1,21 +1,24 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { v4 as uuidv4 } from 'uuid';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { IGame } from '@/game/interfaces/game';
 import { IGameSupply } from '@/game/interfaces/game-supply';
-import { ILogEntry } from '@/game/interfaces/log-entry';
-import { SavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 import {
-  COPPER_VALUE,
   CURSE_VP,
   DUCHY_VP,
   ESTATE_VP,
-  GOLD_VALUE,
   HAND_STARTING_COPPERS,
   HAND_STARTING_ESTATES,
   PROVINCE_VP,
-  SILVER_VALUE,
   COLONY_VP,
-  PLATINUM_VALUE,
+  NO_PLAYER,
+  EmptyGameSupply,
+  EmptyMatDetails,
+  DefaultTurnDetails,
+  EmptyVictoryDetails,
+  NoPlayerActions,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  NOT_PRESENT,
 } from '@/game/constants';
 import { computeStartingSupply as computeBaseStartingSupply } from '@/game/interfaces/set-kingdom/base';
 import {
@@ -23,8 +26,21 @@ import {
   NullSet as ProsperityNullSet,
 } from '@/game/interfaces/set-kingdom/prosperity';
 import { IPlayer } from '@/game/interfaces/player';
-import { PlayerField, PlayerSubField } from '@/game/types';
+import { PlayerField, PlayerFieldMap, PlayerSubFields } from '@/game/types';
+import { CurrentStep } from '@/game/enumerations/current-step';
+import { calculateInitialSunTokens } from '@/game/interfaces/set-mats/prophecy';
+import { IGameOptions } from '@/game/interfaces/game-options';
+import { InvalidFieldError } from '@/game/errors/invalid-field';
+import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
+import { MinPlayersError } from '@/game/errors/min-players';
+import { MaxPlayersError } from '@/game/errors/max-players';
+import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 
+/**
+ * Calculate the victory points for a player.
+ * @param player - The player
+ * @returns The victory points
+ */
 export function calculateVictoryPoints(player: IPlayer): number {
   // Add null checks and default values
   const estatePoints = (player.victory.estates || 0) * ESTATE_VP;
@@ -46,341 +62,317 @@ export function calculateVictoryPoints(player: IPlayer): number {
   );
 }
 
-export function calculateRawFunds(player: IPlayer): number {
-  const copperValue = (player.supply.copper || 0) * COPPER_VALUE;
-  const silverValue = (player.supply.silver || 0) * SILVER_VALUE;
-  const goldValue = (player.supply.gold || 0) * GOLD_VALUE;
-  const platinumValue = (player.supply.platinum || 0) * PLATINUM_VALUE;
-  return copperValue + silverValue + goldValue + platinumValue;
-}
-
-export function calculateInitialSupply(
-  numPlayers: number,
-  curses: boolean,
-  prosperity: boolean
-): IGameSupply {
-  const baseSupply = computeBaseStartingSupply(numPlayers, curses);
-  const prosperitySupply = prosperity
+/**
+ * Calculate the initial game kingdom card supply based on the number of players and options.
+ * @param numPlayers - The number of players
+ * @param curses - Whether curses are included
+ * @param prosperity - Whether Prosperity cards are included
+ * @returns The initial game supply
+ */
+export function calculateInitialSupply(numPlayers: number, options: IGameOptions): IGameSupply {
+  const baseSupply = computeBaseStartingSupply(numPlayers, options.curses);
+  const prosperitySupply = options.expansions.prosperity
     ? computeProsperityStartingSupply(numPlayers)
     : ProsperityNullSet;
   return { ...baseSupply, ...prosperitySupply };
 }
 
+/**
+ * Distribute the initial supply of cards to the players.
+ * @param game - The game
+ * @returns The updated game
+ */
 export function distributeInitialSupply(game: IGame): IGame {
   const updatedGame = { ...game };
-  updatedGame.players = updatedGame.players.map((player) => {
-    const updatedPlayer = { ...player };
-    updatedPlayer.supply.copper += HAND_STARTING_COPPERS;
-    updatedGame.supply.copper -= HAND_STARTING_COPPERS;
-    if (updatedGame.players.length >= 5) {
-      // insufficient estates for 5+ players, distribute 2 estates and 1 additional copper
-      updatedPlayer.supply.estate += HAND_STARTING_ESTATES - 1;
-      updatedPlayer.supply.copper += 1;
-      updatedGame.supply.copper -= 1;
-      updatedPlayer.victory.estates += HAND_STARTING_ESTATES - 1;
-    } else {
-      updatedPlayer.supply.estate += HAND_STARTING_ESTATES;
-      updatedPlayer.victory.estates += HAND_STARTING_ESTATES;
-    }
-    return updatedPlayer;
-  });
+  const playerCount = updatedGame.players.length;
+
+  // If there are no players, return the game as is
+  if (playerCount === 0) {
+    return updatedGame;
+  }
+
+  /* do not subtract estates from the supply- the supply should
+   * start with the specified number
+   */
+  updatedGame.players = updatedGame.players.map((player) => ({
+    ...player,
+    victory: {
+      ...EmptyVictoryDetails,
+      estates: HAND_STARTING_ESTATES,
+    },
+  }));
+  // Subtract the distributed coppers from the supply
+  updatedGame.supply = {
+    ...updatedGame.supply,
+    coppers: updatedGame.supply.coppers - playerCount * HAND_STARTING_COPPERS,
+  };
   return updatedGame;
 }
 
-export function victoryFieldToGameLogAction<T extends PlayerField>(
-  field: PlayerField,
-  subfield: PlayerSubField<T>,
-  increment: number
-): GameLogActionWithCount {
-  switch (field) {
-    case 'turn':
-      switch (subfield) {
-        case 'actions':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_ACTIONS
-            : GameLogActionWithCount.REMOVE_ACTIONS;
-        case 'buys':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_BUYS
-            : GameLogActionWithCount.REMOVE_BUYS;
-        case 'coins':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_COINS
-            : GameLogActionWithCount.REMOVE_COINS;
-        default:
-          throw new Error(`Invalid turn subfield: ${subfield as string}`);
-      }
-    case 'mats':
-      switch (subfield) {
-        case 'coffers':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_COFFERS
-            : GameLogActionWithCount.REMOVE_COFFERS;
-        case 'villagers':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_VILLAGERS
-            : GameLogActionWithCount.REMOVE_VILLAGERS;
-        case 'debt':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_DEBT
-            : GameLogActionWithCount.REMOVE_DEBT;
-        case 'favors':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_FAVORS
-            : GameLogActionWithCount.REMOVE_FAVORS;
-        case 'prophecy':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_PROPHECY
-            : GameLogActionWithCount.REMOVE_PROPHECY;
-        default:
-          throw new Error(`Invalid mats subfield: ${subfield as string}`);
-      }
-    case 'victory':
-      switch (subfield) {
-        case 'curses':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_CURSES
-            : GameLogActionWithCount.REMOVE_CURSES;
-        case 'estates':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_ESTATES
-            : GameLogActionWithCount.REMOVE_ESTATES;
-        case 'duchies':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_DUCHIES
-            : GameLogActionWithCount.REMOVE_DUCHIES;
-        case 'provinces':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_PROVINCES
-            : GameLogActionWithCount.REMOVE_PROVINCES;
-        case 'colonies':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_COLONIES
-            : GameLogActionWithCount.REMOVE_COLONIES;
-        case 'tokens':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_VP_TOKENS
-            : GameLogActionWithCount.REMOVE_VP_TOKENS;
-        case 'other':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_OTHER_VP
-            : GameLogActionWithCount.REMOVE_OTHER_VP;
-        default:
-          throw new Error(`Invalid victory subfield: ${subfield as string}`);
-      }
-    case 'newTurn':
-      switch (subfield) {
-        case 'actions':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_NEXT_TURN_ACTIONS
-            : GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS;
-        case 'buys':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_NEXT_TURN_BUYS
-            : GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS;
-        case 'coins':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_NEXT_TURN_COINS
-            : GameLogActionWithCount.REMOVE_NEXT_TURN_COINS;
-        default:
-          throw new Error(`Invalid newTurn subfield: ${subfield as string}`);
-      }
-    default:
-      throw new Error(`Invalid field: ${field as string}`);
-  }
-}
-
-export function logEntryToString(entry: ILogEntry): string {
-  const playerName = entry.playerName ? `<${entry.playerName}> ` : '';
-  let actionString = entry.action as string;
-
-  if (entry.count !== undefined) {
-    actionString = actionString.replace('{COUNT}', entry.count.toString());
-  } else {
-    // Remove {COUNT} if no count is provided
-    actionString = actionString.replace('{COUNT}', '');
-  }
-
-  return `${playerName}${actionString}`;
-}
-
-export function getStartDateFromLog(logEntries: ILogEntry[]): Date {
-  if (logEntries.length === 0) {
-    throw new Error('Log entries are empty.');
-  }
-
-  const startGameEntry = logEntries[0];
-
-  if (startGameEntry.action !== GameLogActionWithCount.START_GAME) {
-    throw new Error('The first log entry is not a START_GAME event.');
-  }
-
-  return new Date(startGameEntry.timestamp);
-}
-
-export function getTimeSpanFromStartGame(startDate: Date, eventTime: Date): string {
-  const timeSpan = eventTime.getTime() - startDate.getTime();
-
-  // Convert time span from milliseconds to a human-readable format
-  const seconds = Math.floor((timeSpan / 1000) % 60);
-  const minutes = Math.floor((timeSpan / (1000 * 60)) % 60);
-  const hours = Math.floor((timeSpan / (1000 * 60 * 60)) % 24);
-  const days = Math.floor(timeSpan / (1000 * 60 * 60 * 24));
-
-  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-}
-
-export function verifyEnumKeysMatch(enum1: object, enum2: object): boolean {
-  const keys1 = Object.keys(enum1);
-  const keys2 = Object.keys(enum2);
-
-  if (keys1.length !== keys2.length) {
-    return false;
-  }
-
-  for (const key of keys1) {
-    if (!keys2.includes(key)) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-export const saveGame = async (game: IGame, saveName: string, saveId?: string) => {
-  try {
-    const id = saveId ?? uuidv4();
-    const gameToSave = {
-      ...game,
-      log: game.log.map((entry) => ({
-        ...entry,
-        timestamp: entry.timestamp.toISOString(),
-      })),
-    };
-    const jsonValue = JSON.stringify(gameToSave);
-    await AsyncStorage.setItem(`@dominion_game_${id}`, jsonValue);
-
-    // Update list of saved games
-    const savedGames = await getSavedGamesList();
-    const existingGameIndex = savedGames.findIndex((game) => game.id === id);
-    const newGameMetadata: SavedGameMetadata = {
-      id: id,
-      name: saveName,
-      savedAt: new Date(),
-    };
-
-    if (existingGameIndex !== -1) {
-      // Update existing game metadata
-      savedGames[existingGameIndex] = newGameMetadata;
-    } else {
-      // Add new game metadata
-      savedGames.push(newGameMetadata);
-    }
-
-    await AsyncStorage.setItem(
-      '@dominion_saved_games',
-      JSON.stringify(
-        savedGames.map((game) => ({
-          ...game,
-          savedAt: game.savedAt.toISOString(),
-        }))
-      )
-    );
-  } catch (e) {
-    console.error('Error saving game:', e);
-  }
-};
-
-export const getSavedGamesList = async (): Promise<SavedGameMetadata[]> => {
-  try {
-    const jsonValue = await AsyncStorage.getItem('@dominion_saved_games');
-    if (jsonValue != null) {
-      const parsedGames = JSON.parse(jsonValue);
-      return parsedGames.map((game: any) => ({
-        ...game,
-        savedAt: new Date(game.savedAt),
-      }));
-    }
-    return [];
-  } catch (e) {
-    console.error('Error getting saved games list:', e);
-    return [];
-  }
-};
-
-export const loadGame = async (saveId: string): Promise<IGame | null> => {
-  try {
-    const jsonValue = await AsyncStorage.getItem(`@dominion_game_${saveId}`);
-    if (jsonValue == null) return null;
-
-    const parsedGame = JSON.parse(jsonValue);
-
-    // Parse the timestamps in the log entries
-    parsedGame.log = parsedGame.log.map((entry: ILogEntry) => ({
-      ...entry,
-      timestamp: new Date(entry.timestamp),
-    }));
-
-    return parsedGame;
-  } catch (e) {
-    console.error('Error loading game:', e);
-    return null;
-  }
-};
-
-export const deleteSavedGame = async (saveId: string) => {
-  try {
-    await AsyncStorage.removeItem(`@dominion_game_${saveId}`);
-
-    // Update list of saved games
-    let savedGames = await getSavedGamesList();
-    savedGames = savedGames.filter((game) => game.id !== saveId);
-    await AsyncStorage.setItem('@dominion_saved_games', JSON.stringify(savedGames));
-  } catch (e) {
-    console.error('Error deleting saved game:', e);
-  }
-};
-
+/**
+ * Create a new player object with default values
+ * @param playerName - The name of the player
+ * @returns The new player object
+ */
 export function newPlayer(playerName: string): IPlayer {
   const newPlayer: IPlayer = {
     name: playerName.trim(),
-    startActionsPerTurn: 1,
-    supply: {
-      copper: 0,
-      silver: 0,
-      gold: 0,
-      platinum: 0,
-      estate: 0,
-      duchy: 0,
-      province: 0,
-      colony: 0,
-      curses: 0,
-    },
-    mats: {
-      villagers: 0,
-      coffers: 0,
-      debt: 0,
-      favors: 0,
-    },
-    turn: {
-      actions: 1,
-      buys: 1,
-      coins: 0,
-    },
-    newTurn: {
-      actions: 1,
-      buys: 1,
-      coins: 0,
-    },
-    victory: {
-      tokens: 0,
-      estates: 0,
-      duchies: 0,
-      provinces: 0,
-      colonies: 0,
-      other: 0,
-      curses: 0,
-    },
+    mats: { ...EmptyMatDetails },
+    turn: { ...DefaultTurnDetails },
+    newTurn: { ...DefaultTurnDetails },
+    victory: { ...EmptyVictoryDetails },
   };
   return newPlayer;
+}
+
+/**
+ * A basic game state with no players or options.
+ */
+export const EmptyGameState: IGame = {
+  currentStep: 1,
+  players: [],
+  setsRequired: 1,
+  supply: EmptyGameSupply,
+  options: {
+    curses: true,
+    expansions: { prosperity: false, renaissance: false, risingSun: false },
+    mats: {
+      coffersVillagers: false,
+      debt: false,
+      favors: false,
+    },
+  },
+  currentTurn: 1,
+  risingSun: {
+    prophecy: { suns: NOT_PRESENT },
+    greatLeaderProphecy: false,
+  },
+  currentPlayerIndex: NO_PLAYER,
+  firstPlayerIndex: NO_PLAYER,
+  selectedPlayerIndex: NO_PLAYER,
+  log: [
+    {
+      id: uuidv4(),
+      timestamp: new Date(),
+      action: GameLogActionWithCount.START_GAME,
+      playerIndex: NO_PLAYER,
+    },
+  ],
+};
+
+/**
+ * Initialize the game state with the given number of players and options.
+ * @param gameStateWithOptions - The game state with players and selected options
+ * @returns The updated game state
+ */
+export const NewGameState = (gameStateWithOptions: IGame): IGame => {
+  const playerCount = gameStateWithOptions.players.length;
+
+  // Check for minimum and maximum players
+  if (playerCount < MIN_PLAYERS) {
+    throw new MinPlayersError();
+  }
+  if (playerCount > MAX_PLAYERS) {
+    throw new MaxPlayersError();
+  }
+
+  // Calculate initial supply
+  const initialSupply = calculateInitialSupply(
+    gameStateWithOptions.players.length,
+    gameStateWithOptions.options
+  );
+
+  // Create a new game state with the initial supply, while resetting the player details
+  let newGameState: IGame = {
+    ...gameStateWithOptions,
+    players: gameStateWithOptions.players.map((player) => ({ ...newPlayer(player.name) })),
+    supply: initialSupply,
+    currentStep: CurrentStep.GameScreen,
+    currentTurn: 1,
+  };
+
+  // Distribute initial supply to players
+  newGameState = distributeInitialSupply(newGameState);
+
+  // Initialize Rising Sun tokens if the expansion is enabled
+  if (newGameState.options.expansions.risingSun) {
+    newGameState.risingSun = {
+      ...newGameState.risingSun,
+      prophecy: calculateInitialSunTokens(newGameState.players.length),
+    };
+  }
+
+  return newGameState;
+};
+
+/**
+ * Update the player field with the given increment.
+ * @param game - The game state
+ * @param playerIndex - The index of the player
+ * @param field - The field to update
+ * @param subfield - The subfield to update
+ * @param increment - The amount to increment the field by
+ * @returns The updated game state
+ */
+export function updatePlayerField<T extends keyof PlayerFieldMap>(
+  game: IGame,
+  playerIndex: number,
+  field: T,
+  subfield: PlayerFieldMap[T],
+  increment: number
+): IGame {
+  const updatedGame = { ...game };
+  const player = { ...updatedGame.players[playerIndex] };
+
+  if (field === 'victory' || field === 'turn' || field === 'mats' || field === 'newTurn') {
+    if (((player[field] as any)[subfield] || 0) + increment < 0) {
+      throw new NotEnoughSubfieldError(field, subfield);
+    }
+    (player[field] as any)[subfield] = Math.max(
+      ((player[field] as any)[subfield] || 0) + increment,
+      0
+    );
+  } else {
+    throw new InvalidFieldError(field as string);
+  }
+
+  updatedGame.players[playerIndex] = player;
+
+  // update the supply if the field is a victory field
+  if (
+    field === 'victory' &&
+    ['estates', 'duchies', 'provinces', 'colonies', 'curses'].includes(subfield)
+  ) {
+    (updatedGame.supply[subfield as keyof IGameSupply] as number) -= increment;
+
+    const supplyCount = updatedGame.supply[subfield as keyof IGameSupply] as number;
+    if (increment > 0 && supplyCount < increment) {
+      throw new NotEnoughSupplyError(subfield as string);
+    }
+  }
+  return updatedGame;
+}
+
+/**
+ * Get the field and subfield from a game log action.
+ * @param action - The game log action
+ * @returns The field and subfield
+ */
+export function getFieldAndSubfieldFromAction(action: GameLogActionWithCount): {
+  field: PlayerField | null;
+  subfield: PlayerSubFields | null;
+} {
+  switch (action) {
+    case GameLogActionWithCount.ADD_ACTIONS:
+    case GameLogActionWithCount.REMOVE_ACTIONS:
+      return { field: 'turn', subfield: 'actions' };
+    case GameLogActionWithCount.ADD_BUYS:
+    case GameLogActionWithCount.REMOVE_BUYS:
+      return { field: 'turn', subfield: 'buys' };
+    case GameLogActionWithCount.ADD_COINS:
+    case GameLogActionWithCount.REMOVE_COINS:
+      return { field: 'turn', subfield: 'coins' };
+    case GameLogActionWithCount.ADD_COFFERS:
+    case GameLogActionWithCount.REMOVE_COFFERS:
+      return { field: 'mats', subfield: 'coffers' };
+    case GameLogActionWithCount.ADD_VILLAGERS:
+    case GameLogActionWithCount.REMOVE_VILLAGERS:
+      return { field: 'mats', subfield: 'villagers' };
+    case GameLogActionWithCount.ADD_DEBT:
+    case GameLogActionWithCount.REMOVE_DEBT:
+      return { field: 'mats', subfield: 'debt' };
+    case GameLogActionWithCount.ADD_FAVORS:
+    case GameLogActionWithCount.REMOVE_FAVORS:
+      return { field: 'mats', subfield: 'favors' };
+    case GameLogActionWithCount.ADD_CURSES:
+    case GameLogActionWithCount.REMOVE_CURSES:
+      return { field: 'victory', subfield: 'curses' };
+    case GameLogActionWithCount.ADD_ESTATES:
+    case GameLogActionWithCount.REMOVE_ESTATES:
+      return { field: 'victory', subfield: 'estates' };
+    case GameLogActionWithCount.ADD_DUCHIES:
+    case GameLogActionWithCount.REMOVE_DUCHIES:
+      return { field: 'victory', subfield: 'duchies' };
+    case GameLogActionWithCount.ADD_PROVINCES:
+    case GameLogActionWithCount.REMOVE_PROVINCES:
+      return { field: 'victory', subfield: 'provinces' };
+    case GameLogActionWithCount.ADD_COLONIES:
+    case GameLogActionWithCount.REMOVE_COLONIES:
+      return { field: 'victory', subfield: 'colonies' };
+    case GameLogActionWithCount.ADD_VP_TOKENS:
+    case GameLogActionWithCount.REMOVE_VP_TOKENS:
+      return { field: 'victory', subfield: 'tokens' };
+    case GameLogActionWithCount.ADD_OTHER_VP:
+    case GameLogActionWithCount.REMOVE_OTHER_VP:
+      return { field: 'victory', subfield: 'other' };
+    case GameLogActionWithCount.ADD_NEXT_TURN_ACTIONS:
+    case GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS:
+      return { field: 'newTurn', subfield: 'actions' };
+    case GameLogActionWithCount.ADD_NEXT_TURN_BUYS:
+    case GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS:
+      return { field: 'newTurn', subfield: 'buys' };
+    case GameLogActionWithCount.ADD_NEXT_TURN_COINS:
+    case GameLogActionWithCount.REMOVE_NEXT_TURN_COINS:
+      return { field: 'newTurn', subfield: 'coins' };
+    default:
+      return { field: null, subfield: null };
+  }
+}
+
+/**
+ * Get the increment for the given action.
+ * @param action - The game log action
+ * @returns The increment multiplier (positive or negative)
+ */
+export function getActionIncrementMultiplier(action: GameLogActionWithCount): number {
+  if (action === undefined || action === null) {
+    return 0;
+  }
+
+  if (NoPlayerActions.includes(action)) {
+    return 0;
+  }
+
+  if (action.startsWith('Add')) {
+    return 1;
+  }
+
+  if (action.startsWith('Remove')) {
+    return -1;
+  }
+
+  // If the action doesn't match any known pattern, return 0
+  return 0;
+}
+
+/**
+ * Increment the turn counters for the game.
+ * @param prevGame - The previous game state
+ * @returns The updated game state with incremented turn counters
+ */
+export function incrementTurnCountersAndPlayerIndices(prevGame: IGame): IGame {
+  const currentPlayerIndex = prevGame.currentPlayerIndex;
+  const nextPlayerIndex =
+    prevGame.players.length === 0 ? -1 : (currentPlayerIndex + 1) % prevGame.players.length;
+  return {
+    ...prevGame,
+    currentTurn: prevGame.currentTurn + 1,
+    currentPlayerIndex: nextPlayerIndex,
+    selectedPlayerIndex: nextPlayerIndex,
+  };
+}
+
+/**
+ * Reset the turn counters for all players.
+ * @param prevGame - The previous game state
+ * @returns The updated game state with reset turn counters
+ */
+export function resetPlayerTurnCounters(prevGame: IGame): IGame {
+  return {
+    ...prevGame,
+    players: prevGame.players.map((player) => ({
+      ...player,
+      turn: { ...player.newTurn },
+    })),
+  };
 }

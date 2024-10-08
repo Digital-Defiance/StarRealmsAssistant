@@ -1,6 +1,8 @@
 export enum GameLogAction {
   START_GAME = 'Start Game',
   END_GAME = 'End Game',
+  SAVE_GAME = 'Save Game',
+  LOAD_GAME = 'Load Game',
   NEXT_TURN = 'Next Turn',
   ADD_ACTIONS = 'Add Actions',
   REMOVE_ACTIONS = 'Remove Actions',

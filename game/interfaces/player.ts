@@ -1,4 +1,4 @@
-import { IPlayerGameDetails } from './player-game-details';
+import { IPlayerGameDetails } from '@/game/interfaces/player-game-details';
 
 export interface IPlayer extends IPlayerGameDetails {
   name: string;

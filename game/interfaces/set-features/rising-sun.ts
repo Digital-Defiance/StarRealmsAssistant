@@ -1,4 +1,6 @@
+import { IProphecyMat } from '@/game/interfaces/set-mats/prophecy';
+
 export interface IRisingSunFeatures {
-  prophecy: number;
+  prophecy: IProphecyMat;
   greatLeaderProphecy: boolean;
 }

@@ -3,11 +3,7 @@ import { Box, Typography, Checkbox, Tooltip, Button } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import { OptionField, OptionSubField } from '@/game/types';
 import { IGame } from '@/game/interfaces/game';
-import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
-import { calculateInitialSunTokens } from '@/game/interfaces/set-mats/prophecy';
-import { CurrentStep } from '@/game/enumerations/current-step';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
-import { NO_PLAYER } from '@/game/constants';
+import { NewGameState } from '@/game/dominion-lib';
 
 interface SetGameOptionsProps {
   startGame: () => void;
@@ -27,8 +23,16 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
 
       if (field === 'curses') {
         newOptions.curses = value;
-      } else {
-        (newOptions[field] as Record<string, boolean>)[subfield as string] = value;
+      } else if (field === 'expansions') {
+        newOptions.expansions = {
+          ...newOptions.expansions,
+          [subfield as keyof typeof newOptions.expansions]: value,
+        };
+      } else if (field === 'mats') {
+        newOptions.mats = {
+          ...newOptions.mats,
+          [subfield as keyof typeof newOptions.mats]: value,
+        };
       }
 
       return { ...prevState, options: newOptions };
@@ -37,32 +41,7 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
 
   const handleStartGame = () => {
     setGameState((prevState) => {
-      const initialSupply = calculateInitialSupply(
-        prevState.players.length,
-        prevState.options.curses,
-        prevState.options.expansions.prosperity
-      );
-      const updatedGame = distributeInitialSupply({
-        ...prevState,
-        supply: initialSupply,
-      });
-
-      return {
-        ...updatedGame,
-        currentTurn: 1,
-        currentStep: CurrentStep.GameScreen,
-        risingSun: {
-          prophecy: calculateInitialSunTokens(updatedGame.players.length).suns,
-          greatLeaderProphecy: updatedGame.risingSun.greatLeaderProphecy,
-        },
-        log: [
-          {
-            timestamp: new Date(),
-            action: GameLogActionWithCount.START_GAME,
-            playerIndex: NO_PLAYER,
-          },
-        ],
-      };
+      return NewGameState(prevState);
     });
 
     startGame();
@@ -138,7 +117,9 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
               setGameState((prevState: IGame) => ({
                 ...prevState,
                 risingSun: {
-                  prophecy: prevState.risingSun?.prophecy || 0,
+                  prophecy: {
+                    suns: prevState.risingSun?.prophecy.suns || 0,
+                  },
                   greatLeaderProphecy: e.target.checked,
                 },
               }))

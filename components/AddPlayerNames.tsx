@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -21,6 +21,13 @@ interface AddPlayerNamesProps {
 const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   const { gameState, setGameState } = useGameContext();
   const [playerName, setPlayerName] = useState('');
+
+  useEffect(() => {
+    setGameState((prevState) => ({
+      ...prevState,
+      numSets: prevState.players.length > 4 ? 2 : 1,
+    }));
+  }, [setGameState, gameState.players.length]);
 
   const addPlayer = () => {
     if (playerName.trim()) {
@@ -71,6 +78,11 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
             Add
           </Button>
         </Box>
+      )}
+      {gameState.players.length >= 5 && (
+        <Typography variant="body2" color="error">
+          * Two sets of base cards required for 5-6 players.
+        </Typography>
       )}
       {gameState.players.length >= MIN_PLAYERS && gameState.players.length <= MAX_PLAYERS && (
         <Button fullWidth variant="contained" onClick={nextStep}>
