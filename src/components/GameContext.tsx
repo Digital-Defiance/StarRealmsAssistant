@@ -1,6 +1,6 @@
 import { EmptyGameState } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useMemo } from 'react';
 
 // Define the shape of the context
 interface GameContextProps {
@@ -25,7 +25,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [gameState, setGameState] = useState<IGame>(EmptyGameState);
 
   // Stabilize the context value to prevent unnecessary re-renders
-  const contextValue = React.useMemo(() => ({ gameState, setGameState }), [gameState]);
+  const contextValue = useMemo(() => ({ gameState, setGameState }), [gameState]);
 
   return <GameContext.Provider value={contextValue}>{children}</GameContext.Provider>;
 };
