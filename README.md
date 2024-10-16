@@ -2,7 +2,7 @@
 
 # Unofficial Dominion Assistant
 
-Welcome to the **Unofficial Dominion Assistant**, a React Native application designed to enhance your gameplay experience for the popular card game, Dominion! This tool provides comprehensive features for game management, scoring, and player interaction, allowing Dominion enthusiasts to focus on strategy and enjoyment.
+Welcome to the **Unofficial Dominion Assistant**, a React application designed to enhance your gameplay experience for the popular card game, Dominion! This tool provides comprehensive features for game management, scoring, and player interaction, allowing Dominion enthusiasts to focus on strategy and enjoyment.
 
 ## Disclaimer for End Users
 
@@ -34,9 +34,8 @@ Our application, as a fan-built tool that does not replicate the game, could be 
 - **Expansion Support**: Compatibility with various Dominion expansions and game mats
 - **Save/Load Games**: Ability to save game progress and resume later
 - **Intuitive UI**: User-friendly interface with Material-UI components
-- **Cross-Platform**: Works on iOS, Android, and web browsers
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This is an [NX](https://nx.dev/getting-started/intro) project created with [`create-nx-workspace`](https://nx.dev/nx-api/nx/documents/create-nx-workspace).
 
 ## Getting Started
 
@@ -44,7 +43,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 - Node.js (version 20.9.0 or higher)
 - yarn (version 1.22.22 or higher)
-- Expo CLI
+- NX CLI
 
 ### Installation
 
@@ -68,7 +67,7 @@ From here you may follow the instructions below or jump to the section on Dev Co
     yarn start
    ```
 
-In the output, you'll find options to open the app in a development build, Android emulator, iOS simulator, or Expo Go.
+A popup should offer to open the application in a browser.
 
 ### Visual Studio Code Dev Container Preqrequisites
 
@@ -96,20 +95,13 @@ In the output, you'll find options to open the app in a development build, Andro
    yarn start
    ```
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+A popup should offer to open the application in a browser.
 
 ### Preferred Development Environment
 
 We highly recommend using Visual Studio Code Dev Containers/Docker for a consistent and isolated development environment. This ensures that all dependencies and configurations are standardized across different development setups.
 
-The devcontainer.json postCreateCommand will run through setup of NVM to select a desired version of Node, perform the yarn install, and install the expo-cli globals.
+The devcontainer.json postCreateCommand will run through setup of NVM to select a desired version of Node, perform the yarn install, and install the nx cli globals.
 
 ## Usage
 
@@ -134,14 +126,9 @@ To start a new game:
 
 Other commands available:
 
-- yarn start: Starts the Expo development server
-- yarn android: Starts the app on Android
-- yarn build:android: Builds the Android app using EAS with a preview profile
-- yarn build:ios: Builds the iOS app using EAS with a preview profile
-- yarn ios: Starts the app on iOS
-- yarn web: Starts the app for web
+- yarn start: Starts the development server
+- yarn build: Builds the app using NX
 - yarn test: Runs Jest tests in watch mode
-- yarn lint: Runs the Expo linter
 - yarn lint:eslint:fix: Runs ESLint with auto-fix option
 - yarn format: Runs Prettier to format various file types
 

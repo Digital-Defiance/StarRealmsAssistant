@@ -6,7 +6,10 @@
     "start": "nx serve",
     "build": "nx build",
     "test": "nx test",
-    "test:single": "npx nx test dominion-assistant --coverage=false --testPathPattern"
+    "test:single": "npx nx test dominion-assistant --coverage=false --testPathPattern",
+    "lint:eslint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "reset": "./reset.sh"
   },
   "private": true,
   "dependencies": {

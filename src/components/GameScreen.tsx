@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  Box, 
-  Button, 
-  Dialog, 
-  DialogContent, 
-  Fab, 
-  styled 
-} from '@mui/material';
+import { Box, Button, Dialog, DialogContent, Fab, styled } from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import Scoreboard from '@/components/Scoreboard';
@@ -92,19 +85,10 @@ const GameScreen: React.FC<GameScreenProps> = ({
         </ButtonContainer>
       </Container>
       <FabContainer>
-        <Fab
-          color="secondary"
-          aria-label="undo"
-          onClick={undoLastAction}
-          disabled={!canUndo}
-        >
+        <Fab color="secondary" aria-label="undo" onClick={undoLastAction} disabled={!canUndo}>
           <UndoIcon />
         </Fab>
-        <Fab
-          color="primary"
-          aria-label="supply"
-          onClick={handleOpenSupplyDialog}
-        >
+        <Fab color="primary" aria-label="supply" onClick={handleOpenSupplyDialog}>
           <InventoryIcon />
         </Fab>
       </FabContainer>
