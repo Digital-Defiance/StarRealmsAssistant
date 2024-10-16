@@ -1,7 +1,9 @@
 import React from 'react';
-import { Box, Typography, styled } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { styled } from '@mui/system';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DominionAssistant from '@/components/DominionAssistant';
+import SuperCapsText from '@/components/SuperCapsText';
 
 const StyledContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -22,7 +24,7 @@ export default function DominionAssistantScreen() {
 
   return (
     <StyledContainer>
-      <StyledTitle variant="h4">Unofficial Dominion Assistant</StyledTitle>
+      <SuperCapsText fontSize={24}>Unofficial Dominion Assistant</SuperCapsText>
       <DominionAssistant route={location} navigation={navigate} />
     </StyledContainer>
   );

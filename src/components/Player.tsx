@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Checkbox,
-  Paper,
-  Box,
-  IconButton,
-  Popover,
-  Tooltip,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Checkbox, Paper, Box, IconButton, Popover, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -23,6 +14,7 @@ import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with
 import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
 import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
+import theme from '@/components/theme';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: 5,
@@ -54,7 +46,6 @@ interface PlayerProps {
 }
 
 const Player: React.FC<PlayerProps> = ({ addLogEntry }) => {
-  const theme = useTheme();
   const { gameState, setGameState } = useGameContext();
   const { showAlert } = useAlert();
   const [showNewTurnSettings, setShowNewTurnSettings] = useState(false);

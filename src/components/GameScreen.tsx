@@ -41,7 +41,7 @@ const ButtonContainer = styled(Box)(({ theme }) => ({
 
 const FabContainer = styled(Box)(({ theme }) => ({
   position: 'fixed',
-  bottom: theme.spacing(2),
+  bottom: theme.spacing(10),
   right: theme.spacing(2),
   display: 'flex',
   flexDirection: 'row',

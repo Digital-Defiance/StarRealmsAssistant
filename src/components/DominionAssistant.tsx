@@ -32,11 +32,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   const { showAlert } = useAlert();
 
   useEffect(() => {
-    setCanUndo(
-      gameState.currentStep === CurrentStep.GameScreen
-        ? canUndoAction(gameState, gameState.log.length - 1)
-        : false
-    );
+    setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
   }, [gameState, gameState.log]);
 
   const undoLastAction = () => {

@@ -7,10 +7,10 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
-  useTheme,
 } from '@mui/material';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useGameContext } from '@/components/GameContext';
+import theme from '@/components/theme';
 
 interface SelectFirstPlayerProps {
   nextStep: () => void;
@@ -18,7 +18,6 @@ interface SelectFirstPlayerProps {
 
 const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
   const { gameState, setGameState } = useGameContext();
-  const theme = useTheme();
 
   const selectRandomFirstPlayer = useCallback(() => {
     if (gameState.players.length > 0) {
