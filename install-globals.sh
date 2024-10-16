@@ -1,2 +1,2 @@
 #!/bin/bash
-npm install --global eas-cli
+npm install --global nx

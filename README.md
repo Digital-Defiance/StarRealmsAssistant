@@ -156,22 +156,27 @@ This project is licensed under the [MIT License](LICENSE).
 ## Acknowledgments
 
 - The creators of Dominion for inspiring this project
-- React Native and Expo for providing the development framework
+- React and NX for providing the development framework
 - Material-UI for the component library
 - Digital Defiance and Jessica Mulein for facilitating and creating this work
 
 ## Learn more
 
-To learn more about developing your project with Expo, look at the following resources:
+To learn more about developing your project, look at the following resources:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-- [React Native Documentation](https://reactnative.dev/docs/getting-started): Understand React Native concepts
+- [NX](https://nx.dev/getting-started/intro)
+- [React](https://react.dev/learn)
+- [Material UI](https://mui.com/material-ui/)
+- [Jest](https://jestjs.io/)
+- [Playwright](https://playwright.dev/)
+- [ESLint](https://eslint.org/)
+- [Prettier](https://prettier.io/)
+- [Tabnine](https://www.tabnine.com/)
+- [Greptile](https://www.greptile.com/)
+- [CoPilot](https://github.com/features/copilot)
 
 ## Join the community
 
-Join our community of developers creating universal apps.
+Join our community of developers.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
 - [Digital Defiance](https://digitaldefiance.org): 501c3 Non Profit Open Source Engineering Guild, with our own Discord.

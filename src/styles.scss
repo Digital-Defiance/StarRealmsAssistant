@@ -1,0 +1,88 @@
+// Font sizes
+$TITLE_SIZE: 24px;
+$SUBTITLE_SIZE: 18px;
+$TEXT_SIZE: 16px;
+
+// Shared styles
+.title {
+  font-size: $TITLE_SIZE;
+  font-weight: bold;
+  margin-bottom: 16px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.label {
+  font-size: $TEXT_SIZE;
+  font-family: 'TrajanProBold', sans-serif;
+}
+
+.input {
+  height: 40px;
+  border: 1px solid gray;
+  padding: 0 8px;
+  width: 80%;
+  margin-bottom: 0;
+}
+
+.players-list {
+  margin-top: 16px;
+  width: 80%;
+}
+
+.player-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid gray;
+}
+
+.checkbox-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.button {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
+
+.button-text {
+  color: #fff;
+  text-align: center;
+}
+
+@font-face {
+  font-family: 'CharlemagneStdBold';
+  src: url('/assets/fonts/CharlemagneStd-Bold.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TrajanPro-Bold';
+  src: url('/assets/fonts/TrajanPro-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'TrajanPro-Regular';
+  src: url('/assets/fonts/TrajanPro-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

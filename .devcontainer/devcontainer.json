@@ -12,7 +12,10 @@
         "nrwl.angular-console",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "ms-playwright.playwright",
+        "Orta.vscode-jest",
+        "firsttris.vscode-jest-runner"
       ]
     }
   },
@@ -24,7 +27,7 @@
   // "features": {},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [8081],
+  // "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "./setup-nvm.sh && yarn install && ./install-globals.sh"
