@@ -14,8 +14,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@/__fixtures__/*": ["./src/__fixtures__/*"]
+      "@/*": ["src/*"]
     },
     "jsx": "react-jsx",
     "allowJs": false,
