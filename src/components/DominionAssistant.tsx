@@ -17,8 +17,7 @@ import {
 import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
-import { AlertProvider, useAlert } from '@/components/AlertContext';
-import AlertDialog from '@/components/AlertDialog';
+import { useAlert } from '@/components/AlertContext';
 import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import { Location, NavigateFunction } from 'react-router-dom';
 
@@ -33,8 +32,12 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   const { showAlert } = useAlert();
 
   useEffect(() => {
-    setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
-  }, [gameState.log]);
+    setCanUndo(
+      gameState.currentStep === CurrentStep.GameScreen
+        ? canUndoAction(gameState, gameState.log.length - 1)
+        : false
+    );
+  }, [gameState, gameState.log]);
 
   const undoLastAction = () => {
     setGameState((prevGame) => {

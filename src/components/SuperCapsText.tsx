@@ -1,21 +1,25 @@
 import React, { forwardRef } from 'react';
-import { Typography, TypographyProps } from '@mui/material';
-import styled from '@emotion/styled';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material/styles';
+import { TypographyProps } from '@mui/material/Typography';
 
-interface SuperCapsSpanProps extends TypographyProps<'span'> {
+interface SuperCapsSpanProps extends TypographyProps {
   fontSize?: number;
+  sx?: object;
 }
 
-const SmallCapsSpan = styled(Typography)<SuperCapsSpanProps>`
-  font-variant-caps: small-caps;
-  display: inline-block;
-  font-family: 'CharlemagneStdBold';
-  font-size: ${({ fontSize }) => (fontSize ? `${fontSize}px` : 'inherit')};
-  line-height: 1;
-`;
+const SmallCapsSpan = styled(Typography)<SuperCapsSpanProps>(
+  ({ fontSize }: { fontSize?: number }) => ({
+    fontVariantCaps: 'small-caps',
+    display: 'inline-block',
+    fontFamily: 'CharlemagneStdBold',
+    fontSize: fontSize ? `${fontSize}px` : 'inherit',
+    lineHeight: 1,
+  })
+);
 
 const SuperCapsText = forwardRef<HTMLSpanElement, SuperCapsSpanProps>(
-  ({ children, fontSize = 24, ...props }, ref) => {
+  ({ children, fontSize = 24, sx, ...props }, ref) => {
     if (typeof children !== 'string') {
       return null;
     }
@@ -27,7 +31,7 @@ const SuperCapsText = forwardRef<HTMLSpanElement, SuperCapsSpanProps>(
         fontSize={fontSize}
         {...props}
         sx={{
-          ...props.sx,
+          ...sx,
         }}
       >
         {children}

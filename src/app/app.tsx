@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 import AboutScreen from '@/components/screens/AboutScreen';
 import HomeIcon from '@mui/icons-material/Home';
 import BookIcon from '@mui/icons-material/Book';
@@ -16,45 +16,65 @@ import { GameProvider } from '@/components/GameContext';
 import { AlertProvider } from '@/components/AlertContext';
 import AlertDialog from '@/components/AlertDialog';
 
-export function App() {
-  const tabs = [
-    {
-      label: 'Home',
-      icon: <TabBarIcon name="home" icon={HomeIcon} focused={true} />,
-      content: <AboutScreen />,
-      path: '/',
-    },
-    {
-      label: 'Dominion Assistant',
-      icon: <TabBarIcon icon={DominionVictoryIcon} focused={false} />,
-      content: <DominionAssistantScreen />,
-      path: '/assistant',
-    },
-    {
-      label: 'Game Log',
-      icon: <TabBarIcon name="log" icon={BookIcon} focused={false} />,
-      content: <GameLogScreen />,
-      path: '/log',
-    },
-    {
-      label: 'Load/Save Game',
-      icon: <TabBarIcon name="save" icon={SaveIcon} focused={false} />,
-      content: <LoadSaveGameScreen />,
-      path: '/load-save',
-    },
-  ];
+interface ITab {
+  label: string;
+  icon: React.ReactElement;
+  content: React.ReactNode;
+  path: string;
+  index?: boolean;
+}
 
+const tabs: ITab[] = [
+  {
+    label: 'Home',
+    icon: <TabBarIcon name="home" icon={HomeIcon} focused={true} />,
+    content: <AboutScreen />,
+    path: '/',
+    index: true,
+  },
+  {
+    label: 'Dominion Assistant',
+    icon: <TabBarIcon icon={DominionVictoryIcon} focused={false} />,
+    content: <DominionAssistantScreen />,
+    path: '/assistant',
+  },
+  {
+    label: 'Game Log',
+    icon: <TabBarIcon name="log" icon={BookIcon} focused={false} />,
+    content: <GameLogScreen />,
+    path: '/log',
+  },
+  {
+    label: 'Load/Save Game',
+    icon: <TabBarIcon name="save" icon={SaveIcon} focused={false} />,
+    content: <LoadSaveGameScreen />,
+    path: '/load-save',
+  },
+];
+
+function AppRoutes() {
+  const routes = useRoutes([
+    {
+      path: '/',
+      element: <TabView tabs={tabs} />,
+      children: tabs.map((tab) => ({
+        index: tab.index,
+        path: tab.index ? undefined : tab.path,
+        element: tab.content,
+      })),
+    },
+  ]);
+
+  return routes;
+}
+
+export function App() {
   return (
     <ThemeProvider theme={theme}>
       <GameProvider>
         <AlertProvider>
           <Router>
-            <Routes>
-              {tabs.map((tab, index) => (
-                <Route key={index} path={tab.path} element={tab.content} />
-              ))}
-            </Routes>
-            <TabView tabs={tabs} />
+            <AppRoutes />
             <AlertDialog />
           </Router>
         </AlertProvider>
