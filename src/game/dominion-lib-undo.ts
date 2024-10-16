@@ -48,6 +48,14 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
 
   const actionToUndo = game.log[logIndex];
 
+  // none of the No Player actions except Next Turn can be undone (start game, etc)
+  if (
+    NoPlayerActions.includes(actionToUndo.action) &&
+    actionToUndo.action !== GameLogActionWithCount.NEXT_TURN
+  ) {
+    return false;
+  }
+
   // Find the main action if this is a linked action
   let mainActionIndex = logIndex;
   if (actionToUndo.linkedAction !== undefined) {

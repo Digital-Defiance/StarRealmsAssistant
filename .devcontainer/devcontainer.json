@@ -30,7 +30,7 @@
   "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "./setup-nvm.sh && yarn install && ./install-globals.sh"
+  "postCreateCommand": "./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh"
 
   // Configure tool-specific properties.
   // "customizations": {},
