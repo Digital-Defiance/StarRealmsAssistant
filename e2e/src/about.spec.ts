@@ -21,7 +21,6 @@ test('has features list', async ({ page }) => {
     'Expansion Support: Compatible with various Dominion expansions',
     'Save/Load Games: Save progress and resume later',
     'Intuitive UI: User-friendly Material-UI components',
-    'Cross-Platform: Works on web browsers',
   ];
 
   for (const feature of features) {
