@@ -8,7 +8,7 @@
     "test": "nx test",
     "test:single": "npx nx test dominion-assistant --coverage=false --testPathPattern",
     "test:playwright": "npx nx run e2e:e2e",
-    "test:playwright:report": "yarn playwright show-report dist/.playwright/e2e/playwright-report",
+    "test:playwright:report": "yarn playwright show-report --host 0.0.0.0 dist/.playwright/e2e/playwright-report",
     "lint:eslint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
     "reset": "./reset.sh"

@@ -20,14 +20,15 @@
     }
   },
   "containerEnv": {
-    "NVM_VERSION": "20.9.0"
+    "NVM_VERSION": "20.9.0",
+    "PLAYWRIGHT_HTML_HOST": "0.0.0.0"
   },
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [4200, 9323],
+  "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh"
