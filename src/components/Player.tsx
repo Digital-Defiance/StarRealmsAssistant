@@ -17,8 +17,9 @@ import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import theme from '@/components/theme';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: 5,
+  padding: theme.spacing(2),
   margin: theme.spacing(2),
+  position: 'relative',
 }));
 
 const ColumnBox = styled(Box)({
@@ -33,6 +34,14 @@ const CenteredTitle = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
   marginBottom: 2,
+});
+
+const CorrectionCheckbox = styled(Box)({
+  position: 'absolute',
+  top: 8,
+  right: 8,
+  display: 'flex',
+  alignItems: 'center',
 });
 
 interface PlayerProps {
@@ -176,6 +185,14 @@ const Player: React.FC<PlayerProps> = ({ addLogEntry }) => {
         <IconButton onClick={handleNewTurnClick}>
           <SettingsIcon />
         </IconButton>
+      </Box>
+      <Box position="absolute" bottom={10} left={30} display="flex" alignItems="center">
+        <Checkbox
+          checked={isCorrection}
+          onChange={handleCorrectionChange}
+          inputProps={{ 'aria-label': 'Correction Checkbox' }}
+        />
+        <Typography variant="body2">Correction</Typography>
       </Box>
       {player && (
         <Box display="flex" flexWrap="wrap">
@@ -375,14 +392,6 @@ const Player: React.FC<PlayerProps> = ({ addLogEntry }) => {
           />
         </Box>
       </Popover>
-      <Box position="absolute" bottom={10} left={30} display="flex" alignItems="center">
-        <Checkbox
-          checked={isCorrection}
-          onChange={handleCorrectionChange}
-          inputProps={{ 'aria-label': 'Correction Checkbox' }}
-        />
-        <Typography variant="body2">Correction</Typography>
-      </Box>
     </StyledPaper>
   );
 };

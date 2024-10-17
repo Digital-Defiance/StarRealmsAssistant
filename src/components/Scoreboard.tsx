@@ -50,7 +50,7 @@ const Scoreboard: React.FC = () => {
   };
 
   return (
-    <Paper elevation={3} sx={{ padding: 0, maxWidth: 600, margin: 'auto' }}>
+    <Paper elevation={3} sx={{ padding: 0, maxWidth: 600 }}>
       <TableContainer>
         <Table>
           <TableHead>
