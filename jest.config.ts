@@ -26,7 +26,7 @@ module.exports = {
     '**/__tests__/**/*.[jt]s?(x)',
     '**/?(*.)+(spec|test).[tj]s?(x)',
   ],
-  testPathIgnorePatterns: ['/node_modules/', '/__fixtures__/'],
+  testPathIgnorePatterns: ['/node_modules/', '/__fixtures__/', '/e2e/'],
   transform: {
     // Pass ts-jest options directly in the transformer
     '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.json' }],

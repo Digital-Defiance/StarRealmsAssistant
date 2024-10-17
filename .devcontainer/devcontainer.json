@@ -27,7 +27,7 @@
   // "features": {},
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
-  "forwardPorts": [],
+  "forwardPorts": [4200, 9323],
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh"

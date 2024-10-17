@@ -4,7 +4,7 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { faker } from '@faker-js/faker';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
-import { DefaultTurnDetails } from '@/game/constants';
+import { DefaultTurnDetails, NoPlayerActions } from '@/game/constants';
 import { NotEnoughSupplyError } from '../errors/not-enough-supply';
 import { NotEnoughProphecyError } from '../errors/not-enough-prophecy';
 
@@ -258,20 +258,23 @@ describe('canUndoAction', () => {
     );
   });
 
-  it('should return true when undoing a NoPlayerAction', () => {
-    const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.START_GAME)],
-    });
+  it.each(NoPlayerActions.filter((x) => x !== GameLogActionWithCount.NEXT_TURN))(
+    'should return false when undoing a NoPlayerAction other than NEXT_TURN',
+    () => {
+      const game = createMockGame(2, {
+        log: [createLogEntry(GameLogActionWithCount.START_GAME)],
+      });
 
-    reconstructGameStateSpy.mockImplementation(() => {
-      // Simulate successful reconstruction
-    });
+      reconstructGameStateSpy.mockImplementation(() => {
+        // Simulate successful reconstruction
+      });
 
-    expect(undoModule.canUndoAction(game, 0)).toBe(true);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(1);
-    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(1);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-  });
+      expect(undoModule.canUndoAction(game, 0)).toBe(false);
+      expect(removeTargetAndLinkedActionsSpy).not.toHaveBeenCalled();
+      expect(reconstructGameStateSpy).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+    }
+  );
 
   it('should handle multiple linked actions correctly', () => {
     const mainActionId = 'main-action';
