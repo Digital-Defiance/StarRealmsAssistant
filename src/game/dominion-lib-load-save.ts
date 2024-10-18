@@ -49,6 +49,8 @@ export function saveGame(
   storageService: IStorageService,
   existingId?: string
 ): boolean {
+  // add the SAVE_GAME log entry
+  addLogEntry(game, NO_PLAYER, GameLogActionWithCount.SAVE_GAME);
   try {
     const saveId = saveGameData(game, storageService, existingId);
     addToSavedGamesList(
