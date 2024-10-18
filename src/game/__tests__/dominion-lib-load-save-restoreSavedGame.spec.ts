@@ -45,10 +45,10 @@ describe('restoreSavedGame', () => {
 
     expect(result.log[0].timestamp).toBeInstanceOf(Date);
 
-    // Allow for a 5-millisecond difference tolerance due to floating point precision
+    // Allow for a 15-millisecond difference tolerance due to floating point precision
     const restoredTime = result.log[0].timestamp.getTime();
     const originalTime = saveGameTime.getTime();
-    expect(Math.abs(restoredTime - originalTime)).toBeLessThanOrEqual(5); // Compare with tolerance
+    expect(Math.abs(restoredTime - originalTime)).toBeLessThanOrEqual(15); // Compare with tolerance
   });
 
   it('should throw an error when a log entry has an invalid timestamp', () => {

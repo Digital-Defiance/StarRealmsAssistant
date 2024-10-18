@@ -5,6 +5,7 @@ dist
 .expo
 .devcontainer
 .vscode
+.nx
 
 # Ignore all node_modules folders
 node_modules

@@ -7,6 +7,7 @@
     "build": "nx build",
     "build:clean": "yarn clean && yarn build",
     "test:jest": "nx test",
+    "test:jest:upload-codacy": "./generate-upload-coverage.sh",
     "test:jest:single": "npx nx test dominion-assistant --coverage=false --testPathPattern",
     "test:playwright": "npx nx run e2e:e2e",
     "test:playwright:report": "yarn playwright show-report --host 0.0.0.0 dist/.playwright/e2e/playwright-report",
