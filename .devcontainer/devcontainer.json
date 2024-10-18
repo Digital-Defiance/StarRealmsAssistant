@@ -23,6 +23,12 @@
     "NVM_VERSION": "20.9.0",
     "PLAYWRIGHT_HTML_HOST": "0.0.0.0"
   },
+  "remoteEnv": {
+    "DOTENV_CONFIG_PATH": "/workspaces/dominion-assistant/.env"
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.env,target=/workspaces/dominion-assistant/.env,type=bind,consistency=cached"
+  ],
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},
