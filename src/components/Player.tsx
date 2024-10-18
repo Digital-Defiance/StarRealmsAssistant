@@ -66,7 +66,7 @@ const Player: React.FC = () => {
     field: T,
     subfield: PlayerFieldMap[T],
     increment: number,
-    linkedAction?: string
+    linkedActionId?: string
   ): ILogEntry => {
     let logEntry: ILogEntry | undefined;
     setGameState((prevState) => {
@@ -85,7 +85,7 @@ const Player: React.FC = () => {
         logEntry = addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
           count: Math.abs(increment),
           correction: isCorrection,
-          linkedAction,
+          linkedActionId,
         });
         return updatedGame;
       } catch (error) {

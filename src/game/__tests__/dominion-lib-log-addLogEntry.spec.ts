@@ -25,7 +25,7 @@ describe('addLogEntry', () => {
     const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       correction: false,
-      linkedAction: 'linkedActionId',
+      linkedActionId: 'linkedActionId',
       playerTurnDetails: [],
     });
     expect(mockGame.log).toContainEqual(
@@ -35,7 +35,7 @@ describe('addLogEntry', () => {
         action: GameLogActionWithCount.ADD_COINS,
         count: 5,
         correction: false,
-        linkedAction: 'linkedActionId',
+        linkedActionId: 'linkedActionId',
         playerTurnDetails: [],
       })
     );

@@ -4,7 +4,6 @@ import SelectFirstPlayer from '@/components/SelectFirstPlayer';
 import SetGameOptions from '@/components/SetGameOptions';
 import GameScreen from '@/components/GameScreen';
 import EndGame from '@/components/EndGame';
-import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { useGameContext } from '@/components/GameContext';
 import { CurrentStep } from '@/game/enumerations/current-step';
@@ -17,9 +16,7 @@ import {
 } from '@/game/dominion-lib';
 import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
 import { addLogEntry } from '@/game/dominion-lib-log';
-import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 import { useAlert } from '@/components/AlertContext';
-import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import { Location, NavigateFunction } from 'react-router-dom';
 
 interface DominionAssistantProps {
@@ -68,7 +65,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   const nextTurn = () => {
     setGameState((prevGame) => {
       const nextPlayerIndex = getNextPlayerIndex(prevGame);
-      addLogEntry(prevGame, nextPlayerIndex, GameLogActionWithCount.NEXT_TURN, {
+      addLogEntry(prevGame, NO_PLAYER, GameLogActionWithCount.NEXT_TURN, {
         playerTurnDetails: gameState.players.map((player) => player.turn),
         prevPlayerIndex: gameState.currentPlayerIndex,
         newPlayerIndex: nextPlayerIndex,

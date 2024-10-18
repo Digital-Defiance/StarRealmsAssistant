@@ -166,7 +166,7 @@ describe('undoAction', () => {
         createLogEntry(GameLogActionWithCount.ADD_ACTIONS, mainActionId),
         {
           ...createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS),
-          linkedAction: mainActionId,
+          linkedActionId: mainActionId,
         },
       ],
     });

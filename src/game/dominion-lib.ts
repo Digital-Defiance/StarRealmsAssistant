@@ -346,9 +346,23 @@ export function getActionIncrementMultiplier(action: GameLogActionWithCount): nu
 }
 
 /**
+ * Gets the index of the previous player in the game.
+ * @param prevGame
+ * @returns The index of the previous player
+ */
+export function getPreviousPlayerIndex(prevGame: IGame): number {
+  const currentPlayerIndex = prevGame.currentPlayerIndex;
+  const previousPlayerIndex =
+    prevGame.players.length === 0
+      ? -1
+      : (currentPlayerIndex - 1 + prevGame.players.length) % prevGame.players.length;
+  return previousPlayerIndex;
+}
+
+/**
  * Gets the index of the next player in the game.
  * @param prevGame
- * @returns
+ * @returns The index of the next player in the game
  */
 export function getNextPlayerIndex(prevGame: IGame): number {
   const currentPlayerIndex = prevGame.currentPlayerIndex;

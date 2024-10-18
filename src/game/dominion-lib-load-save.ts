@@ -254,7 +254,7 @@ export function loadGameAddLog(gameState: IGame): IGame {
     throw new InvalidLogSaveGameError();
   }
   addLogEntry(gameState, NO_PLAYER, GameLogActionWithCount.LOAD_GAME, {
-    linkedAction: savedGameLog.id,
+    linkedActionId: savedGameLog.id,
   });
   return gameState;
 }

@@ -14,14 +14,14 @@ describe('removeTargetAndLinkedActions', () => {
   const createLogEntry = (
     id: string,
     action: GameLogActionWithCount,
-    linkedAction?: string
+    linkedActionId?: string
   ): ILogEntry => ({
     id,
     action,
     timestamp: new Date(),
     playerIndex: 0,
     count: 1,
-    linkedAction,
+    linkedActionId,
   });
 
   it('should remove the target action when it has no links', () => {

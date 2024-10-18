@@ -23,11 +23,11 @@ import { CurrentStep } from '@/game/enumerations/current-step';
  */
 export function getLinkedActions(log: ILogEntry[], index: number): ILogEntry[] {
   // do not recurse if the log entry is a linked action itself
-  if (log[index].linkedAction !== undefined) {
+  if (log[index].linkedActionId !== undefined) {
     return [];
   }
   // get all linked actions
-  const linkedActions = log.filter((logEntry) => logEntry.linkedAction === log[index].id);
+  const linkedActions = log.filter((logEntry) => logEntry.linkedActionId === log[index].id);
   return [log[index], ...linkedActions];
 }
 
@@ -58,8 +58,8 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
 
   // Find the main action if this is a linked action
   let mainActionIndex = logIndex;
-  if (actionToUndo.linkedAction !== undefined) {
-    mainActionIndex = game.log.findIndex((entry) => entry.id === actionToUndo.linkedAction);
+  if (actionToUndo.linkedActionId !== undefined) {
+    mainActionIndex = game.log.findIndex((entry) => entry.id === actionToUndo.linkedActionId);
     if (mainActionIndex === -1) {
       return false; // Linked action's main action not found
     }

@@ -110,7 +110,7 @@ describe('loadGame', () => {
           timestamp: expect.any(Date),
           playerIndex: NO_PLAYER,
           action: GameLogActionWithCount.LOAD_GAME,
-          linkedAction: saveGameLogId,
+          linkedActionId: saveGameLogId,
         },
       ],
     });

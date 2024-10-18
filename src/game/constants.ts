@@ -117,6 +117,8 @@ export const NoPlayerActions = [
   GameLogActionWithCount.END_GAME,
   GameLogActionWithCount.SAVE_GAME,
   GameLogActionWithCount.LOAD_GAME,
+  GameLogActionWithCount.NEXT_TURN,
+  GameLogActionWithCount.SELECT_PLAYER,
 ];
 
 export const StepTransitions: Record<CurrentStep, CurrentStep> = {

@@ -1,23 +1,29 @@
 import { loadGameAddLog } from '@/game/dominion-lib-load-save';
-import { IGame } from '@/game/interfaces/game';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
 import { NO_PLAYER } from '@/game/constants';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
+import { ILogEntry } from '@/game/interfaces/log-entry';
 
 describe('loadGameAddLog', () => {
-  const createMockGameWithLog = (log: any[]): IGame => {
-    const mockGame = createMockGame(2);
-    mockGame.log = log;
-    return mockGame;
-  };
-
   it('should add a LOAD_GAME entry linked to the last SAVE_GAME entry', () => {
-    const mockGame = createMockGameWithLog([
-      { id: 'start', action: GameLogActionWithCount.START_GAME, timestamp: new Date() },
-      { id: 'save', action: GameLogActionWithCount.SAVE_GAME, timestamp: new Date() },
-    ]);
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'save',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.SAVE_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
 
     const result = loadGameAddLog(mockGame);
 
@@ -25,32 +31,66 @@ describe('loadGameAddLog', () => {
     expect(result.log[2]).toMatchObject({
       action: GameLogActionWithCount.LOAD_GAME,
       playerIndex: NO_PLAYER,
-      linkedAction: 'save',
+      linkedActionId: 'save',
     });
   });
 
   it('should throw EmptyLogError if the log is empty', () => {
-    const mockGame = createMockGameWithLog([]);
+    const mockGame = createMockGame(2, { log: [] });
 
     expect(() => loadGameAddLog(mockGame)).toThrow(EmptyLogError);
   });
 
   it('should throw InvalidLogSaveGameError if the last entry is not SAVE_GAME', () => {
-    const mockGame = createMockGameWithLog([
-      { id: 'start', action: GameLogActionWithCount.START_GAME, timestamp: new Date() },
-      { id: 'turn', action: GameLogActionWithCount.NEXT_TURN, timestamp: new Date() },
-    ]);
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'turn',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.NEXT_TURN,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
 
     expect(() => loadGameAddLog(mockGame)).toThrow(InvalidLogSaveGameError);
   });
 
   it('should handle multiple SAVE_GAME entries and link to the last one', () => {
-    const mockGame = createMockGameWithLog([
-      { id: 'start', action: GameLogActionWithCount.START_GAME, timestamp: new Date() },
-      { id: 'save1', action: GameLogActionWithCount.SAVE_GAME, timestamp: new Date() },
-      { id: 'turn', action: GameLogActionWithCount.NEXT_TURN, timestamp: new Date() },
-      { id: 'save2', action: GameLogActionWithCount.SAVE_GAME, timestamp: new Date() },
-    ]);
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'save1',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.SAVE_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'turn',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.NEXT_TURN,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'save2',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.SAVE_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
 
     const result = loadGameAddLog(mockGame);
 
@@ -58,15 +98,27 @@ describe('loadGameAddLog', () => {
     expect(result.log[4]).toMatchObject({
       action: GameLogActionWithCount.LOAD_GAME,
       playerIndex: NO_PLAYER,
-      linkedAction: 'save2',
+      linkedActionId: 'save2',
     });
   });
 
   it('should preserve existing game state and only add the new log entry', () => {
-    const mockGame = createMockGameWithLog([
-      { id: 'start', action: GameLogActionWithCount.START_GAME, timestamp: new Date() },
-      { id: 'save', action: GameLogActionWithCount.SAVE_GAME, timestamp: new Date() },
-    ]);
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'save',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.SAVE_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
     mockGame.currentTurn = 5;
     mockGame.currentPlayerIndex = 2;
 
@@ -83,10 +135,22 @@ describe('loadGameAddLog', () => {
   });
 
   it('should generate a new UUID for the LOAD_GAME entry', () => {
-    const mockGame = createMockGameWithLog([
-      { id: 'start', action: GameLogActionWithCount.START_GAME, timestamp: new Date() },
-      { id: 'save', action: GameLogActionWithCount.SAVE_GAME, timestamp: new Date() },
-    ]);
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'save',
+          playerIndex: NO_PLAYER,
+          action: GameLogActionWithCount.SAVE_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
 
     const result = loadGameAddLog(mockGame);
 

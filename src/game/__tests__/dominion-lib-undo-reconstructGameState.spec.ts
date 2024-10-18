@@ -1,5 +1,5 @@
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
-import { EmptyGameState, newPlayer, NewGameState } from '@/game/dominion-lib';
+import { getNextPlayerIndex, EmptyGameState, newPlayer, NewGameState } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { DefaultTurnDetails, NO_PLAYER } from '@/game/constants';
@@ -75,6 +75,7 @@ describe('reconstructGameState', () => {
   });
 
   it('should handle NEXT_TURN action correctly', () => {
+    const nextPlayerIndex = getNextPlayerIndex(baseGame);
     const gameWithNextTurn = {
       ...baseGame,
       log: [
@@ -85,16 +86,20 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.NEXT_TURN,
           playerIndex: NO_PLAYER,
           playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
+          newPlayerIndex: nextPlayerIndex,
+          prevPlayerIndex: baseGame.currentPlayerIndex,
         } as ILogEntry,
       ],
     };
 
     const result = reconstructGameState(gameWithNextTurn);
-    expect(result.currentPlayerIndex).toBe(0); // should wrap back to 0
+    expect(nextPlayerIndex).toBe(0); // should wrap back to 0
+    expect(result.currentPlayerIndex).toBe(nextPlayerIndex); // should wrap back to 0
     expect(result.currentTurn).toBe(2); // should increment
   });
 
   it('should reset player turn details after NEXT_TURN', () => {
+    const nextPlayerIndex = getNextPlayerIndex(baseGame);
     const gameWithActionsAndNextTurn = {
       ...baseGame,
       log: [
@@ -103,7 +108,7 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogActionWithCount.ADD_COINS,
-          playerIndex: 0,
+          playerIndex: baseGame.currentPlayerIndex,
           count: 3,
         },
         {
@@ -115,12 +120,15 @@ describe('reconstructGameState', () => {
             { actions: 5, coins: 2, buys: 4 } as IPlayerGameTurnDetails,
             { ...DefaultTurnDetails },
           ],
+          newPlayerIndex: nextPlayerIndex,
+          prevPlayerIndex: baseGame.currentPlayerIndex,
         },
       ],
     };
 
     const result = reconstructGameState(gameWithActionsAndNextTurn);
     expect(result.players[0].turn).toEqual(DefaultTurnDetails);
+    expect(result.currentPlayerIndex).toEqual(nextPlayerIndex);
   });
 
   it('should handle game-wide counters (e.g., prophecy tokens)', () => {
@@ -229,7 +237,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_ACTIONS,
           playerIndex: 0,
           count: 1,
-          linkedAction: mainActionId,
+          linkedActionId: mainActionId,
         },
       ],
     };
@@ -241,7 +249,7 @@ describe('reconstructGameState', () => {
 
   it('should reconstruct the game state correctly after multiple rounds', () => {
     const complexGame = {
-      ...baseGame, // current turn 1
+      ...baseGame, // current turn 1, currentPlayerIndex 1
       log: [
         ...baseGame.log,
         {
@@ -249,7 +257,7 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogActionWithCount.ADD_COINS,
-          playerIndex: 0,
+          playerIndex: 1,
           count: 3,
         },
         {
@@ -260,6 +268,8 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.NEXT_TURN,
           playerIndex: NO_PLAYER,
           playerTurnDetails: [{ ...DefaultTurnDetails, coins: 3 }, { ...DefaultTurnDetails }],
+          newPlayerIndex: 0,
+          prevPlayerIndex: 1,
         },
         {
           // player 1 actions to 3
@@ -277,6 +287,8 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.NEXT_TURN,
           playerIndex: NO_PLAYER,
           playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails, actions: 3 }],
+          newPlayerIndex: 1,
+          prevPlayerIndex: 0,
         },
         {
           // player 0 buys to 1

@@ -8,7 +8,7 @@ export interface ILogEntryRaw {
   playerName?: string;
   count?: number;
   correction?: boolean;
-  linkedAction?: string;
+  linkedActionId?: string;
   /**
    * Index of the previously selected player
    * Applicable to 'next turn' and 'select player' actions

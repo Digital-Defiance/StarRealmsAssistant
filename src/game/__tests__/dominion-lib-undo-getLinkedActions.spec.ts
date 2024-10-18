@@ -6,14 +6,14 @@ describe('getLinkedActions', () => {
   const createLogEntry = (
     id: string,
     action: GameLogActionWithCount,
-    linkedAction?: string
+    linkedActionId?: string
   ): ILogEntry => ({
     id,
     timestamp: new Date(),
     action,
-    linkedAction,
     playerIndex: 0,
     count: 1,
+    linkedActionId,
   });
 
   it('should return an empty array when the log entry has a linkedAction', () => {

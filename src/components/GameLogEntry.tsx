@@ -28,7 +28,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ game, entry }) => {
       <TableCell style={{ width: '65%' }}>
         <Typography variant="body1">{logEntryToString(entry)}</Typography>
       </TableCell>
-      <TableCell style={{ width: '5%' }}>{entry.linkedAction && <LinkIcon />}</TableCell>
+      <TableCell style={{ width: '5%' }}>{entry.linkedActionId && <LinkIcon />}</TableCell>
     </TableRow>
   );
 };

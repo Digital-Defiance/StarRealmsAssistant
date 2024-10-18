@@ -20,9 +20,9 @@ export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGa
   let mainActionIndex = logIndex;
 
   // If the target action is a linked action, find the main action
-  if (targetAction.linkedAction) {
+  if (targetAction.linkedActionId) {
     const foundMainActionIndex = updatedGame.log.findIndex(
-      (entry) => entry.id === targetAction.linkedAction
+      (entry) => entry.id === targetAction.linkedActionId
     );
     if (foundMainActionIndex !== -1) {
       mainActionId = updatedGame.log[foundMainActionIndex].id;
@@ -36,15 +36,15 @@ export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGa
       index !== mainActionIndex &&
       index !== logIndex &&
       entry.id !== mainActionId &&
-      entry.linkedAction !== mainActionId
+      entry.linkedActionId !== mainActionId
   );
 
   return updatedGame;
 }
 
 /**
- * Reconstructs the game state up to a specific log entry.
- * @param game - The current game state
+ * Reconstructs the game state using the game log
+ * @param game - The current game state, used for options/settings
  * @param targetLogIndex - The index of the log entry to reconstruct up to
  * @returns The reconstructed game state
  */

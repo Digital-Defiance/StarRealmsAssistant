@@ -24,6 +24,8 @@ describe('applyLogAction', () => {
       id: '1',
       timestamp: new Date(),
       playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
+      newPlayerIndex: 1,
+      prevPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -52,6 +54,8 @@ describe('applyLogAction', () => {
       playerIndex: NO_PLAYER,
       id: '1',
       timestamp: new Date(),
+      newPlayerIndex: 1,
+      prevPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -67,6 +71,8 @@ describe('applyLogAction', () => {
       playerIndex: NO_PLAYER,
       id: '1',
       timestamp: new Date(),
+      newPlayerIndex: 0,
+      prevPlayerIndex: 1,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -233,5 +239,55 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result).toEqual(mockGame); // Game state should remain unchanged
+  });
+
+  it('should update the selectedPlayerIndex correctly', () => {
+    const game: IGame = createMockGame(3, {
+      selectedPlayerIndex: 0,
+    });
+
+    const logEntry: ILogEntry = {
+      id: '1',
+      playerIndex: -1,
+      timestamp: new Date(),
+      action: GameLogActionWithCount.SELECT_PLAYER,
+      newPlayerIndex: 2,
+    };
+
+    const updatedGame = applyLogAction(game, logEntry);
+    expect(updatedGame.selectedPlayerIndex).toBe(2);
+  });
+
+  it('should not change the selectedPlayerIndex if newPlayerIndex is not provided', () => {
+    const game: IGame = createMockGame(3, {
+      selectedPlayerIndex: 0,
+    });
+
+    const logEntry: ILogEntry = {
+      id: '1',
+      playerIndex: -1,
+      timestamp: new Date(),
+      action: GameLogActionWithCount.SELECT_PLAYER,
+    };
+
+    const updatedGame = applyLogAction(game, logEntry);
+    expect(updatedGame.selectedPlayerIndex).toBe(0);
+  });
+
+  it('should not affect selectedPlayerIndex for other actions', () => {
+    const game: IGame = createMockGame(3, {
+      selectedPlayerIndex: 0,
+    });
+
+    const logEntry: ILogEntry = {
+      id: '1',
+      playerIndex: 0,
+      timestamp: new Date(),
+      action: GameLogActionWithCount.ADD_ACTIONS,
+      count: 1,
+    };
+
+    const updatedGame = applyLogAction(game, logEntry);
+    expect(updatedGame.selectedPlayerIndex).toBe(0);
   });
 });

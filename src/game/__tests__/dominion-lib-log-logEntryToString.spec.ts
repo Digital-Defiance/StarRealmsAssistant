@@ -93,7 +93,7 @@ describe('logEntryToString', () => {
       playerName: 'Eve',
       action: GameLogActionWithCount.ADD_COINS,
       count: 4,
-      linkedAction: 'some-linked-action-id',
+      linkedActionId: 'some-linked-action-id',
     };
     expect(logEntryToString(logEntry)).toBe('<Eve> Added 4 Coins');
   });
@@ -107,7 +107,7 @@ describe('logEntryToString', () => {
       action: GameLogActionWithCount.ADD_COINS,
       count: 6,
       correction: true,
-      linkedAction: 'some-linked-action-id',
+      linkedActionId: 'some-linked-action-id',
     };
     expect(logEntryToString(logEntry)).toBe('<Frank> Added 6 Coins (Correction)');
   });
