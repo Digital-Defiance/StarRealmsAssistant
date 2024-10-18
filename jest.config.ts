@@ -3,6 +3,7 @@ module.exports = {
   preset: 'ts-jest', // Use 'ts-jest' preset for TypeScript support
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFiles: ['jest-localstorage-mock'],
   collectCoverage: true,
   collectCoverageFrom: [
     '<rootDir>/src/**/*.{ts,tsx}',

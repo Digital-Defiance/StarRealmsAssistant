@@ -1,91 +1,127 @@
 import { SaveGameStorageKey } from '@/game/constants';
 import { addToSavedGamesList, getSavedGamesList } from '@/game/dominion-lib-load-save';
-import { localStorageMock } from '@/__mocks__/localStorageMock';
+import { IStorageService } from '@/game/interfaces/storage-service';
+import { ISavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 
 describe('addToSavedGamesList', () => {
+  let mockStorageService: jest.Mocked<IStorageService>;
+  let consoleErrorSpy: jest.SpyInstance;
+
   beforeEach(() => {
-    localStorageMock.clear();
-    jest.clearAllMocks();
+    mockStorageService = {
+      getItem: jest.fn(),
+      setItem: jest.fn(),
+      removeItem: jest.fn(),
+      clear: jest.fn(),
+    };
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      /* do nothing */
+    });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   it('should add a game to an empty saved games list', () => {
-    const newGame = { id: 'game1', name: 'Game 1', savedAt: new Date() };
-    addToSavedGamesList(newGame);
+    mockStorageService.getItem.mockReturnValue(null); // No saved games initially
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    const newGame = { id: 'game1', name: 'Game 1', savedAt: new Date() };
+    addToSavedGamesList(newGame, mockStorageService);
+
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
       SaveGameStorageKey,
       JSON.stringify([newGame])
     );
   });
 
-  it('should add a game to the beginning of an existing saved games list', () => {
+  it('should add a game to the end of an existing saved games list', () => {
     const existingGame = { id: 'game1', name: 'Game 1', savedAt: new Date(2023, 0, 1) };
-    localStorageMock.setItem(SaveGameStorageKey, JSON.stringify([existingGame]));
+    mockStorageService.getItem.mockReturnValue(JSON.stringify([existingGame]));
 
     const newGame = { id: 'game2', name: 'Game 2', savedAt: new Date(2023, 0, 2) };
-    addToSavedGamesList(newGame);
+    addToSavedGamesList(newGame, mockStorageService);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
       SaveGameStorageKey,
-      JSON.stringify([newGame, existingGame])
+      JSON.stringify([existingGame, newGame])
     );
   });
 
-  it('should handle adding a game with the same ID as an existing game', () => {
-    const existingGame = { id: 'game1', name: 'Game 1', savedAt: new Date(2023, 0, 1) };
-    localStorageMock.setItem(SaveGameStorageKey, JSON.stringify([existingGame]));
-
-    const updatedGame = { id: 'game1', name: 'Updated Game 1', savedAt: new Date(2023, 0, 2) };
-    addToSavedGamesList(updatedGame);
-
-    expect(localStorageMock.setItem).toHaveBeenLastCalledWith(
-      SaveGameStorageKey,
-      JSON.stringify([updatedGame])
-    );
-
-    const savedGames = getSavedGamesList();
-    expect(savedGames).toEqual([updatedGame]);
-  });
-
-  it('should maintain the correct order when adding multiple games', () => {
+  it('should update an existing game and keep it in its original position', () => {
     const game1 = { id: 'game1', name: 'Game 1', savedAt: new Date(2023, 0, 1) };
     const game2 = { id: 'game2', name: 'Game 2', savedAt: new Date(2023, 0, 2) };
     const game3 = { id: 'game3', name: 'Game 3', savedAt: new Date(2023, 0, 3) };
 
-    addToSavedGamesList(game1);
-    addToSavedGamesList(game2);
-    addToSavedGamesList(game3);
+    mockStorageService.getItem.mockReturnValue(JSON.stringify([game1, game2, game3]));
 
-    const savedGames = getSavedGamesList();
-    expect(savedGames).toEqual([game3, game2, game1]);
-  });
+    const updatedGame2 = { id: 'game2', name: 'Updated Game 2', savedAt: new Date(2023, 0, 4) };
+    addToSavedGamesList(updatedGame2, mockStorageService);
 
-  it('should handle adding a game with a future date', () => {
-    const existingGame = { id: 'game1', name: 'Game 1', savedAt: new Date(2023, 0, 1) };
-    localStorageMock.setItem(SaveGameStorageKey, JSON.stringify([existingGame]));
-
-    const futureGame = { id: 'game2', name: 'Future Game', savedAt: new Date(2025, 0, 1) };
-    addToSavedGamesList(futureGame);
-
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
       SaveGameStorageKey,
-      JSON.stringify([futureGame, existingGame])
+      JSON.stringify([game1, updatedGame2, game3]) // game2 stays in its original position
     );
   });
 
-  it('should handle adding a game when localStorage throws an error', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-    localStorageMock.setItem.mockImplementation(() => {
-      throw new Error('localStorage is full');
+  it('should maintain the correct order when adding multiple games', () => {
+    const savedGames: ISavedGameMetadata[] = []; // Manually update the mock return value
+    mockStorageService.getItem.mockImplementation(() => JSON.stringify(savedGames));
+
+    const game1 = { id: 'game1', name: 'Game 1', savedAt: new Date(2023, 0, 1) };
+    const game2 = { id: 'game2', name: 'Game 2', savedAt: new Date(2023, 0, 2) };
+    const game3 = { id: 'game3', name: 'Game 3', savedAt: new Date(2023, 0, 3) };
+
+    // Add game1
+    savedGames.push(game1);
+    addToSavedGamesList(game1, mockStorageService);
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
+      SaveGameStorageKey,
+      JSON.stringify([game1])
+    );
+
+    // Add game2
+    savedGames.push(game2);
+    addToSavedGamesList(game2, mockStorageService);
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
+      SaveGameStorageKey,
+      JSON.stringify([game1, game2])
+    );
+
+    // Add game3
+    savedGames.push(game3);
+    addToSavedGamesList(game3, mockStorageService);
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
+      SaveGameStorageKey,
+      JSON.stringify([game1, game2, game3])
+    );
+  });
+
+  it('should handle adding a game when storageService throws an error', () => {
+    mockStorageService.setItem.mockImplementation(() => {
+      throw new Error('storageService is full');
     });
 
     const newGame = { id: 'game1', name: 'Game 1', savedAt: new Date() };
-    addToSavedGamesList(newGame);
+    addToSavedGamesList(newGame, mockStorageService);
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Error updating saved games list:',
       expect.any(Error)
     );
-    consoleErrorSpy.mockRestore();
+  });
+
+  it('should handle getSavedGamesList error', () => {
+    mockStorageService.getItem.mockImplementation(() => {
+      throw new Error('Failed to get saved games');
+    });
+
+    const savedGames = getSavedGamesList(mockStorageService);
+
+    expect(savedGames).toEqual([]); // Should return an empty array on error
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error getting saved games list:',
+      expect.any(Error)
+    );
   });
 });

@@ -128,9 +128,14 @@ Other commands available:
 
 - yarn start: Starts the development server
 - yarn build: Builds the app using NX
-- yarn test: Runs Jest tests in watch mode
+- yarn test:jest: Runs Jest tests
+- yarn test:jest:single: Runs a single specified test (eg yarn test:jest:single src/game/**tests**/dominion-lib-load-save-saveGame.spec.ts)
+- yarn test:playwright: Runs playwright e2e tests
+- yarn test:playwright:report: Shows the playwright report
 - yarn lint:eslint:fix: Runs ESLint with auto-fix option
 - yarn format: Runs Prettier to format various file types
+- yarn clean: Removes dist/coverage directories
+- yarn reset: Removes node_modules, dist, coverage, and runs yarn install again
 
 ## Contributing
 

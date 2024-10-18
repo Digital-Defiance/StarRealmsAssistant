@@ -1,35 +1,45 @@
 import { updateSavedGamesList } from '@/game/dominion-lib-load-save';
 import { ISavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 import { SaveGameStorageKey } from '@/game/constants';
-import { localStorageMock } from '@/__mocks__/localStorageMock';
+import { IStorageService } from '@/game/interfaces/storage-service';
 
 describe('updateSavedGamesList', () => {
+  let mockStorageService: IStorageService;
+
   beforeEach(() => {
-    localStorageMock.clear(); // Clear the mock store before each test
+    // Mock the storage service methods
+    mockStorageService = {
+      getItem: jest.fn(),
+      setItem: jest.fn(),
+      removeItem: jest.fn(),
+      clear: jest.fn(),
+    };
+
+    localStorage.clear(); // Clear the mock store before each test
     jest.clearAllMocks(); // Clear any mock calls between tests
   });
 
   it('should update localStorage when there are saved games', () => {
     const mockSavedGames: ISavedGameMetadata[] = [
-      { id: '1', name: 'Game 1', savedAt: new Date().toISOString() },
-      { id: '2', name: 'Game 2', savedAt: new Date().toISOString() },
+      { id: '1', name: 'Game 1', savedAt: new Date() },
+      { id: '2', name: 'Game 2', savedAt: new Date() },
     ];
 
-    updateSavedGamesList(mockSavedGames);
+    updateSavedGamesList(mockSavedGames, mockStorageService);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
       SaveGameStorageKey,
       JSON.stringify(mockSavedGames)
     );
-    expect(localStorageMock.removeItem).not.toHaveBeenCalled(); // No removal should happen
+    expect(mockStorageService.removeItem).not.toHaveBeenCalled(); // No removal should happen
   });
 
   it('should keep the empty saved games list from localStorage when the list is empty', () => {
     const emptySavedGames: ISavedGameMetadata[] = [];
 
-    updateSavedGamesList(emptySavedGames);
+    updateSavedGamesList(emptySavedGames, mockStorageService);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
       SaveGameStorageKey,
       JSON.stringify(emptySavedGames)
     );
@@ -39,29 +49,29 @@ describe('updateSavedGamesList', () => {
     const largeSavedGames: ISavedGameMetadata[] = Array.from({ length: 1000 }, (_, i) => ({
       id: `${i}`,
       name: `Game ${i}`,
-      savedAt: new Date().toISOString(),
+      savedAt: new Date(),
     }));
 
-    updateSavedGamesList(largeSavedGames);
+    updateSavedGamesList(largeSavedGames, mockStorageService);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
       SaveGameStorageKey,
       JSON.stringify(largeSavedGames)
     );
-    expect(localStorageMock.removeItem).not.toHaveBeenCalled(); // No removal should happen
+    expect(mockStorageService.removeItem).not.toHaveBeenCalled(); // No removal should happen
   });
 
   it('should update localStorage when the list contains one item', () => {
     const singleSavedGame: ISavedGameMetadata[] = [
-      { id: '1', name: 'Game 1', savedAt: new Date().toISOString() },
+      { id: '1', name: 'Game 1', savedAt: new Date() },
     ];
 
-    updateSavedGamesList(singleSavedGame);
+    updateSavedGamesList(singleSavedGame, mockStorageService);
 
-    expect(localStorageMock.setItem).toHaveBeenCalledWith(
+    expect(mockStorageService.setItem).toHaveBeenCalledWith(
       SaveGameStorageKey,
       JSON.stringify(singleSavedGame)
     );
-    expect(localStorageMock.removeItem).not.toHaveBeenCalled(); // No removal should happen
+    expect(mockStorageService.removeItem).not.toHaveBeenCalled(); // No removal should happen
   });
 });

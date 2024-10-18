@@ -31,6 +31,7 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { NO_PLAYER } from '@/game/constants';
 import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import { useAlert } from '@/components/AlertContext';
+import { LocalStorageService } from '@/game/local-storage-service';
 
 const LoadSaveGame: React.FC = () => {
   const { showAlert } = useAlert();
@@ -41,14 +42,11 @@ const LoadSaveGame: React.FC = () => {
   const [saveName, setSaveName] = useState('');
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
 
+  const storageService = new LocalStorageService(); // Create an instance of the storage service
+
   /**
    * Add a log entry to the game log.
-   * @param playerIndex
-   * @param action
-   * @param count
-   * @param correction If true, this log entry is a correction to a previous entry.
-   * @param linkedAction If provided, an ID of a linked action. Some actions are part of a chain and should be linked for undo functionality.
-   * @returns
+   * @returns The new log entry
    */
   const addLogEntrySetGameState = (): ILogEntry => {
     let newLog: ILogEntry | undefined;
@@ -64,21 +62,22 @@ const LoadSaveGame: React.FC = () => {
 
   useEffect(() => {
     loadSavedGamesList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadSavedGamesList = async () => {
-    const games = await getSavedGamesList();
+  const loadSavedGamesList = () => {
+    const games = getSavedGamesList(storageService); // Pass storageService
     setSavedGames(games);
   };
 
-  const handleSaveGame = async () => {
+  const handleSaveGame = () => {
     if (gameState && saveName) {
       if (selectedGameId) {
         // If a game is selected, prompt for overwrite
         setOpenOverwriteDialog(true);
       } else {
         // If no game is selected, save as a new game
-        const result = await saveGame(gameState, saveName);
+        const result = saveGame(gameState, saveName, storageService); // Pass storageService
         if (!result) {
           showAlert('Failed to save game', 'An error occurred while saving the game.');
         } else {
@@ -90,9 +89,9 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
-  const handleOverwriteConfirm = async () => {
+  const handleOverwriteConfirm = () => {
     if (gameState && saveName && selectedGameId) {
-      const result = await saveGame(gameState, saveName, selectedGameId);
+      const result = saveGame(gameState, saveName, storageService, selectedGameId); // Pass storageService
       setOpenOverwriteDialog(false);
       if (!result) {
         showAlert('Failed to save game', 'An error occurred while saving the game.');
@@ -114,11 +113,13 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
-  const loadGameById = async (id: string) => {
-    const loadedGame = await loadGame(id);
+  const loadGameById = (id: string) => {
+    const loadedGame = loadGame(id, storageService); // Pass storageService
     if (loadedGame) {
       setGameState(loadedGame);
       setSelectedGameId(null);
+    } else {
+      showAlert('Failed to load game', 'An error occurred while loading the game.');
     }
   };
 
@@ -133,8 +134,8 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
-  const handleDeleteGame = async (id: string) => {
-    await deleteSavedGame(id);
+  const handleDeleteGame = (id: string) => {
+    deleteSavedGame(id, storageService); // Pass storageService
     loadSavedGamesList();
     if (selectedGameId === id) {
       setSelectedGameId(null);

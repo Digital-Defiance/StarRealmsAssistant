@@ -4,8 +4,8 @@ import { IGameSupply } from '@/game/interfaces/game-supply';
 import { IMatDetails } from '@/game/interfaces/mat-details';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 import { IVictoryDetails } from '@/game/interfaces/victory-details';
-import { IMatsEnabled } from './interfaces/mats-enabled';
-import { IGameOptions } from './interfaces/game-options';
+import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
+import { IGameOptions } from '@/game/interfaces/game-options';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
