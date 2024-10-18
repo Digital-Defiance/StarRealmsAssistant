@@ -27,7 +27,7 @@
     "DOTENV_CONFIG_PATH": "/workspaces/dominion-assistant/.env"
   },
   "mounts": [
-    "source=${localEnv:HOME}/.env,target=/workspaces/dominion-assistant/.env,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder}/.env,target=/workspaces/dominion-assistant/.env,type=bind,consistency=cached"
   ],
 
   // Features to add to the dev container. More info: https://containers.dev/features.
@@ -37,7 +37,7 @@
   "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh"
+  "postCreateCommand": "./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh && ./setup-shell-config.sh && export $(grep -v '^#' ${DOTENV_CONFIG_PATH} | xargs)"
 
   // Configure tool-specific properties.
   // "customizations": {},

@@ -84,13 +84,19 @@ A popup should offer to open the application in a browser.
    ```
 
 2. Open the project folder in Visual Studio Code.
-3. When prompted, click "Reopen in Container" or use the command palette (F1) and select "Remote-Containers: Reopen in Container".
-4. VS Code will build the dev container and set up the environment. This may take a few minutes the first time.
-5. Once the container is ready, open a new terminal in VS Code and run:
+3. Set up .env:
+
+- Copy the .env.example in the project root to .env
+- Fill in the CODACY_PROJECT_TOKEN from https://app.codacy.com/gh/Digital-Defiance/DominionAssistant/settings/coverage
+- Save the .env file
+
+4. When prompted, click "Reopen in Container" or use the command palette (F1) and select "Remote-Containers: Reopen in Container".
+5. VS Code will build the dev container and set up the environment. This may take a few minutes the first time.
+6. Once the container is ready, open a new terminal in VS Code and run:
    ```bash
    yarn install
    ```
-6. Start the app:
+7. Start the app:
    ```bash
    yarn start
    ```
