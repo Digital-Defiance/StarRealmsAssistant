@@ -9,7 +9,7 @@ import IncrementDecrementControl from '@/components/IncrementDecrementControl';
 import { TITLE_SIZE } from '@/components/constants';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { updatePlayerField } from '@/game/dominion-lib';
-import { victoryFieldToGameLogAction } from '@/game/dominion-lib-log';
+import { addLogEntry, victoryFieldToGameLogAction } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
@@ -36,25 +36,15 @@ const CenteredTitle = styled(Box)({
   marginBottom: 2,
 });
 
-const CorrectionCheckbox = styled(Box)({
+const CorrectionCheckboxContainer = styled(Box)({
   position: 'absolute',
-  top: 8,
-  right: 8,
+  bottom: 10,
+  left: 30,
   display: 'flex',
   alignItems: 'center',
 });
 
-interface PlayerProps {
-  addLogEntry: (
-    playerIndex: number,
-    action: GameLogActionWithCount,
-    count?: number,
-    correction?: boolean,
-    linkedAction?: string
-  ) => ILogEntry;
-}
-
-const Player: React.FC<PlayerProps> = ({ addLogEntry }) => {
+const Player: React.FC = () => {
   const { gameState, setGameState } = useGameContext();
   const { showAlert } = useAlert();
   const [showNewTurnSettings, setShowNewTurnSettings] = useState(false);
@@ -92,13 +82,11 @@ const Player: React.FC<PlayerProps> = ({ addLogEntry }) => {
           return prevState;
         }
         const action = victoryFieldToGameLogAction(field, subfield, increment);
-        logEntry = addLogEntry(
-          prevState.selectedPlayerIndex,
-          action,
-          Math.abs(increment),
-          isCorrection,
-          linkedAction
-        );
+        logEntry = addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
+          count: Math.abs(increment),
+          correction: isCorrection,
+          linkedAction,
+        });
         return updatedGame;
       } catch (error) {
         if (error instanceof Error) {
@@ -127,32 +115,44 @@ const Player: React.FC<PlayerProps> = ({ addLogEntry }) => {
   const showGlobalMats = gameState.options.expansions.risingSun && gameState.risingSun;
 
   const handleProphecyIncrease = () => {
-    addLogEntry(gameState.selectedPlayerIndex, GameLogActionWithCount.ADD_PROPHECY, 1);
     setGameState((prevState) => {
-      if (!prevState) return prevState;
-      const newGameState = { ...prevState };
-      if (newGameState.risingSun && newGameState.options.expansions.risingSun) {
+      if (prevState.risingSun && prevState.options.expansions.risingSun) {
+        const newGameState = { ...prevState };
+        // prophecy is always triggered by the selected player, not the current player in case there is an off-turn action triggered by a defense, etc
+        addLogEntry(
+          newGameState,
+          newGameState.selectedPlayerIndex,
+          GameLogActionWithCount.ADD_PROPHECY,
+          { count: 1 }
+        );
         newGameState.risingSun.prophecy.suns += 1;
+        return newGameState;
       }
-      return newGameState;
+      return prevState;
     });
   };
 
   const handleProphecyDecrease = () => {
-    addLogEntry(gameState.selectedPlayerIndex, GameLogActionWithCount.REMOVE_PROPHECY, 1);
     setGameState((prevState) => {
-      if (!prevState) return prevState;
-      const newGameState = { ...prevState };
-      if (newGameState.risingSun && newGameState.options.expansions.risingSun) {
-        if (newGameState.risingSun.prophecy.suns - 1 < 0) {
+      if (prevState.risingSun && prevState.options.expansions.risingSun) {
+        if (prevState.risingSun.prophecy.suns - 1 < 0) {
           return prevState;
         }
+        const newGameState = { ...prevState };
+        addLogEntry(
+          newGameState,
+          newGameState.selectedPlayerIndex,
+          GameLogActionWithCount.REMOVE_PROPHECY,
+          { count: 1 }
+        );
+
         newGameState.risingSun.prophecy.suns = Math.max(
           0,
           newGameState.risingSun.prophecy.suns - 1
         );
+        return newGameState;
       }
-      return newGameState;
+      return prevState;
     });
   };
 
@@ -186,14 +186,14 @@ const Player: React.FC<PlayerProps> = ({ addLogEntry }) => {
           <SettingsIcon />
         </IconButton>
       </Box>
-      <Box position="absolute" bottom={10} left={30} display="flex" alignItems="center">
+      <CorrectionCheckboxContainer>
         <Checkbox
           checked={isCorrection}
           onChange={handleCorrectionChange}
           inputProps={{ 'aria-label': 'Correction Checkbox' }}
         />
         <Typography variant="body2">Correction</Typography>
-      </Box>
+      </CorrectionCheckboxContainer>
       {player && (
         <Box display="flex" flexWrap="wrap">
           <ColumnBox>

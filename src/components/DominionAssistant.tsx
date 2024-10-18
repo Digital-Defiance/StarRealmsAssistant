@@ -11,6 +11,7 @@ import { CurrentStep } from '@/game/enumerations/current-step';
 import { NO_PLAYER, StepTransitions } from '@/game/constants';
 import {
   EmptyGameState,
+  getNextPlayerIndex,
   incrementTurnCountersAndPlayerIndices,
   resetPlayerTurnCounters,
 } from '@/game/dominion-lib';
@@ -54,42 +55,6 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   };
 
   /**
-   * Add a log entry to the game log.
-   * @param playerIndex
-   * @param action
-   * @param count
-   * @param correction If true, this log entry is a correction to a previous entry.
-   * @param linkedAction If provided, an ID of a linked action. Some actions are part of a chain and should be linked for undo functionality.
-   * @returns
-   */
-  const addLogEntrySetGameState = (
-    playerIndex: number,
-    action: GameLogActionWithCount,
-    count?: number,
-    correction?: boolean,
-    linkedAction?: string,
-    playerTurnDetails?: IPlayerGameTurnDetails[]
-  ): ILogEntry => {
-    let newLog: ILogEntry | undefined;
-    setGameState((prevGame) => {
-      newLog = addLogEntry(
-        prevGame,
-        playerIndex,
-        action,
-        count,
-        correction,
-        linkedAction,
-        playerTurnDetails
-      );
-      return prevGame;
-    });
-    if (!newLog) {
-      throw new FailedAddLogEntryError();
-    }
-    return newLog;
-  };
-
-  /**
    * Start the game with the selected players and options.
    */
   const startGame = () => {
@@ -101,15 +66,13 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   };
 
   const nextTurn = () => {
-    addLogEntrySetGameState(
-      NO_PLAYER,
-      GameLogActionWithCount.NEXT_TURN,
-      undefined,
-      undefined,
-      undefined,
-      gameState.players.map((player) => player.turn)
-    );
     setGameState((prevGame) => {
+      const nextPlayerIndex = getNextPlayerIndex(prevGame);
+      addLogEntry(prevGame, nextPlayerIndex, GameLogActionWithCount.NEXT_TURN, {
+        playerTurnDetails: gameState.players.map((player) => player.turn),
+        prevPlayerIndex: gameState.currentPlayerIndex,
+        newPlayerIndex: nextPlayerIndex,
+      });
       const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
       return resetPlayerTurnCounters(updatedGame);
     });
@@ -117,11 +80,16 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
 
   const endGame = () => {
     setGameState((prevState) => {
-      addLogEntrySetGameState(NO_PLAYER, GameLogActionWithCount.END_GAME);
+      addLogEntry(prevState, NO_PLAYER, GameLogActionWithCount.END_GAME, {
+        prevPlayerIndex: gameState.currentPlayerIndex,
+        newPlayerIndex: NO_PLAYER,
+      });
 
       return {
         ...prevState,
         currentStep: CurrentStep.EndGame,
+        currentPlayerIndex: NO_PLAYER,
+        selectedPlayerIndex: NO_PLAYER,
       };
     });
   };
@@ -141,14 +109,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
     case CurrentStep.SetGameOptions:
       return <SetGameOptions startGame={startGame} />;
     case CurrentStep.GameScreen:
-      return (
-        <GameScreen
-          nextTurn={nextTurn}
-          endGame={endGame}
-          addLogEntry={addLogEntrySetGameState}
-          undoLastAction={undoLastAction}
-        />
-      );
+      return <GameScreen nextTurn={nextTurn} endGame={endGame} undoLastAction={undoLastAction} />;
     case CurrentStep.EndGame:
       return <EndGame game={gameState} onNewGame={resetGame} />;
     default:

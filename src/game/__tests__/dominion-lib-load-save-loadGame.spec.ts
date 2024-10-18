@@ -111,10 +111,6 @@ describe('loadGame', () => {
           playerIndex: NO_PLAYER,
           action: GameLogActionWithCount.LOAD_GAME,
           linkedAction: saveGameLogId,
-          playerName: undefined, // Add optional fields
-          playerTurnDetails: undefined, // Add optional fields
-          count: undefined, // Add optional fields
-          correction: false, // Ensure optional field matches
         },
       ],
     });

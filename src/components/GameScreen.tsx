@@ -4,8 +4,6 @@ import UndoIcon from '@mui/icons-material/Undo';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import Scoreboard from '@/components/Scoreboard';
 import Player from '@/components/Player';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
-import { ILogEntry } from '@/game/interfaces/log-entry';
 import { canUndoAction } from '@/game/dominion-lib-undo';
 import { useGameContext } from '@/components/GameContext';
 import SupplyCounts from '@/components/SupplyCounts';
@@ -13,13 +11,6 @@ import SupplyCounts from '@/components/SupplyCounts';
 interface GameScreenProps {
   nextTurn: () => void;
   endGame: () => void;
-  addLogEntry: (
-    playerIndex: number,
-    action: GameLogActionWithCount,
-    count?: number,
-    correction?: boolean,
-    linkedAction?: string
-  ) => ILogEntry;
   undoLastAction: () => void;
 }
 
@@ -48,12 +39,7 @@ const FabContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-const GameScreen: React.FC<GameScreenProps> = ({
-  nextTurn,
-  endGame,
-  addLogEntry,
-  undoLastAction,
-}) => {
+const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastAction }) => {
   const { gameState } = useGameContext();
   const [canUndo, setCanUndo] = useState(false);
   const [supplyDialogOpen, setSupplyDialogOpen] = useState(false);
@@ -74,7 +60,7 @@ const GameScreen: React.FC<GameScreenProps> = ({
     <>
       <Container>
         <Scoreboard />
-        <Player addLogEntry={addLogEntry} />
+        <Player />
         <ButtonContainer>
           <Button variant="contained" color="primary" onClick={nextTurn}>
             Next Turn

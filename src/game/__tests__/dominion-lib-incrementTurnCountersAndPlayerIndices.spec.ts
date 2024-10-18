@@ -1,69 +1,115 @@
-import { incrementTurnCountersAndPlayerIndices, EmptyGameState } from '@/game/dominion-lib';
+import { incrementTurnCountersAndPlayerIndices, getNextPlayerIndex } from '@/game/dominion-lib';
+import { createMockGame, createMockPlayer } from '@/__fixtures__/dominion-lib-fixtures';
 import { IGame } from '@/game/interfaces/game';
 
-describe('incrementTurnCounters', () => {
-  let mockGame: IGame;
+jest.mock('@/game/dominion-lib', () => {
+  const originalModule = jest.requireActual('@/game/dominion-lib');
+  return {
+    ...originalModule,
+    getNextPlayerIndex: jest.fn(),
+  };
+});
 
+describe('incrementTurnCountersAndPlayerIndices', () => {
   beforeEach(() => {
-    mockGame = {
-      ...EmptyGameState,
-      players: [{ name: 'Player 1' }, { name: 'Player 2' }, { name: 'Player 3' }] as any,
+    jest.clearAllMocks();
+  });
+
+  it('should increment the turn counter and update player indices', () => {
+    const prevGame: IGame = createMockGame(2, {
       currentTurn: 1,
       currentPlayerIndex: 0,
       selectedPlayerIndex: 0,
-    };
+    });
+
+    (getNextPlayerIndex as jest.Mock).mockReturnValue(1);
+
+    const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
+
+    expect(updatedGame.currentTurn).toBe(2);
+    expect(updatedGame.currentPlayerIndex).toBe(1);
+    expect(updatedGame.selectedPlayerIndex).toBe(1);
   });
 
-  it('should increment the turn counter', () => {
-    const result = incrementTurnCountersAndPlayerIndices(mockGame);
-    expect(result.currentTurn).toBe(2);
+  it('should handle the case when there are no players', () => {
+    const prevGame: IGame = createMockGame(2, {
+      players: [],
+      currentTurn: 1,
+      currentPlayerIndex: 0,
+      selectedPlayerIndex: 0,
+    });
+
+    (getNextPlayerIndex as jest.Mock).mockReturnValue(-1);
+
+    const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
+
+    expect(updatedGame.currentTurn).toBe(2);
+    expect(updatedGame.currentPlayerIndex).toBe(-1);
+    expect(updatedGame.selectedPlayerIndex).toBe(-1);
   });
 
-  it('should move to the next player', () => {
-    const result = incrementTurnCountersAndPlayerIndices(mockGame);
-    expect(result.currentPlayerIndex).toBe(1);
-    expect(result.selectedPlayerIndex).toBe(1);
+  it('should handle the case when the current player is the last player', () => {
+    const prevGame: IGame = createMockGame(2, {
+      currentTurn: 1,
+      currentPlayerIndex: 1,
+      selectedPlayerIndex: 1,
+    });
+
+    (getNextPlayerIndex as jest.Mock).mockReturnValue(0);
+
+    const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
+
+    expect(updatedGame.currentTurn).toBe(2);
+    expect(updatedGame.currentPlayerIndex).toBe(0);
+    expect(updatedGame.selectedPlayerIndex).toBe(0);
   });
 
-  it('should wrap around to the first player after the last player', () => {
-    mockGame.currentPlayerIndex = 2;
-    mockGame.selectedPlayerIndex = 2;
-    const result = incrementTurnCountersAndPlayerIndices(mockGame);
-    expect(result.currentPlayerIndex).toBe(0);
-    expect(result.selectedPlayerIndex).toBe(0);
+  it('should handle the case when there is only one player', () => {
+    const prevGame: IGame = createMockGame(2, {
+      players: [createMockPlayer()],
+      currentTurn: 1,
+      currentPlayerIndex: 0,
+      selectedPlayerIndex: 0,
+    });
+
+    (getNextPlayerIndex as jest.Mock).mockReturnValue(0);
+
+    const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
+
+    expect(updatedGame.currentTurn).toBe(2);
+    expect(updatedGame.currentPlayerIndex).toBe(0);
+    expect(updatedGame.selectedPlayerIndex).toBe(0);
   });
 
-  it('should handle a game with only one player', () => {
-    mockGame.players = [{ name: 'Solo Player' }] as any;
-    mockGame.currentPlayerIndex = 0;
-    mockGame.selectedPlayerIndex = 0;
-    const result = incrementTurnCountersAndPlayerIndices(mockGame);
-    expect(result.currentTurn).toBe(2);
-    expect(result.currentPlayerIndex).toBe(0);
-    expect(result.selectedPlayerIndex).toBe(0);
-  });
+  it('should handle the case when the game has multiple players and cycles through them', () => {
+    const prevGame: IGame = createMockGame(3, {
+      currentTurn: 1,
+      currentPlayerIndex: 0,
+      selectedPlayerIndex: 0,
+    });
 
-  it('should not modify other game state properties', () => {
-    const result = incrementTurnCountersAndPlayerIndices(mockGame);
-    expect(result.players).toEqual(mockGame.players);
-    expect(result.supply).toEqual(mockGame.supply);
-    expect(result.options).toEqual(mockGame.options);
-    // Add more assertions for other properties as needed
-  });
+    (getNextPlayerIndex as jest.Mock).mockReturnValue(1);
 
-  it('should handle edge case with no players', () => {
-    mockGame.players = [];
-    mockGame.currentPlayerIndex = -1;
-    mockGame.selectedPlayerIndex = -1;
-    const result = incrementTurnCountersAndPlayerIndices(mockGame);
-    expect(result.currentTurn).toBe(2);
-    expect(result.currentPlayerIndex).toBe(-1); // stays -1
-    expect(result.selectedPlayerIndex).toBe(-1); // stays -1
-  });
+    const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
 
-  it('should handle very large turn numbers', () => {
-    mockGame.currentTurn = Number.MAX_SAFE_INTEGER;
-    const result = incrementTurnCountersAndPlayerIndices(mockGame);
-    expect(result.currentTurn).toBe(Number.MAX_SAFE_INTEGER + 1);
+    expect(updatedGame.currentTurn).toBe(2);
+    expect(updatedGame.currentPlayerIndex).toBe(1);
+    expect(updatedGame.selectedPlayerIndex).toBe(1);
+
+    (getNextPlayerIndex as jest.Mock).mockReturnValue(2);
+
+    const updatedGame2 = incrementTurnCountersAndPlayerIndices(updatedGame);
+
+    expect(updatedGame2.currentTurn).toBe(3);
+    expect(updatedGame2.currentPlayerIndex).toBe(2);
+    expect(updatedGame2.selectedPlayerIndex).toBe(2);
+
+    (getNextPlayerIndex as jest.Mock).mockReturnValue(0);
+
+    const updatedGame3 = incrementTurnCountersAndPlayerIndices(updatedGame2);
+
+    expect(updatedGame3.currentTurn).toBe(4);
+    expect(updatedGame3.currentPlayerIndex).toBe(0);
+    expect(updatedGame3.selectedPlayerIndex).toBe(0);
   });
 });

@@ -21,7 +21,6 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
-      playerName: undefined,
       action: GameLogActionWithCount.ADD_COINS,
       count: 5,
     };
@@ -35,7 +34,6 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       playerName: 'Bob',
       action: GameLogActionWithCount.ADD_COINS,
-      count: undefined,
     };
     expect(logEntryToString(logEntry)).toBe('<Bob> Added Coins');
   });
@@ -45,9 +43,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
-      playerName: undefined,
       action: GameLogActionWithCount.ADD_COINS,
-      count: undefined,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
   });

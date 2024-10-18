@@ -5,6 +5,7 @@ import { SaveGameStorageKey } from '../constants';
 
 describe('getSavedGamesList', () => {
   let mockStorageService: jest.Mocked<IStorageService>;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockStorageService = {
@@ -13,6 +14,9 @@ describe('getSavedGamesList', () => {
       removeItem: jest.fn(),
       clear: jest.fn(),
     };
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // do nothing
+    });
   });
 
   it('should return an empty list when there are no saved games', () => {
@@ -22,6 +26,7 @@ describe('getSavedGamesList', () => {
 
     expect(result).toEqual([]);
     expect(mockStorageService.getItem).toHaveBeenCalledWith(SaveGameStorageKey);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should return a list of saved games when there are saved games', () => {
@@ -37,6 +42,7 @@ describe('getSavedGamesList', () => {
     expect(result[0].id).toBe('1');
     expect(result[1].id).toBe('2');
     expect(mockStorageService.getItem).toHaveBeenCalledWith(SaveGameStorageKey);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should return an empty list when the saved games list contains invalid JSON', () => {
@@ -46,6 +52,10 @@ describe('getSavedGamesList', () => {
 
     expect(result).toEqual([]);
     expect(mockStorageService.getItem).toHaveBeenCalledWith(SaveGameStorageKey);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error parsing saved games JSON:',
+      expect.any(SyntaxError)
+    );
   });
 
   it('should return an empty list when the saved games list contains valid JSON but with missing fields', () => {
@@ -56,5 +66,9 @@ describe('getSavedGamesList', () => {
 
     expect(result).toEqual([]);
     expect(mockStorageService.getItem).toHaveBeenCalledWith(SaveGameStorageKey);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error parsing saved games JSON:',
+      expect.any(SyntaxError)
+    );
   });
 });

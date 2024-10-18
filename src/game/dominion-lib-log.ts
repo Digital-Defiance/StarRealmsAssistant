@@ -5,8 +5,8 @@ import { InvalidFieldError } from '@/game/errors/invalid-field';
 import { InvalidLogStartGameError } from '@/game/errors/invalid-log-start-game';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 import { PlayerFieldMap } from '@/game/types';
+import { NoPlayerActions } from '@/game/constants';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -155,13 +155,43 @@ export function getStartDateFromLog(logEntries: ILogEntry[]): Date {
 }
 
 /**
- * Get the time span from the start of the game to the given event time.
- * @param startDate - The start date of the game
+ * Get the time span from the start of the game to the given event time, less time spans between loads and
+ * @param log - The game log
  * @param eventTime - The event time
  * @returns The time span from the start of the game to the event time
  */
-export function getTimeSpanFromStartGame(startDate: Date, eventTime: Date): string {
-  const timeSpan = eventTime.getTime() - startDate.getTime();
+export function getTimeSpanFromStartGame(log: ILogEntry[], eventTime: Date): string {
+  let startDate: Date | null = null;
+  let lastSaveTime: Date | null = null;
+  let totalExcludedTime = 0;
+
+  for (const entry of log) {
+    const entryTime = new Date(entry.timestamp);
+
+    if (entry.action === GameLogActionWithCount.START_GAME) {
+      startDate = entryTime;
+    } else if (entry.action === GameLogActionWithCount.SAVE_GAME) {
+      if (lastSaveTime === null) {
+        lastSaveTime = entryTime;
+      }
+    } else if (entry.action === GameLogActionWithCount.LOAD_GAME) {
+      if (lastSaveTime) {
+        totalExcludedTime += entryTime.getTime() - lastSaveTime.getTime();
+        lastSaveTime = null; // Reset last save time after accounting for the load
+      }
+    }
+  }
+
+  if (!startDate) {
+    throw new Error('Start time not found in the log');
+  }
+
+  // If there's a save without a corresponding load, exclude the time from the save to the event time
+  if (lastSaveTime) {
+    totalExcludedTime += eventTime.getTime() - lastSaveTime.getTime();
+  }
+
+  const timeSpan = eventTime.getTime() - startDate.getTime() - totalExcludedTime;
 
   // Convert time span from milliseconds to a human-readable format
   const absTimeSpan = Math.abs(timeSpan);
@@ -177,22 +207,27 @@ export function getTimeSpanFromStartGame(startDate: Date, eventTime: Date): stri
 
 /**
  * Add a log entry to the game log.
- * @param playerIndex
- * @param action
- * @param count
- * @param correction If true, this log entry is a correction to a previous entry.
- * @param linkedAction If provided, an ID of a linked action. Some actions are part of a chain and should be linked for undo functionality.
+ * @param game - The game object
+ * @param playerIndex - The index of the player whose turn it is
+ * @param action - The log action
+ * @param overrides - Additional properties to be included in the log entry (optional)
  * @returns
  */
 export function addLogEntry(
   game: IGame,
   playerIndex: number,
   action: GameLogActionWithCount,
-  count?: number,
-  correction?: boolean,
-  linkedAction?: string,
-  playerTurnDetails?: IPlayerGameTurnDetails[]
+  overrides?: Partial<ILogEntry>
 ): ILogEntry {
+  if (!NoPlayerActions.includes(action)) {
+    if (playerIndex < 0) {
+      throw new Error('Player index is required for this action');
+    } else if (playerIndex >= game.players.length) {
+      throw new Error('Player index is out of range');
+    }
+  } else if (playerIndex > -1) {
+    throw new Error('Player index is not relevant for this action');
+  }
   const playerName = playerIndex > -1 ? game.players[playerIndex].name : undefined;
   const newLog: ILogEntry = {
     id: uuidv4(),
@@ -200,10 +235,7 @@ export function addLogEntry(
     action,
     playerIndex,
     playerName,
-    count,
-    correction,
-    linkedAction,
-    playerTurnDetails,
+    ...overrides,
   };
   game.log.push(newLog);
   return newLog;

@@ -15,6 +15,8 @@ import { calculateVictoryPoints } from '@/game/dominion-lib';
 import { SUBTITLE_SIZE, TEXT_SIZE } from '@/components/constants';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useGameContext } from '@/components/GameContext';
+import { addLogEntry } from '@/game/dominion-lib-log';
+import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   fontFamily: 'TrajanProBold',
@@ -40,7 +42,10 @@ const Scoreboard: React.FC = () => {
 
   const handlePlayerSelect = (index: number) => {
     setGameState((prevState) => {
-      if (!prevState) return prevState;
+      addLogEntry(prevState, index, GameLogActionWithCount.SELECT_PLAYER, {
+        prevPlayerIndex: prevState.selectedPlayerIndex,
+        newPlayerIndex: index,
+      });
       return { ...prevState, selectedPlayerIndex: index };
     });
   };

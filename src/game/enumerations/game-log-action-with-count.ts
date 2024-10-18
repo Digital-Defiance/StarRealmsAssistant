@@ -4,6 +4,7 @@ export enum GameLogActionWithCount {
   SAVE_GAME = 'Saved Game',
   LOAD_GAME = 'Loaded Game',
   NEXT_TURN = 'Next Turn',
+  SELECT_PLAYER = 'Selected Player',
   ADD_ACTIONS = 'Added {COUNT} Actions',
   REMOVE_ACTIONS = 'Removed {COUNT} Actions',
   ADD_BUYS = 'Added {COUNT} Buys',

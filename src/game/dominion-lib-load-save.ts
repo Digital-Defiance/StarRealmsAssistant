@@ -249,11 +249,13 @@ export function loadGameAddLog(gameState: IGame): IGame {
   if (gameState.log.length === 0) {
     throw new EmptyLogError();
   }
-  const lastLog = gameState.log[gameState.log.length - 1];
-  if (lastLog.action !== GameLogActionWithCount.SAVE_GAME) {
+  const savedGameLog = gameState.log[gameState.log.length - 1];
+  if (savedGameLog.action !== GameLogActionWithCount.SAVE_GAME) {
     throw new InvalidLogSaveGameError();
   }
-  addLogEntry(gameState, NO_PLAYER, GameLogActionWithCount.LOAD_GAME, undefined, false, lastLog.id);
+  addLogEntry(gameState, NO_PLAYER, GameLogActionWithCount.LOAD_GAME, {
+    linkedAction: savedGameLog.id,
+  });
   return gameState;
 }
 

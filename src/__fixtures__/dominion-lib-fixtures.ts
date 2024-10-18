@@ -30,7 +30,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
   return {
     players: Array(playerCount)
       .fill(null)
-      .map(() => newPlayer(faker.person.firstName())),
+      .map(() => createMockPlayer()),
     supply,
     options,
     risingSun: {
@@ -57,9 +57,9 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
   };
 }
 
-export function createMockPlayer(victory: Partial<IPlayer['victory']>): IPlayer {
+export function createMockPlayer(victory?: Partial<IPlayer['victory']>): IPlayer {
   return {
-    name: 'Test Player',
+    name: faker.person.firstName(),
     mats: { ...EmptyMatDetails },
     turn: { ...DefaultTurnDetails },
     newTurn: { ...DefaultTurnDetails },
@@ -67,5 +67,5 @@ export function createMockPlayer(victory: Partial<IPlayer['victory']>): IPlayer 
       ...EmptyVictoryDetails,
       ...victory,
     },
-  };
+  } as IPlayer;
 }

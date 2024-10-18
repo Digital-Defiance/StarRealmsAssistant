@@ -346,14 +346,24 @@ export function getActionIncrementMultiplier(action: GameLogActionWithCount): nu
 }
 
 /**
+ * Gets the index of the next player in the game.
+ * @param prevGame
+ * @returns
+ */
+export function getNextPlayerIndex(prevGame: IGame): number {
+  const currentPlayerIndex = prevGame.currentPlayerIndex;
+  const nextPlayerIndex =
+    prevGame.players.length === 0 ? -1 : (currentPlayerIndex + 1) % prevGame.players.length;
+  return nextPlayerIndex;
+}
+
+/**
  * Increment the turn counters for the game.
  * @param prevGame - The previous game state
  * @returns The updated game state with incremented turn counters
  */
 export function incrementTurnCountersAndPlayerIndices(prevGame: IGame): IGame {
-  const currentPlayerIndex = prevGame.currentPlayerIndex;
-  const nextPlayerIndex =
-    prevGame.players.length === 0 ? -1 : (currentPlayerIndex + 1) % prevGame.players.length;
+  const nextPlayerIndex = getNextPlayerIndex(prevGame);
   return {
     ...prevGame,
     currentTurn: prevGame.currentTurn + 1,

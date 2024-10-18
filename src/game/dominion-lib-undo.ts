@@ -10,10 +10,10 @@ import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { PlayerFieldMap } from '@/game/types';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
-import { NotEnoughSupplyError } from './errors/not-enough-supply';
-import { NotEnoughSubfieldError } from './errors/not-enough-subfield';
-import * as undoHelpers from './dominion-lib-undo-helpers';
-import { CurrentStep } from './enumerations/current-step';
+import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
+import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
+import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
+import { CurrentStep } from '@/game/enumerations/current-step';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -130,6 +130,8 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
       ...player,
       turn: player.newTurn,
     }));
+  } else if (logEntry.action === GameLogActionWithCount.SELECT_PLAYER) {
+    updatedGame.selectedPlayerIndex = logEntry.newPlayerIndex ?? updatedGame.selectedPlayerIndex;
   } else if (
     logEntry.playerIndex !== NO_PLAYER &&
     logEntry.playerIndex < updatedGame.players.length &&

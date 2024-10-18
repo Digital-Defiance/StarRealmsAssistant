@@ -3,13 +3,14 @@ import { TableCell, TableRow, Typography } from '@mui/material';
 import LinkIcon from '@mui/icons-material/Link';
 import { getTimeSpanFromStartGame, logEntryToString } from '@/game/dominion-lib-log';
 import { ILogEntry } from '@/game/interfaces/log-entry';
+import { IGame } from '@/game/interfaces/game';
 
 interface GameLogEntryProps {
-  gameStart: Date;
+  game: IGame;
   entry: ILogEntry;
 }
 
-const GameLogEntry: React.FC<GameLogEntryProps> = ({ gameStart, entry }) => {
+const GameLogEntry: React.FC<GameLogEntryProps> = ({ game, entry }) => {
   const formatDate = (date: Date) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
@@ -21,7 +22,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ gameStart, entry }) => {
       </TableCell>
       <TableCell style={{ width: '15%' }}>
         <Typography variant="body2">
-          {getTimeSpanFromStartGame(gameStart, entry.timestamp)}
+          {getTimeSpanFromStartGame(game.log, entry.timestamp)}
         </Typography>
       </TableCell>
       <TableCell style={{ width: '65%' }}>

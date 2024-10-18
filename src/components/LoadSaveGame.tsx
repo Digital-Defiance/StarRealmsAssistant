@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useGameContext } from '@/components/GameContext';
-import { addLogEntry } from '@/game/dominion-lib-log';
 import {
   saveGame,
   loadGame,
@@ -26,10 +25,6 @@ import {
 } from '@mui/material';
 import { ArrowRight as ArrowRightIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
-import { ILogEntry } from '@/game/interfaces/log-entry';
-import { NO_PLAYER } from '@/game/constants';
-import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import { useAlert } from '@/components/AlertContext';
 import { LocalStorageService } from '@/game/local-storage-service';
 
@@ -43,22 +38,6 @@ const LoadSaveGame: React.FC = () => {
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
 
   const storageService = new LocalStorageService(); // Create an instance of the storage service
-
-  /**
-   * Add a log entry to the game log.
-   * @returns The new log entry
-   */
-  const addLogEntrySetGameState = (): ILogEntry => {
-    let newLog: ILogEntry | undefined;
-    setGameState((prevGame) => {
-      newLog = addLogEntry(prevGame, NO_PLAYER, GameLogActionWithCount.LOAD_GAME);
-      return prevGame;
-    });
-    if (!newLog) {
-      throw new FailedAddLogEntryError();
-    }
-    return newLog;
-  };
 
   useEffect(() => {
     loadSavedGamesList();
@@ -77,29 +56,34 @@ const LoadSaveGame: React.FC = () => {
         setOpenOverwriteDialog(true);
       } else {
         // If no game is selected, save as a new game
-        const result = saveGame(gameState, saveName, storageService); // Pass storageService
-        if (!result) {
-          showAlert('Failed to save game', 'An error occurred while saving the game.');
-        } else {
-          addLogEntrySetGameState();
-          setSaveName('');
-          loadSavedGamesList();
-        }
+        setGameState((prevGame) => {
+          const result = saveGame(prevGame, saveName, storageService); // Pass storageService
+          if (!result) {
+            showAlert('Failed to save game', 'An error occurred while saving the game.');
+          } else {
+            setSaveName('');
+            loadSavedGamesList();
+          }
+          return prevGame;
+        });
       }
     }
   };
 
   const handleOverwriteConfirm = () => {
     if (gameState && saveName && selectedGameId) {
-      const result = saveGame(gameState, saveName, storageService, selectedGameId); // Pass storageService
-      setOpenOverwriteDialog(false);
-      if (!result) {
-        showAlert('Failed to save game', 'An error occurred while saving the game.');
-      } else {
-        setSaveName('');
-        setSelectedGameId(null);
-        loadSavedGamesList();
-      }
+      setGameState((prevGame) => {
+        const result = saveGame(prevGame, saveName, storageService, selectedGameId); // Pass storageService
+        setOpenOverwriteDialog(false);
+        if (!result) {
+          showAlert('Failed to save game', 'An error occurred while saving the game.');
+        } else {
+          setSaveName('');
+          setSelectedGameId(null);
+          loadSavedGamesList();
+        }
+        return prevGame;
+      });
     }
   };
 
@@ -114,13 +98,16 @@ const LoadSaveGame: React.FC = () => {
   };
 
   const loadGameById = (id: string) => {
-    const loadedGame = loadGame(id, storageService); // Pass storageService
-    if (loadedGame) {
-      setGameState(loadedGame);
-      setSelectedGameId(null);
-    } else {
-      showAlert('Failed to load game', 'An error occurred while loading the game.');
-    }
+    setGameState((prevGame) => {
+      const loadedGame = loadGame(id, storageService); // Pass storageService
+      if (loadedGame) {
+        setSelectedGameId(null);
+        return loadedGame;
+      } else {
+        showAlert('Failed to load game', 'An error occurred while loading the game.');
+        return prevGame;
+      }
+    });
   };
 
   const handleDialogClose = () => {
