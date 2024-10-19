@@ -322,64 +322,74 @@ export function safeParseSavedGameMetadata(jsonString: string): ISavedGameMetada
  * @param game - The game object to validate
  * @returns Whether the game object is valid
  */
-export function isValidGame(game: any): game is IGame {
-  const isValidPlayer = (player: any): player is IPlayer => {
+export function isValidGame(game: unknown): game is IGame {
+  if (typeof game !== 'object' || game === null) {
+    return false;
+  }
+
+  const g = game as Record<string, unknown>;
+
+  const isValidPlayer = (player: unknown): player is IPlayer => {
+    if (typeof player !== 'object' || player === null) return false;
+    const p = player as Record<string, unknown>;
     return (
-      typeof player.name === 'string' &&
-      typeof player.mats === 'object' &&
-      typeof player.turn === 'object' &&
-      typeof player.newTurn === 'object' &&
-      typeof player.victory === 'object'
+      typeof p.name === 'string' &&
+      typeof p.mats === 'object' &&
+      typeof p.turn === 'object' &&
+      typeof p.newTurn === 'object' &&
+      typeof p.victory === 'object'
     );
   };
 
-  const isValidSupply = (supply: any): supply is IGameSupply => {
+  const isValidSupply = (supply: unknown): supply is IGameSupply => {
+    if (typeof supply !== 'object' || supply === null) return false;
+    const s = supply as Record<string, unknown>;
     return (
-      typeof supply === 'object' &&
-      typeof supply.estates === 'number' &&
-      typeof supply.duchies === 'number' &&
-      typeof supply.provinces === 'number' &&
-      typeof supply.coppers === 'number' &&
-      typeof supply.silvers === 'number' &&
-      typeof supply.golds === 'number' &&
-      typeof supply.curses === 'number' &&
-      typeof supply.colonies === 'number' &&
-      typeof supply.platinums === 'number'
+      typeof s.estates === 'number' &&
+      typeof s.duchies === 'number' &&
+      typeof s.provinces === 'number' &&
+      typeof s.coppers === 'number' &&
+      typeof s.silvers === 'number' &&
+      typeof s.golds === 'number' &&
+      typeof s.curses === 'number' &&
+      typeof s.colonies === 'number' &&
+      typeof s.platinums === 'number'
     );
   };
 
-  const isValidOptions = (options: any): options is IGameOptions => {
+  const isValidOptions = (options: unknown): options is IGameOptions => {
+    if (typeof options !== 'object' || options === null) return false;
+    const o = options as Record<string, unknown>;
     return (
-      typeof options === 'object' &&
-      typeof options.curses === 'boolean' &&
-      typeof options.expansions === 'object' &&
-      typeof options.mats === 'object'
+      typeof o.curses === 'boolean' &&
+      typeof o.expansions === 'object' &&
+      typeof o.mats === 'object'
     );
   };
 
-  const isValidLogEntry = (logEntry: any): logEntry is ILogEntry => {
+  const isValidLogEntry = (logEntry: unknown): logEntry is ILogEntry => {
+    if (typeof logEntry !== 'object' || logEntry === null) return false;
+    const l = logEntry as Record<string, unknown>;
     return (
-      typeof logEntry.id === 'string' &&
-      logEntry.timestamp instanceof Date &&
-      typeof logEntry.playerIndex === 'number' &&
-      typeof logEntry.action === 'string'
+      typeof l.id === 'string' &&
+      l.timestamp instanceof Date &&
+      typeof l.playerIndex === 'number' &&
+      typeof l.action === 'string'
     );
   };
 
   return (
-    game !== null &&
-    game !== undefined &&
-    Array.isArray(game.players) &&
-    game.players.every(isValidPlayer) &&
-    isValidSupply(game.supply) &&
-    isValidOptions(game.options) &&
-    Array.isArray(game.log) &&
-    game.log.every(isValidLogEntry) &&
-    typeof game.currentTurn === 'number' &&
-    typeof game.currentPlayerIndex === 'number' &&
-    typeof game.firstPlayerIndex === 'number' &&
-    typeof game.selectedPlayerIndex === 'number' &&
-    typeof game.currentStep === 'number' &&
-    typeof game.setsRequired === 'number'
+    Array.isArray(g.players) &&
+    g.players.every(isValidPlayer) &&
+    isValidSupply(g.supply) &&
+    isValidOptions(g.options) &&
+    Array.isArray(g.log) &&
+    g.log.every(isValidLogEntry) &&
+    typeof g.currentTurn === 'number' &&
+    typeof g.currentPlayerIndex === 'number' &&
+    typeof g.firstPlayerIndex === 'number' &&
+    typeof g.selectedPlayerIndex === 'number' &&
+    typeof g.currentStep === 'number' &&
+    typeof g.setsRequired === 'number'
   );
 }

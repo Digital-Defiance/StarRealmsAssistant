@@ -1,9 +1,9 @@
 declare module '*.ttf' {
-  const content: any;
+  const content: string;
   export default content;
 }
 
 declare module '*.otf' {
-  const content: any;
+  const content: string;
   export default content;
 }

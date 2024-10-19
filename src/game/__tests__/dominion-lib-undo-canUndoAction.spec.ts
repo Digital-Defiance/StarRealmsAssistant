@@ -40,7 +40,9 @@ describe('canUndoAction', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // do nothing
+    });
     removeTargetAndLinkedActionsSpy = jest.spyOn(undoHelpers, 'removeTargetAndLinkedActions');
     reconstructGameStateSpy = jest.spyOn(undoHelpers, 'reconstructGameState');
   });
