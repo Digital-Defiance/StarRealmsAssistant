@@ -38,4 +38,7 @@ SCRIPT_DIR=$(get_script_dir)
 cleanup_directories
 install_dependencies
 
+echo "Running npx nx reset..."
+npx nx reset
+
 echo "Setup complete."

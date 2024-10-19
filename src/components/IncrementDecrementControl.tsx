@@ -1,5 +1,7 @@
 import React, { forwardRef } from 'react';
 import { Box, Typography, IconButton, Tooltip, TooltipProps, TypographyProps } from '@mui/material';
+import { SxProps } from '@mui/system';
+import { Theme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { SUBTITLE_SIZE } from '@/components/constants';
@@ -41,7 +43,7 @@ interface IncrementDecrementControlProps {
   tooltip?: string;
   onIncrement: () => void;
   onDecrement: () => void;
-  sx?: any;
+  sx?: SxProps<Theme>;
   tooltipProps?: Omit<TooltipProps, 'children' | 'title'>;
 }
 

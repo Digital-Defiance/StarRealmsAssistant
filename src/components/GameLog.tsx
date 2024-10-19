@@ -4,6 +4,7 @@ import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
 
 const GameLog: React.FC = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { gameState, setGameState } = useGameContext();
   return (
     <Paper elevation={3} style={{ padding: '16px', width: '100%' }}>

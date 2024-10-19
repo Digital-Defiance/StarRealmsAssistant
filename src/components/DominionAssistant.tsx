@@ -24,8 +24,10 @@ interface DominionAssistantProps {
   navigation: NavigateFunction;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation }) => {
   const { gameState, setGameState } = useGameContext();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [canUndo, setCanUndo] = useState(false);
   const { showAlert } = useAlert();
 

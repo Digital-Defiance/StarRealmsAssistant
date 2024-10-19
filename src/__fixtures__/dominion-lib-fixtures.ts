@@ -1,5 +1,4 @@
 import { faker } from '@faker-js/faker';
-import { newPlayer } from '@/game/dominion-lib';
 import { IPlayer } from '@/game/interfaces/player';
 import {
   NOT_PRESENT,

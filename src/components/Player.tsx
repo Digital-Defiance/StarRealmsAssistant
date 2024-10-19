@@ -173,8 +173,8 @@ const Player: React.FC = () => {
         border: isCorrection
           ? `2px solid ${theme.palette.error.main}`
           : !isCurrentPlayer
-          ? `2px solid ${theme.palette.primary.main}`
-          : 'none',
+            ? `2px solid ${theme.palette.primary.main}`
+            : 'none',
       }}
     >
       <Box mb={2} display="flex" alignItems="center" justifyContent="space-between">

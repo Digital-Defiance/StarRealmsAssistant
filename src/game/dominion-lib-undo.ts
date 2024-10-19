@@ -159,7 +159,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   ) {
     const increment =
       logEntry.action === GameLogActionWithCount.ADD_PROPHECY
-        ? logEntry.count ?? 1
+        ? (logEntry.count ?? 1)
         : -(logEntry.count ?? 1);
 
     // RisingSun always exists, so we can directly update the prophecy
