@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Checkbox, Paper, Box, IconButton, Popover, Tooltip, Typography } from '@mui/material';
 import { styled } from '@mui/system';
+import { Theme } from '@mui/material/styles';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useGameContext } from '@/components/GameContext';
 import SuperCapsText from '@/components/SuperCapsText';
 import IncrementDecrementControl from '@/components/IncrementDecrementControl';
-import { TITLE_SIZE } from '@/components/constants';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { updatePlayerField } from '@/game/dominion-lib';
 import { addLogEntry, victoryFieldToGameLogAction } from '@/game/dominion-lib-log';
@@ -16,7 +16,7 @@ import { useAlert } from '@/components/AlertContext';
 import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import theme from '@/components/theme';
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
+const StyledPaper = styled(Paper)(({ theme }: { theme: Theme }) => ({
   padding: theme.spacing(2),
   margin: theme.spacing(2),
   position: 'relative',
@@ -53,7 +53,7 @@ const Player: React.FC = () => {
 
   if (gameState.selectedPlayerIndex === -1) {
     return (
-      <StyledPaper elevation={3}>
+      <StyledPaper elevation={3} theme={theme}>
         <Typography variant="h6">No player selected</Typography>
       </StyledPaper>
     );
@@ -168,6 +168,7 @@ const Player: React.FC = () => {
 
   return (
     <StyledPaper
+      theme={theme}
       elevation={3}
       style={{
         border: isCorrection
@@ -180,7 +181,7 @@ const Player: React.FC = () => {
       <Box mb={2} display="flex" alignItems="center" justifyContent="space-between">
         <Box display="flex" alignItems="center">
           {isCurrentPlayer && <ArrowRightIcon sx={{ mr: 1 }} />}
-          <SuperCapsText fontSize={TITLE_SIZE}>{player.name}</SuperCapsText>
+          <SuperCapsText fontSize={theme.sizes.title}>{player.name}</SuperCapsText>
         </Box>
         <IconButton onClick={handleNewTurnClick}>
           <SettingsIcon />
@@ -199,7 +200,7 @@ const Player: React.FC = () => {
           <ColumnBox>
             <CenteredTitle>
               <Tooltip title="These values reset every turn">
-                <SuperCapsText fontSize={TITLE_SIZE}>Turn</SuperCapsText>
+                <SuperCapsText fontSize={theme.sizes.title}>Turn</SuperCapsText>
               </Tooltip>
             </CenteredTitle>
             <IncrementDecrementControl
@@ -233,7 +234,7 @@ const Player: React.FC = () => {
             <ColumnBox>
               <CenteredTitle>
                 <Tooltip title="These player mat values persist between turns">
-                  <SuperCapsText fontSize={TITLE_SIZE}>Mats</SuperCapsText>
+                  <SuperCapsText fontSize={theme.sizes.title}>Mats</SuperCapsText>
                 </Tooltip>
               </CenteredTitle>
               {gameState.options.mats.coffersVillagers && (
@@ -283,7 +284,7 @@ const Player: React.FC = () => {
                   <Box sx={{ paddingTop: 2 }}>
                     <CenteredTitle>
                       <Tooltip title="Global Mats affect all players and persist between turns">
-                        <SuperCapsText fontSize={TITLE_SIZE}>Global Mats</SuperCapsText>
+                        <SuperCapsText fontSize={theme.sizes.title}>Global Mats</SuperCapsText>
                       </Tooltip>
                     </CenteredTitle>
                   </Box>
@@ -303,7 +304,7 @@ const Player: React.FC = () => {
           <ColumnBox>
             <CenteredTitle>
               <Tooltip title="Victory points" arrow>
-                <SuperCapsText fontSize={TITLE_SIZE}>Victory</SuperCapsText>
+                <SuperCapsText fontSize={theme.sizes.title}>Victory</SuperCapsText>
               </Tooltip>
             </CenteredTitle>
             <IncrementDecrementControl
@@ -370,7 +371,7 @@ const Player: React.FC = () => {
       >
         <Box p={2}>
           <CenteredTitle>
-            <SuperCapsText fontSize={TITLE_SIZE}>Next Turn</SuperCapsText>
+            <SuperCapsText fontSize={theme.sizes.title}>Next Turn</SuperCapsText>
           </CenteredTitle>
           <IncrementDecrementControl
             label="Actions"

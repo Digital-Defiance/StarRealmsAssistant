@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate, useLocation } from 'react-router-dom';
 import DominionAssistant from '@/components/DominionAssistant';
@@ -11,11 +11,6 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   padding: theme.spacing(2),
   height: '100vh',
-}));
-
-const StyledTitle = styled(Typography)(({ theme }) => ({
-  fontFamily: 'CharlemagneStdBold',
-  marginBottom: theme.spacing(2),
 }));
 
 export default function DominionAssistantScreen() {

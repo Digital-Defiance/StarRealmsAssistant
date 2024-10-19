@@ -4,7 +4,7 @@ import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { SUBTITLE_SIZE } from '@/components/constants';
+import theme from '@/components/theme';
 
 // Modify StyledTypography to use forwardRef
 const StyledTypography = forwardRef<HTMLSpanElement, TypographyProps>((props, ref) => (
@@ -13,7 +13,7 @@ const StyledTypography = forwardRef<HTMLSpanElement, TypographyProps>((props, re
     {...props}
     sx={{
       fontFamily: 'TrajanProBold',
-      fontSize: SUBTITLE_SIZE,
+      fontSize: theme.sizes.subtitle,
       ...props.sx,
     }}
   />
@@ -28,7 +28,7 @@ const StyledLargeNumber = forwardRef<HTMLSpanElement, TypographyProps>((props, r
     {...props}
     sx={{
       fontFamily: 'TrajanProBold',
-      fontSize: SUBTITLE_SIZE,
+      fontSize: theme.sizes.subtitle,
       fontWeight: 'bold',
       ...props.sx,
     }}

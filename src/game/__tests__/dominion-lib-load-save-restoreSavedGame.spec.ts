@@ -33,7 +33,7 @@ describe('restoreSavedGame', () => {
   const validGameRaw: IGameRaw = createMockGameRaw(2, { log: [validLogEntryRaw] });
 
   it('should throw an error when the game object is invalid', () => {
-    const invalidGame = { ...validGameRaw, players: null as any }; // Invalid players
+    const invalidGame = { ...validGameRaw, players: null as unknown as IGameRaw['players'] }; // Invalid players
 
     expect(() => restoreSavedGame(invalidGame)).toThrow('Invalid game object');
   });

@@ -9,28 +9,30 @@ import {
   Paper,
   Button,
 } from '@mui/material';
+import { Theme } from '@mui/material/styles';
 import { styled } from '@mui/system';
 import SuperCapsText from '@/components/SuperCapsText';
 import { calculateVictoryPoints } from '@/game/dominion-lib';
-import { SUBTITLE_SIZE, TEXT_SIZE } from '@/components/constants';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useGameContext } from '@/components/GameContext';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import theme from '@/components/theme';
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
+const StyledTableCell = styled(TableCell)(({ theme }: { theme: Theme }) => ({
   fontFamily: 'TrajanProBold',
-  fontSize: TEXT_SIZE,
+  fontSize: theme.sizes.text,
 }));
 
-const StyledScoreCell = styled(TableCell)(({ theme }) => ({
+const StyledScoreCell = styled(TableCell)(({ theme }: { theme: Theme }) => ({
   fontFamily: 'TrajanProBold',
-  fontSize: SUBTITLE_SIZE,
+  fontSize: theme.sizes.title,
   fontWeight: 'bold',
 }));
 
-const StyledButton = styled(Button)(({ theme }) => ({
+const StyledButton = styled(Button)(({ theme }: { theme: Theme }) => ({
   fontFamily: 'TrajanProBold',
+  fontSize: theme.sizes.text,
 }));
 
 const Scoreboard: React.FC = () => {
@@ -60,10 +62,14 @@ const Scoreboard: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <StyledTableCell>Current</StyledTableCell>
-              <StyledTableCell>Player</StyledTableCell>
-              <StyledTableCell align="right">Score</StyledTableCell>
-              <StyledTableCell align="right">Turn: {gameState.currentTurn}</StyledTableCell>
+              <StyledTableCell theme={theme}>Current</StyledTableCell>
+              <StyledTableCell theme={theme}>Player</StyledTableCell>
+              <StyledTableCell theme={theme} align="right">
+                Score
+              </StyledTableCell>
+              <StyledTableCell theme={theme} align="right">
+                Turn: {gameState.currentTurn}
+              </StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -76,17 +82,20 @@ const Scoreboard: React.FC = () => {
                   '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                 }}
               >
-                <StyledTableCell>
+                <StyledTableCell theme={theme}>
                   {index === getCurrentPlayerIndex() && (
                     <ArrowRightIcon color="primary" style={{ fontSize: 24 }} />
                   )}
                 </StyledTableCell>
-                <StyledTableCell component="th" scope="row">
-                  <SuperCapsText fontSize={TEXT_SIZE}>{player.name}</SuperCapsText>
+                <StyledTableCell theme={theme} component="th" scope="row">
+                  <SuperCapsText fontSize={theme.sizes.text}>{player.name}</SuperCapsText>
                 </StyledTableCell>
-                <StyledScoreCell align="right">{calculateVictoryPoints(player)}</StyledScoreCell>
-                <StyledTableCell align="right">
+                <StyledScoreCell theme={theme} align="right">
+                  {calculateVictoryPoints(player)}
+                </StyledScoreCell>
+                <StyledTableCell theme={theme} align="right">
                   <StyledButton
+                    theme={theme}
                     variant="contained"
                     size="small"
                     onClick={() => handlePlayerSelect(index)}

@@ -5,6 +5,7 @@ import { EmptyGameState } from '@/game/dominion-lib';
 import { InvalidFieldError } from '@/game/errors/invalid-field';
 import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
+import { PlayerFieldMap } from '@/game/types';
 
 describe('updatePlayerField', () => {
   let mockGame: IGame;
@@ -69,7 +70,13 @@ describe('updatePlayerField', () => {
 
   it('should throw InvalidFieldError for non-existent fields', () => {
     expect(() => {
-      updatePlayerField(mockGame, 0, 'nonexistent' as any, 'subfield' as any, 1);
+      updatePlayerField(
+        mockGame,
+        0,
+        'nonexistentField' as keyof PlayerFieldMap,
+        'subfield' as unknown as keyof IPlayer['turn'],
+        1
+      );
     }).toThrow(InvalidFieldError);
   });
 
