@@ -129,7 +129,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid NoPlayerActions action and playerIndex set to -1 with overrides', () => {
-    const newEntry = addLogEntry(mockGame, -1, GameLogActionWithCount.END_GAME, {
+    addLogEntry(mockGame, -1, GameLogActionWithCount.END_GAME, {
       correction: true,
     });
     expect(mockGame.log).toContainEqual(
@@ -141,7 +141,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 with overrides', () => {
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       correction: true,
     });
@@ -156,7 +156,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 without overrides', () => {
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS);
+    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
@@ -166,7 +166,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 with undefined overrides', () => {
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, undefined);
+    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, undefined);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
