@@ -1,26 +1,55 @@
 import React from 'react';
-import { Typography, Paper, TableContainer, Table, TableBody } from '@mui/material';
+import {
+  Paper,
+  TableContainer,
+  Table,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  Typography,
+} from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
+import TabTitle from '@/components/TabTitle';
+import { CurrentStep } from '@/game/enumerations/current-step';
 
 const GameLog: React.FC = () => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { gameState, setGameState } = useGameContext();
+  const { gameState } = useGameContext();
+
   return (
-    <Paper elevation={3} style={{ padding: '16px', width: '100%' }}>
-      <Typography variant="h4" gutterBottom>
-        Game Log
-      </Typography>
-      <TableContainer component={Paper} style={{ maxHeight: 400, width: '100%' }}>
-        <Table stickyHeader style={{ width: '100%' }}>
-          <TableBody>
-            {gameState.log.map((entry, index) => (
-              <GameLogEntry game={gameState} key={index} entry={entry} />
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Paper>
+    <>
+      <TabTitle>Game Log</TabTitle>
+      {gameState.currentStep === CurrentStep.GameScreen ||
+      gameState.currentStep === CurrentStep.EndGame ? (
+        <TableContainer component={Paper} style={{ maxHeight: 400, width: '100%' }}>
+          <Table stickyHeader size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Time</TableCell>
+                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Duration</TableCell>
+                <TableCell style={{ width: '60%', fontWeight: 'bold' }}>Action</TableCell>
+                <TableCell style={{ width: '10%', fontWeight: 'bold' }}>Undo</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {gameState.log.map((entry, index) => (
+                <GameLogEntry
+                  key={entry.id || index}
+                  logIndex={index}
+                  entry={entry}
+                  isCurrentPlayer={index === gameState.currentPlayerIndex}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography variant="body1" color="textSecondary" align="center" style={{ marginTop: 20 }}>
+          The game has not started yet.
+        </Typography>
+      )}
+    </>
   );
 };
 

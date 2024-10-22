@@ -1,16 +1,11 @@
 import React, { useCallback, useEffect } from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  List,
-  ListItemIcon,
-  ListItemText,
-  ListItemButton,
-} from '@mui/material';
+import { Button, List, ListItemIcon, ListItemText, ListItemButton, Box } from '@mui/material';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useGameContext } from '@/components/GameContext';
 import theme from '@/components/theme';
+import CenteredContainer from '@/components/CenteredContainer';
+import TabTitle from '@/components/TabTitle';
+import SuperCapsText from '@/components/SuperCapsText';
 
 interface SelectFirstPlayerProps {
   nextStep: () => void;
@@ -36,8 +31,8 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
   }, [selectRandomFirstPlayer]);
 
   return (
-    <Box>
-      <Typography variant="h4">Select First Player</Typography>
+    <CenteredContainer>
+      <TabTitle>Select First Player</TabTitle>
       <List>
         {gameState.players.map((player, index) => (
           <ListItemButton
@@ -57,7 +52,22 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
                 <ArrowRightIcon style={{ color: theme.palette.secondary.main }} />
               )}
             </ListItemIcon>
-            <ListItemText primary={player.name} />
+            <ListItemText
+              primary={
+                <Box display="flex" alignItems="center">
+                  <Box
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: player.color,
+                      cursor: 'pointer',
+                      marginRight: 1,
+                    }}
+                  />
+                  <SuperCapsText className="typography-title">{player.name}</SuperCapsText>
+                </Box>
+              }
+            />
           </ListItemButton>
         ))}
       </List>
@@ -75,7 +85,7 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
       >
         Next
       </Button>
-    </Box>
+    </CenteredContainer>
   );
 };
 

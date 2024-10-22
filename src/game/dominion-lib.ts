@@ -19,6 +19,7 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   NOT_PRESENT,
+  DefaultPlayerColors,
 } from '@/game/constants';
 import { computeStartingSupply as computeBaseStartingSupply } from '@/game/interfaces/set-kingdom/base';
 import {
@@ -114,9 +115,10 @@ export function distributeInitialSupply(game: IGame): IGame {
  * @param playerName - The name of the player
  * @returns The new player object
  */
-export function newPlayer(playerName: string): IPlayer {
+export function newPlayer(playerName: string, index: number): IPlayer {
   const newPlayer: IPlayer = {
     name: playerName.trim(),
+    color: DefaultPlayerColors[index],
     mats: { ...EmptyMatDetails },
     turn: { ...DefaultTurnDetails },
     newTurn: { ...DefaultTurnDetails },
@@ -185,7 +187,9 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
   // Create a new game state with the initial supply, while resetting the player details
   let newGameState: IGame = {
     ...gameStateWithOptions,
-    players: gameStateWithOptions.players.map((player) => ({ ...newPlayer(player.name) })),
+    players: gameStateWithOptions.players.map((player, index) => ({
+      ...newPlayer(player.name, index),
+    })),
     supply: initialSupply,
     currentStep: CurrentStep.GameScreen,
     currentTurn: 1,

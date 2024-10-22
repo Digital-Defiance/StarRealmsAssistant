@@ -8,19 +8,32 @@ import {
   ListItem,
   ListItemText,
   IconButton,
+  styled,
+  Popover,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { SketchPicker } from 'react-color';
 import { useGameContext } from '@/components/GameContext';
 import { newPlayer } from '@/game/dominion-lib';
-import { MAX_PLAYERS, MIN_PLAYERS } from '@/game/constants';
+import { DefaultPlayerColors, MAX_PLAYERS, MIN_PLAYERS } from '@/game/constants';
+import SuperCapsText from '@/components/SuperCapsText';
+import CenteredContainer from '@/components/CenteredContainer';
+import TabTitle from '@/components/TabTitle';
 
 interface AddPlayerNamesProps {
   nextStep: () => void;
 }
 
+const StyledPlayerNumber = styled(Typography)(({ theme }) => ({
+  fontFamily: 'TrajanProBold',
+}));
+
 const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   const { gameState, setGameState } = useGameContext();
   const [playerName, setPlayerName] = useState('');
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(-1);
 
   useEffect(() => {
     setGameState((prevState) => ({
@@ -31,9 +44,10 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
 
   const addPlayer = () => {
     if (playerName.trim()) {
+      const nextPlayerIndex = gameState.players.length; // +1, -1
       setGameState((prevState) => ({
         ...prevState,
-        players: [...prevState.players, newPlayer(playerName)],
+        players: [...prevState.players, newPlayer(playerName, nextPlayerIndex)],
       }));
       setPlayerName('');
     }
@@ -46,11 +60,32 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
     }));
   };
 
+  const handleColorClick = (event: React.MouseEvent<HTMLElement>, playerIndex: number) => {
+    setCurrentPlayerIndex(playerIndex);
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleColorChange = (color: any) => {
+    if (currentPlayerIndex !== -1) {
+      setGameState((prevState) => {
+        const players = [...prevState.players];
+        players[currentPlayerIndex].color = color.hex;
+        return { ...prevState, players };
+      });
+    }
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setCurrentPlayerIndex(-1);
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'color-popover' : undefined;
+
   return (
-    <Box sx={{ width: '100%', maxWidth: 360, margin: 'auto' }}>
-      <Typography variant="h4" gutterBottom>
-        Players
-      </Typography>
+    <CenteredContainer>
+      <TabTitle>Players</TabTitle>
       <List>
         {gameState.players.map((player, index) => (
           <ListItem
@@ -61,7 +96,25 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
               </IconButton>
             }
           >
-            <ListItemText primary={`${index + 1}. ${player.name}`} />
+            <ListItemText
+              primary={
+                <Box display="flex" alignItems="center">
+                  <Box
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      backgroundColor: player.color,
+                      cursor: 'pointer',
+                      marginRight: 1,
+                    }}
+                    onClick={(e) => handleColorClick(e, index)}
+                  />
+                  <StyledPlayerNumber className="typography-title">{`${index + 1}.`}</StyledPlayerNumber>
+                  &nbsp;&nbsp;
+                  <SuperCapsText className="typography-title">{player.name}</SuperCapsText>
+                </Box>
+              }
+            />
           </ListItem>
         ))}
       </List>
@@ -74,9 +127,9 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
             placeholder="Enter player name"
             variant="outlined"
           />
-          <Button variant="contained" onClick={addPlayer} sx={{ marginLeft: 1 }}>
-            Add
-          </Button>
+          <IconButton onClick={addPlayer} color="primary" disabled={!playerName.trim()}>
+            <AddCircleIcon />
+          </IconButton>
         </Box>
       )}
       {gameState.players.length >= 5 && (
@@ -89,7 +142,26 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
           Next
         </Button>
       )}
-    </Box>
+      <Popover
+        id={id}
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <SketchPicker
+          color={
+            gameState.players.length > 0 && currentPlayerIndex !== -1
+              ? gameState.players[currentPlayerIndex].color
+              : '#000000'
+          }
+          onChange={handleColorChange}
+        />
+      </Popover>
+    </CenteredContainer>
   );
 };
 

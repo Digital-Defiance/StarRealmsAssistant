@@ -15,7 +15,7 @@ describe('reconstructGameState', () => {
   beforeEach(() => {
     baseGame = NewGameState({
       ...EmptyGameState,
-      players: [newPlayer('Player 1'), newPlayer('Player 2')],
+      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       // start with second player
       firstPlayerIndex: 1,
       currentPlayerIndex: 1,

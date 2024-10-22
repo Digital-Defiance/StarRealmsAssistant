@@ -6,6 +6,7 @@ import { InvalidFieldError } from '@/game/errors/invalid-field';
 import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import { PlayerFieldMap } from '@/game/types';
+import { DefaultPlayerColors } from '@/game/constants';
 
 describe('updatePlayerField', () => {
   let mockGame: IGame;
@@ -14,6 +15,7 @@ describe('updatePlayerField', () => {
   beforeEach(() => {
     mockPlayer = {
       name: 'Test Player',
+      color: DefaultPlayerColors[0],
       mats: { coffers: 0, villagers: 0, debt: 0, favors: 0 },
       turn: { actions: 1, buys: 1, coins: 0 },
       newTurn: { actions: 1, buys: 1, coins: 0 },

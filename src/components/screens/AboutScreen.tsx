@@ -11,7 +11,6 @@ import {
 } from '@mui/material';
 import DominionTransparentLogo from '@/assets/images/Dominion-tx.png';
 import SuperCapsText from '@/components/SuperCapsText';
-import theme from '@/components/theme';
 
 export default function AboutScreen() {
   return (
@@ -60,7 +59,7 @@ export default function AboutScreen() {
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
             <Box sx={{ flex: 1 }}>
               <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
-                <SuperCapsText fontSize={theme.sizes.title}>Features</SuperCapsText>
+                <SuperCapsText className={`typography-title`}>Features</SuperCapsText>
                 <List dense>
                   {[
                     'Player Management: Add, remove, and track multiple players',
@@ -82,7 +81,7 @@ export default function AboutScreen() {
 
             <Box sx={{ flex: 1 }}>
               <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
-                <SuperCapsText fontSize={theme.sizes.title} sx={{ paddingBottom: '10px' }}>
+                <SuperCapsText className={`typography-title`} sx={{ paddingBottom: '10px' }}>
                   About
                 </SuperCapsText>
                 <Typography variant="body1" paragraph>

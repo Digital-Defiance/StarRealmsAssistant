@@ -6,6 +6,7 @@ import {
   EmptyVictoryDetails,
   EmptyMatDetails,
   DefaultTurnDetails,
+  DefaultPlayerColors,
 } from '@/game/constants';
 import { calculateInitialSupply } from '@/game/dominion-lib';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
@@ -29,7 +30,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
   return {
     players: Array(playerCount)
       .fill(null)
-      .map(() => createMockPlayer()),
+      .map((value, index) => createMockPlayer(undefined, index)),
     supply,
     options,
     risingSun: {
@@ -56,9 +57,13 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
   };
 }
 
-export function createMockPlayer(victory?: Partial<IPlayer['victory']>): IPlayer {
+export function createMockPlayer(victory?: Partial<IPlayer['victory']>, index?: number): IPlayer {
   return {
     name: faker.person.firstName(),
+    color:
+      DefaultPlayerColors[
+        index ?? faker.number.int({ min: 0, max: DefaultPlayerColors.length - 1 })
+      ],
     mats: { ...EmptyMatDetails },
     turn: { ...DefaultTurnDetails },
     newTurn: { ...DefaultTurnDetails },

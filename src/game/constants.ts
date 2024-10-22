@@ -121,6 +121,50 @@ export const NoPlayerActions = [
   GameLogActionWithCount.SELECT_PLAYER,
 ];
 
+export const AdjustmentActions = [
+  // turn actions
+  GameLogActionWithCount.ADD_ACTIONS,
+  GameLogActionWithCount.REMOVE_ACTIONS,
+  GameLogActionWithCount.ADD_COINS,
+  GameLogActionWithCount.REMOVE_COINS,
+  GameLogActionWithCount.ADD_BUYS,
+  GameLogActionWithCount.REMOVE_BUYS,
+  // mats
+  GameLogActionWithCount.ADD_COFFERS,
+  GameLogActionWithCount.REMOVE_COFFERS,
+  GameLogActionWithCount.ADD_VILLAGERS,
+  GameLogActionWithCount.REMOVE_VILLAGERS,
+  GameLogActionWithCount.ADD_DEBT,
+  GameLogActionWithCount.REMOVE_DEBT,
+  GameLogActionWithCount.ADD_FAVORS,
+  GameLogActionWithCount.REMOVE_FAVORS,
+  // global mats
+  GameLogActionWithCount.ADD_PROPHECY,
+  GameLogActionWithCount.REMOVE_PROPHECY,
+  // victory points
+  GameLogActionWithCount.ADD_ESTATES,
+  GameLogActionWithCount.REMOVE_ESTATES,
+  GameLogActionWithCount.ADD_DUCHIES,
+  GameLogActionWithCount.REMOVE_DUCHIES,
+  GameLogActionWithCount.ADD_PROVINCES,
+  GameLogActionWithCount.REMOVE_PROVINCES,
+  GameLogActionWithCount.ADD_COLONIES,
+  GameLogActionWithCount.REMOVE_COLONIES,
+  GameLogActionWithCount.ADD_VP_TOKENS,
+  GameLogActionWithCount.REMOVE_VP_TOKENS,
+  GameLogActionWithCount.ADD_OTHER_VP,
+  GameLogActionWithCount.REMOVE_OTHER_VP,
+  GameLogActionWithCount.ADD_CURSES,
+  GameLogActionWithCount.REMOVE_CURSES,
+  // next turn actions
+  GameLogActionWithCount.ADD_NEXT_TURN_ACTIONS,
+  GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS,
+  GameLogActionWithCount.ADD_NEXT_TURN_BUYS,
+  GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS,
+  GameLogActionWithCount.ADD_NEXT_TURN_COINS,
+  GameLogActionWithCount.REMOVE_NEXT_TURN_COINS,
+];
+
 export const StepTransitions: Record<CurrentStep, CurrentStep> = {
   [CurrentStep.AddPlayerNames]: CurrentStep.SelectFirstPlayer,
   [CurrentStep.SelectFirstPlayer]: CurrentStep.SetGameOptions,
@@ -131,3 +175,12 @@ export const StepTransitions: Record<CurrentStep, CurrentStep> = {
 
 export const SaveGameStorageKey = '@dominion_saved_games';
 export const SaveGameStorageKeyPrefix = '@dominion_game_';
+
+export const DefaultPlayerColors = [
+  '#e57373',
+  '#64b5f6',
+  '#81c784',
+  '#ffd54f',
+  '#ba68c8',
+  '#4db6ac',
+];

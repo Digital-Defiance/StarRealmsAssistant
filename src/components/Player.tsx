@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { Checkbox, Paper, Box, IconButton, Popover, Tooltip, Typography } from '@mui/material';
+import {
+  Checkbox,
+  Chip,
+  Paper,
+  Box,
+  IconButton,
+  Popover,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { styled } from '@mui/system';
-import { Theme } from '@mui/material/styles';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useGameContext } from '@/components/GameContext';
 import SuperCapsText from '@/components/SuperCapsText';
@@ -15,11 +22,13 @@ import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
 import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import theme from '@/components/theme';
+import '@/styles.scss';
 
-const StyledPaper = styled(Paper)(({ theme }: { theme: Theme }) => ({
+const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
   margin: theme.spacing(2),
   position: 'relative',
+  transition: 'box-shadow 0.3s ease-in-out',
 }));
 
 const ColumnBox = styled(Box)({
@@ -53,7 +62,7 @@ const Player: React.FC = () => {
 
   if (gameState.selectedPlayerIndex === -1) {
     return (
-      <StyledPaper elevation={3} theme={theme}>
+      <StyledPaper elevation={3}>
         <Typography variant="h6">No player selected</Typography>
       </StyledPaper>
     );
@@ -168,20 +177,34 @@ const Player: React.FC = () => {
 
   return (
     <StyledPaper
-      theme={theme}
       elevation={3}
       style={{
-        border: isCorrection
-          ? `2px solid ${theme.palette.error.main}`
-          : !isCurrentPlayer
-            ? `2px solid ${theme.palette.primary.main}`
-            : 'none',
+        border: `${isCurrentPlayer ? '4px' : '2px'} solid ${player.color}`,
+        boxShadow: !isCurrentPlayer ? `0 0 10px ${player.color}, 0 0 20px ${player.color}` : 'none',
       }}
     >
       <Box mb={2} display="flex" alignItems="center" justifyContent="space-between">
         <Box display="flex" alignItems="center">
-          {isCurrentPlayer && <ArrowRightIcon sx={{ mr: 1 }} />}
-          <SuperCapsText fontSize={theme.sizes.title}>{player.name}</SuperCapsText>
+          <Tooltip
+            title={
+              isCurrentPlayer
+                ? `${player.name} is the current player`
+                : `${player.name} is not the current player`
+            }
+          >
+            <Chip
+              label={player.name.charAt(0).toUpperCase()}
+              size="small"
+              style={{
+                backgroundColor: player.color,
+                color: 'white',
+                fontWeight: isCurrentPlayer ? 'bold' : 'normal',
+                border: isCurrentPlayer ? '2px solid #000' : 'none',
+                marginRight: '8px',
+              }}
+            />
+          </Tooltip>
+          <SuperCapsText className={`typography-title`}>{player.name}</SuperCapsText>
         </Box>
         <IconButton onClick={handleNewTurnClick}>
           <SettingsIcon />
@@ -200,7 +223,7 @@ const Player: React.FC = () => {
           <ColumnBox>
             <CenteredTitle>
               <Tooltip title="These values reset every turn">
-                <SuperCapsText fontSize={theme.sizes.title}>Turn</SuperCapsText>
+                <SuperCapsText className={`typography-large-title`}>Turn</SuperCapsText>
               </Tooltip>
             </CenteredTitle>
             <IncrementDecrementControl
@@ -234,7 +257,7 @@ const Player: React.FC = () => {
             <ColumnBox>
               <CenteredTitle>
                 <Tooltip title="These player mat values persist between turns">
-                  <SuperCapsText fontSize={theme.sizes.title}>Mats</SuperCapsText>
+                  <SuperCapsText className={`typography-large-title`}>Mats</SuperCapsText>
                 </Tooltip>
               </CenteredTitle>
               {gameState.options.mats.coffersVillagers && (
@@ -284,7 +307,9 @@ const Player: React.FC = () => {
                   <Box sx={{ paddingTop: 2 }}>
                     <CenteredTitle>
                       <Tooltip title="Global Mats affect all players and persist between turns">
-                        <SuperCapsText fontSize={theme.sizes.title}>Global Mats</SuperCapsText>
+                        <SuperCapsText className={`typography-large-title`}>
+                          Global Mats
+                        </SuperCapsText>
                       </Tooltip>
                     </CenteredTitle>
                   </Box>
@@ -304,7 +329,7 @@ const Player: React.FC = () => {
           <ColumnBox>
             <CenteredTitle>
               <Tooltip title="Victory points" arrow>
-                <SuperCapsText fontSize={theme.sizes.title}>Victory</SuperCapsText>
+                <SuperCapsText className={`typography-large-title`}>Victory</SuperCapsText>
               </Tooltip>
             </CenteredTitle>
             <IncrementDecrementControl
@@ -371,7 +396,7 @@ const Player: React.FC = () => {
       >
         <Box p={2}>
           <CenteredTitle>
-            <SuperCapsText fontSize={theme.sizes.title}>Next Turn</SuperCapsText>
+            <SuperCapsText className={`typography-title`}>Next Turn</SuperCapsText>
           </CenteredTitle>
           <IncrementDecrementControl
             label="Actions"

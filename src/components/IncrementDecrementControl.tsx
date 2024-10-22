@@ -4,16 +4,16 @@ import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import theme from '@/components/theme';
+import '@/styles.scss';
 
 // Modify StyledTypography to use forwardRef
 const StyledTypography = forwardRef<HTMLSpanElement, TypographyProps>((props, ref) => (
   <Typography
     ref={ref}
     {...props}
+    className={`typography-title ${props.className || ''}`}
     sx={{
-      fontFamily: 'TrajanProBold',
-      fontSize: theme.sizes.subtitle,
+      fontFamily: 'Minion Pro Medium Cond Subhead',
       ...props.sx,
     }}
   />
@@ -26,9 +26,9 @@ const StyledLargeNumber = forwardRef<HTMLSpanElement, TypographyProps>((props, r
   <Typography
     ref={ref}
     {...props}
+    className={`typography-title ${props.className || ''}`}
     sx={{
-      fontFamily: 'TrajanProBold',
-      fontSize: theme.sizes.subtitle,
+      fontFamily: 'Minion Pro Bold Caption',
       fontWeight: 'bold',
       ...props.sx,
     }}

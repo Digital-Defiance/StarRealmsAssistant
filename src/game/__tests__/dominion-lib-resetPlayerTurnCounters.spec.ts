@@ -3,6 +3,7 @@ import { IGame } from '@/game/interfaces/game';
 import { IPlayer } from '@/game/interfaces/player';
 import {
   DefaultMatsEnabled,
+  DefaultPlayerColors,
   DefaultTurnDetails,
   EmptyGameSupply,
   EmptyMatDetails,
@@ -12,6 +13,7 @@ import {
 describe('resetPlayerTurnCounters', () => {
   const createMockPlayer = (name: string, turn: any, newTurn: any): IPlayer => ({
     name,
+    color: DefaultPlayerColors[0],
     mats: { ...EmptyMatDetails },
     turn: { ...DefaultTurnDetails, ...turn },
     newTurn: { ...DefaultTurnDetails, ...newTurn },

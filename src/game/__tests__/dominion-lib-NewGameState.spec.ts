@@ -21,7 +21,7 @@ describe('NewGameState', () => {
   it('should initialize a new game state with default options', () => {
     const initialGameState: IGame = {
       ...EmptyGameState,
-      players: [newPlayer('Player 1'), newPlayer('Player 2')],
+      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       currentPlayerIndex: faker.number.int({ min: 0, max: 1 }),
       firstPlayerIndex: faker.number.int({ min: 0, max: 1 }),
     };
@@ -47,7 +47,7 @@ describe('NewGameState', () => {
   it('should initialize Rising Sun tokens when the expansion is enabled', () => {
     const initialGameState: IGame = {
       ...EmptyGameState,
-      players: [newPlayer('Player 1'), newPlayer('Player 2')],
+      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       options: {
         ...EmptyGameState.options,
         expansions: { ...EmptyGameState.options.expansions, risingSun: true },
@@ -70,7 +70,7 @@ describe('NewGameState', () => {
   it('should not initialize Rising Sun tokens when the expansion is disabled', () => {
     const initialGameState: IGame = {
       ...EmptyGameState,
-      players: [newPlayer('Player 1'), newPlayer('Player 2')],
+      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
     };
 
     const result = NewGameState(initialGameState);
@@ -83,7 +83,7 @@ describe('NewGameState', () => {
   it('should throw MinPlayersError for less than minimum players', () => {
     const initialGameState: IGame = {
       ...EmptyGameState,
-      players: [newPlayer('Player 1')],
+      players: [newPlayer('Player 1', 0)],
     };
 
     expect(() => NewGameState(initialGameState)).toThrow(MinPlayersError);
@@ -97,7 +97,7 @@ describe('NewGameState', () => {
     };
     const initialGameState: IGame = {
       ...EmptyGameState,
-      players: [newPlayer('Player 1'), newPlayer('Player 2')],
+      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       options: customOptions,
     };
 
@@ -111,7 +111,7 @@ describe('NewGameState', () => {
       ...EmptyGameState,
       players: Array(MAX_PLAYERS)
         .fill(null)
-        .map((_, i) => newPlayer(`Player ${i + 1}`)),
+        .map((_, i) => newPlayer(`Player ${i + 1}`, i)),
     };
 
     const result = NewGameState(initialGameState);
@@ -124,7 +124,7 @@ describe('NewGameState', () => {
       ...EmptyGameState,
       players: Array(MAX_PLAYERS + 1)
         .fill(null)
-        .map((_, i) => newPlayer(`Player ${i + 1}`)),
+        .map((_, i) => newPlayer(`Player ${i + 1}`, i)),
     };
 
     expect(() => NewGameState(initialGameState)).toThrow(MaxPlayersError);

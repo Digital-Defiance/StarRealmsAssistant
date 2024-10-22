@@ -1,9 +1,12 @@
 import React from 'react';
-import { Box, Typography, Checkbox, Tooltip, Button } from '@mui/material';
+import { Box, Typography, Button, Paper } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import { OptionField, OptionSubField } from '@/game/types';
 import { IGame } from '@/game/interfaces/game';
 import { NewGameState } from '@/game/dominion-lib';
+import CenteredContainer from '@/components/CenteredContainer';
+import OptionItem from '@/components/OptionItem';
+import TabTitle from '@/components/TabTitle';
 
 interface SetGameOptionsProps {
   startGame: () => void;
@@ -48,70 +51,54 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Checkbox
-          checked={gameState.options.curses}
-          onChange={(e) => updateOption('curses', true, e.target.checked)}
-        />
-        <Tooltip title="Include curses in the game" arrow>
-          <Typography variant="h6">Curses</Typography>
-        </Tooltip>
-      </Box>
+    <CenteredContainer>
+      <TabTitle>Game Options</TabTitle>
 
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Checkbox
-          checked={gameState.options.mats.favors}
-          onChange={(e) => updateOption('mats', 'favors', e.target.checked)}
-        />
-        <Tooltip title="Include favors in the game" arrow>
-          <Typography variant="h6">Favors</Typography>
-        </Tooltip>
-      </Box>
+      <OptionItem
+        checked={gameState.options.curses}
+        onChange={(e) => updateOption('curses', true, e.target.checked)}
+        title="Curses"
+        tooltip="Include curses in the game"
+      />
 
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Checkbox
-          checked={gameState.options.mats.debt}
-          onChange={(e) => updateOption('mats', 'debt', e.target.checked)}
-        />
-        <Tooltip title="Include debts in the game" arrow>
-          <Typography variant="h6">Debts</Typography>
-        </Tooltip>
-      </Box>
+      <OptionItem
+        checked={gameState.options.mats.favors}
+        onChange={(e) => updateOption('mats', 'favors', e.target.checked)}
+        title="Favors"
+        tooltip="Include favors in the game"
+      />
 
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Checkbox
-          checked={gameState.options.mats.coffersVillagers}
-          onChange={(e) => updateOption('mats', 'coffersVillagers', e.target.checked)}
-        />
-        <Tooltip title="Include coffers and villagers in the game" arrow>
-          <Typography variant="h6">Coffers/Villagers</Typography>
-        </Tooltip>
-      </Box>
+      <OptionItem
+        checked={gameState.options.mats.debt}
+        onChange={(e) => updateOption('mats', 'debt', e.target.checked)}
+        title="Debts"
+        tooltip="Include debts in the game"
+      />
 
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Checkbox
-          checked={gameState.options.expansions.prosperity}
-          onChange={(e) => updateOption('expansions', 'prosperity', e.target.checked)}
-        />
-        <Tooltip title="Include platinum and colonies in the game" arrow>
-          <Typography variant="h6">Prosperity</Typography>
-        </Tooltip>
-      </Box>
+      <OptionItem
+        checked={gameState.options.mats.coffersVillagers}
+        onChange={(e) => updateOption('mats', 'coffersVillagers', e.target.checked)}
+        title="Coffers/Villagers"
+        tooltip="Include coffers and villagers in the game"
+      />
 
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Checkbox
-          checked={gameState.options.expansions.risingSun}
-          onChange={(e) => updateOption('expansions', 'risingSun', e.target.checked)}
-        />
-        <Tooltip title="Enable Rising Sun" arrow>
-          <Typography variant="h6">Rising Sun</Typography>
-        </Tooltip>
-      </Box>
+      <OptionItem
+        checked={gameState.options.expansions.prosperity}
+        onChange={(e) => updateOption('expansions', 'prosperity', e.target.checked)}
+        title="Prosperity"
+        tooltip="Include platinum and colonies in the game"
+      />
+
+      <OptionItem
+        checked={gameState.options.expansions.risingSun}
+        onChange={(e) => updateOption('expansions', 'risingSun', e.target.checked)}
+        title="Rising Sun"
+        tooltip="Enable Rising Sun"
+      />
 
       {gameState.options.expansions.risingSun && (
-        <Box sx={{ display: 'flex', alignItems: 'center', paddingLeft: 3 }}>
-          <Checkbox
+        <Box sx={{ paddingLeft: 1 }}>
+          <OptionItem
             checked={gameState.risingSun?.greatLeaderProphecy || false}
             onChange={(e) =>
               setGameState((prevState: IGame) => ({
@@ -124,17 +111,18 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
                 },
               }))
             }
+            title="Great Leader"
+            tooltip="Enable Great Leader- +1 action after each action"
           />
-          <Tooltip title="Enable Great Leader- +1 action after each action" arrow>
-            <Typography variant="h6">Great Leader</Typography>
-          </Tooltip>
         </Box>
       )}
 
-      <Button variant="contained" onClick={handleStartGame} sx={{ marginTop: 2 }}>
-        Start Game
-      </Button>
-    </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+        <Button variant="contained" onClick={handleStartGame}>
+          Start Game
+        </Button>
+      </Box>
+    </CenteredContainer>
   );
 };
 

@@ -1,5 +1,4 @@
 import { safeParseSavedGame } from '@/game/dominion-lib-load-save';
-import { IGameRaw } from '@/game/interfaces/game-raw';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';

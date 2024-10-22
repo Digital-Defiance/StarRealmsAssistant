@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SaveIcon from '@mui/icons-material/Save';
 import { useGameContext } from '@/components/GameContext';
 import {
   saveGame,
@@ -147,9 +148,9 @@ const LoadSaveGame: React.FC = () => {
           fullWidth
           sx={{ mr: 1 }}
         />
-        <Button variant="contained" onClick={handleSaveGame} disabled={!gameState || !saveName}>
-          Save Game
-        </Button>
+        <IconButton onClick={handleSaveGame} color="primary" disabled={!gameState || !saveName}>
+          <SaveIcon />
+        </IconButton>
       </Box>
 
       <Typography variant="h5" gutterBottom>

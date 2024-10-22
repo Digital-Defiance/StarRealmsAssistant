@@ -27,7 +27,7 @@ const EndGame: React.FC<EndGameProps> = ({ game, onNewGame }) => {
 
   return (
     <Paper elevation={3} sx={{ padding: 2, maxWidth: 600, margin: 'auto' }}>
-      <SuperCapsText fontSize={32}>Game Over</SuperCapsText>
+      <SuperCapsText className={`typography-super-title`}>Game Over</SuperCapsText>
       <Typography variant="h6" component="div" gutterBottom align="center">
         Total Turns: {game.currentTurn}
       </Typography>

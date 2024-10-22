@@ -1,0 +1,29 @@
+$SUPER_TITLE: 32px;
+$LARGE_TITLE: 28px;
+$TITLE_SIZE: 24px;
+$SUBTITLE_SIZE: 18px;
+$TEXT_SIZE: 16px;
+
+.typography-super-title {
+  font-size: $SUPER_TITLE !important;
+  font-weight: bold;
+}
+
+.typography-large-title {
+  font-size: $LARGE_TITLE !important;
+  font-weight: bold;
+}
+
+.typography-title {
+  font-size: $TITLE_SIZE !important;
+  font-weight: bold;
+}
+
+.typography-subtitle {
+  font-size: $SUBTITLE_SIZE !important;
+  font-weight: 600;
+}
+
+.typography-text {
+  font-size: $TEXT_SIZE !important;
+}

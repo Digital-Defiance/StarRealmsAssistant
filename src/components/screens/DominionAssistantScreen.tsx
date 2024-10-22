@@ -19,7 +19,9 @@ export default function DominionAssistantScreen() {
 
   return (
     <StyledContainer>
-      <SuperCapsText fontSize={24}>Unofficial Dominion Assistant</SuperCapsText>
+      <SuperCapsText className="typography-super-title">
+        Unofficial Dominion Assistant
+      </SuperCapsText>
       <DominionAssistant route={location} navigation={navigate} />
     </StyledContainer>
   );

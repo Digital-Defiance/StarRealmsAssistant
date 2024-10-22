@@ -4,6 +4,8 @@ import SuperCapsText from '@/components/SuperCapsText';
 import { useGameContext } from '@/components/GameContext';
 import { IBaseKingdom } from '@/game/interfaces/set-kingdom/base';
 import { IProsperityKingdom } from '@/game/interfaces/set-kingdom/prosperity';
+import theme from '@/components/theme';
+import SecondarySubtitle from '@/components/SecondarySubtitle';
 
 const Container = styled(Box)(({ theme }) => ({
   flex: 1,
@@ -16,12 +18,6 @@ const Header = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(2),
 }));
 
-const Subtitle = styled(Typography)(({ theme }) => ({
-  fontSize: 16,
-  color: theme.palette.text.secondary,
-  marginTop: theme.spacing(1),
-}));
-
 const StyledListItem = styled(ListItem)({
   display: 'flex',
   justifyContent: 'space-between',
@@ -30,11 +26,10 @@ const StyledListItem = styled(ListItem)({
 });
 
 const CardName = styled(Typography)({
-  fontSize: 16,
+  fontFamily: 'Minion Pro Medium Cond Subhead',
 });
 
 const Quantity = styled(Typography)({
-  fontSize: 16,
   fontWeight: 'bold',
 });
 
@@ -69,8 +64,8 @@ const SupplyCounts: React.FC = () => {
   return (
     <Container>
       <Header>
-        <SuperCapsText fontSize={28}>Kingdom Supply</SuperCapsText>
-        <Subtitle>{getSetInfo()}</Subtitle>
+        <SuperCapsText className={`typography-large-title`}>Kingdom Supply</SuperCapsText>
+        <SecondarySubtitle sx={{ marginTop: theme.spacing(1) }}>{getSetInfo()}</SecondarySubtitle>
       </Header>
       <List>
         {supplyCards.map((item) => {
@@ -80,8 +75,8 @@ const SupplyCounts: React.FC = () => {
 
           return (
             <StyledListItem key={item}>
-              <CardName>{cardName}</CardName>
-              <Quantity>{quantity}</Quantity>
+              <CardName className="typography-title">{cardName}</CardName>
+              <Quantity className="typography-title">{quantity}</Quantity>
             </StyledListItem>
           );
         })}

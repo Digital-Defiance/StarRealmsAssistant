@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Chip,
   Table,
   TableBody,
   TableCell,
@@ -8,8 +9,9 @@ import {
   TableRow,
   Paper,
   Button,
+  Typography,
+  Tooltip,
 } from '@mui/material';
-import { Theme } from '@mui/material/styles';
 import { styled } from '@mui/system';
 import SuperCapsText from '@/components/SuperCapsText';
 import { calculateVictoryPoints } from '@/game/dominion-lib';
@@ -17,22 +19,19 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useGameContext } from '@/components/GameContext';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
-import theme from '@/components/theme';
+import { NO_PLAYER } from '@/game/constants';
 
-const StyledTableCell = styled(TableCell)(({ theme }: { theme: Theme }) => ({
+const TableText = styled(Typography)(() => ({
   fontFamily: 'TrajanProBold',
-  fontSize: theme.sizes.text,
 }));
 
-const StyledScoreCell = styled(TableCell)(({ theme }: { theme: Theme }) => ({
-  fontFamily: 'TrajanProBold',
-  fontSize: theme.sizes.title,
+const TableScore = styled(Typography)(() => ({
+  fontFamily: 'Minion Pro Bold Caption',
   fontWeight: 'bold',
 }));
 
-const StyledButton = styled(Button)(({ theme }: { theme: Theme }) => ({
+const StyledButton = styled(Button)(() => ({
   fontFamily: 'TrajanProBold',
-  fontSize: theme.sizes.text,
 }));
 
 const Scoreboard: React.FC = () => {
@@ -44,7 +43,7 @@ const Scoreboard: React.FC = () => {
 
   const handlePlayerSelect = (index: number) => {
     setGameState((prevState) => {
-      addLogEntry(prevState, index, GameLogActionWithCount.SELECT_PLAYER, {
+      addLogEntry(prevState, NO_PLAYER, GameLogActionWithCount.SELECT_PLAYER, {
         prevPlayerIndex: prevState.selectedPlayerIndex,
         newPlayerIndex: index,
       });
@@ -62,14 +61,20 @@ const Scoreboard: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <StyledTableCell theme={theme}>Current</StyledTableCell>
-              <StyledTableCell theme={theme}>Player</StyledTableCell>
-              <StyledTableCell theme={theme} align="right">
-                Score
-              </StyledTableCell>
-              <StyledTableCell theme={theme} align="right">
-                Turn: {gameState.currentTurn}
-              </StyledTableCell>
+              <TableCell>
+                <TableText className={`typography-text`}>Badge</TableText>
+              </TableCell>
+              <TableCell>
+                <TableText className={`typography-text`}>Player</TableText>
+              </TableCell>
+              <TableCell>
+                <TableText className={`typography-text`} align="right">
+                  Score
+                </TableText>
+              </TableCell>
+              <TableCell align="right">
+                <TableText className={`typography-text`}>Turn: {gameState.currentTurn}</TableText>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -82,27 +87,43 @@ const Scoreboard: React.FC = () => {
                   '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                 }}
               >
-                <StyledTableCell theme={theme}>
-                  {index === getCurrentPlayerIndex() && (
-                    <ArrowRightIcon color="primary" style={{ fontSize: 24 }} />
-                  )}
-                </StyledTableCell>
-                <StyledTableCell theme={theme} component="th" scope="row">
-                  <SuperCapsText fontSize={theme.sizes.text}>{player.name}</SuperCapsText>
-                </StyledTableCell>
-                <StyledScoreCell theme={theme} align="right">
-                  {calculateVictoryPoints(player)}
-                </StyledScoreCell>
-                <StyledTableCell theme={theme} align="right">
+                <TableCell>
+                  <Tooltip
+                    title={
+                      index === getCurrentPlayerIndex()
+                        ? `${player.name} is the current player`
+                        : ''
+                    }
+                  >
+                    <Chip
+                      label={player.name.charAt(0).toUpperCase()}
+                      size="small"
+                      style={{
+                        backgroundColor: player.color,
+                        color: 'white',
+                        fontWeight: index === getCurrentPlayerIndex() ? 'bold' : 'normal',
+                        border: index === getCurrentPlayerIndex() ? '2px solid #000' : 'none',
+                      }}
+                    />
+                  </Tooltip>
+                </TableCell>
+                <TableCell component="th" scope="row">
+                  <SuperCapsText className={`typography-text`}>{player.name}</SuperCapsText>
+                </TableCell>
+                <TableCell align="right">
+                  <TableScore className={`typography-title`}>
+                    {calculateVictoryPoints(player)}
+                  </TableScore>
+                </TableCell>
+                <TableCell align="right">
                   <StyledButton
-                    theme={theme}
                     variant="contained"
                     size="small"
                     onClick={() => handlePlayerSelect(index)}
                   >
-                    Select
+                    <TableText className={`typography-text`}>Select</TableText>
                   </StyledButton>
-                </StyledTableCell>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
