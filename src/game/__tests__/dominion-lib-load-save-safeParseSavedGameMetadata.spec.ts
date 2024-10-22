@@ -5,7 +5,9 @@ describe('safeParseSavedGameMetadata', () => {
 
   beforeEach(() => {
     // Spy on console.error so we can check if errors are logged
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // do nothing
+    });
   });
 
   afterEach(() => {
@@ -60,7 +62,9 @@ describe('safeParseSavedGameMetadata', () => {
   });
 
   it('should handle invalid JSON', () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // do nothing
+    });
     const result = safeParseSavedGameMetadata('invalid JSON');
     expect(result).toEqual([]);
     expect(consoleErrorSpy).toHaveBeenCalledWith(

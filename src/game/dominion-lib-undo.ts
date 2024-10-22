@@ -2,7 +2,6 @@ import { NO_PLAYER, NoPlayerActions } from '@/game/constants';
 import {
   getActionIncrementMultiplier,
   getFieldAndSubfieldFromAction,
-  incrementTurnCountersAndPlayerIndices,
   updatePlayerField,
 } from '@/game/dominion-lib';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';

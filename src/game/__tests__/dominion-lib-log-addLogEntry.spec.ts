@@ -11,7 +11,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with minimal fields', () => {
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.START_GAME);
+    addLogEntry(mockGame, 0, GameLogActionWithCount.START_GAME);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
@@ -21,7 +21,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with all fields', () => {
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       correction: false,
       linkedActionId: 'linkedActionId',
@@ -40,7 +40,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with only some fields overridden', () => {
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, { count: 5 });
+    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, { count: 5 });
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
@@ -57,7 +57,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a correction flag', () => {
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       correction: true,
     });
@@ -73,7 +73,7 @@ describe('addLogEntry', () => {
 
   it('should add a log entry with player turn details', () => {
     const playerTurnDetails = [{ playerIndex: 0, actions: 1, buys: 1, coins: 1 }];
-    const newEntry = addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       playerTurnDetails,
     });
@@ -107,7 +107,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid NoPlayerActions action and playerIndex set to -1', () => {
-    const newEntry = addLogEntry(mockGame, -1, GameLogActionWithCount.END_GAME);
+    addLogEntry(mockGame, -1, GameLogActionWithCount.END_GAME);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: -1,

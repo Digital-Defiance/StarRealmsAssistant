@@ -15,11 +15,9 @@ import {
 import { styled } from '@mui/system';
 import SuperCapsText from '@/components/SuperCapsText';
 import { calculateVictoryPoints } from '@/game/dominion-lib';
-import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { useGameContext } from '@/components/GameContext';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
-import { NO_PLAYER } from '@/game/constants';
 
 const TableText = styled(Typography)(() => ({
   fontFamily: 'TrajanProBold',

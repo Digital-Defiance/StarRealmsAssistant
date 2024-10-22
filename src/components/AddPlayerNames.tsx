@@ -16,7 +16,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { SketchPicker } from 'react-color';
 import { useGameContext } from '@/components/GameContext';
 import { newPlayer } from '@/game/dominion-lib';
-import { DefaultPlayerColors, MAX_PLAYERS, MIN_PLAYERS } from '@/game/constants';
+import { MAX_PLAYERS, MIN_PLAYERS } from '@/game/constants';
 import SuperCapsText from '@/components/SuperCapsText';
 import CenteredContainer from '@/components/CenteredContainer';
 import TabTitle from '@/components/TabTitle';
@@ -25,7 +25,7 @@ interface AddPlayerNamesProps {
   nextStep: () => void;
 }
 
-const StyledPlayerNumber = styled(Typography)(({ theme }) => ({
+const StyledPlayerNumber = styled(Typography)(() => ({
   fontFamily: 'TrajanProBold',
 }));
 

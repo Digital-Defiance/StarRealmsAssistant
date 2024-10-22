@@ -2,7 +2,6 @@ import { faker } from '@faker-js/faker';
 import { IPlayer } from '@/game/interfaces/player';
 import {
   NOT_PRESENT,
-  NO_PLAYER,
   EmptyVictoryDetails,
   EmptyMatDetails,
   DefaultTurnDetails,

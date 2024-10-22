@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Button, Paper } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import { OptionField, OptionSubField } from '@/game/types';
 import { IGame } from '@/game/interfaces/game';

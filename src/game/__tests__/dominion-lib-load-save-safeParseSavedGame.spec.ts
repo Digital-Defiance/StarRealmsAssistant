@@ -8,7 +8,9 @@ describe('safeParseSavedGame', () => {
 
   beforeEach(() => {
     // Spy on console.error so we can check if errors are logged
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // do nothing
+    });
   });
 
   afterEach(() => {
