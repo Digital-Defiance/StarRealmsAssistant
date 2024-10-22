@@ -47,7 +47,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
       {
         id: faker.string.uuid(),
         timestamp: new Date(),
-        playerIndex: NO_PLAYER,
+        playerIndex: 0,
         action: GameLogActionWithCount.START_GAME,
       },
     ],

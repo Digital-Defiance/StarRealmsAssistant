@@ -113,12 +113,9 @@ export const EmptyVictoryDetails: IVictoryDetails = {
  * A list of actions that do not affect player state.
  */
 export const NoPlayerActions = [
-  GameLogActionWithCount.START_GAME,
   GameLogActionWithCount.END_GAME,
   GameLogActionWithCount.SAVE_GAME,
   GameLogActionWithCount.LOAD_GAME,
-  GameLogActionWithCount.NEXT_TURN,
-  GameLogActionWithCount.SELECT_PLAYER,
 ];
 
 export const AdjustmentActions = [
@@ -163,6 +160,13 @@ export const AdjustmentActions = [
   GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS,
   GameLogActionWithCount.ADD_NEXT_TURN_COINS,
   GameLogActionWithCount.REMOVE_NEXT_TURN_COINS,
+];
+
+export const ActionsWithPlayer = [
+  ...AdjustmentActions,
+  GameLogActionWithCount.START_GAME,
+  GameLogActionWithCount.NEXT_TURN,
+  GameLogActionWithCount.SELECT_PLAYER,
 ];
 
 export const StepTransitions: Record<CurrentStep, CurrentStep> = {

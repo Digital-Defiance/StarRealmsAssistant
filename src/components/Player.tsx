@@ -216,7 +216,9 @@ const Player: React.FC = () => {
           onChange={handleCorrectionChange}
           inputProps={{ 'aria-label': 'Correction Checkbox' }}
         />
-        <Typography variant="body2">Correction</Typography>
+        <Tooltip title="Use to reverse accidental changes. They will be marked as corrections in the log.">
+          <Typography variant="body2">Correction</Typography>
+        </Tooltip>
       </CorrectionCheckboxContainer>
       {player && (
         <Box display="flex" flexWrap="wrap">

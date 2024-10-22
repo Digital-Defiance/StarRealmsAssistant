@@ -7,7 +7,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -21,7 +21,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -35,7 +35,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T01:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -49,7 +49,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -63,7 +63,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -77,7 +77,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -91,7 +91,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -105,7 +105,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -131,7 +131,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -169,7 +169,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -201,7 +201,7 @@ describe('getTimeSpanFromStartGame', () => {
     const log: ILogEntry[] = [
       {
         id: '1',
-        playerIndex: -1,
+        playerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },

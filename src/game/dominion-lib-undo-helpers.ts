@@ -62,8 +62,9 @@ export function reconstructGameState(game: IGame): IGame {
     firstPlayerIndex: game.firstPlayerIndex,
     currentPlayerIndex: game.firstPlayerIndex,
     selectedPlayerIndex: game.firstPlayerIndex,
-    log: [],
   });
+  // clear the log
+  reconstructedGame.log = [];
 
   for (let i = 0; i <= game.log.length - 1; i++) {
     reconstructedGame = applyLogAction(reconstructedGame, game.log[i]);

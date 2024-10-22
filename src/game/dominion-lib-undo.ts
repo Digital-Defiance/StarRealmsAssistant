@@ -41,6 +41,7 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
   if (logIndex < 0 || logIndex >= game.log.length) {
     return false;
   }
+  const isMostRecent = logIndex === game.log.length - 1;
 
   if (game.currentStep !== CurrentStep.GameScreen) {
     return false;
@@ -48,11 +49,18 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
 
   const actionToUndo = game.log[logIndex];
 
-  // none of the No Player actions except Next Turn can be undone (start game, etc)
+  // none of the No Player actions can be undone (end game, etc)
+  // start game, select player, should not be allowed
   if (
-    NoPlayerActions.includes(actionToUndo.action) &&
-    actionToUndo.action !== GameLogActionWithCount.NEXT_TURN
+    NoPlayerActions.includes(actionToUndo.action) ||
+    actionToUndo.action === GameLogActionWithCount.START_GAME ||
+    actionToUndo.action === GameLogActionWithCount.SELECT_PLAYER
   ) {
+    return false;
+  }
+
+  // can only undo next_turn if it is the most recent action
+  if (actionToUndo.action === GameLogActionWithCount.NEXT_TURN && !isMostRecent) {
     return false;
   }
 
@@ -121,9 +129,15 @@ export function undoAction(game: IGame, logIndex: number): { game: IGame; succes
 export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   let updatedGame = { ...game };
 
-  if (logEntry.action === GameLogActionWithCount.NEXT_TURN) {
+  if (logEntry.action === GameLogActionWithCount.START_GAME) {
+    // set first player to the player who started the game
+    updatedGame.firstPlayerIndex = logEntry.playerIndex;
+    updatedGame.selectedPlayerIndex = logEntry.playerIndex;
+  } else if (logEntry.action === GameLogActionWithCount.NEXT_TURN) {
     // Move to next player
-    updatedGame = incrementTurnCountersAndPlayerIndices(updatedGame);
+    updatedGame.currentTurn = game.currentTurn + 1;
+    updatedGame.currentPlayerIndex = logEntry.playerIndex;
+    updatedGame.selectedPlayerIndex = logEntry.playerIndex;
 
     // Reset all players' turn counters to their newTurn values
     updatedGame.players = updatedGame.players.map((player) => ({
@@ -131,7 +145,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
       turn: player.newTurn,
     }));
   } else if (logEntry.action === GameLogActionWithCount.SELECT_PLAYER) {
-    updatedGame.selectedPlayerIndex = logEntry.newPlayerIndex ?? updatedGame.selectedPlayerIndex;
+    updatedGame.selectedPlayerIndex = logEntry.playerIndex ?? updatedGame.selectedPlayerIndex;
   } else if (
     logEntry.playerIndex !== NO_PLAYER &&
     logEntry.playerIndex < updatedGame.players.length &&

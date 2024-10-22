@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogContent, Fab, styled } from '@mui/material';
+import { Box, Button, Dialog, DialogContent, Fab, styled, Tooltip } from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import Scoreboard from '@/components/Scoreboard';
@@ -72,10 +72,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
       </Container>
       <FabContainer>
         <Fab color="secondary" aria-label="undo" onClick={undoLastAction} disabled={!canUndo}>
-          <UndoIcon />
+          <Tooltip title="Undo the most recent update">
+            <UndoIcon />
+          </Tooltip>
         </Fab>
         <Fab color="primary" aria-label="supply" onClick={handleOpenSupplyDialog}>
-          <InventoryIcon />
+          <Tooltip title="Show victory kingdom card supply counts">
+            <InventoryIcon />
+          </Tooltip>
         </Fab>
       </FabContainer>
       <Dialog open={supplyDialogOpen} onClose={handleCloseSupplyDialog}>

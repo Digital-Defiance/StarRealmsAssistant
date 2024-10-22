@@ -65,7 +65,7 @@ describe('loadGame', () => {
           id: id,
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
         },
       ],
     });
@@ -87,7 +87,7 @@ describe('loadGame', () => {
           id: faker.string.uuid(),
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
         },
         {
           id: saveGameLogId,

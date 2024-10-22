@@ -14,7 +14,6 @@ import {
   Button,
   Box,
 } from '@mui/material';
-import TurnIcon from '@mui/icons-material/TurnedIn'; // Example icon for new turn
 import EditIcon from '@mui/icons-material/Edit'; // Icon for corrections
 import LinkIcon from '@mui/icons-material/Link';
 import UndoIcon from '@mui/icons-material/Undo';
@@ -61,16 +60,14 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
   };
 
   const actionText = logEntryToString(entry);
-  const playerName =
-    entry.playerIndex !== undefined && gameState.players[entry.playerIndex]
-      ? gameState.players[entry.playerIndex].name
-      : '';
+
+  const relevantPlayer = entry.playerIndex > -1 ? gameState.players[entry.playerIndex] : undefined;
   const isActivePlayer = entry.playerIndex === gameState.currentPlayerIndex;
   const isNewTurn = entry.action === GameLogActionWithCount.NEXT_TURN;
   const isAttributeChange = AdjustmentActions.includes(entry.action);
   const isAttributeChangeOutOfTurn = isAttributeChange && !isActivePlayer;
 
-  if (entry.playerIndex !== undefined && !gameState.players[entry.playerIndex]) {
+  if (entry.playerIndex > -1 && !gameState.players[entry.playerIndex]) {
     console.warn(`Player not found for index ${entry.playerIndex}`, {
       entry,
       gamePlayersLength: gameState.players.length,
@@ -95,16 +92,12 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
         </TableCell>
         <TableCell style={{ width: '60%' }}>
           <Box display="flex" alignItems="center">
-            {playerName && (
+            {relevantPlayer && (
               <Chip
-                label={playerName.charAt(0).toUpperCase()}
+                label={relevantPlayer.name.charAt(0).toUpperCase()}
                 size="small"
-                icon={isNewTurn ? <TurnIcon /> : undefined}
                 style={{
-                  backgroundColor:
-                    entry.playerIndex !== undefined
-                      ? gameState.players[entry.playerIndex].color
-                      : 'gray',
+                  backgroundColor: relevantPlayer !== undefined ? relevantPlayer.color : 'gray',
                   color: 'white',
                   marginRight: '8px',
                   fontWeight: isActivePlayer ? 'bold' : 'normal',
@@ -112,35 +105,51 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
                 }}
               />
             )}
-            <Typography
-              variant="body2"
-              component="span"
-              style={{
-                fontWeight: isCurrentPlayer ? 'bold' : 'normal',
-                color: isCurrentPlayer ? '#1976d2' : 'inherit',
-              }}
-            >
-              {actionText}
-            </Typography>
-            {isAttributeChangeOutOfTurn && (
-              <ChangeCircleIcon
-                fontSize="small"
-                style={{ marginLeft: '8px', color: '#ff9800' }}
-                titleAccess="Attribute changed outside of player's turn"
-              />
-            )}
-            {entry.correction && (
-              <Tooltip title="Correction" arrow>
-                <EditIcon fontSize="small" style={{ marginLeft: '8px', color: '#ff9800' }} />
-              </Tooltip>
-            )}
+            <Box display="flex" alignItems="center" flexGrow={1}>
+              {relevantPlayer !== undefined && (
+                <Typography
+                  component="span"
+                  sx={{
+                    color: relevantPlayer.color,
+                    fontWeight: 'bold',
+                    marginRight: '4px',
+                  }}
+                >
+                  &lt;{relevantPlayer.name}&gt;:
+                </Typography>
+              )}
+              <Typography
+                variant="body2"
+                component="span"
+                style={{
+                  fontWeight: isCurrentPlayer ? 'bold' : 'normal',
+                  color: isCurrentPlayer ? '#1976d2' : 'inherit',
+                }}
+              >
+                {actionText}
+              </Typography>
+              {isAttributeChangeOutOfTurn && (
+                <ChangeCircleIcon
+                  fontSize="small"
+                  style={{ marginLeft: '8px', color: '#ff9800' }}
+                  titleAccess="Attribute changed outside of player's turn"
+                />
+              )}
+              {entry.correction && (
+                <Tooltip title="This entry was a correction" arrow>
+                  <EditIcon fontSize="small" style={{ marginLeft: '8px', color: '#ff9800' }} />
+                </Tooltip>
+              )}
+            </Box>
           </Box>
         </TableCell>
         <TableCell style={{ width: '10%', textAlign: 'right' }}>
           {entry.linkedActionId && <LinkIcon fontSize="small" color="action" />}
           {canUndoAction(gameState, logIndex) && (
             <IconButton onClick={handleUndoClick} size="small">
-              <UndoIcon fontSize="small" />
+              <Tooltip title="Undo this entry">
+                <UndoIcon fontSize="small" />
+              </Tooltip>
             </IconButton>
           )}
         </TableCell>

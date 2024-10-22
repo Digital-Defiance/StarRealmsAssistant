@@ -12,7 +12,7 @@ describe('loadGameAddLog', () => {
       log: [
         {
           id: 'start',
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
@@ -46,7 +46,7 @@ describe('loadGameAddLog', () => {
       log: [
         {
           id: 'start',
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
@@ -67,7 +67,7 @@ describe('loadGameAddLog', () => {
       log: [
         {
           id: 'start',
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
@@ -107,7 +107,7 @@ describe('loadGameAddLog', () => {
       log: [
         {
           id: 'start',
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
@@ -139,7 +139,7 @@ describe('loadGameAddLog', () => {
       log: [
         {
           id: 'start',
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,

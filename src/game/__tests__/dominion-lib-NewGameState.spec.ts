@@ -38,7 +38,7 @@ describe('NewGameState', () => {
         id: expect.any(String),
         timestamp: expect.any(Date),
         action: GameLogActionWithCount.START_GAME,
-        playerIndex: -1,
+        playerIndex: initialGameState.firstPlayerIndex,
       } as ILogEntry,
     ]);
     expect(result.supply).toBeDefined();

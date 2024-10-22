@@ -67,10 +67,9 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   const nextTurn = () => {
     setGameState((prevGame) => {
       const nextPlayerIndex = getNextPlayerIndex(prevGame);
-      addLogEntry(prevGame, NO_PLAYER, GameLogActionWithCount.NEXT_TURN, {
+      addLogEntry(prevGame, nextPlayerIndex, GameLogActionWithCount.NEXT_TURN, {
         playerTurnDetails: gameState.players.map((player) => player.turn),
         prevPlayerIndex: gameState.currentPlayerIndex,
-        newPlayerIndex: nextPlayerIndex,
       });
       const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
       return resetPlayerTurnCounters(updatedGame);
@@ -81,7 +80,6 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
     setGameState((prevState) => {
       addLogEntry(prevState, NO_PLAYER, GameLogActionWithCount.END_GAME, {
         prevPlayerIndex: gameState.currentPlayerIndex,
-        newPlayerIndex: NO_PLAYER,
       });
 
       return {

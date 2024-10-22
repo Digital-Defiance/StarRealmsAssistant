@@ -152,14 +152,7 @@ export const EmptyGameState: IGame = {
   currentPlayerIndex: NO_PLAYER,
   firstPlayerIndex: NO_PLAYER,
   selectedPlayerIndex: NO_PLAYER,
-  log: [
-    {
-      id: uuidv4(),
-      timestamp: new Date(),
-      action: GameLogActionWithCount.START_GAME,
-      playerIndex: NO_PLAYER,
-    },
-  ],
+  log: [],
 };
 
 /**
@@ -193,6 +186,14 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
     supply: initialSupply,
     currentStep: CurrentStep.GameScreen,
     currentTurn: 1,
+    log: [
+      {
+        id: uuidv4(),
+        timestamp: new Date(),
+        playerIndex: gameStateWithOptions.firstPlayerIndex,
+        action: GameLogActionWithCount.START_GAME,
+      },
+    ],
   };
 
   // Distribute initial supply to players

@@ -23,7 +23,7 @@ describe('reconstructGameState', () => {
     });
   });
 
-  it('should return a new game state when given an empty log', () => {
+  it('should return an identical game state when given an existing game', () => {
     const result = reconstructGameState(baseGame);
     expect(result).toEqual(baseGame);
   });
@@ -84,9 +84,8 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogActionWithCount.NEXT_TURN,
-          playerIndex: NO_PLAYER,
+          playerIndex: nextPlayerIndex,
           playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
-          newPlayerIndex: nextPlayerIndex,
           prevPlayerIndex: baseGame.currentPlayerIndex,
         } as ILogEntry,
       ],
@@ -115,12 +114,11 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogActionWithCount.NEXT_TURN,
-          playerIndex: NO_PLAYER,
+          playerIndex: nextPlayerIndex,
           playerTurnDetails: [
             { actions: 5, coins: 2, buys: 4 } as IPlayerGameTurnDetails,
             { ...DefaultTurnDetails },
           ],
-          newPlayerIndex: nextPlayerIndex,
           prevPlayerIndex: baseGame.currentPlayerIndex,
         },
       ],
@@ -266,9 +264,8 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogActionWithCount.NEXT_TURN,
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
           playerTurnDetails: [{ ...DefaultTurnDetails, coins: 3 }, { ...DefaultTurnDetails }],
-          newPlayerIndex: 0,
           prevPlayerIndex: 1,
         },
         {
@@ -285,9 +282,8 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogActionWithCount.NEXT_TURN,
-          playerIndex: NO_PLAYER,
+          playerIndex: 1,
           playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails, actions: 3 }],
-          newPlayerIndex: 1,
           prevPlayerIndex: 0,
         },
         {

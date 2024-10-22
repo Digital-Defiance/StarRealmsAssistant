@@ -20,11 +20,10 @@ describe('applyLogAction', () => {
 
     const logEntry: ILogEntry = {
       action: GameLogActionWithCount.NEXT_TURN,
-      playerIndex: NO_PLAYER,
+      playerIndex: 1,
       id: '1',
       timestamp: new Date(),
       playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
-      newPlayerIndex: 1,
       prevPlayerIndex: 0,
     };
 
@@ -51,10 +50,9 @@ describe('applyLogAction', () => {
   it('should handle NEXT_TURN action', () => {
     const logEntry: ILogEntry = {
       action: GameLogActionWithCount.NEXT_TURN,
-      playerIndex: NO_PLAYER,
+      playerIndex: 1,
       id: '1',
       timestamp: new Date(),
-      newPlayerIndex: 1,
       prevPlayerIndex: 0,
     };
 
@@ -68,10 +66,9 @@ describe('applyLogAction', () => {
     mockGame.currentPlayerIndex = 1;
     const logEntry: ILogEntry = {
       action: GameLogActionWithCount.NEXT_TURN,
-      playerIndex: NO_PLAYER,
+      playerIndex: 0,
       id: '1',
       timestamp: new Date(),
-      newPlayerIndex: 0,
       prevPlayerIndex: 1,
     };
 
@@ -116,7 +113,6 @@ describe('applyLogAction', () => {
     const logEntry: ILogEntry = {
       action: GameLogActionWithCount.ADD_PROPHECY,
       playerIndex: 0,
-      playerName: 'Player 1',
       count: 3,
       id: '1',
       timestamp: new Date(),
@@ -248,24 +244,23 @@ describe('applyLogAction', () => {
 
     const logEntry: ILogEntry = {
       id: '1',
-      playerIndex: -1,
+      playerIndex: 2,
       timestamp: new Date(),
       action: GameLogActionWithCount.SELECT_PLAYER,
-      newPlayerIndex: 2,
     };
 
     const updatedGame = applyLogAction(game, logEntry);
     expect(updatedGame.selectedPlayerIndex).toBe(2);
   });
 
-  it('should not change the selectedPlayerIndex if newPlayerIndex is not provided', () => {
+  it('should change the selectedPlayerIndex for select_player', () => {
     const game: IGame = createMockGame(3, {
-      selectedPlayerIndex: 0,
+      selectedPlayerIndex: 2,
     });
 
     const logEntry: ILogEntry = {
       id: '1',
-      playerIndex: -1,
+      playerIndex: 0,
       timestamp: new Date(),
       action: GameLogActionWithCount.SELECT_PLAYER,
     };

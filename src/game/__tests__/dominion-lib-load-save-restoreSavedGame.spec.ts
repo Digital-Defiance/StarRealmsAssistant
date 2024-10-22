@@ -26,7 +26,6 @@ describe('restoreSavedGame', () => {
     action: GameLogActionWithCount.SAVE_GAME,
     timestamp: saveGameTime.toISOString(),
     playerIndex: NO_PLAYER,
-    playerName: 'player1',
   };
 
   // Assuming `createMockGameRaw` returns an IGameRaw object with string timestamps

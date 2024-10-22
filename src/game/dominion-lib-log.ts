@@ -120,7 +120,6 @@ export function victoryFieldToGameLogAction<T extends keyof PlayerFieldMap>(
  * @returns The string representation of the log entry
  */
 export function logEntryToString(entry: ILogEntry): string {
-  const playerName = entry.playerName ? `<${entry.playerName}> ` : '';
   let actionString = entry.action as string;
 
   if (entry.count !== undefined) {
@@ -130,9 +129,7 @@ export function logEntryToString(entry: ILogEntry): string {
     actionString = actionString.replace(' {COUNT}', '');
   }
 
-  const correctionString = entry.correction ? ' (Correction)' : '';
-
-  return `${playerName}${actionString}${correctionString}`;
+  return actionString;
 }
 
 /**
@@ -228,13 +225,11 @@ export function addLogEntry(
   } else if (playerIndex > -1) {
     throw new Error('Player index is not relevant for this action');
   }
-  const playerName = playerIndex > -1 ? game.players[playerIndex].name : undefined;
   const newLog: ILogEntry = {
     id: uuidv4(),
     timestamp: new Date(),
     action,
     playerIndex,
-    playerName,
     ...overrides,
   };
   game.log.push(newLog);
