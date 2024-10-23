@@ -4,7 +4,12 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { faker } from '@faker-js/faker';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
-import { DefaultTurnDetails, NoPlayerActions } from '@/game/constants';
+import {
+  ActionsWithOnlyLastActionUndo,
+  DefaultTurnDetails,
+  NoPlayerActions,
+  NoUndoActions,
+} from '@/game/constants';
 import { NotEnoughSupplyError } from '../errors/not-enough-supply';
 import { NotEnoughProphecyError } from '../errors/not-enough-prophecy';
 
@@ -278,49 +283,9 @@ describe('canUndoAction', () => {
     );
   });
 
-  it.each(NoPlayerActions)('should return false when undoing a start_game', () => {
+  it.each(NoUndoActions)('should return false when undoing a no undo action', (action) => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.START_GAME)],
-    });
-
-    reconstructGameStateSpy.mockImplementation(() => {
-      // Simulate successful reconstruction
-    });
-
-    expect(undoModule.canUndoAction(game, 0)).toBe(false);
-    expect(removeTargetAndLinkedActionsSpy).not.toHaveBeenCalled();
-    expect(reconstructGameStateSpy).not.toHaveBeenCalled();
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-  });
-
-  it.each(NoPlayerActions)(
-    'should return false when undoing a no player action',
-    (action: GameLogActionWithCount) => {
-      const game = createMockGame(2, {
-        log: [
-          createLogEntry(GameLogActionWithCount.START_GAME),
-          createLogEntry(GameLogActionWithCount.NEXT_TURN),
-          createLogEntry(action),
-        ],
-      });
-
-      reconstructGameStateSpy.mockImplementation(() => {
-        // Simulate successful reconstruction
-      });
-
-      expect(undoModule.canUndoAction(game, 2)).toBe(false);
-      expect(removeTargetAndLinkedActionsSpy).not.toHaveBeenCalled();
-      expect(reconstructGameStateSpy).not.toHaveBeenCalled();
-      expect(consoleErrorSpy).not.toHaveBeenCalled();
-    }
-  );
-
-  it.each(NoPlayerActions)('should return false when undoing a select_player', () => {
-    const game = createMockGame(2, {
-      log: [
-        createLogEntry(GameLogActionWithCount.START_GAME),
-        createLogEntry(GameLogActionWithCount.SELECT_PLAYER),
-      ],
+      log: [createLogEntry(GameLogActionWithCount.START_GAME), createLogEntry(action)],
     });
 
     reconstructGameStateSpy.mockImplementation(() => {
@@ -349,6 +314,46 @@ describe('canUndoAction', () => {
     expect(reconstructGameStateSpy).toHaveBeenCalledTimes(1);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
+
+  it.each(ActionsWithOnlyLastActionUndo)(
+    'should return true when undoing an action allowed for the most recent action',
+    (action) => {
+      const game = createMockGame(2, {
+        log: [createLogEntry(GameLogActionWithCount.START_GAME), createLogEntry(action)],
+      });
+
+      reconstructGameStateSpy.mockImplementation(() => {
+        // Simulate successful reconstruction
+      });
+
+      expect(undoModule.canUndoAction(game, 1)).toBe(true);
+      expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(1);
+      expect(reconstructGameStateSpy).toHaveBeenCalledTimes(1);
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each(ActionsWithOnlyLastActionUndo)(
+    'should return false when undoing an action allowed for the most recent action when it is not the most recent',
+    (action) => {
+      const game = createMockGame(2, {
+        log: [
+          createLogEntry(GameLogActionWithCount.START_GAME),
+          createLogEntry(action),
+          createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1),
+        ],
+      });
+
+      reconstructGameStateSpy.mockImplementation(() => {
+        // Simulate successful reconstruction
+      });
+
+      expect(undoModule.canUndoAction(game, 1)).toBe(false);
+      expect(removeTargetAndLinkedActionsSpy).not.toHaveBeenCalled();
+      expect(reconstructGameStateSpy).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
+    }
+  );
 
   it('should handle multiple linked actions correctly when undoing one of the linked actions', () => {
     const mainActionId = 'main-action';

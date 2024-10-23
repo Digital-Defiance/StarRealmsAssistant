@@ -162,12 +162,28 @@ export const AdjustmentActions = [
   GameLogActionWithCount.REMOVE_NEXT_TURN_COINS,
 ];
 
+/**
+ * Actions that have an associated player index. Others are expected to have NO_PLAYER (-1).
+ */
 export const ActionsWithPlayer = [
   ...AdjustmentActions,
   GameLogActionWithCount.START_GAME,
   GameLogActionWithCount.NEXT_TURN,
   GameLogActionWithCount.SELECT_PLAYER,
 ];
+
+/**
+ * Actions that can only be undone if they are the last action in the game log.
+ */
+export const ActionsWithOnlyLastActionUndo = [
+  GameLogActionWithCount.SELECT_PLAYER,
+  GameLogActionWithCount.NEXT_TURN,
+];
+
+/**
+ * Actions that cannot be undone.
+ */
+export const NoUndoActions = [...NoPlayerActions, GameLogActionWithCount.START_GAME];
 
 export const StepTransitions: Record<CurrentStep, CurrentStep> = {
   [CurrentStep.AddPlayerNames]: CurrentStep.SelectFirstPlayer,

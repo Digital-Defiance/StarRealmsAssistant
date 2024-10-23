@@ -1,4 +1,9 @@
-import { NO_PLAYER, NoPlayerActions } from '@/game/constants';
+import {
+  ActionsWithOnlyLastActionUndo,
+  NO_PLAYER,
+  NoPlayerActions,
+  NoUndoActions,
+} from '@/game/constants';
 import {
   getActionIncrementMultiplier,
   getFieldAndSubfieldFromAction,
@@ -49,17 +54,13 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
   const actionToUndo = game.log[logIndex];
 
   // none of the No Player actions can be undone (end game, etc)
-  // start game, select player, should not be allowed
-  if (
-    NoPlayerActions.includes(actionToUndo.action) ||
-    actionToUndo.action === GameLogActionWithCount.START_GAME ||
-    actionToUndo.action === GameLogActionWithCount.SELECT_PLAYER
-  ) {
+  // as well as start game
+  if (NoUndoActions.includes(actionToUndo.action)) {
     return false;
   }
 
-  // can only undo next_turn if it is the most recent action
-  if (actionToUndo.action === GameLogActionWithCount.NEXT_TURN && !isMostRecent) {
+  // can only undo next_turn or select player if it is the most recent action
+  if (ActionsWithOnlyLastActionUndo.includes(actionToUndo.action) && !isMostRecent) {
     return false;
   }
 
