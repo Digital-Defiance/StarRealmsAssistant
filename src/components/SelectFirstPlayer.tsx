@@ -16,6 +16,7 @@ import theme from '@/components/theme';
 import CenteredContainer from '@/components/CenteredContainer';
 import TabTitle from '@/components/TabTitle';
 import SuperCapsText from '@/components/SuperCapsText';
+import { IGame } from '@/game/interfaces/game';
 
 interface SelectFirstPlayerProps {
   nextStep: () => void;
@@ -27,7 +28,7 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
   const selectRandomFirstPlayer = useCallback(() => {
     if (gameState.players.length > 0) {
       const randomIndex = Math.floor(Math.random() * gameState.players.length);
-      setGameState((prevState) => ({
+      setGameState((prevState: IGame) => ({
         ...prevState,
         currentPlayerIndex: randomIndex,
         firstPlayerIndex: randomIndex,
@@ -50,7 +51,7 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
               key={player.name}
               selected={gameState.selectedPlayerIndex === index}
               onClick={() => {
-                setGameState((prevState) => ({
+                setGameState((prevState: IGame) => ({
                   ...prevState,
                   selectedPlayerIndex: index,
                   currentPlayerIndex: index,

@@ -22,6 +22,7 @@ import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
 import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import '@/styles.scss';
+import { IGame } from '@/game/interfaces/game';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -77,7 +78,7 @@ const Player: React.FC = () => {
     linkedActionId?: string
   ): ILogEntry => {
     let logEntry: ILogEntry | undefined;
-    setGameState((prevState) => {
+    setGameState((prevState: IGame) => {
       try {
         const updatedGame = updatePlayerField(
           prevState,
@@ -129,7 +130,7 @@ const Player: React.FC = () => {
   const showGlobalMats = gameState.options.expansions.risingSun && gameState.risingSun;
 
   const handleProphecyIncrease = () => {
-    setGameState((prevState) => {
+    setGameState((prevState: IGame) => {
       if (prevState.risingSun && prevState.options.expansions.risingSun) {
         const newGameState = { ...prevState };
         // prophecy is always triggered by the selected player, not the current player in case there is an off-turn action triggered by a defense, etc
@@ -148,7 +149,7 @@ const Player: React.FC = () => {
   };
 
   const handleProphecyDecrease = () => {
-    setGameState((prevState) => {
+    setGameState((prevState: IGame) => {
       if (prevState.risingSun && prevState.options.expansions.risingSun) {
         if (prevState.risingSun.prophecy.suns - 1 < 0) {
           return prevState;

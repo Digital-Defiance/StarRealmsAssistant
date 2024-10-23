@@ -18,6 +18,7 @@ import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { useAlert } from '@/components/AlertContext';
 import { Location, NavigateFunction } from 'react-router-dom';
+import { IGame } from '@/game/interfaces/game';
 
 interface DominionAssistantProps {
   route: Location;
@@ -47,7 +48,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   };
 
   const nextStep = () => {
-    setGameState((prevState) => ({
+    setGameState((prevState: IGame) => ({
       ...prevState,
       currentStep: StepTransitions[prevState.currentStep] || prevState.currentStep,
     }));
@@ -58,14 +59,14 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
    */
   const startGame = () => {
     // The game initialization is now handled in SetGameOptions
-    setGameState((prevState) => ({
+    setGameState((prevState: IGame) => ({
       ...prevState,
       currentStep: CurrentStep.GameScreen,
     }));
   };
 
   const nextTurn = () => {
-    setGameState((prevGame) => {
+    setGameState((prevGame: IGame) => {
       const nextPlayerIndex = getNextPlayerIndex(prevGame);
       addLogEntry(
         prevGame,
@@ -83,7 +84,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   };
 
   const endGame = () => {
-    setGameState((prevState) => {
+    setGameState((prevState: IGame) => {
       addLogEntry(
         prevState,
         NO_PLAYER,

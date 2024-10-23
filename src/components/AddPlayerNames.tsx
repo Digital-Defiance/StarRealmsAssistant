@@ -13,13 +13,14 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { SketchPicker } from 'react-color';
+import { ColorResult, SketchPicker } from 'react-color';
 import { useGameContext } from '@/components/GameContext';
 import { newPlayer } from '@/game/dominion-lib';
 import { MAX_PLAYERS, MIN_PLAYERS } from '@/game/constants';
 import SuperCapsText from '@/components/SuperCapsText';
 import CenteredContainer from '@/components/CenteredContainer';
 import TabTitle from '@/components/TabTitle';
+import { IGame } from '@/game/interfaces/game';
 
 interface AddPlayerNamesProps {
   nextStep: () => void;
@@ -36,7 +37,7 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(-1);
 
   useEffect(() => {
-    setGameState((prevState) => ({
+    setGameState((prevState: IGame) => ({
       ...prevState,
       numSets: prevState.players.length > 4 ? 2 : 1,
     }));
@@ -45,7 +46,7 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   const addPlayer = () => {
     if (playerName.trim()) {
       const nextPlayerIndex = gameState.players.length; // +1, -1
-      setGameState((prevState) => ({
+      setGameState((prevState: IGame) => ({
         ...prevState,
         players: [...prevState.players, newPlayer(playerName, nextPlayerIndex)],
       }));
@@ -54,7 +55,7 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   };
 
   const removePlayer = (index: number) => {
-    setGameState((prevState) => ({
+    setGameState((prevState: IGame) => ({
       ...prevState,
       players: prevState.players.filter((_, i) => i !== index),
     }));
@@ -65,9 +66,9 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleColorChange = (color: any) => {
+  const handleColorChange = (color: ColorResult) => {
     if (currentPlayerIndex !== -1) {
-      setGameState((prevState) => {
+      setGameState((prevState: IGame) => {
         const players = [...prevState.players];
         players[currentPlayerIndex].color = color.hex;
         return { ...prevState, players };

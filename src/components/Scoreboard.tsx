@@ -18,6 +18,7 @@ import { calculateVictoryPoints } from '@/game/dominion-lib';
 import { useGameContext } from '@/components/GameContext';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { IGame } from '@/game/interfaces/game';
 
 const TableText = styled(Typography)(() => ({
   fontFamily: 'TrajanProBold',
@@ -40,7 +41,7 @@ const Scoreboard: React.FC = () => {
   }
 
   const handlePlayerSelect = (index: number) => {
-    setGameState((prevState) => {
+    setGameState((prevState: IGame) => {
       addLogEntry(
         prevState,
         index,
