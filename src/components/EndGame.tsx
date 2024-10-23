@@ -16,6 +16,7 @@ import { calculateVictoryPoints, rankPlayers } from '@/game/dominion-lib';
 import TabTitle from '@/components/TabTitle';
 import CenteredContainer from '@/components/CenteredContainer';
 import { RankedPlayer } from '@/game/interfaces/ranked-player';
+import { IPlayer } from '@/game/interfaces/player';
 
 interface EndGameProps {
   game: IGame;
@@ -41,30 +42,33 @@ const EndGame: React.FC<EndGameProps> = ({ game, onNewGame }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {playerScores.map((rankedPlayer) => (
-              <TableRow key={game.players[rankedPlayer.index].name}>
-                <TableCell>{rankedPlayer.rank}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={game.players[rankedPlayer.index].name.charAt(0).toUpperCase()}
-                    size="small"
-                    style={{
-                      backgroundColor: game.players[rankedPlayer.index].color || 'gray',
-                      color: 'white',
-                      marginRight: '8px',
-                    }}
-                  />
-                  {game.players[rankedPlayer.index].name}
-                  {rankedPlayer.rank === 1 && (
-                    <EmojiEventsIcon
-                      color="primary"
-                      sx={{ marginLeft: 1, verticalAlign: 'middle' }}
+            {playerScores.map((rankedPlayer: RankedPlayer) => {
+              const player: IPlayer = game.players[rankedPlayer.index];
+              return (
+                <TableRow key={player.name}>
+                  <TableCell>{rankedPlayer.rank}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={player.name.charAt(0).toUpperCase()}
+                      size="small"
+                      style={{
+                        backgroundColor: player.color || 'gray',
+                        color: 'white',
+                        marginRight: '8px',
+                      }}
                     />
-                  )}
-                </TableCell>
-                <TableCell align="right">{rankedPlayer.score}</TableCell>
-              </TableRow>
-            ))}
+                    {player.name}
+                    {rankedPlayer.rank === 1 && (
+                      <EmojiEventsIcon
+                        color="primary"
+                        sx={{ marginLeft: 1, verticalAlign: 'middle' }}
+                      />
+                    )}
+                  </TableCell>
+                  <TableCell align="right">{rankedPlayer.score}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
