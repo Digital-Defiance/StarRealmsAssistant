@@ -31,6 +31,7 @@ describe('canUndoAction', () => {
     action,
     count,
     playerIndex: 0,
+    currentPlayerIndex: 0,
     playerTurnDetails:
       action === GameLogActionWithCount.NEXT_TURN
         ? [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }]

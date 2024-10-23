@@ -62,7 +62,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
   const actionText = logEntryToString(entry);
 
   const relevantPlayer = entry.playerIndex > -1 ? gameState.players[entry.playerIndex] : undefined;
-  const isActivePlayer = entry.playerIndex === gameState.currentPlayerIndex;
+  const isActivePlayer = entry.playerIndex === entry.currentPlayerIndex;
   const isNewTurn = entry.action === GameLogActionWithCount.NEXT_TURN;
   const isAttributeChange = AdjustmentActions.includes(entry.action);
   const isAttributeChangeOutOfTurn = isAttributeChange && !isActivePlayer;

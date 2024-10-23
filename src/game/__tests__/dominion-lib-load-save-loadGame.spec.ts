@@ -66,6 +66,7 @@ describe('loadGame', () => {
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
           playerIndex: 0,
+          currentPlayerIndex: 0,
         },
       ],
     });
@@ -88,12 +89,14 @@ describe('loadGame', () => {
           action: GameLogActionWithCount.START_GAME,
           timestamp: new Date(),
           playerIndex: 0,
+          currentPlayerIndex: 0,
         },
         {
           id: saveGameLogId,
           action: GameLogActionWithCount.SAVE_GAME,
           timestamp: new Date(),
           playerIndex: NO_PLAYER,
+          currentPlayerIndex: 0,
         },
       ],
     });
@@ -109,6 +112,7 @@ describe('loadGame', () => {
           id: expect.any(String),
           timestamp: expect.any(Date),
           playerIndex: NO_PLAYER,
+          currentPlayerIndex: 0,
           action: GameLogActionWithCount.LOAD_GAME,
           linkedActionId: saveGameLogId,
         },

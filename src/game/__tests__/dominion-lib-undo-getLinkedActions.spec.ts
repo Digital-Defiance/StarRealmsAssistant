@@ -12,6 +12,7 @@ describe('getLinkedActions', () => {
     timestamp: new Date(),
     action,
     playerIndex: 0,
+    currentPlayerIndex: 0,
     count: 1,
     linkedActionId,
   });

@@ -1,12 +1,37 @@
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 
 export interface ILogEntryRaw {
+  /**
+   * Unique identifier for this log entry
+   */
   id: string;
+  /**
+   * Timestamp of the log entry
+   */
   timestamp: string;
+  /**
+   * Action that was taken
+   */
   action: string;
+  /**
+   * Index of the player that took the action
+   */
   playerIndex: number;
+  /**
+   * Index of the player whose turn it is
+   */
+  currentPlayerIndex: number;
+  /**
+   * Count of value added/removed
+   */
   count?: number;
+  /**
+   * Whether the action was a correction
+   */
   correction?: boolean;
+  /**
+   * Id of the main action this was linked to, if any
+   */
   linkedActionId?: string;
   /**
    * Index of the previously selected player

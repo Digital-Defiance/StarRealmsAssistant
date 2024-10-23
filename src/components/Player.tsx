@@ -90,11 +90,17 @@ const Player: React.FC = () => {
           return prevState;
         }
         const action = victoryFieldToGameLogAction(field, subfield, increment);
-        logEntry = addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
-          count: Math.abs(increment),
-          correction: isCorrection,
-          linkedActionId,
-        });
+        logEntry = addLogEntry(
+          updatedGame,
+          updatedGame.selectedPlayerIndex,
+          updatedGame.currentPlayerIndex,
+          action,
+          {
+            count: Math.abs(increment),
+            correction: isCorrection,
+            linkedActionId,
+          }
+        );
         return updatedGame;
       } catch (error) {
         if (error instanceof Error) {
@@ -130,6 +136,7 @@ const Player: React.FC = () => {
         addLogEntry(
           newGameState,
           newGameState.selectedPlayerIndex,
+          newGameState.currentPlayerIndex,
           GameLogActionWithCount.ADD_PROPHECY,
           { count: 1 }
         );
@@ -150,6 +157,7 @@ const Player: React.FC = () => {
         addLogEntry(
           newGameState,
           newGameState.selectedPlayerIndex,
+          newGameState.currentPlayerIndex,
           GameLogActionWithCount.REMOVE_PROPHECY,
           { count: 1 }
         );

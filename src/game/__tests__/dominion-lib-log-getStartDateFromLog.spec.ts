@@ -12,6 +12,7 @@ describe('getStartDateFromLog', () => {
           id: '1',
           timestamp: new Date(),
           playerIndex: 0,
+          currentPlayerIndex: 0,
           action: GameLogActionWithCount.ADD_ACTIONS,
           count: 1,
         },
@@ -24,6 +25,7 @@ describe('getStartDateFromLog', () => {
         id: '1',
         timestamp: new Date('2023-01-01T00:00:00Z'),
         playerIndex: 0,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.START_GAME,
       },
     ];
@@ -37,12 +39,14 @@ describe('getStartDateFromLog', () => {
         id: '1',
         timestamp: new Date('2023-01-02T00:00:00Z'),
         playerIndex: 0,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.START_GAME,
       },
       {
         id: '2',
         timestamp: new Date('2023-01-02T01:00:00Z'),
         playerIndex: 1,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.ADD_COINS,
       },
     ];
@@ -56,18 +60,21 @@ describe('getStartDateFromLog', () => {
         id: '1',
         timestamp: new Date('2023-01-03T00:00:00Z'),
         playerIndex: 0,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.START_GAME,
       },
       {
         id: '2',
         timestamp: new Date('2023-01-03T01:00:00Z'),
         playerIndex: 1,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.ADD_COINS,
       },
       {
         id: '3',
         timestamp: new Date('2023-01-03T02:00:00Z'),
         playerIndex: 2,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.REMOVE_COINS,
       },
     ];
@@ -81,12 +88,14 @@ describe('getStartDateFromLog', () => {
         id: '1',
         timestamp: new Date('2023-01-01T00:00:00Z'),
         playerIndex: 0,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.START_GAME,
       },
       {
         id: '2',
         timestamp: new Date('2023-01-01T00:00:00Z'),
         playerIndex: 1,
+        currentPlayerIndex: 0,
         action: GameLogActionWithCount.ADD_COINS,
       },
     ];

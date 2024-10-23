@@ -9,6 +9,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
       count: 5,
     };
@@ -20,6 +21,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
       count: 5,
     };
@@ -31,6 +33,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
@@ -41,6 +44,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
@@ -51,6 +55,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
       count: 3,
     };
@@ -62,6 +67,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
       count: undefined,
     };
@@ -73,6 +79,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
       count: 2,
       correction: true,
@@ -85,6 +92,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
       count: 4,
       linkedActionId: 'some-linked-action-id',
@@ -97,6 +105,7 @@ describe('logEntryToString', () => {
       id: faker.string.uuid(),
       timestamp: new Date(),
       playerIndex: 0,
+      currentPlayerIndex: 0,
       action: GameLogActionWithCount.ADD_COINS,
       count: 6,
       correction: true,

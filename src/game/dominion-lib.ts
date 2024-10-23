@@ -192,6 +192,7 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
         id: uuidv4(),
         timestamp: new Date(),
         playerIndex: gameStateWithOptions.firstPlayerIndex,
+        currentPlayerIndex: gameStateWithOptions.firstPlayerIndex,
         action: GameLogActionWithCount.START_GAME,
       },
     ],

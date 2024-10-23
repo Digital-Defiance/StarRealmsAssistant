@@ -8,6 +8,7 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -22,6 +23,7 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -36,6 +38,7 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T01:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -50,6 +53,7 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -64,6 +68,7 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -78,6 +83,7 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -92,6 +98,7 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
@@ -106,18 +113,21 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
       {
         id: '2',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T01:00:00Z'),
         action: GameLogActionWithCount.SAVE_GAME,
       },
       {
         id: '3',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T02:00:00Z'),
         action: GameLogActionWithCount.LOAD_GAME,
       },
@@ -132,30 +142,35 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
       {
         id: '2',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T01:00:00Z'),
         action: GameLogActionWithCount.SAVE_GAME,
       },
       {
         id: '3',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T02:00:00Z'),
         action: GameLogActionWithCount.LOAD_GAME,
       },
       {
         id: '4',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T03:00:00Z'),
         action: GameLogActionWithCount.SAVE_GAME,
       },
       {
         id: '5',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T04:00:00Z'),
         action: GameLogActionWithCount.LOAD_GAME,
       },
@@ -170,24 +185,28 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
       {
         id: '2',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T01:00:00Z'),
         action: GameLogActionWithCount.SAVE_GAME,
       },
       {
         id: '3',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T02:00:00Z'),
         action: GameLogActionWithCount.SAVE_GAME,
       },
       {
         id: '4',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T03:00:00Z'),
         action: GameLogActionWithCount.LOAD_GAME,
       },
@@ -202,12 +221,14 @@ describe('getTimeSpanFromStartGame', () => {
       {
         id: '1',
         playerIndex: 0,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
         action: GameLogActionWithCount.START_GAME,
       },
       {
         id: '2',
         playerIndex: -1,
+        currentPlayerIndex: 0,
         timestamp: new Date('2023-01-01T01:00:00Z'),
         action: GameLogActionWithCount.SAVE_GAME,
       },

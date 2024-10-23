@@ -213,6 +213,7 @@ export function getTimeSpanFromStartGame(log: ILogEntry[], eventTime: Date): str
 export function addLogEntry(
   game: IGame,
   playerIndex: number,
+  currentPlayerIndex: number,
   action: GameLogActionWithCount,
   overrides?: Partial<ILogEntry>
 ): ILogEntry {
@@ -230,6 +231,7 @@ export function addLogEntry(
     timestamp: new Date(),
     action,
     playerIndex,
+    currentPlayerIndex,
     ...overrides,
   };
   game.log.push(newLog);

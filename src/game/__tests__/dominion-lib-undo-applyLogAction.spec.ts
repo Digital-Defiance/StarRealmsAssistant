@@ -25,6 +25,7 @@ describe('applyLogAction', () => {
       timestamp: new Date(),
       playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
       prevPlayerIndex: 0,
+      currentPlayerIndex: 1,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -54,6 +55,7 @@ describe('applyLogAction', () => {
       id: '1',
       timestamp: new Date(),
       prevPlayerIndex: 0,
+      currentPlayerIndex: 1,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -70,6 +72,7 @@ describe('applyLogAction', () => {
       id: '1',
       timestamp: new Date(),
       prevPlayerIndex: 1,
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -85,6 +88,7 @@ describe('applyLogAction', () => {
       count: 2,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -100,6 +104,7 @@ describe('applyLogAction', () => {
       count: 2,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -116,6 +121,7 @@ describe('applyLogAction', () => {
       count: 3,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -132,6 +138,7 @@ describe('applyLogAction', () => {
       count: 2,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -146,6 +153,7 @@ describe('applyLogAction', () => {
       count: 2,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     expect(() => applyLogAction(mockGame, logEntry)).toThrow(NotEnoughSubfieldError);
@@ -160,6 +168,7 @@ describe('applyLogAction', () => {
       count: 2,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     expect(() => applyLogAction(mockGame, logEntry)).toThrow(NotEnoughProphecyError);
@@ -173,6 +182,7 @@ describe('applyLogAction', () => {
       playerIndex: NO_PLAYER,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -188,6 +198,7 @@ describe('applyLogAction', () => {
       playerIndex: NO_PLAYER,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -201,6 +212,7 @@ describe('applyLogAction', () => {
       playerIndex: 0,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const startingActions = mockGame.players[0].turn.actions;
@@ -216,6 +228,7 @@ describe('applyLogAction', () => {
       count: 2,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -230,6 +243,7 @@ describe('applyLogAction', () => {
       count: 1,
       id: '1',
       timestamp: new Date(),
+      currentPlayerIndex: 0,
     };
 
     const result = applyLogAction(mockGame, logEntry);
@@ -247,6 +261,7 @@ describe('applyLogAction', () => {
       playerIndex: 2,
       timestamp: new Date(),
       action: GameLogActionWithCount.SELECT_PLAYER,
+      currentPlayerIndex: 2,
     };
 
     const updatedGame = applyLogAction(game, logEntry);
@@ -263,6 +278,7 @@ describe('applyLogAction', () => {
       playerIndex: 0,
       timestamp: new Date(),
       action: GameLogActionWithCount.SELECT_PLAYER,
+      currentPlayerIndex: 0,
     };
 
     const updatedGame = applyLogAction(game, logEntry);
@@ -280,6 +296,7 @@ describe('applyLogAction', () => {
       timestamp: new Date(),
       action: GameLogActionWithCount.ADD_ACTIONS,
       count: 1,
+      currentPlayerIndex: 0,
     };
 
     const updatedGame = applyLogAction(game, logEntry);

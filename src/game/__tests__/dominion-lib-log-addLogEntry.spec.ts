@@ -11,7 +11,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with minimal fields', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.START_GAME);
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.START_GAME);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
@@ -21,7 +21,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with all fields', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       correction: false,
       linkedActionId: 'linkedActionId',
@@ -40,7 +40,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with only some fields overridden', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, { count: 5 });
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.ADD_COINS, { count: 5 });
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
@@ -52,12 +52,12 @@ describe('addLogEntry', () => {
 
   it('should handle invalid player index gracefully', () => {
     expect(() => {
-      addLogEntry(mockGame, 99, GameLogActionWithCount.ADD_COINS, { count: 5 });
+      addLogEntry(mockGame, 99, 0, GameLogActionWithCount.ADD_COINS, { count: 5 });
     }).toThrow('Player index is out of range');
   });
 
   it('should add a log entry with a correction flag', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       correction: true,
     });
@@ -73,7 +73,7 @@ describe('addLogEntry', () => {
 
   it('should add a log entry with player turn details', () => {
     const playerTurnDetails = [{ playerIndex: 0, actions: 1, buys: 1, coins: 1 }];
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       playerTurnDetails,
     });
@@ -90,24 +90,24 @@ describe('addLogEntry', () => {
   // New edge cases
   it('should throw an error when player index is required but not provided', () => {
     expect(() => {
-      addLogEntry(mockGame, -1, GameLogActionWithCount.ADD_COINS, { count: 5 });
+      addLogEntry(mockGame, -1, 0, GameLogActionWithCount.ADD_COINS, { count: 5 });
     }).toThrow('Player index is required for this action');
   });
 
   it('should throw an error when player index is out of range', () => {
     expect(() => {
-      addLogEntry(mockGame, 99, GameLogActionWithCount.ADD_COINS, { count: 5 });
+      addLogEntry(mockGame, 99, 0, GameLogActionWithCount.ADD_COINS, { count: 5 });
     }).toThrow('Player index is out of range');
   });
 
   it('should throw an error when player index is provided for an action that does not require it', () => {
     expect(() => {
-      addLogEntry(mockGame, 0, GameLogActionWithCount.END_GAME, { count: 5 });
+      addLogEntry(mockGame, 0, 0, GameLogActionWithCount.END_GAME, { count: 5 });
     }).toThrow('Player index is not relevant for this action');
   });
 
   it('should add a log entry with a valid NoPlayerActions action and playerIndex set to -1', () => {
-    addLogEntry(mockGame, -1, GameLogActionWithCount.END_GAME);
+    addLogEntry(mockGame, -1, 0, GameLogActionWithCount.END_GAME);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: -1,
@@ -118,18 +118,18 @@ describe('addLogEntry', () => {
 
   it('should throw an error when player index is provided for a NoPlayerActions action', () => {
     expect(() => {
-      addLogEntry(mockGame, 0, GameLogActionWithCount.END_GAME);
+      addLogEntry(mockGame, 0, 0, GameLogActionWithCount.END_GAME);
     }).toThrow('Player index is not relevant for this action');
   });
 
   it('should throw an error when player index is out of range for a NoPlayerActions action', () => {
     expect(() => {
-      addLogEntry(mockGame, 99, GameLogActionWithCount.END_GAME);
+      addLogEntry(mockGame, 99, 0, GameLogActionWithCount.END_GAME);
     }).toThrow('Player index is not relevant for this action');
   });
 
   it('should add a log entry with a valid NoPlayerActions action and playerIndex set to -1 with overrides', () => {
-    addLogEntry(mockGame, -1, GameLogActionWithCount.END_GAME, {
+    addLogEntry(mockGame, -1, 0, GameLogActionWithCount.END_GAME, {
       correction: true,
     });
     expect(mockGame.log).toContainEqual(
@@ -141,7 +141,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 with overrides', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.ADD_COINS, {
       count: 5,
       correction: true,
     });
@@ -156,7 +156,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 without overrides', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS);
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.ADD_COINS);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
@@ -166,7 +166,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 with undefined overrides', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, undefined);
+    addLogEntry(mockGame, 0, 0, GameLogActionWithCount.ADD_COINS, undefined);
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
