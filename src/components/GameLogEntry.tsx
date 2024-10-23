@@ -24,6 +24,7 @@ import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
 import { getTimeSpanFromStartGame, logEntryToString } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { AdjustmentActions } from '@/game/constants';
+import ColoredPlayerName from '@/components/ColoredPlayerName';
 
 interface GameLogEntryProps {
   logIndex: number;
@@ -66,6 +67,10 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
   const isNewTurn = entry.action === GameLogActionWithCount.NEXT_TURN;
   const isAttributeChange = AdjustmentActions.includes(entry.action);
   const isAttributeChangeOutOfTurn = isAttributeChange && !isActivePlayer;
+  const isNotTriggeredByPlayer = [
+    GameLogActionWithCount.SELECT_PLAYER,
+    GameLogActionWithCount.NEXT_TURN,
+  ].includes(entry.action);
 
   if (entry.playerIndex > -1 && !gameState.players[entry.playerIndex]) {
     console.warn(`Player not found for index ${entry.playerIndex}`, {
@@ -106,17 +111,8 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
               />
             )}
             <Box display="flex" alignItems="center" flexGrow={1}>
-              {relevantPlayer !== undefined && (
-                <Typography
-                  component="span"
-                  sx={{
-                    color: relevantPlayer.color,
-                    fontWeight: 'bold',
-                    marginRight: '4px',
-                  }}
-                >
-                  &lt;{relevantPlayer.name}&gt;:
-                </Typography>
+              {relevantPlayer !== undefined && !isNotTriggeredByPlayer && (
+                <ColoredPlayerName player={relevantPlayer} marginDirection="right" />
               )}
               <Typography
                 variant="body2"
@@ -128,6 +124,9 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
               >
                 {actionText}
               </Typography>
+              {isNotTriggeredByPlayer && relevantPlayer !== undefined && (
+                <ColoredPlayerName player={relevantPlayer} marginDirection="left" />
+              )}
               {isAttributeChangeOutOfTurn && (
                 <ChangeCircleIcon
                   fontSize="small"
