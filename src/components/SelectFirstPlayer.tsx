@@ -1,6 +1,16 @@
 import React, { useCallback, useEffect } from 'react';
-import { Button, List, ListItemIcon, ListItemText, ListItemButton, Box } from '@mui/material';
+import {
+  Button,
+  List,
+  ListItemIcon,
+  ListItemText,
+  ListItemButton,
+  Box,
+  Tooltip,
+  IconButton,
+} from '@mui/material';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import ShuffleIcon from '@mui/icons-material/Shuffle';
 import { useGameContext } from '@/components/GameContext';
 import theme from '@/components/theme';
 import CenteredContainer from '@/components/CenteredContainer';
@@ -33,47 +43,51 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
   return (
     <CenteredContainer>
       <TabTitle>Select First Player</TabTitle>
-      <List>
-        {gameState.players.map((player, index) => (
-          <ListItemButton
-            key={player.name}
-            selected={gameState.selectedPlayerIndex === index}
-            onClick={() => {
-              setGameState((prevState) => ({
-                ...prevState,
-                selectedPlayerIndex: index,
-                currentPlayerIndex: index,
-                firstPlayerIndex: index,
-              }));
-            }}
-          >
-            <ListItemIcon>
-              {gameState.selectedPlayerIndex === index && (
-                <ArrowRightIcon style={{ color: theme.palette.secondary.main }} />
-              )}
-            </ListItemIcon>
-            <ListItemText
-              primary={
-                <Box display="flex" alignItems="center">
-                  <Box
-                    sx={{
-                      width: 24,
-                      height: 24,
-                      backgroundColor: player.color,
-                      cursor: 'pointer',
-                      marginRight: 1,
-                    }}
-                  />
-                  <SuperCapsText className="typography-title">{player.name}</SuperCapsText>
-                </Box>
-              }
-            />
-          </ListItemButton>
-        ))}
-      </List>
-      <Button variant="contained" color="primary" onClick={selectRandomFirstPlayer}>
-        Select Random First Player
-      </Button>
+      <Box display="flex" justifyContent="space-between" alignItems="center" width="100%">
+        <List>
+          {gameState.players.map((player, index) => (
+            <ListItemButton
+              key={player.name}
+              selected={gameState.selectedPlayerIndex === index}
+              onClick={() => {
+                setGameState((prevState) => ({
+                  ...prevState,
+                  selectedPlayerIndex: index,
+                  currentPlayerIndex: index,
+                  firstPlayerIndex: index,
+                }));
+              }}
+            >
+              <ListItemIcon>
+                {gameState.selectedPlayerIndex === index && (
+                  <ArrowRightIcon style={{ color: theme.palette.secondary.main }} />
+                )}
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Box display="flex" alignItems="center">
+                    <Box
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        backgroundColor: player.color,
+                        cursor: 'pointer',
+                        marginRight: 1,
+                      }}
+                    />
+                    <SuperCapsText className="typography-title">{player.name}</SuperCapsText>
+                  </Box>
+                }
+              />
+            </ListItemButton>
+          ))}
+        </List>
+        <Tooltip title="Select Random First Player">
+          <IconButton onClick={selectRandomFirstPlayer} color="primary">
+            <ShuffleIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
       <Button
         variant="contained"
         style={{

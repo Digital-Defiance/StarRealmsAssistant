@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Typography,
-  Paper,
   Table,
   TableBody,
   TableCell,
@@ -9,11 +8,14 @@ import {
   TableHead,
   TableRow,
   Button,
+  Chip,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { IGame } from '@/game/interfaces/game';
-import { calculateVictoryPoints } from '@/game/dominion-lib';
-import SuperCapsText from '@/components/SuperCapsText';
+import { calculateVictoryPoints, rankPlayers } from '@/game/dominion-lib';
+import TabTitle from '@/components/TabTitle';
+import CenteredContainer from '@/components/CenteredContainer';
+import { RankedPlayer } from '@/game/interfaces/ranked-player';
 
 interface EndGameProps {
   game: IGame;
@@ -21,13 +23,11 @@ interface EndGameProps {
 }
 
 const EndGame: React.FC<EndGameProps> = ({ game, onNewGame }) => {
-  const sortedPlayers = [...game.players].sort(
-    (a, b) => calculateVictoryPoints(b) - calculateVictoryPoints(a)
-  );
+  const playerScores: RankedPlayer[] = rankPlayers(game.players, calculateVictoryPoints);
 
   return (
-    <Paper elevation={3} sx={{ padding: 2, maxWidth: 600, margin: 'auto' }}>
-      <SuperCapsText className={`typography-super-title`}>Game Over</SuperCapsText>
+    <CenteredContainer>
+      <TabTitle>Game Over</TabTitle>
       <Typography variant="h6" component="div" gutterBottom align="center">
         Total Turns: {game.currentTurn}
       </Typography>
@@ -41,19 +41,28 @@ const EndGame: React.FC<EndGameProps> = ({ game, onNewGame }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedPlayers.map((player, index) => (
-              <TableRow key={player.name}>
-                <TableCell>{index + 1}</TableCell>
+            {playerScores.map((rankedPlayer) => (
+              <TableRow key={game.players[rankedPlayer.index].name}>
+                <TableCell>{rankedPlayer.rank}</TableCell>
                 <TableCell>
-                  {player.name}
-                  {index === 0 && (
+                  <Chip
+                    label={game.players[rankedPlayer.index].name.charAt(0).toUpperCase()}
+                    size="small"
+                    style={{
+                      backgroundColor: game.players[rankedPlayer.index].color || 'gray',
+                      color: 'white',
+                      marginRight: '8px',
+                    }}
+                  />
+                  {game.players[rankedPlayer.index].name}
+                  {rankedPlayer.rank === 1 && (
                     <EmojiEventsIcon
                       color="primary"
                       sx={{ marginLeft: 1, verticalAlign: 'middle' }}
                     />
                   )}
                 </TableCell>
-                <TableCell align="right">{calculateVictoryPoints(player)}</TableCell>
+                <TableCell align="right">{rankedPlayer.score}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -62,7 +71,7 @@ const EndGame: React.FC<EndGameProps> = ({ game, onNewGame }) => {
       <Button variant="contained" color="primary" onClick={onNewGame} sx={{ mt: 2 }}>
         New Game
       </Button>
-    </Paper>
+    </CenteredContainer>
   );
 };
 

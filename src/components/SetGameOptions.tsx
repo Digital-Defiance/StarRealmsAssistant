@@ -97,7 +97,7 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
       />
 
       {gameState.options.expansions.risingSun && (
-        <Box sx={{ paddingLeft: 1 }}>
+        <Box>
           <OptionItem
             checked={gameState.risingSun?.greatLeaderProphecy || false}
             onChange={(e) =>

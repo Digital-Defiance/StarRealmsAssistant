@@ -19,11 +19,13 @@ describe('NewGameState', () => {
   });
 
   it('should initialize a new game state with default options', () => {
+    const firstPlayerIndex = faker.number.int({ min: 0, max: 1 });
     const initialGameState: IGame = {
       ...EmptyGameState,
       players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
-      currentPlayerIndex: faker.number.int({ min: 0, max: 1 }),
-      firstPlayerIndex: faker.number.int({ min: 0, max: 1 }),
+      currentPlayerIndex: firstPlayerIndex,
+      firstPlayerIndex: firstPlayerIndex,
+      selectedPlayerIndex: firstPlayerIndex,
     };
 
     const result = NewGameState(initialGameState);

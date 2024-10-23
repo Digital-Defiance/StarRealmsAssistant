@@ -36,6 +36,7 @@ import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { MinPlayersError } from '@/game/errors/min-players';
 import { MaxPlayersError } from '@/game/errors/max-players';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
+import { RankedPlayer } from '@/game/interfaces/ranked-player';
 
 /**
  * Calculate the victory points for a player.
@@ -194,6 +195,9 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
         action: GameLogActionWithCount.START_GAME,
       },
     ],
+    selectedPlayerIndex: gameStateWithOptions.firstPlayerIndex,
+    currentPlayerIndex: gameStateWithOptions.firstPlayerIndex,
+    firstPlayerIndex: gameStateWithOptions.firstPlayerIndex,
   };
 
   // Distribute initial supply to players
@@ -404,4 +408,54 @@ export function resetPlayerTurnCounters(prevGame: IGame): IGame {
       turn: { ...player.newTurn },
     })),
   };
+}
+
+/**
+ * Rank players based on their victory points.
+ * @param players - The list of players
+ * @param calculateVictoryPoints - A function to calculate the victory points for a player
+ * @returns An array of ranked players, sorted by score (descending) and then by name (ascending)
+ */
+export function rankPlayers(
+  players: IPlayer[],
+  calculateVictoryPoints: (player: IPlayer) => number
+): RankedPlayer[] {
+  // Calculate scores for each player
+  const playersWithScores = players.map((player, index) => ({
+    index,
+    score: calculateVictoryPoints(player),
+  }));
+
+  // Sort players by score (descending) and then by name (ascending)
+  playersWithScores.sort((a, b) => {
+    if (b.score === a.score) {
+      return players[a.index].name.localeCompare(players[b.index].name);
+    }
+    return b.score - a.score;
+  });
+
+  // Assign ranks considering ties
+  const rankedPlayers: RankedPlayer[] = [];
+  let currentRank = 1;
+
+  for (let i = 0; i < playersWithScores.length; i++) {
+    if (i > 0 && playersWithScores[i].score !== playersWithScores[i - 1].score) {
+      currentRank = i + 1;
+    }
+    rankedPlayers.push({
+      index: playersWithScores[i].index,
+      score: playersWithScores[i].score,
+      rank: currentRank,
+    });
+  }
+
+  // Sort the final array by rank and then by name within the same rank
+  rankedPlayers.sort((a, b) => {
+    if (a.rank === b.rank) {
+      return players[a.index].name.localeCompare(players[b.index].name);
+    }
+    return a.rank - b.rank;
+  });
+
+  return rankedPlayers;
 }
