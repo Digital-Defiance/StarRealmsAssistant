@@ -84,7 +84,7 @@ describe('victoryFieldToGameLogAction', () => {
 
   it('should fail for mats invalid field', () => {
     expect(() =>
-      victoryFieldToGameLogAction('mats', 'invalid' as any as PlayerSubField<'mats'>, 1)
+      victoryFieldToGameLogAction('mats', 'invalid' as unknown as PlayerSubField<'mats'>, 1)
     ).toThrow(InvalidFieldError);
   });
 
@@ -174,7 +174,7 @@ describe('victoryFieldToGameLogAction', () => {
 
   it('should fail for victory invalid field', () => {
     expect(() =>
-      victoryFieldToGameLogAction('victory', 'invalid' as any as PlayerSubField<'victory'>, 1)
+      victoryFieldToGameLogAction('victory', 'invalid' as unknown as PlayerSubField<'victory'>, 1)
     ).toThrow(InvalidFieldError);
   });
 

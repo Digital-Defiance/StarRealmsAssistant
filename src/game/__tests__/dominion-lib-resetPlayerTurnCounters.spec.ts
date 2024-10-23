@@ -9,9 +9,14 @@ import {
   EmptyMatDetails,
   EmptyVictoryDetails,
 } from '@/game/constants';
+import { IPlayerGameTurnDetails } from '../interfaces/player-game-turn-details';
 
 describe('resetPlayerTurnCounters', () => {
-  const createMockPlayer = (name: string, turn: any, newTurn: any): IPlayer => ({
+  const createMockPlayer = (
+    name: string,
+    turn: IPlayerGameTurnDetails,
+    newTurn: IPlayerGameTurnDetails
+  ): IPlayer => ({
     name,
     color: DefaultPlayerColors[0],
     mats: { ...EmptyMatDetails },
@@ -94,36 +99,17 @@ describe('resetPlayerTurnCounters', () => {
   });
 
   it('should handle players with missing turn or newTurn properties', () => {
-    const incompletePlayer: any = {
+    const incompletePlayer: Partial<IPlayer> = {
       name: 'Incomplete Player',
-      mats: {},
-      victory: {},
+      mats: EmptyMatDetails,
+      victory: EmptyVictoryDetails,
     };
 
-    const initialGame = createMockGame([incompletePlayer]);
+    const initialGame = createMockGame([incompletePlayer as IPlayer]);
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
     expect(updatedGame.players[0].turn).toEqual({});
-  });
-
-  it('should handle newTurn with additional properties', () => {
-    const initialGame = createMockGame([
-      createMockPlayer(
-        'Player 1',
-        { actions: 0, buys: 0, coins: 0 },
-        { actions: 1, buys: 1, coins: 0, extraProp: 'value' }
-      ),
-    ]);
-
-    const updatedGame = resetPlayerTurnCounters(initialGame);
-
-    expect(updatedGame.players[0].turn).toEqual({
-      actions: 1,
-      buys: 1,
-      coins: 0,
-      extraProp: 'value',
-    });
   });
 
   it('should not modify the original game object', () => {

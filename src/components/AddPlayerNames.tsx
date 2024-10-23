@@ -92,7 +92,13 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
           <ListItem
             key={index}
             secondaryAction={
-              <IconButton edge="end" aria-label="delete" onClick={() => removePlayer(index)}>
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => {
+                  removePlayer(index);
+                }}
+              >
                 <DeleteIcon />
               </IconButton>
             }
@@ -108,7 +114,9 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
                       cursor: 'pointer',
                       marginRight: 1,
                     }}
-                    onClick={(e) => handleColorClick(e, index)}
+                    onClick={(e) => {
+                      handleColorClick(e, index);
+                    }}
                   />
                   <StyledPlayerNumber className="typography-title">{`${index + 1}.`}</StyledPlayerNumber>
                   &nbsp;&nbsp;
@@ -124,7 +132,9 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
           <TextField
             fullWidth
             value={playerName}
-            onChange={(e) => setPlayerName(e.target.value)}
+            onChange={(e) => {
+              setPlayerName(e.target.value);
+            }}
             placeholder="Enter player name"
             variant="outlined"
           />

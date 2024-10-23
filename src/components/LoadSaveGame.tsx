@@ -162,14 +162,22 @@ const LoadSaveGame: React.FC = () => {
             key={game.id}
             disablePadding
             secondaryAction={
-              <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteGame(game.id)}>
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => {
+                  handleDeleteGame(game.id);
+                }}
+              >
                 <DeleteIcon />
               </IconButton>
             }
           >
             <ListItemButton
               selected={selectedGameId === game.id}
-              onClick={() => handleSelectGame(game)}
+              onClick={() => {
+                handleSelectGame(game);
+              }}
             >
               <ListItemText
                 primary={game.name}
@@ -209,7 +217,12 @@ const LoadSaveGame: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openOverwriteDialog} onClose={() => setOpenOverwriteDialog(false)}>
+      <Dialog
+        open={openOverwriteDialog}
+        onClose={() => {
+          setOpenOverwriteDialog(false);
+        }}
+      >
         <DialogTitle>Confirm Overwrite</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -217,7 +230,13 @@ const LoadSaveGame: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenOverwriteDialog(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setOpenOverwriteDialog(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button onClick={handleOverwriteConfirm} autoFocus>
             Overwrite
           </Button>

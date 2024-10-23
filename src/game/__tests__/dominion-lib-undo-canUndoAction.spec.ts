@@ -26,7 +26,7 @@ describe('canUndoAction', () => {
     id?: string,
     linkedActionId?: string
   ): ILogEntry => ({
-    id: id || faker.string.uuid(),
+    id: id ?? faker.string.uuid(),
     timestamp: new Date(),
     action,
     count,

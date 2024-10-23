@@ -1,5 +1,6 @@
 import { restoreSavedGameMetadata } from '@/game/dominion-lib-load-save';
 import { faker } from '@faker-js/faker';
+import { ISavedGameMetadataRaw } from '../interfaces/saved-game-metadata-raw';
 
 describe('restoreSavedGameMetadata', () => {
   it('should return an empty array when the input array is empty', () => {
@@ -8,7 +9,7 @@ describe('restoreSavedGameMetadata', () => {
   });
 
   it('should restore valid saved game metadata correctly', () => {
-    const validMetadata: any[] = [
+    const validMetadata: ISavedGameMetadataRaw[] = [
       {
         id: faker.string.uuid(),
         name: 'Test Game',

@@ -20,7 +20,7 @@ describe('undoAction', () => {
   let reconstructGameStateSpy: jest.SpyInstance;
 
   const createLogEntry = (action: GameLogActionWithCount, id?: string): ILogEntry => ({
-    id: id || faker.string.uuid(),
+    id: id ?? faker.string.uuid(),
     timestamp: new Date(),
     action,
     count: 1,

@@ -56,42 +56,54 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
 
       <OptionItem
         checked={gameState.options.curses}
-        onChange={(e) => updateOption('curses', true, e.target.checked)}
+        onChange={(e) => {
+          updateOption('curses', true, e.target.checked);
+        }}
         title="Curses"
         tooltip="Include curses in the game"
       />
 
       <OptionItem
         checked={gameState.options.mats.favors}
-        onChange={(e) => updateOption('mats', 'favors', e.target.checked)}
+        onChange={(e) => {
+          updateOption('mats', 'favors', e.target.checked);
+        }}
         title="Favors"
         tooltip="Include favors in the game"
       />
 
       <OptionItem
         checked={gameState.options.mats.debt}
-        onChange={(e) => updateOption('mats', 'debt', e.target.checked)}
+        onChange={(e) => {
+          updateOption('mats', 'debt', e.target.checked);
+        }}
         title="Debts"
         tooltip="Include debts in the game"
       />
 
       <OptionItem
         checked={gameState.options.mats.coffersVillagers}
-        onChange={(e) => updateOption('mats', 'coffersVillagers', e.target.checked)}
+        onChange={(e) => {
+          updateOption('mats', 'coffersVillagers', e.target.checked);
+        }}
         title="Coffers/Villagers"
         tooltip="Include coffers and villagers in the game"
       />
 
       <OptionItem
         checked={gameState.options.expansions.prosperity}
-        onChange={(e) => updateOption('expansions', 'prosperity', e.target.checked)}
+        onChange={(e) => {
+          updateOption('expansions', 'prosperity', e.target.checked);
+        }}
         title="Prosperity"
         tooltip="Include platinum and colonies in the game"
       />
 
       <OptionItem
         checked={gameState.options.expansions.risingSun}
-        onChange={(e) => updateOption('expansions', 'risingSun', e.target.checked)}
+        onChange={(e) => {
+          updateOption('expansions', 'risingSun', e.target.checked);
+        }}
         title="Rising Sun"
         tooltip="Enable Rising Sun"
       />
@@ -100,7 +112,7 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
         <Box>
           <OptionItem
             checked={gameState.risingSun?.greatLeaderProphecy || false}
-            onChange={(e) =>
+            onChange={(e) => {
               setGameState((prevState: IGame) => ({
                 ...prevState,
                 risingSun: {
@@ -109,8 +121,8 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
                   },
                   greatLeaderProphecy: e.target.checked,
                 },
-              }))
-            }
+              }));
+            }}
             title="Great Leader"
             tooltip="Enable Great Leader- +1 action after each action"
           />
