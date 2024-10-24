@@ -50,7 +50,7 @@ export function saveGame(
   existingId?: string
 ): boolean {
   // add the SAVE_GAME log entry
-  addLogEntry(game, NO_PLAYER, game.currentPlayerIndex, GameLogActionWithCount.SAVE_GAME);
+  addLogEntry(game, NO_PLAYER, GameLogActionWithCount.SAVE_GAME);
   try {
     const saveId = saveGameData(game, storageService, existingId);
     addToSavedGamesList(
@@ -253,15 +253,9 @@ export function loadGameAddLog(gameState: IGame): IGame {
   if (savedGameLog.action !== GameLogActionWithCount.SAVE_GAME) {
     throw new InvalidLogSaveGameError();
   }
-  addLogEntry(
-    gameState,
-    NO_PLAYER,
-    gameState.currentPlayerIndex,
-    GameLogActionWithCount.LOAD_GAME,
-    {
-      linkedActionId: savedGameLog.id,
-    }
-  );
+  addLogEntry(gameState, NO_PLAYER, GameLogActionWithCount.LOAD_GAME, {
+    linkedActionId: savedGameLog.id,
+  });
   return gameState;
 }
 

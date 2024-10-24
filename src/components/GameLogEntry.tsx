@@ -30,9 +30,15 @@ interface GameLogEntryProps {
   logIndex: number;
   entry: ILogEntry;
   isCurrentPlayer: boolean;
+  hasLinkedAction: boolean;
 }
 
-const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentPlayer }) => {
+const GameLogEntry: React.FC<GameLogEntryProps> = ({
+  logIndex,
+  entry,
+  isCurrentPlayer,
+  hasLinkedAction,
+}) => {
   const { gameState, setGameState } = useGameContext();
   const [openUndoDialog, setOpenUndoDialog] = useState(false);
 
@@ -127,6 +133,8 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
               {isNotTriggeredByPlayer && relevantPlayer !== undefined && (
                 <ColoredPlayerName player={relevantPlayer} marginDirection="left" />
               )}
+              {entry.action === GameLogActionWithCount.NEXT_TURN &&
+                `\u00A0(\u00A0${entry.turn}\u00A0)`}
               {isAttributeChangeOutOfTurn && (
                 <ChangeCircleIcon
                   fontSize="small"
@@ -143,7 +151,9 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, isCurrentP
           </Box>
         </TableCell>
         <TableCell style={{ width: '10%', textAlign: 'right' }}>
-          {entry.linkedActionId && <LinkIcon fontSize="small" color="action" />}
+          {(hasLinkedAction || entry.linkedActionId) && (
+            <LinkIcon fontSize="small" color="action" />
+          )}
           {canUndoAction(gameState, logIndex) && (
             <IconButton onClick={handleUndoClick} size="small">
               <Tooltip title="Undo this entry">

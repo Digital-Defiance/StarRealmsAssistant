@@ -42,6 +42,7 @@ describe('NewGameState', () => {
         action: GameLogActionWithCount.START_GAME,
         playerIndex: initialGameState.firstPlayerIndex,
         currentPlayerIndex: initialGameState.currentPlayerIndex,
+        turn: 1,
       } as ILogEntry,
     ]);
     expect(result.supply).toBeDefined();

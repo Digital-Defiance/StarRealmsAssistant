@@ -27,6 +27,7 @@ describe('restoreSavedGame', () => {
     timestamp: saveGameTime.toISOString(),
     playerIndex: NO_PLAYER,
     currentPlayerIndex: 0,
+    turn: 1,
   };
 
   // Assuming `createMockGameRaw` returns an IGameRaw object with string timestamps

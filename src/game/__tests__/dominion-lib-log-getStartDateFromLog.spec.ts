@@ -13,6 +13,7 @@ describe('getStartDateFromLog', () => {
           timestamp: new Date(),
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
           action: GameLogActionWithCount.ADD_ACTIONS,
           count: 1,
         },
@@ -26,6 +27,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-01T00:00:00Z'),
         playerIndex: 0,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.START_GAME,
       },
     ];
@@ -40,6 +42,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-02T00:00:00Z'),
         playerIndex: 0,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.START_GAME,
       },
       {
@@ -47,6 +50,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-02T01:00:00Z'),
         playerIndex: 1,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.ADD_COINS,
       },
     ];
@@ -61,6 +65,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-03T00:00:00Z'),
         playerIndex: 0,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.START_GAME,
       },
       {
@@ -68,6 +73,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-03T01:00:00Z'),
         playerIndex: 1,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.ADD_COINS,
       },
       {
@@ -75,6 +81,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-03T02:00:00Z'),
         playerIndex: 2,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.REMOVE_COINS,
       },
     ];
@@ -89,6 +96,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-01T00:00:00Z'),
         playerIndex: 0,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.START_GAME,
       },
       {
@@ -96,6 +104,7 @@ describe('getStartDateFromLog', () => {
         timestamp: new Date('2023-01-01T00:00:00Z'),
         playerIndex: 1,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.ADD_COINS,
       },
     ];

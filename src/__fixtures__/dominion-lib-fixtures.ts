@@ -48,6 +48,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
         timestamp: new Date(),
         playerIndex: 0,
         currentPlayerIndex: 0,
+        turn: 1,
         action: GameLogActionWithCount.START_GAME,
       },
     ],

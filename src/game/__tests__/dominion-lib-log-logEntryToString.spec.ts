@@ -10,6 +10,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
       count: 5,
     };
@@ -22,6 +23,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
       count: 5,
     };
@@ -34,6 +36,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
@@ -45,6 +48,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
@@ -56,6 +60,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
       count: 3,
     };
@@ -68,6 +73,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
       count: undefined,
     };
@@ -80,6 +86,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
       count: 2,
       correction: true,
@@ -93,6 +100,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
       count: 4,
       linkedActionId: 'some-linked-action-id',
@@ -106,6 +114,7 @@ describe('logEntryToString', () => {
       timestamp: new Date(),
       playerIndex: 0,
       currentPlayerIndex: 0,
+      turn: 1,
       action: GameLogActionWithCount.ADD_COINS,
       count: 6,
       correction: true,

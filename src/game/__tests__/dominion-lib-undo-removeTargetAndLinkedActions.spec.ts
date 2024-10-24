@@ -21,6 +21,7 @@ describe('removeTargetAndLinkedActions', () => {
     timestamp: new Date(),
     playerIndex: 0,
     currentPlayerIndex: 0,
+    turn: 1,
     count: 1,
     linkedActionId,
   });

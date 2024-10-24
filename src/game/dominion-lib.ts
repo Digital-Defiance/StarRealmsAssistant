@@ -183,6 +183,7 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
     ...gameStateWithOptions,
     players: gameStateWithOptions.players.map((player, index) => ({
       ...newPlayer(player.name, index),
+      color: gameStateWithOptions.players[index].color,
     })),
     supply: initialSupply,
     currentStep: CurrentStep.GameScreen,
@@ -193,6 +194,7 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
         timestamp: new Date(),
         playerIndex: gameStateWithOptions.firstPlayerIndex,
         currentPlayerIndex: gameStateWithOptions.firstPlayerIndex,
+        turn: 1,
         action: GameLogActionWithCount.START_GAME,
       },
     ],

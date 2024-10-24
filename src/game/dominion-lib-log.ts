@@ -15,7 +15,7 @@ import { NoPlayerActions } from '@/game/constants';
  * @param increment - The amount to increment the field by
  * @returns The game log action
  */
-export function victoryFieldToGameLogAction<T extends keyof PlayerFieldMap>(
+export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
   field: T,
   subfield: PlayerFieldMap[T],
   increment: number
@@ -213,7 +213,6 @@ export function getTimeSpanFromStartGame(log: ILogEntry[], eventTime: Date): str
 export function addLogEntry(
   game: IGame,
   playerIndex: number,
-  currentPlayerIndex: number,
   action: GameLogActionWithCount,
   overrides?: Partial<ILogEntry>
 ): ILogEntry {
@@ -231,7 +230,8 @@ export function addLogEntry(
     timestamp: new Date(),
     action,
     playerIndex,
-    currentPlayerIndex,
+    currentPlayerIndex: game.currentPlayerIndex,
+    turn: game.currentTurn,
     ...overrides,
   };
   game.log.push(newLog);

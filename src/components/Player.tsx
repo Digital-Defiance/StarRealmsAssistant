@@ -14,13 +14,11 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { useGameContext } from '@/components/GameContext';
 import SuperCapsText from '@/components/SuperCapsText';
 import IncrementDecrementControl from '@/components/IncrementDecrementControl';
-import { ILogEntry } from '@/game/interfaces/log-entry';
 import { updatePlayerField } from '@/game/dominion-lib';
-import { addLogEntry, victoryFieldToGameLogAction } from '@/game/dominion-lib-log';
+import { addLogEntry, fieldSubfieldToGameLogAction } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
-import { FailedAddLogEntryError } from '@/game/errors/failed-add-log';
 import '@/styles.scss';
 import { IGame } from '@/game/interfaces/game';
 
@@ -76,46 +74,96 @@ const Player: React.FC = () => {
     subfield: PlayerFieldMap[T],
     increment: number,
     linkedActionId?: string
-  ): ILogEntry => {
-    let logEntry: ILogEntry | undefined;
-    setGameState((prevState: IGame) => {
-      try {
-        const updatedGame = updatePlayerField(
-          prevState,
-          prevState.selectedPlayerIndex,
-          field,
-          subfield,
-          increment
-        );
-        if (!updatedGame) {
-          return prevState;
-        }
-        const action = victoryFieldToGameLogAction(field, subfield, increment);
-        logEntry = addLogEntry(
-          updatedGame,
-          updatedGame.selectedPlayerIndex,
-          updatedGame.currentPlayerIndex,
-          action,
-          {
-            count: Math.abs(increment),
-            correction: isCorrection,
-            linkedActionId,
-          }
-        );
-        return updatedGame;
-      } catch (error) {
-        if (error instanceof Error) {
-          showAlert('Could not increment', error.message);
-        } else {
-          showAlert('Could not increment', 'Unknown error');
-        }
-        return prevState;
+  ): void => {
+    const prevGame = { ...gameState };
+    try {
+      const updatedGame = updatePlayerField(
+        prevGame,
+        prevGame.selectedPlayerIndex,
+        field,
+        subfield,
+        increment
+      );
+      const action = fieldSubfieldToGameLogAction(field, subfield, increment);
+      addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
+        count: Math.abs(increment),
+        correction: isCorrection,
+        linkedActionId,
+      });
+      setGameState(updatedGame);
+    } catch (error) {
+      if (error instanceof Error) {
+        showAlert('Could not increment', error.message);
+      } else {
+        showAlert('Could not increment', 'Unknown error');
       }
-    });
-    if (!logEntry) {
-      throw new FailedAddLogEntryError();
+      setGameState(prevGame);
     }
-    return logEntry;
+  };
+
+  const handleCombinedFieldChange = <T extends keyof PlayerFieldMap>(
+    decrementField: T,
+    decrementSubfield: PlayerFieldMap[T],
+    decrement: number,
+    incrementField: T,
+    incrementSubfield: PlayerFieldMap[T],
+    increment: number
+  ): void => {
+    const prevGame = { ...gameState };
+    try {
+      // Perform the decrement action
+      const tempGame = updatePlayerField(
+        prevGame,
+        prevGame.selectedPlayerIndex,
+        decrementField,
+        decrementSubfield,
+        decrement
+      );
+      const decrementAction = fieldSubfieldToGameLogAction(
+        decrementField,
+        decrementSubfield,
+        decrement
+      );
+      const decrementLogEntry = addLogEntry(
+        tempGame,
+        tempGame.selectedPlayerIndex,
+        decrementAction,
+        {
+          count: Math.abs(decrement),
+          correction: isCorrection,
+        }
+      );
+
+      // Perform the increment action using the logEntry ID from the decrement action
+      const updatedGame = updatePlayerField(
+        tempGame,
+        tempGame.selectedPlayerIndex,
+        incrementField,
+        incrementSubfield,
+        increment
+      );
+      const incrementAction = fieldSubfieldToGameLogAction(
+        incrementField,
+        incrementSubfield,
+        increment
+      );
+      addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, incrementAction, {
+        count: Math.abs(increment),
+        correction: isCorrection,
+        linkedActionId: decrementLogEntry.id,
+      });
+
+      // Update the actual game state with the final updated game
+      setGameState(updatedGame);
+    } catch (error) {
+      if (error instanceof Error) {
+        showAlert('Could not update field', error.message);
+      } else {
+        showAlert('Could not update field', 'Unknown error');
+      }
+      // Rollback to the previous game state
+      setGameState(prevGame);
+    }
   };
 
   const handleCorrectionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,7 +185,6 @@ const Player: React.FC = () => {
         addLogEntry(
           newGameState,
           newGameState.selectedPlayerIndex,
-          newGameState.currentPlayerIndex,
           GameLogActionWithCount.ADD_PROPHECY,
           { count: 1 }
         );
@@ -158,7 +205,6 @@ const Player: React.FC = () => {
         addLogEntry(
           newGameState,
           newGameState.selectedPlayerIndex,
-          newGameState.currentPlayerIndex,
           GameLogActionWithCount.REMOVE_PROPHECY,
           { count: 1 }
         );
@@ -241,12 +287,14 @@ const Player: React.FC = () => {
               value={player.turn.actions}
               onIncrement={() => handleFieldChange('turn', 'actions', 1)}
               onDecrement={() => {
-                const record = handleFieldChange('turn', 'actions', -1);
+                // greatLeaderProphecy gives unlimited actions when the prophecy is empty
                 if (
                   gameState.risingSun.greatLeaderProphecy &&
                   gameState.risingSun.prophecy.suns === 0
                 ) {
-                  handleFieldChange('turn', 'actions', 1, record.id);
+                  handleCombinedFieldChange('turn', 'actions', -1, 'turn', 'actions', 1);
+                } else {
+                  handleFieldChange('turn', 'actions', -1);
                 }
               }}
             />
@@ -265,11 +313,13 @@ const Player: React.FC = () => {
           </ColumnBox>
           {(showMats || showGlobalMats) && (
             <ColumnBox>
-              <CenteredTitle>
-                <Tooltip title="These player mat values persist between turns">
-                  <SuperCapsText className={`typography-large-title`}>Mats</SuperCapsText>
-                </Tooltip>
-              </CenteredTitle>
+              {showMats && (
+                <CenteredTitle>
+                  <Tooltip title="These player mat values persist between turns">
+                    <SuperCapsText className={`typography-large-title`}>Mats</SuperCapsText>
+                  </Tooltip>
+                </CenteredTitle>
+              )}
               {gameState.options.mats.coffersVillagers && (
                 <>
                   <IncrementDecrementControl
@@ -279,8 +329,7 @@ const Player: React.FC = () => {
                     onIncrement={() => handleFieldChange('mats', 'coffers', 1)}
                     onDecrement={() => {
                       // spending a coffer gives a coin
-                      const record = handleFieldChange('mats', 'coffers', -1);
-                      handleFieldChange('turn', 'coins', 1, record.id);
+                      handleCombinedFieldChange('mats', 'coffers', -1, 'turn', 'coins', 1);
                     }}
                   />
                   <IncrementDecrementControl
@@ -290,8 +339,7 @@ const Player: React.FC = () => {
                     onIncrement={() => handleFieldChange('mats', 'villagers', 1)}
                     onDecrement={() => {
                       // spending a villager gives an action
-                      const record = handleFieldChange('mats', 'villagers', -1);
-                      handleFieldChange('turn', 'actions', 1, record.id);
+                      handleCombinedFieldChange('mats', 'villagers', -1, 'turn', 'actions', 1);
                     }}
                   />
                 </>
@@ -314,7 +362,7 @@ const Player: React.FC = () => {
               )}
               {showGlobalMats && (
                 <>
-                  <Box sx={{ paddingTop: 2 }}>
+                  <Box sx={showMats ? { paddingTop: 2 } : {}}>
                     <CenteredTitle>
                       <Tooltip title="Global Mats affect all players and persist between turns">
                         <SuperCapsText className={`typography-large-title`}>

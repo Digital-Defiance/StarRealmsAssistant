@@ -22,6 +22,10 @@ export interface ILogEntryRaw {
    */
   currentPlayerIndex: number;
   /**
+   * Turn number at the time of this log entry
+   */
+  turn: number;
+  /**
    * Count of value added/removed
    */
   count?: number;

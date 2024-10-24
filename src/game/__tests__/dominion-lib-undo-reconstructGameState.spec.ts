@@ -40,6 +40,7 @@ describe('reconstructGameState', () => {
           playerIndex: 0,
           count: 1,
           currentPlayerIndex: 0,
+          turn: 1,
         },
       ],
     };
@@ -59,6 +60,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_COINS,
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
           count: 2,
         },
         {
@@ -67,6 +69,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_ACTIONS,
           playerIndex: 1,
           currentPlayerIndex: 0,
+          turn: 1,
           count: 1,
         },
       ],
@@ -89,6 +92,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.NEXT_TURN,
           playerIndex: nextPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
+          turn: 2,
           playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
           prevPlayerIndex: baseGame.currentPlayerIndex,
         } as ILogEntry,
@@ -113,6 +117,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_COINS,
           playerIndex: baseGame.currentPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
+          turn: 1,
           count: 3,
         },
         {
@@ -126,6 +131,7 @@ describe('reconstructGameState', () => {
           ],
           prevPlayerIndex: baseGame.currentPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
+          turn: 1,
         },
       ],
     };
@@ -165,6 +171,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.REMOVE_PROPHECY,
           playerIndex: NO_PLAYER,
           currentPlayerIndex: 0,
+          turn: 1,
           count: 2,
         },
       ],
@@ -185,6 +192,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.REMOVE_COINS,
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
           count: 5, // This would result in negative coins
         },
       ],
@@ -217,6 +225,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.REMOVE_PROPHECY,
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
           count: 10, // This would result in negative prophecy
         },
       ],
@@ -237,6 +246,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_COINS,
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
           count: 2,
         },
         {
@@ -245,6 +255,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_ACTIONS,
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
           count: 1,
           linkedActionId: mainActionId,
         },
@@ -268,6 +279,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_COINS,
           playerIndex: 1,
           currentPlayerIndex: 1,
+          turn: 1,
           count: 3,
         },
         {
@@ -278,6 +290,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.NEXT_TURN,
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 2,
           playerTurnDetails: [{ ...DefaultTurnDetails, coins: 3 }, { ...DefaultTurnDetails }],
           prevPlayerIndex: 1,
         },
@@ -288,6 +301,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_ACTIONS,
           playerIndex: 1,
           currentPlayerIndex: 0,
+          turn: 2,
           count: 2,
         },
         {
@@ -298,6 +312,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.NEXT_TURN,
           playerIndex: 1,
           currentPlayerIndex: 1,
+          turn: 3,
           playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails, actions: 3 }],
           prevPlayerIndex: 0,
         },
@@ -308,6 +323,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_BUYS,
           playerIndex: 0,
           currentPlayerIndex: 1,
+          turn: 3,
           count: 1,
         },
         {
@@ -317,6 +333,7 @@ describe('reconstructGameState', () => {
           action: GameLogActionWithCount.ADD_COINS,
           playerIndex: 1,
           currentPlayerIndex: 1,
+          turn: 3,
           count: 3,
         },
       ],

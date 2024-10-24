@@ -67,6 +67,7 @@ describe('loadGame', () => {
           timestamp: new Date(),
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
         },
       ],
     });
@@ -90,6 +91,7 @@ describe('loadGame', () => {
           timestamp: new Date(),
           playerIndex: 0,
           currentPlayerIndex: 0,
+          turn: 1,
         },
         {
           id: saveGameLogId,
@@ -97,6 +99,7 @@ describe('loadGame', () => {
           timestamp: new Date(),
           playerIndex: NO_PLAYER,
           currentPlayerIndex: 0,
+          turn: 1,
         },
       ],
     });
@@ -113,6 +116,7 @@ describe('loadGame', () => {
           timestamp: expect.any(Date),
           playerIndex: NO_PLAYER,
           currentPlayerIndex: 0,
+          turn: 1,
           action: GameLogActionWithCount.LOAD_GAME,
           linkedActionId: saveGameLogId,
         },

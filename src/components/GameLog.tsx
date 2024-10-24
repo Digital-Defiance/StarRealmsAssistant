@@ -33,14 +33,20 @@ const GameLog: React.FC = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {gameState.log.map((entry, index) => (
-                <GameLogEntry
-                  key={entry.id || index}
-                  logIndex={index}
-                  entry={entry}
-                  isCurrentPlayer={index === gameState.currentPlayerIndex}
-                />
-              ))}
+              {gameState.log.map((entry, index) => {
+                const hasLinkedAction = gameState.log.some(
+                  (logEntry) => logEntry.linkedActionId === entry.id
+                );
+                return (
+                  <GameLogEntry
+                    key={entry.id || index}
+                    logIndex={index}
+                    entry={entry}
+                    isCurrentPlayer={index === gameState.currentPlayerIndex}
+                    hasLinkedAction={hasLinkedAction}
+                  />
+                );
+              })}
             </TableBody>
           </Table>
         </TableContainer>
