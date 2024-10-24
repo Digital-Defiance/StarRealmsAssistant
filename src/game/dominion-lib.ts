@@ -236,32 +236,41 @@ export function updatePlayerField<T extends keyof PlayerFieldMap>(
   const updatedGame = { ...game };
   const player = { ...updatedGame.players[playerIndex] };
 
-  if (field === 'victory' || field === 'turn' || field === 'mats' || field === 'newTurn') {
-    if (((player[field] as any)[subfield] || 0) + increment < 0) {
-      throw new NotEnoughSubfieldError(field, subfield);
-    }
-    (player[field] as any)[subfield] = Math.max(
-      ((player[field] as any)[subfield] || 0) + increment,
-      0
-    );
-  } else {
+  // Check if the field is valid
+  if (field !== 'victory' && field !== 'turn' && field !== 'mats' && field !== 'newTurn') {
     throw new InvalidFieldError(field as string);
   }
 
-  updatedGame.players[playerIndex] = player;
+  // Check if the subfield decrement would go below 0
+  if (((player[field] as any)[subfield] || 0) + increment < 0) {
+    throw new NotEnoughSubfieldError(field, subfield);
+  }
 
-  // update the supply if the field is a victory field
-  if (
+  // Check if the supply decrement would go below 0
+  const decrementSupply =
     field === 'victory' &&
-    ['estates', 'duchies', 'provinces', 'colonies', 'curses'].includes(subfield)
-  ) {
-    (updatedGame.supply[subfield as keyof IGameSupply] as number) -= increment;
+    ['estates', 'duchies', 'provinces', 'colonies', 'curses'].includes(subfield);
 
+  if (decrementSupply) {
     const supplyCount = updatedGame.supply[subfield as keyof IGameSupply] as number;
     if (increment > 0 && supplyCount < increment) {
       throw new NotEnoughSupplyError(subfield as string);
     }
   }
+
+  // Perform the actual updates
+  (player[field] as any)[subfield] = Math.max(
+    ((player[field] as any)[subfield] || 0) + increment,
+    0
+  );
+
+  updatedGame.players[playerIndex] = player;
+
+  // Update the supply if the field is a victory field
+  if (decrementSupply) {
+    (updatedGame.supply[subfield as keyof IGameSupply] as number) -= increment;
+  }
+
   return updatedGame;
 }
 
