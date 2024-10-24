@@ -101,11 +101,19 @@ export default function AboutScreen() {
                   >
                     Jessica Mulein
                   </Link>
-                  . It is an open-source project and not affiliated with or endorsed by the makers
-                  of Dominion or Donald X Vaccarino.
+                  . Unofficial Dominion Assistant is an open-source project and not affiliated with
+                  or endorsed by the makers of Dominion or Donald X Vaccarino.
                 </Typography>
                 <Typography variant="body1" paragraph>
-                  For more information, contributions, or to report issues, please visit our{' '}
+                  For more information, contributions, or to report{' '}
+                  <Link
+                    href="https://github.com/Digital-Defiance/DominionAssistant/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    issues
+                  </Link>
+                  , please visit our{' '}
                   <Link
                     href="https://github.com/Digital-Defiance/DominionAssistant"
                     target="_blank"
@@ -117,6 +125,17 @@ export default function AboutScreen() {
                 </Typography>
                 <Typography variant="body1" paragraph>
                   Please note that this tool requires the physical game of Dominion to play.
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  See our{' '}
+                  <Link
+                    href="https://github.com/Digital-Defiance/DominionAssistant?tab=readme-ov-file#disclaimer-for-end-users"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Disclaimer for End Users
+                  </Link>{' '}
+                  for important information.
                 </Typography>
               </Paper>
             </Box>

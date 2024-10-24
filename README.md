@@ -4,7 +4,14 @@
 
 Welcome to the **Unofficial Dominion Assistant**, a React application designed to enhance your gameplay experience for the popular card game, Dominion! This tool provides comprehensive features for game management, scoring, and player interaction, allowing Dominion enthusiasts to focus on strategy and enjoyment.
 
+Unofficial Dominion Assistant is a free tool which aimed to support the main features of the game and the ones we used personally. Many of the specfific expansions and cards are not specifically supported but should allow for manual adjustment to accommodate them.
+Please see our GitHub [issues](https://github.com/Digital-Defiance/DominionAssistant/issues) page for our roadmap/upcoming features and to make requests.
+
 ## Disclaimer for End Users
+
+This software runs entirely in the browser and should not affect the local machine, but game state may not be accurately tracked and may affect the outcome of games. This tool should not (yet?) be relied upon for tournaments or anything where it is not being used for personal use. The project is provided "as-is" without any warranties or guarantees. Use at your own risk. The authors are not responsible for any damage or data loss that may occur from using this software.
+
+Especially as a free tool, we make no guarantees, waranty, or promises of bug-free accuracy or that we will implement all suggestions. Our time is limited and this project is made and run for free. If you'd like to donate to [Digital Defiance](https://digitaldefiance.org) to facilitate specific features or support development, that would be greatly appreciated. Donations will not be refunded and we make no guarantees that a donation will ensure a requested change is made, though we will certainly make the effort if possible.
 
 Please note that the Unofficial Dominion Assistant is not affiliated with or endorsed by the makers of Dominion or Donald X Vaccarino. This application is a fan-built project created to enhance your gameplay experience and requires ownership of the physical Dominion game to use. It does not allow you to play without having the original game. The use of the Dominion logo is intended solely for personal use to support the Dominion community and should be considered under the _Fair Use Doctrine_.
 
@@ -36,6 +43,17 @@ Our application, as a fan-built tool that does not replicate the game, could be 
 - **Intuitive UI**: User-friendly interface with Material-UI components
 
 This is an [NX](https://nx.dev/getting-started/intro) project created with [`create-nx-workspace`](https://nx.dev/nx-api/nx/documents/create-nx-workspace).
+
+## Roadmap/Upcoming Features
+
+- Confirm end game with dialog
+- Game timer visible
+- Auto-save after each event
+- Graph of victory points over time
+- Track turn card gains
+- +card tracking (optional/enable-able)
+- Council-Room button?
+- Implement pause/unpause game enhancement: may be covered by save/load?
 
 ## Getting Started
 
@@ -161,7 +179,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Learn more
 
-To learn more about developing your project, look at the following resources:
+To learn more about developing on this project, look at the following resources:
 
 - [NX](https://nx.dev/getting-started/intro)
 - [React](https://react.dev/learn)
@@ -179,3 +197,275 @@ To learn more about developing your project, look at the following resources:
 Join our community of developers.
 
 - [Digital Defiance](https://digitaldefiance.org): 501c3 Non Profit Open Source Engineering Guild, with our own Discord.
+
+## Changelog
+
+### Thur Oct 24 17:10:15 2024
+
+- **Improvement**: Improve about/disclaimer/readme
+
+### Thu Oct 24 17:04:19 2024
+
+- **Improvement**: Avoid combined actions when correcting.
+
+### Thu Oct 24 16:59:18 2024
+
+- **Fix**: Resolved bug preventing the addition of the last victory card.
+
+### Thu Oct 24 06:36:44 2024
+
+- Enhancement
+
+  :
+
+  - Added turn to log entries.
+  - Display turn number in the next turn.
+  - Fixed linked action issues in player component and log.
+
+### Wed Oct 23 21:27:10 2024
+
+- **Feature**: Enabled undo for the most recent select/next turn.
+
+### Wed Oct 23 20:38:23 2024
+
+- **Improvement**: Enhanced game log readability.
+
+### Wed Oct 23 20:19:42 2024
+
+- **Maintenance**: Codacy/lint fixes.
+
+### Wed Oct 23 19:42:05 2024
+
+- **Improvement**: Improved typing.
+
+### Wed Oct 23 19:35:58 2024
+
+- **Feature**: Added typings.
+
+### Wed Oct 23 19:22:54 2024
+
+- **Fix**: Tracked currentPlayerIndex in log entries and fixed game log.
+
+### Wed Oct 23 18:29:00 2024
+
+- Improvement
+
+  :
+
+  - Improved endgame display.
+  - Allowed ties in rankings.
+  - Improved select first player.
+  - Fixed first player state.
+
+### Tue Oct 22 23:02:36 2024
+
+- **Maintenance**: Addressed linting issues.
+
+### Tue Oct 22 22:35:19 2024
+
+- **Cleanup**: Removed unused variables.
+
+### Tue Oct 22 22:30:14 2024
+
+- **Refactor**: Reworked log/start/next.
+
+### Tue Oct 22 08:29:14 2024
+
+- UI Rework
+
+  :
+
+  - Relied more on CSS for font sizes.
+  - Converted all fonts to WOFF/WOFF2.
+  - Used Minion over Trajan in many places.
+  - Homogenized tab centering components.
+
+### Sat Oct 19 19:44:24 2024
+
+- Refactor
+
+  :
+
+  - Moved sizing constants into theme.
+  - Removed 'any' types.
+  - Improved type safety and centralized sizing in theme.
+
+### Sat Oct 19 19:00:47 2024
+
+- **Maintenance**: Attempted to resolve ESLint issues.
+
+### Sat Oct 19 18:42:35 2024
+
+- **Feature**: Migrated to flat ESLint config and updated Prettier to v3.
+
+### Fri Oct 18 20:36:49 2024
+
+- **Update**: Included GitHub Actions extension in devcontainer.
+
+### Fri Oct 18 20:18:17 2024
+
+- **Feature**: Uploaded coverage to Codacy.
+
+### Fri Oct 18 20:00:57 2024
+
+- **Setup**: Configured zshrc/bashrc to load DOTENV_CONFIG_PATH.
+
+### Fri Oct 18 19:03:21 2024
+
+- **Setup**: Configured Codacy environment.
+
+### Fri Oct 18 18:16:37 2024
+
+- Feature
+
+  :
+
+  - Set NO_PLAYER for NEXT_TURN and SELECT_PLAYER actions.
+  - Added getPreviousPlayerIndex.
+  - Updated tests.
+
+### Fri Oct 18 17:16:58 2024
+
+- **Fix**: Corrected getTimeSpanFromStartGame to handle consecutive saves.
+
+### Fri Oct 18 00:49:42 2024
+
+- **Feature**: Added logic to add the save game log entry when saving.
+
+### Fri Oct 18 00:33:09 2024
+
+- **Refactor**: Reworked storage system.
+
+### Thu Oct 17 06:13:25 2024
+
+- **Removal**: Removed 'cross-platform' feature since now react only.
+
+### Thu Oct 17 06:09:45 2024
+
+- **Fix**: Fixed Playwright server.
+
+### Thu Oct 17 05:47:57 2024
+
+- Fix
+
+  :
+
+  - Resolved Playwright/Jest overlap.
+  - Fixed canUndoAction to only undo NEXT_TURN of NoPlayerActions.
+  - Moved set-kingdom base/prosperity to **tests**.
+  - Moved app.spec.tsx to **tests**.
+
+### Thu Oct 17 04:09:06 2024
+
+- UI Improvement
+
+  :
+
+  - Removed margin on Scoreboard.
+  - Moved correction checkbox to within Player component.
+
+### Wed Oct 16 23:35:01 2024
+
+- **Setup**: Installed Copilot CLI in devcontainer and hid canUndo for START_GAME.
+
+### Wed Oct 16 23:15:16 2024
+
+- **Fix**: Corrected useMemo.
+
+### Wed Oct 16 22:09:42 2024
+
+- Improvement
+
+  :
+
+  - Improved titles.
+  - Moved canUndo CurrentStep check into canUndoAction.
+
+### Wed Oct 16 21:49:59 2024
+
+- Fix
+
+  :
+
+  - Removed react-native 8081 port forward.
+  - Fixed TabView/App to render only single tab.
+  - Fixed duplicate about screen.
+  - Fixed canUndo error when not in CurrentStep.GameScreen.
+  - Added sx property option for SuperCapsText.
+  - Used MUI styled instead of emotion styled.
+  - Improved About screen sub-panel titles to use SuperCapsText.
+
+### Wed Oct 16 18:49:42 2024
+
+- **Maintenance**: Lint/Prettier fixes.
+
+### Wed Oct 16 18:27:13 2024
+
+- **Cleanup**: Removed Zone identifier.
+
+### Wed Oct 16 18:22:02 2024
+
+- **Migration**: Migrated to plain React.
+
+### Mon Oct 14 15:31:35 2024
+
+- **Conversion**: Converted from react-native. Addresses #12.
+
+### Tue Oct 8 02:28:01 2024
+
+- **Enhancement**: Split up dominion-lib and added tests.
+
+### Tue Oct 8 18:13:56 2024
+
+- **Fix**: Set color when editing different user. Closes #8.
+
+### Tue Oct 8 18:00:34 2024
+
+- **Fix**: Corrected overwrite save game.
+
+### Tue Oct 8 17:32:25 2024
+
+- **Improvement**: Enhanced load save functionality. Closes #11.
+
+### Mon Oct 7 22:22:17 2024
+
+- **Feature**: Removed HelloWave and added Correction checkbox. Closes #7.
+
+### Mon Oct 7 20:20:45 2024
+
+- **Fix**: Corrected README.
+
+### Mon Oct 7 20:17:31 2024
+
+- Refactor
+
+  :
+
+  - Removed global mats component.
+  - Integrated into Player.
+  - Redid SuperCaps to be Tooltip compatible.
+  - Made IncrementDecrementControl have optional tooltip on the label.
+
+### Mon Oct 7 19:39:57 2024
+
+- **Feature**: Defaulted to curses enabled.
+
+### Mon Oct 7 18:24:06 2024
+
+- **Setup**: Codacy configuration.
+
+### Mon Oct 7 18:07:07 2024
+
+- **Switch**: Changed ESLint configs.
+
+### Mon Oct 7 10:39:32 2024
+
+- **Update**: Added Codacy badge to README.
+
+### Mon Oct 7 17:36:41 2024
+
+- **Improvement**: Enhanced home screen.
+
+### Mon Sep 30 12:41:43 2024
+
+- **Initial Commit**: Generated by create-expo-app 3.0.0.
