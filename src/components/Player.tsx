@@ -289,6 +289,7 @@ const Player: React.FC = () => {
               onDecrement={() => {
                 // greatLeaderProphecy gives unlimited actions when the prophecy is empty
                 if (
+                  !isCorrection &&
                   gameState.risingSun.greatLeaderProphecy &&
                   gameState.risingSun.prophecy.suns === 0
                 ) {
@@ -328,8 +329,12 @@ const Player: React.FC = () => {
                     tooltip="Spending a coffer automatically gives a coin"
                     onIncrement={() => handleFieldChange('mats', 'coffers', 1)}
                     onDecrement={() => {
-                      // spending a coffer gives a coin
-                      handleCombinedFieldChange('mats', 'coffers', -1, 'turn', 'coins', 1);
+                      if (!isCorrection) {
+                        // spending a coffer gives a coin
+                        handleCombinedFieldChange('mats', 'coffers', -1, 'turn', 'coins', 1);
+                      } else {
+                        handleFieldChange('mats', 'coffers', -1);
+                      }
                     }}
                   />
                   <IncrementDecrementControl
@@ -338,8 +343,12 @@ const Player: React.FC = () => {
                     tooltip="Spending a villager automatically gives an action"
                     onIncrement={() => handleFieldChange('mats', 'villagers', 1)}
                     onDecrement={() => {
-                      // spending a villager gives an action
-                      handleCombinedFieldChange('mats', 'villagers', -1, 'turn', 'actions', 1);
+                      if (!isCorrection) {
+                        // spending a villager gives an action
+                        handleCombinedFieldChange('mats', 'villagers', -1, 'turn', 'actions', 1);
+                      } else {
+                        handleFieldChange('mats', 'villagers', -1);
+                      }
                     }}
                   />
                 </>
