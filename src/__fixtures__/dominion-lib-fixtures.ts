@@ -14,6 +14,7 @@ import { IGame } from '@/game/interfaces/game';
 import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 import { CurrentStep } from '@/game/enumerations/current-step';
+import { ILogEntry } from '@/game/interfaces/log-entry';
 
 export function createMockGame(playerCount: number, overrides?: Partial<IGame>): IGame {
   const options: IGameOptions = {
@@ -73,4 +74,20 @@ export function createMockPlayer(victory?: Partial<IPlayer['victory']>, index?: 
       ...victory,
     },
   } as IPlayer;
+}
+
+export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
+  return {
+    id: faker.string.uuid(),
+    timestamp: new Date(),
+    playerIndex: faker.number.int({ min: 0, max: 3 }),
+    currentPlayerIndex: faker.number.int({ min: 0, max: 3 }),
+    turn: faker.number.int({ min: 1, max: 10 }),
+    action: GameLogActionWithCount.ADD_ACTIONS,
+    count: faker.number.int({ min: 1, max: 5 }),
+    correction: false,
+    linkedActionId: faker.string.uuid(),
+    prevPlayerIndex: faker.number.int({ min: 0, max: 3 }),
+    ...log,
+  };
 }

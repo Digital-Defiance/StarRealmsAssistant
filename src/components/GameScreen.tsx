@@ -7,6 +7,8 @@ import Player from '@/components/Player';
 import { canUndoAction } from '@/game/dominion-lib-undo';
 import { useGameContext } from '@/components/GameContext';
 import SupplyCounts from '@/components/SupplyCounts';
+import GameClock from '@/components/GameClock';
+import { CurrentStep } from '@/game/enumerations/current-step';
 
 interface GameScreenProps {
   nextTurn: () => void;
@@ -82,6 +84,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
           </Tooltip>
         </Fab>
       </FabContainer>
+      {gameState.currentStep === CurrentStep.GameScreen && <GameClock />}
       <Dialog open={supplyDialogOpen} onClose={handleCloseSupplyDialog}>
         <DialogContent>
           <SupplyCounts />

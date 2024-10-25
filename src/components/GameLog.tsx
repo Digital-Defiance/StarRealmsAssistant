@@ -26,8 +26,8 @@ const GameLog: React.FC = () => {
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>
-                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Time</TableCell>
-                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Duration</TableCell>
+                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Date</TableCell>
+                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Game Time</TableCell>
                 <TableCell style={{ width: '60%', fontWeight: 'bold' }}>Action</TableCell>
                 <TableCell style={{ width: '10%', fontWeight: 'bold' }}>Undo</TableCell>
               </TableRow>

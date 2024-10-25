@@ -200,6 +200,15 @@ Join our community of developers.
 
 ## Changelog
 
+### Thu Oct 25 22:24:59 2024
+
+- **Feature**: Added GameClock component to display the game time and time since the most recent action.
+  - The GameClock component shows the total game time and the time since the most recent action.
+  - Updated the GameLogEntry component to format date and time correctly.
+  - Adjusted the position of the GameClock component to ensure both lines are visible.
+  - Added tests for the new getTimeSpanFromLastAction function.
+  - Fixed bug in computation of game time
+
 ### Thur Oct 24 17:10:15 2024
 
 - **Improvement**: Improve about/disclaimer/readme

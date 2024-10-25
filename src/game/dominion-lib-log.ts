@@ -7,6 +7,7 @@ import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { PlayerFieldMap } from '@/game/types';
 import { NoPlayerActions } from '@/game/constants';
+import { ITurnDuration } from '@/game/interfaces/turn-duration';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -133,6 +134,94 @@ export function logEntryToString(entry: ILogEntry): string {
 }
 
 /**
+ * Calculates the turn durations from a game log.
+ * @param logEntries - The game log entries.
+ * @returns An array of turn durations.
+ */
+export function calculateTurnDurations(logEntries: ILogEntry[]): ITurnDuration[] {
+  const durations: ITurnDuration[] = [];
+  let currentTurnStartTime: Date | null = null;
+  let currentTurnPauseTime = 0;
+  let saveStartTime: Date | null = null;
+  let inSaveState = false;
+  let hasNextTurnAfterStartGame = false;
+
+  for (const entry of logEntries) {
+    const { action, timestamp } = entry;
+
+    if (action === GameLogActionWithCount.START_GAME) {
+      currentTurnStartTime = timestamp;
+      currentTurnPauseTime = 0;
+      inSaveState = false;
+      saveStartTime = null;
+    } else if (action === GameLogActionWithCount.NEXT_TURN) {
+      if (currentTurnStartTime !== null) {
+        // Process any ongoing save state before ending the turn
+        if (inSaveState && saveStartTime !== null) {
+          const saveDuration = timestamp.getTime() - saveStartTime.getTime();
+          currentTurnPauseTime += saveDuration;
+          inSaveState = false;
+          saveStartTime = null;
+        }
+
+        const duration =
+          timestamp.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
+        durations.push({
+          turn: entry.turn,
+          playerIndex: entry.prevPlayerIndex ?? entry.playerIndex,
+          start: currentTurnStartTime,
+          end: timestamp,
+          duration,
+        });
+        hasNextTurnAfterStartGame = true;
+      }
+      currentTurnStartTime = timestamp;
+      currentTurnPauseTime = 0;
+      inSaveState = false;
+      saveStartTime = null;
+    } else if (action === GameLogActionWithCount.END_GAME) {
+      if (currentTurnStartTime !== null) {
+        if (inSaveState && saveStartTime !== null) {
+          const saveDuration = timestamp.getTime() - saveStartTime.getTime();
+          currentTurnPauseTime += saveDuration;
+          inSaveState = false;
+          saveStartTime = null;
+        }
+
+        const duration =
+          timestamp.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
+        durations.push({
+          turn: entry.turn,
+          playerIndex: entry.playerIndex,
+          start: currentTurnStartTime,
+          end: timestamp,
+          duration,
+        });
+      }
+      break;
+    } else if (action === GameLogActionWithCount.SAVE_GAME) {
+      if (!inSaveState) {
+        saveStartTime = timestamp;
+        inSaveState = true;
+      }
+    } else if (action === GameLogActionWithCount.LOAD_GAME) {
+      if (inSaveState && saveStartTime !== null) {
+        const saveDuration = timestamp.getTime() - saveStartTime.getTime();
+        currentTurnPauseTime += saveDuration;
+        inSaveState = false;
+        saveStartTime = null;
+      }
+    }
+  }
+
+  if (!hasNextTurnAfterStartGame) {
+    return [];
+  }
+
+  return durations;
+}
+
+/**
  * Get the start date of the game from the log entries.
  * @param logEntries - The log entries
  * @returns The start date
@@ -148,58 +237,243 @@ export function getStartDateFromLog(logEntries: ILogEntry[]): Date {
     throw new InvalidLogStartGameError();
   }
 
-  return new Date(startGameEntry.timestamp);
+  return startGameEntry.timestamp;
 }
 
 /**
- * Get the time span from the start of the game to the given event time, less time spans between loads and
- * @param log - The game log
- * @param eventTime - The event time
- * @returns The time span from the start of the game to the event time
+ * Get the time span from the most recent action in the log.
+ * @param log - The log entries
+ * @param eventTime - The current event time
+ * @returns The time span
  */
-export function getTimeSpanFromStartGame(log: ILogEntry[], eventTime: Date): string {
-  let startDate: Date | null = null;
-  let lastSaveTime: Date | null = null;
-  let totalExcludedTime = 0;
+export function getTimeSpanFromLastAction(log: ILogEntry[], eventTime: Date): number {
+  if (log.length === 0) {
+    return 0;
+  }
 
-  for (const entry of log) {
-    const entryTime = new Date(entry.timestamp);
+  const lastActionTime = new Date(log[log.length - 1].timestamp);
+  const timeSpan = eventTime.getTime() - lastActionTime.getTime();
 
-    if (entry.action === GameLogActionWithCount.START_GAME) {
-      startDate = entryTime;
-    } else if (entry.action === GameLogActionWithCount.SAVE_GAME) {
-      if (lastSaveTime === null) {
-        lastSaveTime = entryTime;
+  return timeSpan;
+}
+
+/**
+ * Calculates the average turn duration from an array of turn durations.
+ * @param turnDurations - An array of turn duration objects.
+ * @returns The average turn duration in milliseconds.
+ */
+export function calculateAverageTurnDuration(turnDurations: ITurnDuration[]): number {
+  if (turnDurations.length === 0) {
+    return 0;
+  }
+
+  const totalDuration = turnDurations.reduce((accumulator, turn) => {
+    return accumulator + turn.duration;
+  }, 0);
+
+  const averageDuration = totalDuration / turnDurations.length;
+  return averageDuration;
+}
+
+/**
+ * Calculates the average turn duration for a specific player.
+ * @param turnDurations - An array of turn duration objects.
+ * @param playerIndex - The index of the player whose average turn duration is to be calculated.
+ * @returns The average turn duration for the specified player in milliseconds.
+ */
+export function calculateAverageTurnDurationForPlayer(
+  turnDurations: ITurnDuration[],
+  playerIndex: number
+): number {
+  const playerTurns = turnDurations.filter((turn) => turn.playerIndex === playerIndex);
+
+  if (playerTurns.length === 0) {
+    return 0;
+  }
+
+  const totalDuration = playerTurns.reduce((accumulator, turn) => {
+    return accumulator + turn.duration;
+  }, 0);
+
+  const averageDuration = totalDuration / playerTurns.length;
+  return averageDuration;
+}
+
+/**
+ * Calculates the duration of the current turn from the last NEXT_TURN or START_GAME up to the current time.
+ * Subtracts the time between any SAVE_GAME and the immediately following LOAD_GAME within the turn.
+ * @param logEntries - The game log entries.
+ * @param currentTime - The current time.
+ * @returns The duration of the current turn in milliseconds.
+ */
+export function calculateCurrentTurnDuration(logEntries: ILogEntry[], currentTime: Date): number {
+  let currentTurnStartTime: Date | null = null;
+  let currentTurnPauseTime = 0;
+  let inSaveState = false;
+  let saveStartTime: Date | null = null;
+
+  // Find the last NEXT_TURN or START_GAME
+  for (let i = logEntries.length - 1; i >= 0; i--) {
+    const entry = logEntries[i];
+    if (entry.action === GameLogActionWithCount.NEXT_TURN) {
+      currentTurnStartTime = entry.timestamp;
+      break;
+    } else if (entry.action === GameLogActionWithCount.START_GAME) {
+      currentTurnStartTime = entry.timestamp;
+      break;
+    }
+  }
+
+  if (currentTurnStartTime === null) {
+    return 0;
+  }
+
+  // Process log entries from currentTurnStartTime onwards
+  for (const entry of logEntries) {
+    if (entry.timestamp < currentTurnStartTime) continue;
+
+    const { action, timestamp } = entry;
+
+    if (action === GameLogActionWithCount.SAVE_GAME) {
+      if (!inSaveState) {
+        saveStartTime = timestamp;
+        inSaveState = true;
       }
-    } else if (entry.action === GameLogActionWithCount.LOAD_GAME) {
-      if (lastSaveTime) {
-        totalExcludedTime += entryTime.getTime() - lastSaveTime.getTime();
-        lastSaveTime = null; // Reset last save time after accounting for the load
+    } else if (action === GameLogActionWithCount.LOAD_GAME) {
+      if (inSaveState && saveStartTime !== null) {
+        const saveDuration = timestamp.getTime() - saveStartTime.getTime();
+        currentTurnPauseTime += saveDuration;
+        inSaveState = false;
+        saveStartTime = null;
       }
     }
   }
 
-  if (!startDate) {
-    throw new Error('Start time not found in the log');
+  // Handle unpaired SAVE_GAME by subtracting up to current time
+  if (inSaveState && saveStartTime !== null) {
+    const saveDuration = currentTime.getTime() - saveStartTime.getTime();
+    currentTurnPauseTime += saveDuration;
   }
 
-  // If there's a save without a corresponding load, exclude the time from the save to the event time
-  if (lastSaveTime) {
-    totalExcludedTime += eventTime.getTime() - lastSaveTime.getTime();
+  const duration = currentTime.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
+  return duration;
+}
+
+/**
+ * Calculate the total duration of the game from the start of the game to the current time, subtracting the time between any SAVE_GAME and the immediately following LOAD_GAME within the turn.
+ * @param log - The game log entries
+ * @returns The total duration of the game in milliseconds
+ */
+export function calculateGameDuration(
+  log: ILogEntry[],
+  calculateTurnDurations: (logEntries: ILogEntry[]) => ITurnDuration[],
+  calculateCurrentTurnDuration: (logEntries: ILogEntry[], currentTime: Date) => number
+): {
+  duration: number;
+  turnDurations: ITurnDuration[];
+} {
+  if (log.length === 0) {
+    return { duration: 0, turnDurations: [] };
   }
 
-  const timeSpan = eventTime.getTime() - startDate.getTime() - totalExcludedTime;
+  const turnDurations = calculateTurnDurations(log);
+  const totalDuration = turnDurations.reduce((accumulator, turn) => {
+    return accumulator + turn.duration;
+  }, 0);
+  const currentTurnDuration = calculateCurrentTurnDuration(log, new Date());
+  return { duration: totalDuration + currentTurnDuration, turnDurations };
+}
 
-  // Convert time span from milliseconds to a human-readable format
-  const absTimeSpan = Math.abs(timeSpan);
-  const seconds = Math.floor((absTimeSpan / 1000) % 60);
-  const minutes = Math.floor((absTimeSpan / (1000 * 60)) % 60);
-  const hours = Math.floor((absTimeSpan / (1000 * 60 * 60)) % 24);
-  const days = Math.floor(absTimeSpan / (1000 * 60 * 60 * 24));
+/**
+ * Calculates the duration from START_GAME to a given event time,
+ * subtracting the time between SAVE_GAME and the immediately following LOAD_GAME pairs before the event time.
+ * @param logEntries - The game log entries.
+ * @param eventTime - The event time up to which the duration is calculated.
+ * @returns The adjusted duration in milliseconds.
+ */
+export function calculateDurationUpToEvent(logEntries: ILogEntry[], eventTime: Date): number {
+  let startGameTime: Date | null = null;
+  let totalPauseTime = 0;
+  let inSaveState = false;
+  let saveStartTime: Date | null = null;
 
-  const sign = timeSpan < 0 ? '-' : '';
+  // Find the START_GAME action
+  for (const entry of logEntries) {
+    if (entry.action === GameLogActionWithCount.START_GAME) {
+      startGameTime = entry.timestamp;
+      break;
+    }
+  }
 
-  return `${sign}${days}d ${hours}h ${minutes}m ${seconds}s`;
+  if (startGameTime === null || startGameTime >= eventTime) {
+    // No START_GAME found or eventTime is before the game started
+    return 0;
+  }
+
+  // Calculate total duration from START_GAME to eventTime
+  const totalDuration = eventTime.getTime() - startGameTime.getTime();
+
+  // Process log entries from START_GAME up to eventTime
+  for (const entry of logEntries) {
+    // Skip entries before the game started
+    if (entry.timestamp < startGameTime) {
+      continue;
+    }
+
+    // Stop processing entries after the event time
+    if (entry.timestamp > eventTime) {
+      break;
+    }
+
+    const { action, timestamp } = entry;
+
+    if (action === GameLogActionWithCount.SAVE_GAME) {
+      if (!inSaveState) {
+        inSaveState = true;
+        saveStartTime = timestamp;
+      }
+    } else if (action === GameLogActionWithCount.LOAD_GAME) {
+      if (inSaveState && saveStartTime !== null) {
+        const saveDuration = timestamp.getTime() - saveStartTime.getTime();
+        totalPauseTime += saveDuration;
+        inSaveState = false;
+        saveStartTime = null;
+      }
+    }
+    // Other actions are ignored for pause time calculation
+  }
+
+  // Handle unpaired SAVE_GAME before eventTime
+  if (inSaveState && saveStartTime !== null) {
+    const saveDuration = eventTime.getTime() - saveStartTime.getTime();
+    totalPauseTime += saveDuration;
+  }
+
+  // Adjust the total duration by subtracting the total pause time
+  const adjustedDuration = totalDuration - totalPauseTime;
+
+  return adjustedDuration;
+}
+
+/**
+ * Format a time span as a human-readable string.
+ * @param timeSpan The time span in milliseconds
+ * @returns The formatted time span
+ */
+export function formatTimeSpan(timeSpan: number): string {
+  const isNegative = timeSpan < 0;
+  const absoluteTime = Math.abs(timeSpan);
+
+  const days = Math.floor(absoluteTime / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((absoluteTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((absoluteTime % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((absoluteTime % (1000 * 60)) / 1000);
+
+  if (isNegative) {
+    return '0d 0h 0m 0s';
+  }
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
 /**

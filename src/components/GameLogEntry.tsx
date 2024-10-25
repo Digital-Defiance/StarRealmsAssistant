@@ -21,7 +21,11 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import { useGameContext } from '@/components/GameContext';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
-import { getTimeSpanFromStartGame, logEntryToString } from '@/game/dominion-lib-log';
+import {
+  calculateDurationUpToEvent,
+  formatTimeSpan,
+  logEntryToString,
+} from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
@@ -59,11 +63,25 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
   };
 
   const formatDate = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString([], {
+    const now = new Date();
+    const isToday = timestamp.toDateString() === now.toDateString();
+
+    const timeString = timestamp.toLocaleTimeString([], {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
     });
+
+    if (isToday) {
+      return timeString;
+    } else {
+      const dateString = timestamp.toLocaleDateString([], {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+      });
+      return `${dateString} ${timeString}`;
+    }
   };
 
   const actionText = logEntryToString(entry);
@@ -98,7 +116,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
         </TableCell>
         <TableCell style={{ width: '15%' }}>
           <Typography variant="caption">
-            {getTimeSpanFromStartGame(gameState.log, entry.timestamp)}
+            {formatTimeSpan(calculateDurationUpToEvent(gameState.log, entry.timestamp))}
           </Typography>
         </TableCell>
         <TableCell style={{ width: '60%' }}>
@@ -133,8 +151,9 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
               {isNotTriggeredByPlayer && relevantPlayer !== undefined && (
                 <ColoredPlayerName player={relevantPlayer} marginDirection="left" />
               )}
-              {entry.action === GameLogActionWithCount.NEXT_TURN &&
-                `\u00A0(\u00A0${entry.turn}\u00A0)`}
+              {[GameLogActionWithCount.START_GAME, GameLogActionWithCount.NEXT_TURN].includes(
+                entry.action
+              ) && `\u00A0(\u00A0${entry.turn}\u00A0)`}
               {isAttributeChangeOutOfTurn && (
                 <ChangeCircleIcon
                   fontSize="small"
