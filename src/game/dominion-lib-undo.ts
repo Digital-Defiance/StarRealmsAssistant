@@ -142,7 +142,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
     // Reset all players' turn counters to their newTurn values
     updatedGame.players = updatedGame.players.map((player) => ({
       ...player,
-      turn: player.newTurn,
+      turn: { ...player.newTurn },
     }));
   } else if (logEntry.action === GameLogActionWithCount.SELECT_PLAYER) {
     updatedGame.selectedPlayerIndex = logEntry.playerIndex ?? updatedGame.selectedPlayerIndex;

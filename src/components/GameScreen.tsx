@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogContent, Fab, styled, Tooltip } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Fab,
+  styled,
+  Tooltip,
+} from '@mui/material';
 import UndoIcon from '@mui/icons-material/Undo';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import Scoreboard from '@/components/Scoreboard';
@@ -45,6 +56,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
   const { gameState } = useGameContext();
   const [canUndo, setCanUndo] = useState(false);
   const [supplyDialogOpen, setSupplyDialogOpen] = useState(false);
+  const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
@@ -58,6 +70,19 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
     setSupplyDialogOpen(false);
   };
 
+  const handleOpenConfirmEndGameDialog = () => {
+    setConfirmEndGameDialogOpen(true);
+  };
+
+  const handleCloseConfirmEndGameDialog = () => {
+    setConfirmEndGameDialogOpen(false);
+  };
+
+  const handleConfirmEndGame = () => {
+    setConfirmEndGameDialogOpen(false);
+    endGame();
+  };
+
   return (
     <>
       <Container>
@@ -67,7 +92,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
           <Button variant="contained" color="primary" onClick={nextTurn}>
             Next Turn
           </Button>
-          <Button variant="contained" color="secondary" onClick={endGame}>
+          <Button variant="contained" color="secondary" onClick={handleOpenConfirmEndGameDialog}>
             End Game
           </Button>
         </ButtonContainer>
@@ -89,6 +114,20 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
         <DialogContent>
           <SupplyCounts />
         </DialogContent>
+      </Dialog>
+      <Dialog open={confirmEndGameDialogOpen} onClose={handleCloseConfirmEndGameDialog}>
+        <DialogTitle>Confirm End Game</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Are you sure you want to end the game?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseConfirmEndGameDialog} color="primary">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmEndGame} color="secondary">
+            Confirm
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   );

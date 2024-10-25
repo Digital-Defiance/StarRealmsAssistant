@@ -200,16 +200,21 @@ Join our community of developers.
 
 ## Changelog
 
-### Thu Oct 25 22:24:59 2024
+### Fri Oct 25 00:40:30 2024
 
-- **Feature**: Added GameClock component to display the game time and time since the most recent action.
-  - The GameClock component shows the total game time and the time since the most recent action.
+- Add confirm end game dialog
+
+### Thu Oct 24 22:24:59 2024
+
+- **Feature**: Added GameClock component to display the game time, current turn time, average turn time, and the average turn time for the current player
+  - The GameClock component shows the total game time, current turn time, average turn time, and the average turn time for the current player
   - Updated the GameLogEntry component to format date and time correctly.
-  - Adjusted the position of the GameClock component to ensure both lines are visible.
-  - Added tests for the new getTimeSpanFromLastAction function.
+  - Adjusted the position of the GameClock component to ensure all lines are visible.
+  - Added tests for the new functions.
   - Fixed bug in computation of game time
+  - Fixed bugs in NEXT_TURN properties
 
-### Thur Oct 24 17:10:15 2024
+### Thu Oct 24 17:10:15 2024
 
 - **Improvement**: Improve about/disclaimer/readme
 
