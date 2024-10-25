@@ -143,7 +143,6 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
                 component="span"
                 style={{
                   fontWeight: isCurrentPlayer ? 'bold' : 'normal',
-                  color: isCurrentPlayer ? '#1976d2' : 'inherit',
                 }}
               >
                 {actionText}
