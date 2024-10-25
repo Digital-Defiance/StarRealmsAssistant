@@ -18,6 +18,7 @@ import EditIcon from '@mui/icons-material/Edit'; // Icon for corrections
 import LinkIcon from '@mui/icons-material/Link';
 import UndoIcon from '@mui/icons-material/Undo';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useGameContext } from '@/components/GameContext';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
@@ -138,13 +139,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
               {relevantPlayer !== undefined && !isNotTriggeredByPlayer && (
                 <ColoredPlayerName player={relevantPlayer} marginDirection="right" />
               )}
-              <Typography
-                variant="body2"
-                component="span"
-                style={{
-                  fontWeight: isCurrentPlayer ? 'bold' : 'normal',
-                }}
-              >
+              <Typography variant="body2" component="span">
                 {actionText}
               </Typography>
               {isNotTriggeredByPlayer && relevantPlayer !== undefined && (
@@ -153,6 +148,15 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
               {[GameLogActionWithCount.START_GAME, GameLogActionWithCount.NEXT_TURN].includes(
                 entry.action
               ) && `\u00A0(\u00A0${entry.turn}\u00A0)`}
+              {entry.trash === true && (
+                <Tooltip title="The card was trashed" arrow>
+                  <DeleteIcon
+                    fontSize="small"
+                    titleAccess="Card was trashed"
+                    style={{ marginLeft: '8px' }}
+                  />
+                </Tooltip>
+              )}
               {isAttributeChangeOutOfTurn && (
                 <ChangeCircleIcon
                   fontSize="small"

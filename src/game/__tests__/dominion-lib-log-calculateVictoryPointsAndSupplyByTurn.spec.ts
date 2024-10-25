@@ -1,0 +1,191 @@
+import { calculateVictoryPointsAndSupplyByTurn } from '@/game/dominion-lib-log';
+import { IGameSupply } from '@/game/interfaces/game-supply';
+import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
+import { IGame } from '@/game/interfaces/game';
+
+describe('calculateVictoryPointsAndSupplyByTurn', () => {
+  let game: IGame;
+  let initialSupply: IGameSupply;
+
+  beforeEach(() => {
+    game = createMockGame(2);
+    initialSupply = { ...game.supply };
+  });
+
+  it('should update victory points and reduce supply for victory cards', () => {
+    game.log.push(
+      {
+        id: '2',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.ADD_ESTATES,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+        count: 1,
+      },
+      {
+        id: '3',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.NEXT_TURN,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+      }
+    );
+
+    const result = calculateVictoryPointsAndSupplyByTurn(game);
+
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      {
+        scoreByPlayer: { 0: 4, 1: 3 },
+        supply: {
+          ...initialSupply,
+          estates: initialSupply.estates - 1,
+        },
+      },
+    ]);
+  });
+
+  it('should not reduce supply if trash flag is true', () => {
+    game.log.push(
+      {
+        id: '2',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.REMOVE_ESTATES,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+        count: 1,
+        trash: true,
+      },
+      {
+        id: '3',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.NEXT_TURN,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+      }
+    );
+
+    const result = calculateVictoryPointsAndSupplyByTurn(game);
+
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      {
+        scoreByPlayer: { 0: 2, 1: 3 },
+        supply: {
+          ...initialSupply, // No reduction in estates due to trash
+        },
+      },
+    ]);
+  });
+
+  it('should calculate victory points correctly with multiple actions', () => {
+    game.log.push(
+      {
+        id: '2',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.ADD_ESTATES,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+        count: 1,
+      },
+      {
+        id: '3',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.NEXT_TURN,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+        prevPlayerIndex: 0,
+      },
+      {
+        id: '4',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.ADD_DUCHIES,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+        count: 1,
+      },
+      {
+        id: '4',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.NEXT_TURN,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        prevPlayerIndex: 1,
+        turn: 3,
+      }
+    );
+
+    const result = calculateVictoryPointsAndSupplyByTurn(game);
+
+    expect(result).toHaveLength(2);
+    expect(result).toEqual([
+      {
+        scoreByPlayer: { 0: 4, 1: 3 },
+        supply: {
+          ...initialSupply,
+          estates: initialSupply.estates - 1,
+        },
+      },
+      {
+        scoreByPlayer: { 0: 4, 1: 6 },
+        supply: {
+          ...initialSupply,
+          estates: initialSupply.estates - 1,
+          duchies: initialSupply.duchies - 1,
+        },
+      },
+    ]);
+  });
+
+  it('should handle actions affecting multiple fields correctly', () => {
+    game.log.push(
+      {
+        id: '2',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.ADD_ESTATES,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+        count: 1,
+      },
+      {
+        id: '3',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.ADD_VP_TOKENS,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+        count: 2,
+      },
+      {
+        id: '4',
+        timestamp: new Date(),
+        action: GameLogActionWithCount.NEXT_TURN,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 3,
+      }
+    );
+
+    const result = calculateVictoryPointsAndSupplyByTurn(game);
+
+    expect(result).toHaveLength(1);
+    expect(result).toEqual([
+      {
+        scoreByPlayer: { 0: 4, 1: 5 },
+        supply: {
+          ...initialSupply,
+          estates: initialSupply.estates - 1,
+        },
+      },
+    ]);
+  });
+});

@@ -1,7 +1,18 @@
+$spacing-unit: 8px;
+
 // Font sizes
 $TITLE_SIZE: 24px;
 $SUBTITLE_SIZE: 18px;
 $TEXT_SIZE: 16px;
+
+body,
+html,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+}
 
 // Shared styles
 .title {
@@ -64,6 +75,36 @@ $TEXT_SIZE: 16px;
 .button-text {
   color: #fff;
   text-align: center;
+}
+
+.container {
+  padding: $spacing-unit * 2;
+}
+
+.statistics-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-unit * 2;
+  box-sizing: border-box; // Include padding in the total width and height
+  // Remove any margin-top or padding-top
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.graph-container {
+  width: 80vw;
+  // max-width: 1000px; // Optional: limit the maximum width
+  margin: $spacing-unit * 4 0;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+canvas {
+  max-width: 100% !important;
+  height: auto !important;
 }
 
 @font-face {

@@ -160,7 +160,8 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
         logEntry.playerIndex,
         field as keyof PlayerFieldMap,
         subfield,
-        increment
+        increment,
+        logEntry.trash === true ? true : undefined
       );
     }
   }

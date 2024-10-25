@@ -6,8 +6,15 @@ import { InvalidLogStartGameError } from '@/game/errors/invalid-log-start-game';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { PlayerFieldMap } from '@/game/types';
-import { NoPlayerActions } from '@/game/constants';
+import { NegativeAdjustmentActions, NoPlayerActions } from '@/game/constants';
 import { ITurnDuration } from '@/game/interfaces/turn-duration';
+import { calculateVictoryPoints, getFieldAndSubfieldFromAction } from '@/game/dominion-lib';
+import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
+import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
+import { IGameSupply } from '@/game/interfaces/game-supply';
+import { IPlayer } from '@/game/interfaces/player';
+import { IVictoryDetails } from '@/game/interfaces/victory-details';
+import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -499,6 +506,8 @@ export function addLogEntry(
   } else if (playerIndex > -1) {
     throw new Error('Player index is not relevant for this action');
   }
+  const { field } = getFieldAndSubfieldFromAction(action);
+
   const newLog: ILogEntry = {
     id: uuidv4(),
     timestamp: new Date(),
@@ -508,6 +517,52 @@ export function addLogEntry(
     turn: game.currentTurn,
     ...overrides,
   };
+  if (overrides?.trash === true && (field !== 'victory' || getSignedCount(newLog) >= 0)) {
+    throw new InvalidTrashActionError();
+  }
   game.log.push(newLog);
   return newLog;
+}
+
+/**
+ * Get the signed count for a log entry.
+ * @param log - The log entry
+ * @returns The signed count for the log entry, negative for removal actions and positive for addition actions.
+ */
+export function getSignedCount(log: ILogEntry): number {
+  if (log.count === undefined) {
+    return 0;
+  }
+  return NegativeAdjustmentActions.includes(log.action) ? -log.count : log.count;
+}
+
+/**
+ * Calculate victory points and supply by turn for graphing.
+ * @param game - The game object containing log entries, players, and supply
+ * @returns An array of victory and supply data by turn for graphing
+ */
+export function calculateVictoryPointsAndSupplyByTurn(game: IGame): IVictoryGraphData[] {
+  const result: IVictoryGraphData[] = [];
+
+  game.log.forEach((entry, index) => {
+    const reconstructedGame = reconstructGameState({
+      ...game,
+      log: game.log.slice(0, index + 1),
+    });
+
+    if (
+      entry.action === GameLogActionWithCount.NEXT_TURN ||
+      entry.action === GameLogActionWithCount.END_GAME
+    ) {
+      const victoryPointsByPlayer = reconstructedGame.players.map((player) =>
+        calculateVictoryPoints(player)
+      );
+      result.push({
+        scoreByPlayer: { ...victoryPointsByPlayer },
+        supply: { ...reconstructedGame.supply },
+      });
+    }
+  });
+
+  return result;
 }

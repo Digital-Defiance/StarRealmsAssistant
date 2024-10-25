@@ -5,6 +5,7 @@ import AboutScreen from '@/components/screens/AboutScreen';
 import HomeIcon from '@mui/icons-material/Home';
 import BookIcon from '@mui/icons-material/Book';
 import SaveIcon from '@mui/icons-material/Save';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import DominionVictoryIcon from '@/assets/images/Dominion-Victory.png';
 import TabBarIcon from '@/components/TabBarIcon';
 import TabView from '@/components/TabView';
@@ -15,6 +16,7 @@ import theme from '@/components/theme';
 import { GameProvider } from '@/components/GameContext';
 import { AlertProvider } from '@/components/AlertContext';
 import AlertDialog from '@/components/AlertDialog';
+import StatisticsScreen from '@/components/screens/StatisticsScreen';
 
 interface ITab {
   label: string;
@@ -49,6 +51,12 @@ const tabs: ITab[] = [
     icon: <TabBarIcon name="save" icon={SaveIcon} focused={false} />,
     content: <LoadSaveGameScreen />,
     path: '/load-save',
+  },
+  {
+    label: 'Statistics',
+    icon: <TabBarIcon name="statistics" icon={BarChartIcon} focused={false} />,
+    content: <StatisticsScreen />,
+    path: '/statistics',
   },
 ];
 

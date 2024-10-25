@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import SaveIcon from '@mui/icons-material/Save';
 import { useGameContext } from '@/components/GameContext';
 import {
   saveGame,
   loadGame,
   getSavedGamesList,
   deleteSavedGame,
+  loadGameJsonFromStorage,
 } from '@/game/dominion-lib-load-save';
 import { ISavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 import {
@@ -24,7 +24,12 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@mui/material';
-import { ArrowRight as ArrowRightIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import {
+  ArrowRight as ArrowRightIcon,
+  Delete as DeleteIcon,
+  SaveAlt as SaveAltIcon,
+  Save as SaveIcon,
+} from '@mui/icons-material';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { useAlert } from '@/components/AlertContext';
 import { LocalStorageService } from '@/game/local-storage-service';
@@ -123,7 +128,7 @@ const LoadSaveGame: React.FC = () => {
   };
 
   const handleDeleteGame = (id: string) => {
-    deleteSavedGame(id, storageService); // Pass storageService
+    deleteSavedGame(id, storageService);
     loadSavedGamesList();
     if (selectedGameId === id) {
       setSelectedGameId(null);
@@ -133,6 +138,24 @@ const LoadSaveGame: React.FC = () => {
   const handleSelectGame = (game: ISavedGameMetadata) => {
     setSelectedGameId(game.id);
     setSaveName(game.name);
+  };
+
+  const handleExport = () => {
+    if (!selectedGameId) {
+      return;
+    }
+    const saveGameJson = loadGameJsonFromStorage(selectedGameId, storageService);
+    if (saveGameJson) {
+      const blob = new Blob([saveGameJson], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${saveName}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   };
 
   return (
@@ -196,6 +219,16 @@ const LoadSaveGame: React.FC = () => {
         sx={{ mt: 2 }}
       >
         Load Selected Game
+      </Button>
+      <Button
+        variant="contained"
+        onClick={handleExport}
+        disabled={!selectedGameId}
+        startIcon={<SaveAltIcon />}
+        sx={{ mt: 2, marginLeft: '8px' }}
+        color="secondary"
+      >
+        Export Selected Game
       </Button>
       <Dialog
         open={openDialog}

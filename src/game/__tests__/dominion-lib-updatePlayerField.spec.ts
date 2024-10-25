@@ -121,4 +121,16 @@ describe('updatePlayerField', () => {
     expect(updatedGame.players[0].victory.estates).toBe(3);
     expect(updatedGame.supply.estates).toBe(7);
   });
+
+  it('should handle victory trash correctly', () => {
+    const updatedGame = updatePlayerField(mockGame, 0, 'victory', 'estates', -1, true);
+    expect(updatedGame.players[0].victory.estates).toBe(2);
+    expect(updatedGame.supply.estates).toBe(8);
+  });
+
+  it('should handle victory trash correctly', () => {
+    const updatedGame = updatePlayerField(mockGame, 0, 'victory', 'estates', -1, false);
+    expect(updatedGame.players[0].victory.estates).toBe(2);
+    expect(updatedGame.supply.estates).toBe(9);
+  });
 });

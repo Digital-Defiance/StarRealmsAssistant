@@ -130,6 +130,24 @@ export function restoreSavedGame(game: IGameRaw): IGame {
 }
 
 /**
+ * Get the game data from the provided storage service.
+ * @param saveId - The ID of the save
+ * @param storageService - The storage service to use
+ * @returns The game data or null if not found
+ */
+export function loadGameJsonFromStorage(
+  saveId: string,
+  storageService: IStorageService
+): string | null {
+  const gameString = storageService.getItem(`${SaveGameStorageKeyPrefix}${saveId}`);
+  if (!gameString) {
+    console.error(`No game found for saveId: ${saveId}`);
+    return null;
+  }
+  return gameString;
+}
+
+/**
  * Load a game using the provided storage service and add a log entry for the load event.
  * @param saveId - The ID of the save
  * @param storageService - The storage service to use
@@ -137,9 +155,8 @@ export function restoreSavedGame(game: IGameRaw): IGame {
  */
 export function loadGame(saveId: string, storageService: IStorageService): IGame | null {
   try {
-    const gameString = storageService.getItem(`${SaveGameStorageKeyPrefix}${saveId}`);
+    const gameString = loadGameJsonFromStorage(saveId, storageService);
     if (!gameString) {
-      console.error(`No game found for saveId: ${saveId}`);
       return null;
     }
 

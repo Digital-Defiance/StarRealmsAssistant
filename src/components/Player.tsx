@@ -91,6 +91,7 @@ const Player: React.FC = () => {
         count: Math.abs(increment),
         correction: isCorrection,
         linkedActionId,
+        trash: field === 'victory' && victoryTrash,
       });
       setGameState(updatedGame);
     } catch (error) {
@@ -401,6 +402,15 @@ const Player: React.FC = () => {
                 <SuperCapsText className={`typography-large-title`}>Victory</SuperCapsText>
               </Tooltip>
             </CenteredTitle>
+            {gameState.options.curses && (
+              <IncrementDecrementControl
+                label="Curses"
+                value={player.victory.curses}
+                onIncrement={() => handleFieldChange('victory', 'curses', 1)}
+                onDecrement={() => handleFieldChange('victory', 'curses', -1)}
+                onTrash={() => handleFieldChange('victory', 'curses', -1, undefined, true)}
+              />
+            )}
             <IncrementDecrementControl
               label="Estates"
               value={player.victory.estates}
@@ -443,15 +453,6 @@ const Player: React.FC = () => {
               onIncrement={() => handleFieldChange('victory', 'other', 1)}
               onDecrement={() => handleFieldChange('victory', 'other', -1)}
             />
-            {gameState.options.curses && (
-              <IncrementDecrementControl
-                label="Curses"
-                value={player.victory.curses}
-                onIncrement={() => handleFieldChange('victory', 'curses', 1)}
-                onDecrement={() => handleFieldChange('victory', 'curses', -1)}
-                onTrash={() => handleFieldChange('victory', 'curses', -1, undefined, true)}
-              />
-            )}
           </ColumnBox>
         </Box>
       )}

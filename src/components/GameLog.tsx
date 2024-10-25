@@ -8,6 +8,7 @@ import {
   TableRow,
   TableCell,
   Typography,
+  Box,
 } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
@@ -19,10 +20,12 @@ const GameLog: React.FC = () => {
 
   return (
     <>
-      <TabTitle>Game Log</TabTitle>
+      <Box display="flex" justifyContent="center" sx={{ paddingTop: 4 }}>
+        <TabTitle>Game Log</TabTitle>
+      </Box>
       {gameState.currentStep === CurrentStep.GameScreen ||
       gameState.currentStep === CurrentStep.EndGame ? (
-        <TableContainer component={Paper} style={{ maxHeight: 400, width: '100%' }}>
+        <TableContainer component={Paper} style={{ width: '100%' }}>
           <Table stickyHeader size="small">
             <TableHead>
               <TableRow>

@@ -42,6 +42,9 @@ const Scoreboard: React.FC = () => {
 
   const handlePlayerSelect = (index: number) => {
     setGameState((prevState: IGame) => {
+      if (prevState.selectedPlayerIndex === index) {
+        return prevState;
+      }
       addLogEntry(prevState, index, GameLogActionWithCount.SELECT_PLAYER, {
         prevPlayerIndex: prevState.selectedPlayerIndex,
       });

@@ -200,6 +200,16 @@ Join our community of developers.
 
 ## Changelog
 
+### Fri Oct 25 16:31:00 2024
+
+- Version 0.2.0
+  - New Feature: Added detailed victory point tracking by turn in calculateVictoryPointsAndSupplyByTurn, supporting graphical representation.
+  - UI Enhancements: Introduced StatisticsScreen for game statistics display with line charts for player scores, supply counts, and turn durations.
+  - Game Log Updates: Added trash option for log entries, ensuring trashed items don't impact supply counts.
+  - Error Handling: Introduced InvalidTrashActionError for invalid trash actions.
+  - Dependencies: Integrated chart.js and react-chartjs-2 for graphing capabilities.
+  - Other Enhancements: Refactored game setup and mock creation for better test coverage and clarity.
+
 ### Fri Oct 25 11:10:00 2024
 
 - Added

@@ -30,9 +30,7 @@ const TabView: React.FC<TabViewProps> = ({ tabs }) => {
 
   return (
     <Box sx={{ paddingBottom: '56px' }}>
-      <Box sx={{ flexGrow: 1 }}>
-        <Outlet />
-      </Box>
+      <Outlet />
       <Paper elevation={3}>
         <StyledBottomNavigation
           value={tabs.findIndex((tab) => tab.path === location.pathname)}

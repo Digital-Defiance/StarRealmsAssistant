@@ -1,11 +1,11 @@
 import React from 'react';
 import GameLog from '@/components/GameLog';
-import CenteredContainer from '@/components/CenteredContainer';
+import ScrollableContainer from '@/components/ScrollableContainer';
 
 export default function GameLogScreen() {
   return (
-    <CenteredContainer>
+    <ScrollableContainer>
       <GameLog />
-    </CenteredContainer>
+    </ScrollableContainer>
   );
 }

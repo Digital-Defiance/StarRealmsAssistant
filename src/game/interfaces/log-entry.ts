@@ -31,6 +31,10 @@ export interface ILogEntry {
    */
   count?: number;
   /**
+   * Whether the removal action was to the trash
+   */
+  trash?: boolean;
+  /**
    * Whether the action was a correction
    */
   correction?: boolean;

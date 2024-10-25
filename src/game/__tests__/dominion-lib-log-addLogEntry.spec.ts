@@ -2,6 +2,7 @@ import { addLogEntry } from '@/game/dominion-lib-log';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { IGame } from '@/game/interfaces/game';
+import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 
 describe('addLogEntry', () => {
   let mockGame: IGame;
@@ -21,20 +22,22 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with all fields', () => {
-    addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_COINS, {
-      count: 5,
+    addLogEntry(mockGame, 0, GameLogActionWithCount.REMOVE_ESTATES, {
+      count: 1,
       correction: false,
       linkedActionId: 'linkedActionId',
       playerTurnDetails: [],
+      trash: true,
     });
     expect(mockGame.log).toContainEqual(
       expect.objectContaining({
         playerIndex: 0,
-        action: GameLogActionWithCount.ADD_COINS,
-        count: 5,
+        action: GameLogActionWithCount.REMOVE_ESTATES,
+        count: 1,
         correction: false,
         linkedActionId: 'linkedActionId',
         playerTurnDetails: [],
+        trash: true,
       })
     );
   });
@@ -171,6 +174,44 @@ describe('addLogEntry', () => {
       expect.objectContaining({
         playerIndex: 0,
         action: GameLogActionWithCount.ADD_COINS,
+      })
+    );
+  });
+  it('should throw an error if you try to mark trash a non-removal action as trash', () => {
+    expect(() => {
+      addLogEntry(mockGame, 0, GameLogActionWithCount.ADD_ACTIONS, {
+        count: 1,
+        trash: true,
+      });
+    }).toThrow(InvalidTrashActionError);
+  });
+  it('should throw an error if you try to mark trash a non-count action as trash', () => {
+    expect(() => {
+      addLogEntry(mockGame, 0, GameLogActionWithCount.REMOVE_ESTATES, {
+        trash: true,
+      });
+    }).toThrow(InvalidTrashActionError);
+  });
+  it('should throw an error if you try to mark trash something other than a victory card', () => {
+    expect(() => {
+      addLogEntry(mockGame, 0, GameLogActionWithCount.REMOVE_ACTIONS, {
+        count: 1,
+        trash: true,
+      });
+    }).toThrow(InvalidTrashActionError);
+  });
+
+  it('should not throw an error if you try to mark trash a victory card', () => {
+    addLogEntry(mockGame, 0, GameLogActionWithCount.REMOVE_ESTATES, {
+      count: 1,
+      trash: true,
+    });
+    expect(mockGame.log).toContainEqual(
+      expect.objectContaining({
+        playerIndex: 0,
+        action: GameLogActionWithCount.REMOVE_ESTATES,
+        count: 1,
+        trash: true,
       })
     );
   });

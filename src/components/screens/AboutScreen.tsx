@@ -103,7 +103,10 @@ export default function AboutScreen() {
                     Jessica Mulein
                   </Link>
                   . Unofficial Dominion Assistant is an open-source project and not affiliated with
-                  or endorsed by the makers of Dominion or Donald X Vaccarino.
+                  or endorsed by the makers of Dominion or Donald X Vaccarino. It is offered free of
+                  charge and is provided as-is, and with limited support. Please consider supporting
+                  Digital Defiance to promote open source and help us to serve the open source
+                  community.
                 </Typography>
                 <Typography variant="body1" paragraph>
                   For more information, contributions, or to report{' '}

@@ -7,7 +7,7 @@ import {
   DefaultTurnDetails,
   DefaultPlayerColors,
 } from '@/game/constants';
-import { calculateInitialSupply } from '@/game/dominion-lib';
+import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { IGame } from '@/game/interfaces/game';
@@ -27,7 +27,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
     } as IMatsEnabled,
   };
   const supply = calculateInitialSupply(playerCount, options);
-  return {
+  const game: IGame = {
     players: Array(playerCount)
       .fill(null)
       .map((value, index) => createMockPlayer(undefined, index)),
@@ -57,6 +57,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
     setsRequired: 1,
     ...overrides,
   };
+  return distributeInitialSupply(game);
 }
 
 export function createMockPlayer(victory?: Partial<IPlayer['victory']>, index?: number): IPlayer {

@@ -7,7 +7,7 @@ import { IVictoryDetails } from '@/game/interfaces/victory-details';
 import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
 
-export const VERSION_NUMBER = '0.1.0';
+export const VERSION_NUMBER = '0.2.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -161,6 +161,32 @@ export const AdjustmentActions = [
   GameLogActionWithCount.ADD_NEXT_TURN_BUYS,
   GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS,
   GameLogActionWithCount.ADD_NEXT_TURN_COINS,
+  GameLogActionWithCount.REMOVE_NEXT_TURN_COINS,
+];
+
+export const NegativeAdjustmentActions = [
+  // turn actions
+  GameLogActionWithCount.REMOVE_ACTIONS,
+  GameLogActionWithCount.REMOVE_COINS,
+  GameLogActionWithCount.REMOVE_BUYS,
+  // mats
+  GameLogActionWithCount.REMOVE_COFFERS,
+  GameLogActionWithCount.REMOVE_VILLAGERS,
+  GameLogActionWithCount.REMOVE_DEBT,
+  GameLogActionWithCount.REMOVE_FAVORS,
+  // global mats
+  GameLogActionWithCount.REMOVE_PROPHECY,
+  // victory points
+  GameLogActionWithCount.REMOVE_ESTATES,
+  GameLogActionWithCount.REMOVE_DUCHIES,
+  GameLogActionWithCount.REMOVE_PROVINCES,
+  GameLogActionWithCount.REMOVE_COLONIES,
+  GameLogActionWithCount.REMOVE_VP_TOKENS,
+  GameLogActionWithCount.REMOVE_OTHER_VP,
+  GameLogActionWithCount.REMOVE_CURSES,
+  // next turn actions
+  GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS,
+  GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS,
   GameLogActionWithCount.REMOVE_NEXT_TURN_COINS,
 ];
 

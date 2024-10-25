@@ -33,7 +33,9 @@ const Container = styled(Box)(({ theme }) => ({
   justifyContent: 'center',
   alignItems: 'center',
   padding: theme.spacing(2),
-  height: '100vh',
+  minHeight: '70vh',
+  marginTop: 0,
+  paddingTop: 0,
 }));
 
 const ButtonContainer = styled(Box)(({ theme }) => ({
