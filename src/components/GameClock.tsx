@@ -45,16 +45,16 @@ const GameClock = () => {
         borderRadius: '8px',
       }}
     >
-      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1.5rem', color: 'white' }}>
+      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1rem', color: 'white' }}>
         Game Time: {formatTimeSpan(gameTimeResult.duration)}
       </Typography>
-      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1.5rem', color: 'white' }}>
+      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1rem', color: 'white' }}>
         Current Turn: {formatTimeSpan(currentTurnTime)}
       </Typography>
-      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1.5rem', color: 'white' }}>
+      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1rem', color: 'white' }}>
         Average Turn: {formatTimeSpan(averageTurnTime)}
       </Typography>
-      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1.5rem', color: 'white' }}>
+      <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1rem', color: 'white' }}>
         Avg Player Turn: {formatTimeSpan(averageTurnCurrentPlayer)}
       </Typography>
     </Box>

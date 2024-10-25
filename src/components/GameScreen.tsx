@@ -57,10 +57,17 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
   const [canUndo, setCanUndo] = useState(false);
   const [supplyDialogOpen, setSupplyDialogOpen] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
   }, [gameState]);
+
+  useEffect(() => {
+    const handleResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleOpenSupplyDialog = () => {
     setSupplyDialogOpen(true);
@@ -109,7 +116,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
           </Tooltip>
         </Fab>
       </FabContainer>
-      {gameState.currentStep === CurrentStep.GameScreen && <GameClock />}
+      {gameState.currentStep === CurrentStep.GameScreen && viewportWidth > 1300 && <GameClock />}
       <Dialog open={supplyDialogOpen} onClose={handleCloseSupplyDialog}>
         <DialogContent>
           <SupplyCounts />

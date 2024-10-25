@@ -73,7 +73,8 @@ const Player: React.FC = () => {
     field: T,
     subfield: PlayerFieldMap[T],
     increment: number,
-    linkedActionId?: string
+    linkedActionId?: string,
+    victoryTrash?: boolean
   ): void => {
     const prevGame = { ...gameState };
     try {
@@ -82,7 +83,8 @@ const Player: React.FC = () => {
         prevGame.selectedPlayerIndex,
         field,
         subfield,
-        increment
+        increment,
+        victoryTrash
       );
       const action = fieldSubfieldToGameLogAction(field, subfield, increment);
       addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
@@ -393,7 +395,7 @@ const Player: React.FC = () => {
               )}
             </ColumnBox>
           )}
-          <ColumnBox>
+          <ColumnBox sx={{ marginLeft: '10px' }}>
             <CenteredTitle>
               <Tooltip title="Victory points" arrow>
                 <SuperCapsText className={`typography-large-title`}>Victory</SuperCapsText>
@@ -404,18 +406,21 @@ const Player: React.FC = () => {
               value={player.victory.estates}
               onIncrement={() => handleFieldChange('victory', 'estates', 1)}
               onDecrement={() => handleFieldChange('victory', 'estates', -1)}
+              onTrash={() => handleFieldChange('victory', 'estates', -1, undefined, true)}
             />
             <IncrementDecrementControl
               label="Duchies"
               value={player.victory.duchies}
               onIncrement={() => handleFieldChange('victory', 'duchies', 1)}
               onDecrement={() => handleFieldChange('victory', 'duchies', -1)}
+              onTrash={() => handleFieldChange('victory', 'duchies', -1, undefined, true)}
             />
             <IncrementDecrementControl
               label="Provinces"
               value={player.victory.provinces}
               onIncrement={() => handleFieldChange('victory', 'provinces', 1)}
               onDecrement={() => handleFieldChange('victory', 'provinces', -1)}
+              onTrash={() => handleFieldChange('victory', 'provinces', -1, undefined, true)}
             />
             {gameState.options.expansions.prosperity && (
               <IncrementDecrementControl
@@ -423,6 +428,7 @@ const Player: React.FC = () => {
                 value={player.victory.colonies}
                 onIncrement={() => handleFieldChange('victory', 'colonies', 1)}
                 onDecrement={() => handleFieldChange('victory', 'colonies', -1)}
+                onTrash={() => handleFieldChange('victory', 'colonies', -1, undefined, true)}
               />
             )}
             <IncrementDecrementControl
@@ -443,6 +449,7 @@ const Player: React.FC = () => {
                 value={player.victory.curses}
                 onIncrement={() => handleFieldChange('victory', 'curses', 1)}
                 onDecrement={() => handleFieldChange('victory', 'curses', -1)}
+                onTrash={() => handleFieldChange('victory', 'curses', -1, undefined, true)}
               />
             )}
           </ColumnBox>

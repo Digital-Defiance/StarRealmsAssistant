@@ -4,6 +4,7 @@ import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import DeleteIcon from '@mui/icons-material/Delete';
 import '@/styles.scss';
 
 // Modify StyledTypography to use forwardRef
@@ -43,6 +44,7 @@ interface IncrementDecrementControlProps {
   tooltip?: string;
   onIncrement: () => void;
   onDecrement: () => void;
+  onTrash?: () => void;
   sx?: SxProps<Theme>;
   tooltipProps?: Omit<TooltipProps, 'children' | 'title'>;
 }
@@ -53,6 +55,7 @@ const IncrementDecrementControl: React.FC<IncrementDecrementControlProps> = ({
   tooltip,
   onIncrement,
   onDecrement,
+  onTrash,
   tooltipProps,
   sx,
   ...otherProps
@@ -80,6 +83,11 @@ const IncrementDecrementControl: React.FC<IncrementDecrementControlProps> = ({
         </Tooltip>
       ) : (
         labelContent
+      )}
+      {onTrash && (
+        <IconButton onClick={onTrash} size="small">
+          <DeleteIcon fontSize="small" />
+        </IconButton>
       )}
       <IconButton onClick={onDecrement} size="small">
         <RemoveIcon fontSize="small" />

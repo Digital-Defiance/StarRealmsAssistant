@@ -231,7 +231,8 @@ export function updatePlayerField<T extends keyof PlayerFieldMap>(
   playerIndex: number,
   field: T,
   subfield: PlayerFieldMap[T],
-  increment: number
+  increment: number,
+  victoryTrash?: boolean
 ): IGame {
   const updatedGame = { ...game };
   const player = { ...updatedGame.players[playerIndex] };
@@ -266,8 +267,8 @@ export function updatePlayerField<T extends keyof PlayerFieldMap>(
 
   updatedGame.players[playerIndex] = player;
 
-  // Update the supply if the field is a victory field
-  if (decrementSupply) {
+  // Update the supply if the field is a victory field and victoryTrash is not true
+  if (decrementSupply && !victoryTrash) {
     (updatedGame.supply[subfield as keyof IGameSupply] as number) -= increment;
   }
 

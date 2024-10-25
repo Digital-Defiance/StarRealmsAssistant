@@ -200,6 +200,19 @@ Join our community of developers.
 
 ## Changelog
 
+### Fri Oct 25 11:10:00 2024
+
+- Added
+  - Added VERSION_NUMBER constant in constants.ts.
+  - Displayed the version number in the AboutScreen.
+- Changed
+  - Modified the font size of the GameClock component to 1rem for better readability.
+  - Updated GameScreen to conditionally render the GameClock component only if the viewport width is greater than 1300 pixels.
+  - Enhanced the IncrementDecrementControl component to include a trash icon button for decrementing victory fields.
+  - Updated the Player component to handle the trash action for victory fields.
+- Fixed
+  - Fixed the supply decrement logic in updatePlayerField to account for the victoryTrash flag.
+
 ### Fri Oct 25 00:40:30 2024
 
 - Add confirm end game dialog

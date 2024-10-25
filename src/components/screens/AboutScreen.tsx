@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import DominionTransparentLogo from '@/assets/images/Dominion-tx.png';
 import SuperCapsText from '@/components/SuperCapsText';
+import { VERSION_NUMBER } from '@/game/constants';
 
 export default function AboutScreen() {
   return (
@@ -137,10 +138,22 @@ export default function AboutScreen() {
                   </Link>{' '}
                   for important information.
                 </Typography>
+                <Typography variant="body1" paragraph align="center">
+                  <Link
+                    href="https://github.com/Digital-Defiance/DominionAssistant/blob/main/USER_MANUAL.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    User Manual
+                  </Link>
+                </Typography>
               </Paper>
             </Box>
           </Box>
         </Box>
+      </Box>
+      <Box mt={4} width="100%" textAlign="center">
+        <Typography variant="body2">Version: {VERSION_NUMBER}</Typography>
       </Box>
     </Container>
   );
