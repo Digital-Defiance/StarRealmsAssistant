@@ -14,6 +14,7 @@ jest.mock('@/game/dominion-lib-log', () => ({
 describe('saveGame', () => {
   let mockStorageService: jest.Mocked<IStorageService>;
   let mockGame: IGame;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockStorageService = {
@@ -33,6 +34,10 @@ describe('saveGame', () => {
         timestamp: options?.timestamp || new Date(),
       });
       game.log.push(logEntry);
+    });
+
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      /* do nothing */
     });
   });
 
@@ -55,13 +60,15 @@ describe('saveGame', () => {
   });
 
   it('should return false if there was an error saving the game', () => {
+    const testError = new Error('Test Error');
     mockStorageService.setItem.mockImplementation(() => {
-      throw new Error('Test Error');
+      throw testError;
     });
 
     const result = saveGame(mockGame, 'Test Save', mockStorageService);
 
     expect(result).toBe(false);
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error saving game:', testError);
   });
 
   it('should handle the case where the game log is empty', () => {

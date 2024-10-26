@@ -1,7 +1,11 @@
 import { IGame } from '@/game/interfaces/game';
 import { EmptyGameState, NewGameState } from '@/game/dominion-lib';
+import { deepClone } from '@/game/utils';
 import { DefaultTurnDetails, EmptyMatDetails, EmptyVictoryDetails } from '@/game/constants';
 import { applyLogAction } from '@/game/dominion-lib-undo';
+import { IPlayer } from '@/game/interfaces/player';
+import { IGameOptions } from '@/game/interfaces/game-options';
+import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 
 /**
  * Remove the target action and its linked actions from the game log.
@@ -10,7 +14,7 @@ import { applyLogAction } from '@/game/dominion-lib-undo';
  * @returns The updated game state with the target action and its linked actions removed
  */
 export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGame {
-  const updatedGame = { ...game };
+  const updatedGame = deepClone<IGame>(game);
   if (logIndex < 0 || logIndex >= updatedGame.log.length) {
     return updatedGame;
   }
@@ -50,18 +54,19 @@ export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGa
  */
 export function reconstructGameState(game: IGame): IGame {
   let reconstructedGame = NewGameState({
-    ...EmptyGameState,
+    ...EmptyGameState(),
     players: game.players.map((player) => ({
-      ...player,
-      mats: { ...EmptyMatDetails },
-      turn: { ...DefaultTurnDetails },
-      newTurn: { ...DefaultTurnDetails },
-      victory: { ...EmptyVictoryDetails },
+      ...deepClone<IPlayer>(player),
+      mats: EmptyMatDetails(),
+      turn: DefaultTurnDetails(),
+      newTurn: DefaultTurnDetails(),
+      victory: EmptyVictoryDetails(),
     })),
-    options: { ...game.options },
+    options: deepClone<IGameOptions>(game.options),
     firstPlayerIndex: game.firstPlayerIndex,
     currentPlayerIndex: game.firstPlayerIndex,
     selectedPlayerIndex: game.firstPlayerIndex,
+    ...(game.risingSun ? { risingSun: deepClone<IRisingSunFeatures>(game.risingSun) } : {}),
   });
   // clear the log
   reconstructedGame.log = [];

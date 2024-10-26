@@ -6,24 +6,33 @@ import { DefaultTurnDetails, NO_PLAYER } from '@/game/constants';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
+import { deepClone } from '@/game/utils';
+import { IPlayerGameTurnDetails } from '../interfaces/player-game-turn-details';
 
 describe('applyLogAction', () => {
   let mockGame: IGame;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockGame = createMockGame(2);
+
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      /* do nothing */
+    });
   });
 
   it('should handle NEXT_TURN action without creating negative counters', () => {
     const mockGame: IGame = createMockGame(2);
-    const initialPlayerStates = mockGame.players.map((player) => ({ ...player.turn }));
+    const initialPlayerStates = mockGame.players.map((player) =>
+      deepClone<IPlayerGameTurnDetails>(player.turn)
+    );
 
     const logEntry: ILogEntry = {
       action: GameLogAction.NEXT_TURN,
       playerIndex: 1,
       id: '1',
       timestamp: new Date(),
-      playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
+      playerTurnDetails: [DefaultTurnDetails(), DefaultTurnDetails()],
       prevPlayerIndex: 0,
       currentPlayerIndex: 1,
       turn: 1,
@@ -140,7 +149,7 @@ describe('applyLogAction', () => {
     mockGame.risingSun.prophecy.suns = 5;
     const logEntry: ILogEntry = {
       action: GameLogAction.REMOVE_PROPHECY,
-      playerIndex: NO_PLAYER,
+      playerIndex: 0,
       count: 2,
       id: '1',
       timestamp: new Date(),
@@ -169,10 +178,10 @@ describe('applyLogAction', () => {
 
   it('should not allow negative game-wide counters', () => {
     mockGame.options.expansions.risingSun = true;
-    mockGame.risingSun.prophecy.suns = 1;
+    mockGame.risingSun = { prophecy: { suns: 1 }, greatLeaderProphecy: true };
     const logEntry: ILogEntry = {
       action: GameLogAction.REMOVE_PROPHECY,
-      playerIndex: NO_PLAYER,
+      playerIndex: 0,
       count: 2,
       id: '1',
       timestamp: new Date(),
@@ -188,7 +197,7 @@ describe('applyLogAction', () => {
     mockGame.risingSun.prophecy.suns = 0;
     const logEntry: ILogEntry = {
       action: GameLogAction.ADD_PROPHECY,
-      playerIndex: NO_PLAYER,
+      playerIndex: 0,
       id: '1',
       timestamp: new Date(),
       currentPlayerIndex: 0,
@@ -205,7 +214,7 @@ describe('applyLogAction', () => {
     mockGame.risingSun.prophecy.suns = 3;
     const logEntry: ILogEntry = {
       action: GameLogAction.REMOVE_PROPHECY,
-      playerIndex: NO_PLAYER,
+      playerIndex: 0,
       id: '1',
       timestamp: new Date(),
       currentPlayerIndex: 0,
@@ -263,6 +272,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result).toEqual(mockGame); // Game state should remain unchanged
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid log entry action:', logEntry.action);
   });
 
   it('should update the selectedPlayerIndex correctly', () => {

@@ -21,6 +21,7 @@ import SuperCapsText from '@/components/SuperCapsText';
 import CenteredContainer from '@/components/CenteredContainer';
 import TabTitle from '@/components/TabTitle';
 import { IGame } from '@/game/interfaces/game';
+import { deepClone } from '@/game/utils';
 
 interface AddPlayerNamesProps {
   nextStep: () => void;
@@ -37,28 +38,31 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState<number>(-1);
 
   useEffect(() => {
-    setGameState((prevState: IGame) => ({
-      ...prevState,
-      numSets: prevState.players.length > 4 ? 2 : 1,
-    }));
+    setGameState((prevState: IGame) => {
+      const newGame = deepClone<IGame>(prevState);
+      newGame.setsRequired = prevState.players.length > 4 ? 2 : 1;
+      return newGame;
+    });
   }, [setGameState, gameState.players.length]);
 
   const addPlayer = () => {
     if (playerName.trim()) {
       const nextPlayerIndex = gameState.players.length; // +1, -1
-      setGameState((prevState: IGame) => ({
-        ...prevState,
-        players: [...prevState.players, newPlayer(playerName, nextPlayerIndex)],
-      }));
+      setGameState((prevState: IGame) => {
+        const newGame = deepClone<IGame>(prevState);
+        newGame.players = [...newGame.players, newPlayer(playerName, nextPlayerIndex)];
+        return newGame;
+      });
       setPlayerName('');
     }
   };
 
   const removePlayer = (index: number) => {
-    setGameState((prevState: IGame) => ({
-      ...prevState,
-      players: prevState.players.filter((_, i) => i !== index),
-    }));
+    setGameState((prevState: IGame) => {
+      const newGame = deepClone<IGame>(prevState);
+      newGame.players = newGame.players.filter((_, i) => i !== index);
+      return newGame;
+    });
   };
 
   const handleColorClick = (event: React.MouseEvent<HTMLElement>, playerIndex: number) => {
@@ -69,9 +73,9 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   const handleColorChange = (color: ColorResult) => {
     if (currentPlayerIndex !== -1) {
       setGameState((prevState: IGame) => {
-        const players = [...prevState.players];
-        players[currentPlayerIndex].color = color.hex;
-        return { ...prevState, players };
+        const newGame = deepClone<IGame>(prevState);
+        newGame.players[currentPlayerIndex].color = color.hex;
+        return newGame;
       });
     }
   };

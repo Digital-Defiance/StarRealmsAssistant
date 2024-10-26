@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Oct 26 14:46:00 2024
+
+- Version 0.4.0
+  - Added autosave functionality to save game progress after each state change.
+
 ### Sat Oct 26 14:01:00 2024
 
 - Version 0.3.0

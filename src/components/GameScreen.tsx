@@ -27,6 +27,8 @@ import { CurrentStep } from '@/game/enumerations/current-step';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { NO_PLAYER } from '@/game/constants';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
+import { IGame } from '@/game/interfaces/game';
+import { deepClone } from '@/game/utils';
 
 interface GameScreenProps {
   nextTurn: () => void;
@@ -110,14 +112,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
     if (lastActionIsPause) {
       // Unpause the game
       setGameState((prevState) => {
-        const newState = { ...prevState };
+        const newState = deepClone<IGame>(prevState);
         addLogEntry(newState, NO_PLAYER, GameLogAction.UNPAUSE);
         return newState;
       });
     } else {
       // Pause the game
       setGameState((prevState) => {
-        const newState = { ...prevState };
+        const newState = deepClone<IGame>(prevState);
         addLogEntry(newState, NO_PLAYER, GameLogAction.PAUSE);
         return newState;
       });

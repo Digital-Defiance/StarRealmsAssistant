@@ -133,7 +133,19 @@ export function restoreSavedGame(game: IGameRaw): IGame {
     } as ILogEntry;
   });
 
-  const newGame: IGame = { ...game, log: newLog };
+  const newGame: IGame = {
+    ...game,
+    log: newLog,
+    risingSun: game.risingSun
+      ? {
+          ...game.risingSun,
+          prophecy: {
+            ...game.risingSun.prophecy,
+            suns: game.risingSun.prophecy.suns || 0,
+          },
+        }
+      : undefined,
+  } as IGame;
 
   // Now validate the game object after restoring dates
   if (!isValidGame(newGame)) {

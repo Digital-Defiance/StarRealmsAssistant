@@ -3,6 +3,8 @@ import { IGameSupply } from '@/game/interfaces/game-supply';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { IGame } from '@/game/interfaces/game';
+import { ILogEntry } from '@/game/interfaces/log-entry';
+import { deepClone } from '@/game/utils';
 
 describe('calculateVictoryPointsAndSupplyByTurn', () => {
   let game: IGame;
@@ -10,7 +12,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
 
   beforeEach(() => {
     game = createMockGame(2);
-    initialSupply = { ...game.supply };
+    initialSupply = deepClone<IGameSupply>(game.supply);
   });
 
   it('should update victory points and reduce supply for victory cards', () => {
@@ -59,7 +61,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
         turn: 1,
         count: 1,
         trash: true,
-      },
+      } as ILogEntry,
       {
         id: '3',
         timestamp: new Date(),

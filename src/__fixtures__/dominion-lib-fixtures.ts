@@ -15,6 +15,8 @@ import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { ILogEntry } from '@/game/interfaces/log-entry';
+import { deepClone } from '@/game/utils';
+import { IVictoryDetails } from '@/game/interfaces/victory-details';
 
 export function createMockGame(playerCount: number, overrides?: Partial<IGame>): IGame {
   const options: IGameOptions = {
@@ -67,12 +69,12 @@ export function createMockPlayer(victory?: Partial<IPlayer['victory']>, index?: 
       DefaultPlayerColors[
         index ?? faker.number.int({ min: 0, max: DefaultPlayerColors.length - 1 })
       ],
-    mats: { ...EmptyMatDetails },
-    turn: { ...DefaultTurnDetails },
-    newTurn: { ...DefaultTurnDetails },
+    mats: EmptyMatDetails(),
+    turn: DefaultTurnDetails(),
+    newTurn: DefaultTurnDetails(),
     victory: {
-      ...EmptyVictoryDetails,
-      ...victory,
+      ...EmptyVictoryDetails(),
+      ...(victory ? deepClone<Partial<IVictoryDetails>>(victory) : {}),
     },
   } as IPlayer;
 }
@@ -89,6 +91,6 @@ export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
     correction: false,
     linkedActionId: faker.string.uuid(),
     prevPlayerIndex: faker.number.int({ min: 0, max: 3 }),
-    ...log,
+    ...(log ? deepClone<Partial<ILogEntry>>(log) : {}),
   };
 }

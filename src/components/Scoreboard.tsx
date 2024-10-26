@@ -19,6 +19,7 @@ import { useGameContext } from '@/components/GameContext';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
+import { deepClone } from '@/game/utils';
 
 const TableText = styled(Typography)(() => ({
   fontFamily: 'TrajanProBold',
@@ -45,10 +46,12 @@ const Scoreboard: React.FC = () => {
       if (prevState.selectedPlayerIndex === index) {
         return prevState;
       }
-      addLogEntry(prevState, index, GameLogAction.SELECT_PLAYER, {
+      const newGame = deepClone<IGame>(prevState);
+      addLogEntry(newGame, index, GameLogAction.SELECT_PLAYER, {
         prevPlayerIndex: prevState.selectedPlayerIndex,
       });
-      return { ...prevState, selectedPlayerIndex: index };
+      newGame.selectedPlayerIndex = index;
+      return newGame;
     });
   };
 

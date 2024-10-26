@@ -28,9 +28,7 @@ describe('undoAction', () => {
     currentPlayerIndex: 0,
     turn: 1,
     playerTurnDetails:
-      action === GameLogAction.NEXT_TURN
-        ? [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }]
-        : undefined,
+      action === GameLogAction.NEXT_TURN ? [DefaultTurnDetails(), DefaultTurnDetails()] : undefined,
   });
 
   beforeEach(() => {

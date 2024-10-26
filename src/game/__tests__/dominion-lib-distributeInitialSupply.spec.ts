@@ -14,7 +14,7 @@ describe('distributeInitialSupply', () => {
     const game = { ...createMockGame(2), players: [] };
     const updatedGame = distributeInitialSupply(game);
 
-    expect(updatedGame.supply).toBe(game.supply);
+    expect(updatedGame.supply).toStrictEqual(game.supply);
   });
 
   it('should distribute initial supply correctly for 2 players', () => {

@@ -21,7 +21,7 @@ describe('NewGameState', () => {
   it('should initialize a new game state with default options', () => {
     const firstPlayerIndex = faker.number.int({ min: 0, max: 1 });
     const initialGameState: IGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       currentPlayerIndex: firstPlayerIndex,
       firstPlayerIndex: firstPlayerIndex,
@@ -50,11 +50,11 @@ describe('NewGameState', () => {
 
   it('should initialize Rising Sun tokens when the expansion is enabled', () => {
     const initialGameState: IGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       options: {
-        ...EmptyGameState.options,
-        expansions: { ...EmptyGameState.options.expansions, risingSun: true },
+        ...EmptyGameState().options,
+        expansions: { ...EmptyGameState().options.expansions, risingSun: true },
       },
       risingSun: {
         prophecy: {
@@ -73,7 +73,7 @@ describe('NewGameState', () => {
 
   it('should not initialize Rising Sun tokens when the expansion is disabled', () => {
     const initialGameState: IGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
     };
 
@@ -86,7 +86,7 @@ describe('NewGameState', () => {
 
   it('should throw MinPlayersError for less than minimum players', () => {
     const initialGameState: IGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: [newPlayer('Player 1', 0)],
     };
 
@@ -100,7 +100,7 @@ describe('NewGameState', () => {
       mats: { coffersVillagers: true, debt: true, favors: false },
     };
     const initialGameState: IGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       options: customOptions,
     };
@@ -112,7 +112,7 @@ describe('NewGameState', () => {
 
   it('should handle maximum number of players', () => {
     const initialGameState: IGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: Array(MAX_PLAYERS)
         .fill(null)
         .map((_, i) => newPlayer(`Player ${i + 1}`, i)),
@@ -125,7 +125,7 @@ describe('NewGameState', () => {
 
   it('should throw MaxPlayersError for more than maximum players', () => {
     const initialGameState: IGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: Array(MAX_PLAYERS + 1)
         .fill(null)
         .map((_, i) => newPlayer(`Player ${i + 1}`, i)),

@@ -5,22 +5,22 @@ import { MaxPlayersError } from '@/game/errors/max-players';
 import { NOT_PRESENT } from '@/game/constants';
 
 describe('calculateInitialSupply', () => {
-  const defaultOptions: IGameOptions = {
+  const defaultOptions = (): IGameOptions => ({
     curses: true,
     expansions: { prosperity: false, renaissance: false, risingSun: false },
     mats: { coffersVillagers: false, debt: false, favors: false },
-  };
+  });
 
   it('should throw MinPlayersError when players are less than minimum', () => {
-    expect(() => calculateInitialSupply(1, defaultOptions)).toThrow(MinPlayersError);
+    expect(() => calculateInitialSupply(1, defaultOptions())).toThrow(MinPlayersError);
   });
 
   it('should throw MaxPlayersError when players are more than maximum', () => {
-    expect(() => calculateInitialSupply(7, defaultOptions)).toThrow(MaxPlayersError);
+    expect(() => calculateInitialSupply(7, defaultOptions())).toThrow(MaxPlayersError);
   });
 
   it('should return correct supply for 2 players without Prosperity', () => {
-    const supply = calculateInitialSupply(2, defaultOptions);
+    const supply = calculateInitialSupply(2, defaultOptions());
     expect(supply).toEqual({
       estates: 8,
       duchies: 8,
@@ -35,7 +35,7 @@ describe('calculateInitialSupply', () => {
   });
 
   it('should return correct supply for 4 players without Prosperity', () => {
-    const supply = calculateInitialSupply(4, defaultOptions);
+    const supply = calculateInitialSupply(4, defaultOptions());
     expect(supply).toEqual({
       estates: 12,
       duchies: 12,
@@ -51,8 +51,8 @@ describe('calculateInitialSupply', () => {
 
   it('should return correct supply for 4 players with Prosperity', () => {
     const prosperityOptions = {
-      ...defaultOptions,
-      expansions: { ...defaultOptions.expansions, prosperity: true },
+      ...defaultOptions(),
+      expansions: { ...defaultOptions().expansions, prosperity: true },
     };
     const supply = calculateInitialSupply(4, prosperityOptions);
     expect(supply).toEqual({
@@ -69,7 +69,7 @@ describe('calculateInitialSupply', () => {
   });
 
   it('should return correct supply when curses are disabled', () => {
-    const noCursesOptions = { ...defaultOptions, curses: false };
+    const noCursesOptions = { ...defaultOptions(), curses: false };
     const supply = calculateInitialSupply(3, noCursesOptions);
     expect(supply.curses).toBe(-1); // Assuming NOT_PRESENT is -1
   });

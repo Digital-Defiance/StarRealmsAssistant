@@ -6,8 +6,9 @@ import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-detai
 import { IVictoryDetails } from '@/game/interfaces/victory-details';
 import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
+import { deepClone } from '@/game/utils';
 
-export const VERSION_NUMBER = '0.3.0';
+export const VERSION_NUMBER = '0.4.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -45,71 +46,83 @@ export const COLONY_VP = 10;
 /**
  * Default (zero) values for the mats enabled.
  */
-export const DefaultMatsEnabled: IMatsEnabled = {
-  coffersVillagers: false,
-  debt: false,
-  favors: false,
-};
+export function DefaultMatsEnabled(): IMatsEnabled {
+  return deepClone<IMatsEnabled>({
+    coffersVillagers: false,
+    debt: false,
+    favors: false,
+  });
+}
 
 /**
  * Default values for the game options.
  */
-export const DefaultGameOptions: IGameOptions = {
-  curses: false,
-  expansions: {
-    renaissance: false,
-    prosperity: false,
-    risingSun: false,
-  },
-  mats: DefaultMatsEnabled,
-};
+export function DefaultGameOptions(): IGameOptions {
+  return deepClone<IGameOptions>({
+    curses: false,
+    expansions: {
+      renaissance: false,
+      prosperity: false,
+      risingSun: false,
+    },
+    mats: DefaultMatsEnabled(),
+  });
+}
 
 /**
  * Default (zero) values for the game supply.
  */
-export const EmptyGameSupply: IGameSupply = {
-  coppers: 0,
-  silvers: 0,
-  golds: 0,
-  platinums: 0,
-  estates: 0,
-  duchies: 0,
-  provinces: 0,
-  colonies: 0,
-  curses: 0,
-};
+export function EmptyGameSupply(): IGameSupply {
+  return deepClone<IGameSupply>({
+    coppers: 0,
+    silvers: 0,
+    golds: 0,
+    platinums: 0,
+    estates: 0,
+    duchies: 0,
+    provinces: 0,
+    colonies: 0,
+    curses: 0,
+  });
+}
 
 /**
  * Default (zero) values for the mat details.
  */
-export const EmptyMatDetails: IMatDetails = {
-  villagers: 0,
-  coffers: 0,
-  debt: 0,
-  favors: 0,
-};
+export function EmptyMatDetails(): IMatDetails {
+  return deepClone<IMatDetails>({
+    villagers: 0,
+    coffers: 0,
+    debt: 0,
+    favors: 0,
+  });
+}
 
 /**
  * Default (zero) values for the player game turn details.
  */
-export const DefaultTurnDetails: IPlayerGameTurnDetails = {
-  actions: 1,
-  buys: 1,
-  coins: 0,
-};
+export function DefaultTurnDetails(): IPlayerGameTurnDetails {
+  return deepClone<IPlayerGameTurnDetails>({
+    actions: 1,
+    buys: 1,
+    coins: 0,
+  });
+}
 
 /**
  * Default (zero) values for the victory details.
  */
-export const EmptyVictoryDetails: IVictoryDetails = {
-  tokens: 0,
-  estates: 0,
-  duchies: 0,
-  provinces: 0,
-  colonies: 0,
-  other: 0,
-  curses: 0,
-};
+export function EmptyVictoryDetails(): IVictoryDetails {
+  return deepClone<IVictoryDetails>({
+    tokens: 0,
+    estates: 0,
+    duchies: 0,
+    provinces: 0,
+    colonies: 0,
+    other: 0,
+    curses: 0,
+  });
+}
 
 /**
  * A list of actions that do not affect player state.

@@ -1,10 +1,13 @@
 import {
   ActionsWithOnlyLastActionUndo,
+  ActionsWithPlayer,
+  DefaultTurnDetails,
   NO_PLAYER,
   NoPlayerActions,
   NoUndoActions,
 } from '@/game/constants';
 import { getFieldAndSubfieldFromAction, updatePlayerField } from '@/game/dominion-lib';
+import { deepClone } from '@/game/utils';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
@@ -16,6 +19,7 @@ import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { getSignedCount } from '@/game/dominion-lib-log';
 import { GamePausedError } from '@/game/errors/game-paused';
+import { IPlayerGameTurnDetails } from './interfaces/player-game-turn-details';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -71,11 +75,8 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
     }
   }
 
-  // Create a temporary game state to simulate undoing
-  let tempGame = JSON.parse(JSON.stringify(game)) as IGame;
-
-  // Remove the action and its linked actions
-  tempGame = undoHelpers.removeTargetAndLinkedActions(tempGame, mainActionIndex);
+  // Remove the action and its linked actions in a cloned game state
+  const tempGame = undoHelpers.removeTargetAndLinkedActions(game, mainActionIndex);
 
   // Try to reconstruct the game state
   try {
@@ -125,7 +126,21 @@ export function undoAction(game: IGame, logIndex: number): { game: IGame; succes
  * @returns The updated game state after applying the action
  */
 export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
-  let updatedGame = { ...game };
+  // validate that logEntry.action is a valid GameLogAction
+  if (!Object.values(GameLogAction).includes(logEntry.action)) {
+    console.error('Invalid log entry action:', logEntry.action);
+    return game;
+  }
+
+  // Validate player index for actions that require a valid player index
+  if (
+    ActionsWithPlayer.includes(logEntry.action) &&
+    (logEntry.playerIndex >= game.players.length || logEntry.playerIndex < 0)
+  ) {
+    return game; // Return the original game state if the player index is invalid
+  }
+
+  let updatedGame = deepClone<IGame>(game);
 
   if (logEntry.action === GameLogAction.START_GAME) {
     // set first player to the player who started the game
@@ -140,7 +155,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
     // Reset all players' turn counters to their newTurn values
     updatedGame.players = updatedGame.players.map((player) => ({
       ...player,
-      turn: { ...player.newTurn },
+      turn: deepClone<IPlayerGameTurnDetails>(player.newTurn ?? DefaultTurnDetails()),
     }));
   } else if (logEntry.action === GameLogAction.SELECT_PLAYER) {
     updatedGame.selectedPlayerIndex = logEntry.playerIndex ?? updatedGame.selectedPlayerIndex;
@@ -174,17 +189,13 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
         ? (logEntry.count ?? 1)
         : -(logEntry.count ?? 1);
 
-    // RisingSun always exists, so we can directly update the prophecy
-    if (
-      logEntry.action === GameLogAction.REMOVE_PROPHECY &&
-      updatedGame.risingSun.prophecy.suns + increment < 0
-    ) {
+    const newSuns = updatedGame.risingSun.prophecy.suns + increment;
+
+    if (newSuns < 0) {
       throw new NotEnoughProphecyError();
     }
-    updatedGame.risingSun.prophecy.suns = Math.max(
-      0,
-      updatedGame.risingSun.prophecy.suns + increment
-    );
+
+    updatedGame.risingSun.prophecy.suns = newSuns;
   }
 
   // If the game is paused, do not allow any other actions except UNPAUSE
@@ -197,7 +208,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
     throw new GamePausedError();
   }
 
-  updatedGame.log.push({ ...logEntry });
+  updatedGame.log.push(deepClone<ILogEntry>(logEntry));
 
   return updatedGame;
 }

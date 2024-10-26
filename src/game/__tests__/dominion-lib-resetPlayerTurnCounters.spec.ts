@@ -10,6 +10,7 @@ import {
   EmptyVictoryDetails,
 } from '@/game/constants';
 import { IPlayerGameTurnDetails } from '../interfaces/player-game-turn-details';
+import { deepClone } from '@/game/utils';
 
 describe('resetPlayerTurnCounters', () => {
   const createMockPlayer = (
@@ -19,19 +20,17 @@ describe('resetPlayerTurnCounters', () => {
   ): IPlayer => ({
     name,
     color: DefaultPlayerColors[0],
-    mats: { ...EmptyMatDetails },
-    turn: { ...DefaultTurnDetails, ...turn },
-    newTurn: { ...DefaultTurnDetails, ...newTurn },
-    victory: {
-      ...EmptyVictoryDetails,
-    },
+    mats: EmptyMatDetails(),
+    turn: { ...DefaultTurnDetails(), ...deepClone<IPlayerGameTurnDetails>(turn) },
+    newTurn: { ...DefaultTurnDetails(), ...newTurn },
+    victory: EmptyVictoryDetails(),
   });
 
   const createMockGame = (players: IPlayer[]): IGame => ({
     currentStep: 1,
     players,
     setsRequired: 1,
-    supply: { ...EmptyGameSupply },
+    supply: EmptyGameSupply(),
     options: {
       curses: true,
       expansions: {
@@ -39,9 +38,7 @@ describe('resetPlayerTurnCounters', () => {
         renaissance: false,
         risingSun: false,
       },
-      mats: {
-        ...DefaultMatsEnabled,
-      },
+      mats: DefaultMatsEnabled(),
     },
     currentTurn: 1,
     risingSun: {
@@ -90,26 +87,30 @@ describe('resetPlayerTurnCounters', () => {
         { actions: 1, buys: 1, coins: 0 }
       ),
     ]);
-    initialGame.players[0].victory = { ...EmptyVictoryDetails, estates: 3 };
+    initialGame.players[0].victory = { ...EmptyVictoryDetails(), estates: 3 };
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
     expect(updatedGame.players[0].name).toBe('Player 1');
-    expect(updatedGame.players[0].victory).toEqual({ ...EmptyVictoryDetails, estates: 3 });
+    expect(updatedGame.players[0].victory).toEqual({ ...EmptyVictoryDetails(), estates: 3 });
   });
 
   it('should handle players with missing turn or newTurn properties', () => {
     const incompletePlayer: Partial<IPlayer> = {
       name: 'Incomplete Player',
-      mats: EmptyMatDetails,
-      victory: EmptyVictoryDetails,
+      mats: EmptyMatDetails(),
+      victory: EmptyVictoryDetails(),
     };
 
     const initialGame = createMockGame([incompletePlayer as IPlayer]);
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
-    expect(updatedGame.players[0].turn).toEqual({});
+    expect(updatedGame.players[0].turn).toEqual({
+      actions: 1,
+      buys: 1,
+      coins: 0,
+    });
   });
 
   it('should not modify the original game object', () => {

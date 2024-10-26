@@ -17,6 +17,7 @@ import CenteredContainer from '@/components/CenteredContainer';
 import TabTitle from '@/components/TabTitle';
 import SuperCapsText from '@/components/SuperCapsText';
 import { IGame } from '@/game/interfaces/game';
+import { deepClone } from '@/game/utils';
 
 interface SelectFirstPlayerProps {
   nextStep: () => void;
@@ -28,12 +29,13 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
   const selectRandomFirstPlayer = useCallback(() => {
     if (gameState.players.length > 0) {
       const randomIndex = Math.floor(Math.random() * gameState.players.length);
-      setGameState((prevState: IGame) => ({
-        ...prevState,
-        currentPlayerIndex: randomIndex,
-        firstPlayerIndex: randomIndex,
-        selectedPlayerIndex: randomIndex,
-      }));
+      setGameState((prevState: IGame) => {
+        const newGame = deepClone<IGame>(prevState);
+        newGame.currentPlayerIndex = randomIndex;
+        newGame.firstPlayerIndex = randomIndex;
+        newGame.selectedPlayerIndex = randomIndex;
+        return newGame;
+      });
     }
   }, [gameState.players.length, setGameState]);
 
@@ -51,12 +53,13 @@ const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
               key={player.name}
               selected={gameState.selectedPlayerIndex === index}
               onClick={() => {
-                setGameState((prevState: IGame) => ({
-                  ...prevState,
-                  selectedPlayerIndex: index,
-                  currentPlayerIndex: index,
-                  firstPlayerIndex: index,
-                }));
+                setGameState((prevState: IGame) => {
+                  const newGame = deepClone<IGame>(prevState);
+                  newGame.selectedPlayerIndex = index;
+                  newGame.currentPlayerIndex = index;
+                  newGame.firstPlayerIndex = index;
+                  return newGame;
+                });
               }}
             >
               <ListItemIcon>

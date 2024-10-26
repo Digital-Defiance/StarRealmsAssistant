@@ -19,6 +19,7 @@ import { addLogEntry } from '@/game/dominion-lib-log';
 import { useAlert } from '@/components/AlertContext';
 import { Location, NavigateFunction } from 'react-router-dom';
 import { IGame } from '@/game/interfaces/game';
+import { deepClone } from '@/game/utils';
 
 interface DominionAssistantProps {
   route: Location;
@@ -48,10 +49,11 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   };
 
   const nextStep = () => {
-    setGameState((prevState: IGame) => ({
-      ...prevState,
-      currentStep: StepTransitions[prevState.currentStep] || prevState.currentStep,
-    }));
+    setGameState((prevState: IGame) => {
+      const newGame = deepClone<IGame>(prevState);
+      newGame.currentStep = StepTransitions[prevState.currentStep] || prevState.currentStep;
+      return newGame;
+    });
   };
 
   /**
@@ -59,44 +61,43 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
    */
   const startGame = () => {
     // The game initialization is now handled in SetGameOptions
-    setGameState((prevState: IGame) => ({
-      ...prevState,
-      currentStep: CurrentStep.GameScreen,
-    }));
+    setGameState((prevState: IGame) => {
+      const newGame = deepClone<IGame>(prevState);
+      newGame.currentStep = CurrentStep.GameScreen;
+      return newGame;
+    });
   };
 
   const nextTurn = () => {
     setGameState((prevGame: IGame) => {
-      const nextPlayerIndex = getNextPlayerIndex(prevGame);
-      addLogEntry(prevGame, nextPlayerIndex, GameLogAction.NEXT_TURN, {
+      const newGame = deepClone(prevGame);
+      const nextPlayerIndex = getNextPlayerIndex(newGame);
+      addLogEntry(newGame, nextPlayerIndex, GameLogAction.NEXT_TURN, {
         currentPlayerIndex: nextPlayerIndex,
         playerTurnDetails: gameState.players.map((player) => player.turn),
         prevPlayerIndex: gameState.currentPlayerIndex,
         turn: prevGame.currentTurn + 1,
       });
-      const updatedGame = incrementTurnCountersAndPlayerIndices(prevGame);
-      return resetPlayerTurnCounters(updatedGame);
+      return resetPlayerTurnCounters(incrementTurnCountersAndPlayerIndices(newGame));
     });
   };
 
   const endGame = () => {
     setGameState((prevState: IGame) => {
-      addLogEntry(prevState, NO_PLAYER, GameLogAction.END_GAME, {
+      const newGame = deepClone<IGame>(prevState);
+      addLogEntry(newGame, NO_PLAYER, GameLogAction.END_GAME, {
         prevPlayerIndex: gameState.currentPlayerIndex,
       });
-
-      return {
-        ...prevState,
-        currentStep: CurrentStep.EndGame,
-        currentPlayerIndex: NO_PLAYER,
-        selectedPlayerIndex: NO_PLAYER,
-      };
+      newGame.currentStep = CurrentStep.EndGame;
+      newGame.currentPlayerIndex = NO_PLAYER;
+      newGame.selectedPlayerIndex = NO_PLAYER;
+      return newGame;
     });
   };
 
   const resetGame = () => {
     setGameState({
-      ...EmptyGameState,
+      ...EmptyGameState(),
       currentStep: CurrentStep.AddPlayerNames,
     });
   };

@@ -15,7 +15,6 @@ import {
   EmptyMatDetails,
   DefaultTurnDetails,
   EmptyVictoryDetails,
-  NoPlayerActions,
   MAX_PLAYERS,
   MIN_PLAYERS,
   NOT_PRESENT,
@@ -37,6 +36,9 @@ import { MinPlayersError } from '@/game/errors/min-players';
 import { MaxPlayersError } from '@/game/errors/max-players';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import { RankedPlayer } from '@/game/interfaces/ranked-player';
+import { deepClone } from '@/game/utils';
+import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
+import { ILogEntry } from '@/game/interfaces/log-entry';
 
 /**
  * Calculate the victory points for a player.
@@ -76,7 +78,7 @@ export function calculateInitialSupply(numPlayers: number, options: IGameOptions
   const prosperitySupply = options.expansions.prosperity
     ? computeProsperityStartingSupply(numPlayers)
     : ProsperityNullSet;
-  return { ...baseSupply, ...prosperitySupply };
+  return deepClone<IGameSupply>({ ...baseSupply, ...prosperitySupply });
 }
 
 /**
@@ -85,7 +87,7 @@ export function calculateInitialSupply(numPlayers: number, options: IGameOptions
  * @returns The updated game
  */
 export function distributeInitialSupply(game: IGame): IGame {
-  const updatedGame = { ...game };
+  const updatedGame = deepClone<IGame>(game);
   const playerCount = updatedGame.players.length;
 
   // If there are no players, return the game as is
@@ -99,7 +101,7 @@ export function distributeInitialSupply(game: IGame): IGame {
   updatedGame.players = updatedGame.players.map((player) => ({
     ...player,
     victory: {
-      ...EmptyVictoryDetails,
+      ...EmptyVictoryDetails(),
       estates: HAND_STARTING_ESTATES,
     },
   }));
@@ -120,10 +122,10 @@ export function newPlayer(playerName: string, index: number): IPlayer {
   const newPlayer: IPlayer = {
     name: playerName.trim(),
     color: DefaultPlayerColors[index],
-    mats: { ...EmptyMatDetails },
-    turn: { ...DefaultTurnDetails },
-    newTurn: { ...DefaultTurnDetails },
-    victory: { ...EmptyVictoryDetails },
+    mats: EmptyMatDetails(),
+    turn: DefaultTurnDetails(),
+    newTurn: DefaultTurnDetails(),
+    victory: EmptyVictoryDetails(),
   };
   return newPlayer;
 }
@@ -131,30 +133,32 @@ export function newPlayer(playerName: string, index: number): IPlayer {
 /**
  * A basic game state with no players or options.
  */
-export const EmptyGameState: IGame = {
-  currentStep: 1,
-  players: [],
-  setsRequired: 1,
-  supply: EmptyGameSupply,
-  options: {
-    curses: true,
-    expansions: { prosperity: false, renaissance: false, risingSun: false },
-    mats: {
-      coffersVillagers: false,
-      debt: false,
-      favors: false,
+export function EmptyGameState(): IGame {
+  return deepClone<IGame>({
+    currentStep: 1,
+    players: [],
+    setsRequired: 1,
+    supply: EmptyGameSupply(),
+    options: {
+      curses: true,
+      expansions: { prosperity: false, renaissance: false, risingSun: false },
+      mats: {
+        coffersVillagers: false,
+        debt: false,
+        favors: false,
+      },
     },
-  },
-  currentTurn: 1,
-  risingSun: {
-    prophecy: { suns: NOT_PRESENT },
-    greatLeaderProphecy: false,
-  },
-  currentPlayerIndex: NO_PLAYER,
-  firstPlayerIndex: NO_PLAYER,
-  selectedPlayerIndex: NO_PLAYER,
-  log: [],
-};
+    currentTurn: 1,
+    risingSun: {
+      prophecy: { suns: NOT_PRESENT },
+      greatLeaderProphecy: false,
+    },
+    currentPlayerIndex: NO_PLAYER,
+    firstPlayerIndex: NO_PLAYER,
+    selectedPlayerIndex: NO_PLAYER,
+    log: [],
+  });
+}
 
 /**
  * Initialize the game state with the given number of players and options.
@@ -162,6 +166,7 @@ export const EmptyGameState: IGame = {
  * @returns The updated game state
  */
 export const NewGameState = (gameStateWithOptions: IGame): IGame => {
+  let newGameState = deepClone<IGame>(gameStateWithOptions);
   const playerCount = gameStateWithOptions.players.length;
 
   // Check for minimum and maximum players
@@ -172,36 +177,29 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
     throw new MaxPlayersError();
   }
 
-  // Calculate initial supply
-  const initialSupply = calculateInitialSupply(
+  // Create a new game state with the initial supply, while resetting the player details
+  newGameState.players = newGameState.players.map((player, index) => ({
+    ...newPlayer(player.name, index),
+    color: newGameState.players[index].color,
+  }));
+  newGameState.supply = calculateInitialSupply(
     gameStateWithOptions.players.length,
     gameStateWithOptions.options
   );
-
-  // Create a new game state with the initial supply, while resetting the player details
-  let newGameState: IGame = {
-    ...gameStateWithOptions,
-    players: gameStateWithOptions.players.map((player, index) => ({
-      ...newPlayer(player.name, index),
-      color: gameStateWithOptions.players[index].color,
-    })),
-    supply: initialSupply,
-    currentStep: CurrentStep.GameScreen,
-    currentTurn: 1,
-    log: [
-      {
-        id: uuidv4(),
-        timestamp: new Date(),
-        playerIndex: gameStateWithOptions.firstPlayerIndex,
-        currentPlayerIndex: gameStateWithOptions.firstPlayerIndex,
-        turn: 1,
-        action: GameLogAction.START_GAME,
-      },
-    ],
-    selectedPlayerIndex: gameStateWithOptions.firstPlayerIndex,
-    currentPlayerIndex: gameStateWithOptions.firstPlayerIndex,
-    firstPlayerIndex: gameStateWithOptions.firstPlayerIndex,
-  };
+  newGameState.currentStep = CurrentStep.GameScreen;
+  newGameState.currentTurn = 1;
+  newGameState.log = [
+    {
+      id: uuidv4(),
+      timestamp: new Date(),
+      playerIndex: newGameState.firstPlayerIndex,
+      currentPlayerIndex: newGameState.firstPlayerIndex,
+      turn: 1,
+      action: GameLogAction.START_GAME,
+    } as ILogEntry,
+  ];
+  newGameState.selectedPlayerIndex = newGameState.firstPlayerIndex;
+  newGameState.currentPlayerIndex = newGameState.firstPlayerIndex;
 
   // Distribute initial supply to players
   newGameState = distributeInitialSupply(newGameState);
@@ -209,7 +207,7 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
   // Initialize Rising Sun tokens if the expansion is enabled
   if (newGameState.options.expansions.risingSun) {
     newGameState.risingSun = {
-      ...newGameState.risingSun,
+      greatLeaderProphecy: newGameState.risingSun?.greatLeaderProphecy ?? false,
       prophecy: calculateInitialSunTokens(newGameState.players.length),
     };
   }
@@ -234,8 +232,11 @@ export function updatePlayerField<T extends keyof PlayerFieldMap>(
   increment: number,
   victoryTrash?: boolean
 ): IGame {
-  const updatedGame = { ...game };
-  const player = { ...updatedGame.players[playerIndex] };
+  const updatedGame = deepClone<IGame>(game);
+  if (playerIndex < 0 || playerIndex >= updatedGame.players.length) {
+    throw new Error('Invalid player index');
+  }
+  const player = updatedGame.players[playerIndex];
 
   // Check if the field is valid
   if (field !== 'victory' && field !== 'turn' && field !== 'mats' && field !== 'newTurn') {
@@ -264,8 +265,6 @@ export function updatePlayerField<T extends keyof PlayerFieldMap>(
     ((player[field] as any)[subfield] || 0) + increment,
     0
   );
-
-  updatedGame.players[playerIndex] = player;
 
   // Update the supply if the field is a victory field and victoryTrash is not true
   if (decrementSupply && !victoryTrash) {
@@ -374,12 +373,11 @@ export function getNextPlayerIndex(prevGame: IGame): number {
  */
 export function incrementTurnCountersAndPlayerIndices(prevGame: IGame): IGame {
   const nextPlayerIndex = getNextPlayerIndex(prevGame);
-  return {
-    ...prevGame,
-    currentTurn: prevGame.currentTurn + 1,
-    currentPlayerIndex: nextPlayerIndex,
-    selectedPlayerIndex: nextPlayerIndex,
-  };
+  const newGame = deepClone<IGame>(prevGame);
+  newGame.currentTurn = prevGame.currentTurn + 1;
+  newGame.currentPlayerIndex = nextPlayerIndex;
+  newGame.selectedPlayerIndex = nextPlayerIndex;
+  return newGame;
 }
 
 /**
@@ -388,13 +386,12 @@ export function incrementTurnCountersAndPlayerIndices(prevGame: IGame): IGame {
  * @returns The updated game state with reset turn counters
  */
 export function resetPlayerTurnCounters(prevGame: IGame): IGame {
-  return {
-    ...prevGame,
-    players: prevGame.players.map((player) => ({
-      ...player,
-      turn: { ...player.newTurn },
-    })),
-  };
+  const newGame = deepClone<IGame>(prevGame);
+  newGame.players = newGame.players.map((player) => ({
+    ...player,
+    turn: deepClone<IPlayerGameTurnDetails>(player.newTurn ?? DefaultTurnDetails()),
+  }));
+  return newGame;
 }
 
 /**

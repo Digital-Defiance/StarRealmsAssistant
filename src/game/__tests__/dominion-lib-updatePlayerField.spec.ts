@@ -30,10 +30,10 @@ describe('updatePlayerField', () => {
       },
     };
     mockGame = {
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: [mockPlayer],
       supply: {
-        ...EmptyGameState.supply,
+        ...EmptyGameState().supply,
         estates: 8,
         duchies: 8,
         provinces: 8,

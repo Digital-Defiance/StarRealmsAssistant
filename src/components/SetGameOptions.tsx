@@ -7,6 +7,8 @@ import { NewGameState } from '@/game/dominion-lib';
 import CenteredContainer from '@/components/CenteredContainer';
 import OptionItem from '@/components/OptionItem';
 import TabTitle from '@/components/TabTitle';
+import { deepClone } from '@/game/utils';
+import { IGameOptions } from '@/game/interfaces/game-options';
 
 interface SetGameOptionsProps {
   startGame: () => void;
@@ -22,23 +24,17 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
   ) => {
     setGameState((prevState: IGame) => {
       if (!prevState) return prevState;
-      const newOptions = { ...prevState.options };
+      const newGame = deepClone<IGame>(prevState);
 
       if (field === 'curses') {
-        newOptions.curses = value;
+        newGame.options.curses = value;
       } else if (field === 'expansions') {
-        newOptions.expansions = {
-          ...newOptions.expansions,
-          [subfield as keyof typeof newOptions.expansions]: value,
-        };
+        newGame.options.expansions[subfield as keyof typeof newGame.options.expansions] = value;
       } else if (field === 'mats') {
-        newOptions.mats = {
-          ...newOptions.mats,
-          [subfield as keyof typeof newOptions.mats]: value,
-        };
+        newGame.options.mats[subfield as keyof typeof newGame.options.mats] = value;
       }
 
-      return { ...prevState, options: newOptions };
+      return newGame;
     });
   };
 
@@ -113,15 +109,16 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
           <OptionItem
             checked={gameState.risingSun?.greatLeaderProphecy || false}
             onChange={(e) => {
-              setGameState((prevState: IGame) => ({
-                ...prevState,
-                risingSun: {
+              setGameState((prevState: IGame) => {
+                const newGame = deepClone<IGame>(prevState);
+                newGame.risingSun = {
                   prophecy: {
                     suns: prevState.risingSun?.prophecy.suns || 0,
                   },
                   greatLeaderProphecy: e.target.checked,
-                },
-              }));
+                };
+                return newGame;
+              });
             }}
             title="Great Leader"
             tooltip="Enable Great Leader- +1 action after each action"

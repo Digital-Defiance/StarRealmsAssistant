@@ -21,6 +21,7 @@ import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
 import '@/styles.scss';
 import { IGame } from '@/game/interfaces/game';
+import { deepClone } from '@/game/utils';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -88,7 +89,7 @@ const Player: React.FC = () => {
     linkedActionId?: string,
     victoryTrash?: boolean
   ): void => {
-    const prevGame = { ...gameState };
+    const prevGame = deepClone<IGame>(gameState);
     try {
       const updatedGame = updatePlayerField(
         prevGame,
@@ -124,7 +125,7 @@ const Player: React.FC = () => {
     incrementSubfield: PlayerFieldMap[T],
     increment: number
   ): void => {
-    const prevGame = { ...gameState };
+    const prevGame = deepClone<IGame>(gameState);
     try {
       // Perform the decrement action
       const tempGame = updatePlayerField(
@@ -195,7 +196,7 @@ const Player: React.FC = () => {
   const handleProphecyIncrease = () => {
     setGameState((prevState: IGame) => {
       if (prevState.risingSun && prevState.options.expansions.risingSun) {
-        const newGameState = { ...prevState };
+        const newGameState = deepClone<IGame>(prevState);
         // prophecy is always triggered by the selected player, not the current player in case there is an off-turn action triggered by a defense, etc
         addLogEntry(newGameState, newGameState.selectedPlayerIndex, GameLogAction.ADD_PROPHECY, {
           count: 1,
@@ -213,7 +214,7 @@ const Player: React.FC = () => {
         if (prevState.risingSun.prophecy.suns - 1 < 0) {
           return prevState;
         }
-        const newGameState = { ...prevState };
+        const newGameState = deepClone<IGame>(prevState);
         addLogEntry(newGameState, newGameState.selectedPlayerIndex, GameLogAction.REMOVE_PROPHECY, {
           count: 1,
         });

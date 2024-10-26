@@ -14,7 +14,7 @@ describe('reconstructGameState', () => {
 
   beforeEach(() => {
     baseGame = NewGameState({
-      ...EmptyGameState,
+      ...EmptyGameState(),
       players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
       // start with second player
       firstPlayerIndex: 1,
@@ -23,7 +23,7 @@ describe('reconstructGameState', () => {
     });
   });
 
-  it('should return an identical game state when given an existing game', () => {
+  it('should return an identical game state whhen given an existing game', () => {
     const result = reconstructGameState(baseGame);
     expect(result).toEqual(baseGame);
   });
@@ -41,7 +41,7 @@ describe('reconstructGameState', () => {
           count: 1,
           currentPlayerIndex: 0,
           turn: 1,
-        },
+        } as ILogEntry,
       ],
     };
 
@@ -62,7 +62,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 0,
           turn: 1,
           count: 2,
-        },
+        } as ILogEntry,
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
@@ -71,7 +71,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 0,
           turn: 1,
           count: 1,
-        },
+        } as ILogEntry,
       ],
     };
 
@@ -127,7 +127,7 @@ describe('reconstructGameState', () => {
           playerIndex: nextPlayerIndex,
           playerTurnDetails: [
             { actions: 5, coins: 2, buys: 4 } as IPlayerGameTurnDetails,
-            { ...DefaultTurnDetails },
+            { ...DefaultTurnDetails() },
           ],
           prevPlayerIndex: baseGame.currentPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
@@ -137,7 +137,7 @@ describe('reconstructGameState', () => {
     };
 
     const result = reconstructGameState(gameWithActionsAndNextTurn);
-    expect(result.players[0].turn).toEqual(DefaultTurnDetails);
+    expect(result.players[0].turn).toEqual(DefaultTurnDetails());
     expect(result.currentPlayerIndex).toEqual(nextPlayerIndex);
   });
 
@@ -169,7 +169,7 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogAction.REMOVE_PROPHECY,
-          playerIndex: NO_PLAYER,
+          playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
           count: 2,
@@ -194,7 +194,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 0,
           turn: 1,
           count: 5, // This would result in negative coins
-        },
+        } as ILogEntry,
       ],
     };
 
@@ -227,7 +227,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 0,
           turn: 1,
           count: 10, // This would result in negative prophecy
-        },
+        } as ILogEntry,
       ],
     };
 
@@ -248,7 +248,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 0,
           turn: 1,
           count: 2,
-        },
+        } as ILogEntry,
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
@@ -258,7 +258,7 @@ describe('reconstructGameState', () => {
           turn: 1,
           count: 1,
           linkedActionId: mainActionId,
-        },
+        } as ILogEntry,
       ],
     };
 
@@ -268,7 +268,7 @@ describe('reconstructGameState', () => {
   });
 
   it('should reconstruct the game state correctly after multiple rounds', () => {
-    const complexGame = {
+    const complexGame: IGame = {
       ...baseGame, // current turn 1, currentPlayerIndex 1
       log: [
         ...baseGame.log,
@@ -281,7 +281,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 1,
           turn: 1,
           count: 3,
-        },
+        } as ILogEntry,
         {
           // will increment currentPlayerIndex back to 0, current turn 2
           // will reset player 0 coins to 0
@@ -291,9 +291,9 @@ describe('reconstructGameState', () => {
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 2,
-          playerTurnDetails: [{ ...DefaultTurnDetails, coins: 3 }, { ...DefaultTurnDetails }],
+          playerTurnDetails: [{ ...DefaultTurnDetails(), coins: 3 }, DefaultTurnDetails()],
           prevPlayerIndex: 1,
-        },
+        } as ILogEntry,
         {
           // player 1 actions to 3
           id: faker.string.uuid(),
@@ -303,7 +303,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 0,
           turn: 2,
           count: 2,
-        },
+        } as ILogEntry,
         {
           // will increment currentPlayerIndex to 1, turn counter to 3
           // will reset actions to 1
@@ -313,9 +313,9 @@ describe('reconstructGameState', () => {
           playerIndex: 1,
           currentPlayerIndex: 1,
           turn: 3,
-          playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails, actions: 3 }],
+          playerTurnDetails: [DefaultTurnDetails(), { ...DefaultTurnDetails(), actions: 3 }],
           prevPlayerIndex: 0,
-        },
+        } as ILogEntry,
         {
           // player 0 buys to 1
           id: faker.string.uuid(),
@@ -325,7 +325,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 1,
           turn: 3,
           count: 1,
-        },
+        } as ILogEntry,
         {
           // player 1 coins to 3
           id: faker.string.uuid(),
@@ -335,7 +335,7 @@ describe('reconstructGameState', () => {
           currentPlayerIndex: 1,
           turn: 3,
           count: 3,
-        },
+        } as ILogEntry,
       ],
     };
 
