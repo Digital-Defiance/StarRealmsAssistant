@@ -15,7 +15,7 @@ import { VERSION_NUMBER } from '@/game/constants';
 
 export default function AboutScreen() {
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="md" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Box sx={{ flexGrow: 1, py: 4 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Box>
