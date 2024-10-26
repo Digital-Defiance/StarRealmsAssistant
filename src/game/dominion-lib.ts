@@ -342,32 +342,6 @@ export function getFieldAndSubfieldFromAction(action: GameLogActionWithCount): {
 }
 
 /**
- * Get the increment for the given action.
- * @param action - The game log action
- * @returns The increment multiplier (positive or negative)
- */
-export function getActionIncrementMultiplier(action: GameLogActionWithCount): number {
-  if (action === undefined || action === null) {
-    return 0;
-  }
-
-  if (NoPlayerActions.includes(action)) {
-    return 0;
-  }
-
-  if (action.startsWith('Add')) {
-    return 1;
-  }
-
-  if (action.startsWith('Remove')) {
-    return -1;
-  }
-
-  // If the action doesn't match any known pattern, return 0
-  return 0;
-}
-
-/**
  * Gets the index of the previous player in the game.
  * @param prevGame
  * @returns The index of the previous player

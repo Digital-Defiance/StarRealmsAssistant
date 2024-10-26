@@ -529,11 +529,9 @@ export function addLogEntry(
  * @param log - The log entry
  * @returns The signed count for the log entry, negative for removal actions and positive for addition actions.
  */
-export function getSignedCount(log: ILogEntry): number {
-  if (log.count === undefined) {
-    return 0;
-  }
-  return NegativeAdjustmentActions.includes(log.action) ? -log.count : log.count;
+export function getSignedCount(log: ILogEntry, defaultValue = 0): number {
+  const count = log.count ?? defaultValue;
+  return NegativeAdjustmentActions.includes(log.action) ? -count : count;
 }
 
 /**

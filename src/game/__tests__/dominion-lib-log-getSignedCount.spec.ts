@@ -1,9 +1,10 @@
 import { getSignedCount } from '@/game/dominion-lib-log';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { faker } from '@faker-js/faker';
 
 describe('getSignedCount', () => {
-  it('should return 0 if count is undefined', () => {
+  it('should return defaultValue if count is undefined', () => {
     const log: ILogEntry = {
       id: '1',
       timestamp: new Date(),
@@ -12,7 +13,8 @@ describe('getSignedCount', () => {
       currentPlayerIndex: 0,
       turn: 1,
     };
-    expect(getSignedCount(log)).toBe(0);
+    const value = faker.number.int({ min: 0, max: 1000 });
+    expect(getSignedCount(log, value)).toBe(value);
   });
 
   it('should return negative count for removal actions', () => {

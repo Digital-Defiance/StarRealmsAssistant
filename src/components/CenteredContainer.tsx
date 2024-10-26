@@ -6,7 +6,7 @@ const CenteredContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  height: '100vh',
+  height: '100%',
   padding: theme.spacing(2),
 }));
 

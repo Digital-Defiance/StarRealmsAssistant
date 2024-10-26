@@ -4,11 +4,7 @@ import {
   NoPlayerActions,
   NoUndoActions,
 } from '@/game/constants';
-import {
-  getActionIncrementMultiplier,
-  getFieldAndSubfieldFromAction,
-  updatePlayerField,
-} from '@/game/dominion-lib';
+import { getFieldAndSubfieldFromAction, updatePlayerField } from '@/game/dominion-lib';
 import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
@@ -18,6 +14,7 @@ import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { CurrentStep } from '@/game/enumerations/current-step';
+import { getSignedCount } from '@/game/dominion-lib-log';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -153,8 +150,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   ) {
     const { field, subfield } = getFieldAndSubfieldFromAction(logEntry.action);
     if (field && subfield) {
-      const count = logEntry.count ?? 1;
-      const increment = getActionIncrementMultiplier(logEntry.action) * count;
+      const increment = getSignedCount(logEntry, 1);
       updatedGame = updatePlayerField(
         updatedGame,
         logEntry.playerIndex,
