@@ -1,5 +1,5 @@
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 import { ITurnDuration } from '@/game/interfaces/turn-duration';
 import { calculateGameDuration } from '@/game/dominion-lib-log';
@@ -22,7 +22,7 @@ describe('calculateGameDuration', () => {
       createMockLog({
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -30,7 +30,7 @@ describe('calculateGameDuration', () => {
       createMockLog({
         id: '2',
         timestamp: new Date('2021-01-01T09:15:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -62,7 +62,7 @@ describe('calculateGameDuration', () => {
       createMockLog({
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -85,7 +85,7 @@ describe('calculateGameDuration', () => {
       createMockLog({
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -93,7 +93,7 @@ describe('calculateGameDuration', () => {
       createMockLog({
         id: '2',
         timestamp: new Date('2021-01-01T09:15:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -102,7 +102,7 @@ describe('calculateGameDuration', () => {
       createMockLog({
         id: '3',
         timestamp: new Date('2021-01-01T09:30:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 3,

@@ -1,7 +1,7 @@
 import * as undoModule from '@/game/dominion-lib-undo';
 import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { faker } from '@faker-js/faker';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { DefaultTurnDetails } from '@/game/constants';
@@ -19,7 +19,7 @@ describe('undoAction', () => {
   let removeTargetAndLinkedActionsSpy: jest.SpyInstance;
   let reconstructGameStateSpy: jest.SpyInstance;
 
-  const createLogEntry = (action: GameLogActionWithCount, id?: string): ILogEntry => ({
+  const createLogEntry = (action: GameLogAction, id?: string): ILogEntry => ({
     id: id ?? faker.string.uuid(),
     timestamp: new Date(),
     action,
@@ -28,7 +28,7 @@ describe('undoAction', () => {
     currentPlayerIndex: 0,
     turn: 1,
     playerTurnDetails:
-      action === GameLogActionWithCount.NEXT_TURN
+      action === GameLogAction.NEXT_TURN
         ? [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }]
         : undefined,
   });
@@ -45,7 +45,7 @@ describe('undoAction', () => {
 
   it('should return success false if canUndoAction returns false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
     });
 
     // Ensure removeTargetAndLinkedActions returns a valid game
@@ -68,7 +68,7 @@ describe('undoAction', () => {
 
   it('should return success true and updated game if undo is successful', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
     });
     const updatedGame = { ...game, log: [] };
     removeTargetAndLinkedActionsSpy.mockReturnValue(updatedGame);
@@ -84,7 +84,7 @@ describe('undoAction', () => {
 
   it('should handle errors during reconstruction and return success false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
     });
     removeTargetAndLinkedActionsSpy.mockReturnValue(game);
     const error = new Error('Reconstruction error');
@@ -102,7 +102,7 @@ describe('undoAction', () => {
 
   it('should handle NotEnoughSupplyError and return success false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.REMOVE_ESTATES)],
+      log: [createLogEntry(GameLogAction.REMOVE_ESTATES)],
     });
     removeTargetAndLinkedActionsSpy.mockReturnValue(game);
     const error = new NotEnoughSupplyError('estate');
@@ -123,7 +123,7 @@ describe('undoAction', () => {
         mats: { coffersVillagers: false, debt: false, favors: false },
         expansions: { risingSun: true, prosperity: false, renaissance: false },
       },
-      log: [createLogEntry(GameLogActionWithCount.REMOVE_PROPHECY)],
+      log: [createLogEntry(GameLogAction.REMOVE_PROPHECY)],
     });
     removeTargetAndLinkedActionsSpy.mockReturnValue(game);
     const error = new NotEnoughProphecyError();
@@ -139,7 +139,7 @@ describe('undoAction', () => {
 
   it('should return success false if removeTargetAndLinkedActions throws an error', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
     });
     const removalError = new Error('Removal error');
 
@@ -167,9 +167,9 @@ describe('undoAction', () => {
     const mainActionId = 'main-action';
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, mainActionId),
+        createLogEntry(GameLogAction.ADD_ACTIONS, mainActionId),
         {
-          ...createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS),
+          ...createLogEntry(GameLogAction.REMOVE_ACTIONS),
           linkedActionId: mainActionId,
         },
       ],
@@ -210,10 +210,7 @@ describe('undoAction', () => {
 
   it('should handle consecutive undo operations', () => {
     const game = createMockGame(2, {
-      log: [
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS),
-        createLogEntry(GameLogActionWithCount.ADD_BUYS),
-      ],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS), createLogEntry(GameLogAction.ADD_BUYS)],
     });
 
     const gameAfterFirstUndo = { ...game, log: [game.log[0]] };
@@ -259,7 +256,7 @@ describe('undoAction', () => {
 
   it('should handle NotEnoughSubfieldError and return success false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
     });
     const error = new NotEnoughSubfieldError('turn', 'actions');
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -11,8 +11,12 @@ import {
   styled,
   Tooltip,
 } from '@mui/material';
-import UndoIcon from '@mui/icons-material/Undo';
-import InventoryIcon from '@mui/icons-material/Inventory';
+import {
+  Pause as PauseIcon,
+  PlayArrow as PlayIcon,
+  Undo as UndoIcon,
+  Inventory as InventoryIcon,
+} from '@mui/icons-material';
 import Scoreboard from '@/components/Scoreboard';
 import Player from '@/components/Player';
 import { canUndoAction } from '@/game/dominion-lib-undo';
@@ -20,6 +24,9 @@ import { useGameContext } from '@/components/GameContext';
 import SupplyCounts from '@/components/SupplyCounts';
 import GameClock from '@/components/GameClock';
 import { CurrentStep } from '@/game/enumerations/current-step';
+import { addLogEntry } from '@/game/dominion-lib-log';
+import { NO_PLAYER } from '@/game/constants';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 
 interface GameScreenProps {
   nextTurn: () => void;
@@ -55,11 +62,13 @@ const FabContainer = styled(Box)(({ theme }) => ({
 }));
 
 const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastAction }) => {
-  const { gameState } = useGameContext();
+  const { gameState, setGameState } = useGameContext();
   const [canUndo, setCanUndo] = useState(false);
   const [supplyDialogOpen, setSupplyDialogOpen] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const fabRef = useRef(null);
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
@@ -92,31 +101,78 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
     endGame();
   };
 
+  const lastAction =
+    gameState.log.length > 0 ? gameState.log[gameState.log.length - 1].action : null;
+  const lastActionIsPause = lastAction === GameLogAction.PAUSE;
+  const lastActionIsNotPause = lastAction !== GameLogAction.PAUSE;
+
+  const handlePauseUnpause = () => {
+    if (lastActionIsPause) {
+      // Unpause the game
+      setGameState((prevState) => {
+        const newState = { ...prevState };
+        addLogEntry(newState, NO_PLAYER, GameLogAction.UNPAUSE);
+        return newState;
+      });
+    } else {
+      // Pause the game
+      setGameState((prevState) => {
+        const newState = { ...prevState };
+        addLogEntry(newState, NO_PLAYER, GameLogAction.PAUSE);
+        return newState;
+      });
+    }
+  };
+
   return (
     <>
       <Container>
         <Scoreboard />
         <Player />
         <ButtonContainer>
-          <Button variant="contained" color="primary" onClick={nextTurn}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={nextTurn}
+            disabled={!lastActionIsNotPause}
+          >
             Next Turn
           </Button>
-          <Button variant="contained" color="secondary" onClick={handleOpenConfirmEndGameDialog}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleOpenConfirmEndGameDialog}
+            disabled={!lastActionIsNotPause}
+          >
             End Game
           </Button>
         </ButtonContainer>
       </Container>
       <FabContainer>
-        <Fab color="secondary" aria-label="undo" onClick={undoLastAction} disabled={!canUndo}>
-          <Tooltip title="Undo the most recent update">
+        <Tooltip title="Undo the most recent update">
+          <Fab
+            color="secondary"
+            aria-label="undo"
+            onClick={undoLastAction}
+            disabled={!canUndo && !lastActionIsNotPause}
+          >
             <UndoIcon />
-          </Tooltip>
-        </Fab>
-        <Fab color="primary" aria-label="supply" onClick={handleOpenSupplyDialog}>
-          <Tooltip title="Show victory kingdom card supply counts">
+          </Fab>
+        </Tooltip>
+        <Tooltip title="Show victory kingdom card supply counts">
+          <Fab color="primary" aria-label="supply" onClick={handleOpenSupplyDialog}>
             <InventoryIcon />
-          </Tooltip>
-        </Fab>
+          </Fab>
+        </Tooltip>
+        <Tooltip title={lastActionIsNotPause ? 'Pause the game' : 'Unpause the game'}>
+          <Fab
+            color="primary"
+            aria-label={lastActionIsNotPause ? 'pause' : 'unpause'}
+            onClick={handlePauseUnpause}
+          >
+            {lastActionIsNotPause ? <PauseIcon /> : <PlayIcon />}
+          </Fab>
+        </Tooltip>
       </FabContainer>
       {gameState.currentStep === CurrentStep.GameScreen && viewportWidth > 1300 && <GameClock />}
       <Dialog open={supplyDialogOpen} onClose={handleCloseSupplyDialog}>

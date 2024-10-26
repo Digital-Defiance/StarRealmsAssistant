@@ -1,20 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { InvalidFieldError } from '@/game/errors/invalid-field';
 import { InvalidLogStartGameError } from '@/game/errors/invalid-log-start-game';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { PlayerFieldMap } from '@/game/types';
-import { NegativeAdjustmentActions, NoPlayerActions } from '@/game/constants';
+import { AdjustmentActions, NegativeAdjustmentActions, NoPlayerActions } from '@/game/constants';
 import { ITurnDuration } from '@/game/interfaces/turn-duration';
 import { calculateVictoryPoints, getFieldAndSubfieldFromAction } from '@/game/dominion-lib';
 import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
-import { IGameSupply } from '@/game/interfaces/game-supply';
-import { IPlayer } from '@/game/interfaces/player';
-import { IVictoryDetails } from '@/game/interfaces/victory-details';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
+import { GamePausedError } from './errors/game-paused';
+import { CountRequiredError } from './errors/count-required';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -27,76 +26,48 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
   field: T,
   subfield: PlayerFieldMap[T],
   increment: number
-): GameLogActionWithCount {
+): GameLogAction {
   switch (field) {
     case 'turn':
       switch (subfield) {
         case 'actions':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_ACTIONS
-            : GameLogActionWithCount.REMOVE_ACTIONS;
+          return increment > 0 ? GameLogAction.ADD_ACTIONS : GameLogAction.REMOVE_ACTIONS;
         case 'buys':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_BUYS
-            : GameLogActionWithCount.REMOVE_BUYS;
+          return increment > 0 ? GameLogAction.ADD_BUYS : GameLogAction.REMOVE_BUYS;
         case 'coins':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_COINS
-            : GameLogActionWithCount.REMOVE_COINS;
+          return increment > 0 ? GameLogAction.ADD_COINS : GameLogAction.REMOVE_COINS;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }
     case 'mats':
       switch (subfield) {
         case 'coffers':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_COFFERS
-            : GameLogActionWithCount.REMOVE_COFFERS;
+          return increment > 0 ? GameLogAction.ADD_COFFERS : GameLogAction.REMOVE_COFFERS;
         case 'villagers':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_VILLAGERS
-            : GameLogActionWithCount.REMOVE_VILLAGERS;
+          return increment > 0 ? GameLogAction.ADD_VILLAGERS : GameLogAction.REMOVE_VILLAGERS;
         case 'debt':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_DEBT
-            : GameLogActionWithCount.REMOVE_DEBT;
+          return increment > 0 ? GameLogAction.ADD_DEBT : GameLogAction.REMOVE_DEBT;
         case 'favors':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_FAVORS
-            : GameLogActionWithCount.REMOVE_FAVORS;
+          return increment > 0 ? GameLogAction.ADD_FAVORS : GameLogAction.REMOVE_FAVORS;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }
     case 'victory':
       switch (subfield) {
         case 'curses':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_CURSES
-            : GameLogActionWithCount.REMOVE_CURSES;
+          return increment > 0 ? GameLogAction.ADD_CURSES : GameLogAction.REMOVE_CURSES;
         case 'estates':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_ESTATES
-            : GameLogActionWithCount.REMOVE_ESTATES;
+          return increment > 0 ? GameLogAction.ADD_ESTATES : GameLogAction.REMOVE_ESTATES;
         case 'duchies':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_DUCHIES
-            : GameLogActionWithCount.REMOVE_DUCHIES;
+          return increment > 0 ? GameLogAction.ADD_DUCHIES : GameLogAction.REMOVE_DUCHIES;
         case 'provinces':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_PROVINCES
-            : GameLogActionWithCount.REMOVE_PROVINCES;
+          return increment > 0 ? GameLogAction.ADD_PROVINCES : GameLogAction.REMOVE_PROVINCES;
         case 'colonies':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_COLONIES
-            : GameLogActionWithCount.REMOVE_COLONIES;
+          return increment > 0 ? GameLogAction.ADD_COLONIES : GameLogAction.REMOVE_COLONIES;
         case 'tokens':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_VP_TOKENS
-            : GameLogActionWithCount.REMOVE_VP_TOKENS;
+          return increment > 0 ? GameLogAction.ADD_VP_TOKENS : GameLogAction.REMOVE_VP_TOKENS;
         case 'other':
-          return increment > 0
-            ? GameLogActionWithCount.ADD_OTHER_VP
-            : GameLogActionWithCount.REMOVE_OTHER_VP;
+          return increment > 0 ? GameLogAction.ADD_OTHER_VP : GameLogAction.REMOVE_OTHER_VP;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }
@@ -104,16 +75,16 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
       switch (subfield) {
         case 'actions':
           return increment > 0
-            ? GameLogActionWithCount.ADD_NEXT_TURN_ACTIONS
-            : GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS;
+            ? GameLogAction.ADD_NEXT_TURN_ACTIONS
+            : GameLogAction.REMOVE_NEXT_TURN_ACTIONS;
         case 'buys':
           return increment > 0
-            ? GameLogActionWithCount.ADD_NEXT_TURN_BUYS
-            : GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS;
+            ? GameLogAction.ADD_NEXT_TURN_BUYS
+            : GameLogAction.REMOVE_NEXT_TURN_BUYS;
         case 'coins':
           return increment > 0
-            ? GameLogActionWithCount.ADD_NEXT_TURN_COINS
-            : GameLogActionWithCount.REMOVE_NEXT_TURN_COINS;
+            ? GameLogAction.ADD_NEXT_TURN_COINS
+            : GameLogAction.REMOVE_NEXT_TURN_COINS;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }
@@ -150,18 +121,27 @@ export function calculateTurnDurations(logEntries: ILogEntry[]): ITurnDuration[]
   let currentTurnStartTime: Date | null = null;
   let currentTurnPauseTime = 0;
   let saveStartTime: Date | null = null;
+  let pauseStartTime: Date | null = null;
   let inSaveState = false;
+  let inPauseState = false;
   let hasNextTurnAfterStartGame = false;
 
   for (const entry of logEntries) {
     const { action, timestamp } = entry;
 
-    if (action === GameLogActionWithCount.START_GAME) {
+    if (inPauseState && action !== GameLogAction.UNPAUSE) {
+      // If we encounter any action other than UNPAUSE while in a paused state, stop processing
+      throw new GamePausedError();
+    }
+
+    if (action === GameLogAction.START_GAME) {
       currentTurnStartTime = timestamp;
       currentTurnPauseTime = 0;
       inSaveState = false;
+      inPauseState = false;
       saveStartTime = null;
-    } else if (action === GameLogActionWithCount.NEXT_TURN) {
+      pauseStartTime = null;
+    } else if (action === GameLogAction.NEXT_TURN) {
       if (currentTurnStartTime !== null) {
         // Process any ongoing save state before ending the turn
         if (inSaveState && saveStartTime !== null) {
@@ -171,10 +151,18 @@ export function calculateTurnDurations(logEntries: ILogEntry[]): ITurnDuration[]
           saveStartTime = null;
         }
 
+        // Process any ongoing pause state before ending the turn
+        if (inPauseState && pauseStartTime !== null) {
+          const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
+          currentTurnPauseTime += pauseDuration;
+          inPauseState = false;
+          pauseStartTime = null;
+        }
+
         const duration =
           timestamp.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
         durations.push({
-          turn: entry.turn,
+          turn: entry.turn - 1, // NEXT_TURN entries reflect the new turn
           playerIndex: entry.prevPlayerIndex ?? entry.playerIndex,
           start: currentTurnStartTime,
           end: timestamp,
@@ -185,14 +173,23 @@ export function calculateTurnDurations(logEntries: ILogEntry[]): ITurnDuration[]
       currentTurnStartTime = timestamp;
       currentTurnPauseTime = 0;
       inSaveState = false;
+      inPauseState = false;
       saveStartTime = null;
-    } else if (action === GameLogActionWithCount.END_GAME) {
+      pauseStartTime = null;
+    } else if (action === GameLogAction.END_GAME) {
       if (currentTurnStartTime !== null) {
         if (inSaveState && saveStartTime !== null) {
           const saveDuration = timestamp.getTime() - saveStartTime.getTime();
           currentTurnPauseTime += saveDuration;
           inSaveState = false;
           saveStartTime = null;
+        }
+
+        if (inPauseState && pauseStartTime !== null) {
+          const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
+          currentTurnPauseTime += pauseDuration;
+          inPauseState = false;
+          pauseStartTime = null;
         }
 
         const duration =
@@ -206,17 +203,29 @@ export function calculateTurnDurations(logEntries: ILogEntry[]): ITurnDuration[]
         });
       }
       break;
-    } else if (action === GameLogActionWithCount.SAVE_GAME) {
+    } else if (action === GameLogAction.SAVE_GAME) {
       if (!inSaveState) {
         saveStartTime = timestamp;
         inSaveState = true;
       }
-    } else if (action === GameLogActionWithCount.LOAD_GAME) {
+    } else if (action === GameLogAction.LOAD_GAME) {
       if (inSaveState && saveStartTime !== null) {
         const saveDuration = timestamp.getTime() - saveStartTime.getTime();
         currentTurnPauseTime += saveDuration;
         inSaveState = false;
         saveStartTime = null;
+      }
+    } else if (action === GameLogAction.PAUSE) {
+      if (!inPauseState) {
+        pauseStartTime = timestamp;
+        inPauseState = true;
+      }
+    } else if (action === GameLogAction.UNPAUSE) {
+      if (inPauseState && pauseStartTime !== null) {
+        const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
+        currentTurnPauseTime += pauseDuration;
+        inPauseState = false;
+        pauseStartTime = null;
       }
     }
   }
@@ -240,7 +249,7 @@ export function getStartDateFromLog(logEntries: ILogEntry[]): Date {
 
   const startGameEntry = logEntries[0];
 
-  if (startGameEntry.action !== GameLogActionWithCount.START_GAME) {
+  if (startGameEntry.action !== GameLogAction.START_GAME) {
     throw new InvalidLogStartGameError();
   }
 
@@ -317,15 +326,17 @@ export function calculateCurrentTurnDuration(logEntries: ILogEntry[], currentTim
   let currentTurnStartTime: Date | null = null;
   let currentTurnPauseTime = 0;
   let inSaveState = false;
+  let inPauseState = false;
   let saveStartTime: Date | null = null;
+  let pauseStartTime: Date | null = null;
 
   // Find the last NEXT_TURN or START_GAME
   for (let i = logEntries.length - 1; i >= 0; i--) {
     const entry = logEntries[i];
-    if (entry.action === GameLogActionWithCount.NEXT_TURN) {
+    if (entry.action === GameLogAction.NEXT_TURN) {
       currentTurnStartTime = entry.timestamp;
       break;
-    } else if (entry.action === GameLogActionWithCount.START_GAME) {
+    } else if (entry.action === GameLogAction.START_GAME) {
       currentTurnStartTime = entry.timestamp;
       break;
     }
@@ -341,17 +352,29 @@ export function calculateCurrentTurnDuration(logEntries: ILogEntry[], currentTim
 
     const { action, timestamp } = entry;
 
-    if (action === GameLogActionWithCount.SAVE_GAME) {
+    if (action === GameLogAction.SAVE_GAME) {
       if (!inSaveState) {
         saveStartTime = timestamp;
         inSaveState = true;
       }
-    } else if (action === GameLogActionWithCount.LOAD_GAME) {
+    } else if (action === GameLogAction.LOAD_GAME) {
       if (inSaveState && saveStartTime !== null) {
         const saveDuration = timestamp.getTime() - saveStartTime.getTime();
         currentTurnPauseTime += saveDuration;
         inSaveState = false;
         saveStartTime = null;
+      }
+    } else if (action === GameLogAction.PAUSE) {
+      if (!inPauseState) {
+        pauseStartTime = timestamp;
+        inPauseState = true;
+      }
+    } else if (action === GameLogAction.UNPAUSE) {
+      if (inPauseState && pauseStartTime !== null) {
+        const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
+        currentTurnPauseTime += pauseDuration;
+        inPauseState = false;
+        pauseStartTime = null;
       }
     }
   }
@@ -360,6 +383,12 @@ export function calculateCurrentTurnDuration(logEntries: ILogEntry[], currentTim
   if (inSaveState && saveStartTime !== null) {
     const saveDuration = currentTime.getTime() - saveStartTime.getTime();
     currentTurnPauseTime += saveDuration;
+  }
+
+  // Handle unpaired PAUSE by subtracting up to current time
+  if (inPauseState && pauseStartTime !== null) {
+    const pauseDuration = currentTime.getTime() - pauseStartTime.getTime();
+    currentTurnPauseTime += pauseDuration;
   }
 
   const duration = currentTime.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
@@ -402,11 +431,13 @@ export function calculateDurationUpToEvent(logEntries: ILogEntry[], eventTime: D
   let startGameTime: Date | null = null;
   let totalPauseTime = 0;
   let inSaveState = false;
+  let inPauseState = false;
   let saveStartTime: Date | null = null;
+  let pauseStartTime: Date | null = null;
 
   // Find the START_GAME action
   for (const entry of logEntries) {
-    if (entry.action === GameLogActionWithCount.START_GAME) {
+    if (entry.action === GameLogAction.START_GAME) {
       startGameTime = entry.timestamp;
       break;
     }
@@ -434,17 +465,29 @@ export function calculateDurationUpToEvent(logEntries: ILogEntry[], eventTime: D
 
     const { action, timestamp } = entry;
 
-    if (action === GameLogActionWithCount.SAVE_GAME) {
+    if (action === GameLogAction.SAVE_GAME) {
       if (!inSaveState) {
         inSaveState = true;
         saveStartTime = timestamp;
       }
-    } else if (action === GameLogActionWithCount.LOAD_GAME) {
+    } else if (action === GameLogAction.LOAD_GAME) {
       if (inSaveState && saveStartTime !== null) {
         const saveDuration = timestamp.getTime() - saveStartTime.getTime();
         totalPauseTime += saveDuration;
         inSaveState = false;
         saveStartTime = null;
+      }
+    } else if (action === GameLogAction.PAUSE) {
+      if (!inPauseState) {
+        inPauseState = true;
+        pauseStartTime = timestamp;
+      }
+    } else if (action === GameLogAction.UNPAUSE) {
+      if (inPauseState && pauseStartTime !== null) {
+        const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
+        totalPauseTime += pauseDuration;
+        inPauseState = false;
+        pauseStartTime = null;
       }
     }
     // Other actions are ignored for pause time calculation
@@ -454,6 +497,12 @@ export function calculateDurationUpToEvent(logEntries: ILogEntry[], eventTime: D
   if (inSaveState && saveStartTime !== null) {
     const saveDuration = eventTime.getTime() - saveStartTime.getTime();
     totalPauseTime += saveDuration;
+  }
+
+  // Handle unpaired PAUSE before eventTime
+  if (inPauseState && pauseStartTime !== null) {
+    const pauseDuration = eventTime.getTime() - pauseStartTime.getTime();
+    totalPauseTime += pauseDuration;
   }
 
   // Adjust the total duration by subtracting the total pause time
@@ -494,7 +543,7 @@ export function formatTimeSpan(timeSpan: number): string {
 export function addLogEntry(
   game: IGame,
   playerIndex: number,
-  action: GameLogActionWithCount,
+  action: GameLogAction,
   overrides?: Partial<ILogEntry>
 ): ILogEntry {
   if (!NoPlayerActions.includes(action)) {
@@ -505,6 +554,17 @@ export function addLogEntry(
     }
   } else if (playerIndex > -1) {
     throw new Error('Player index is not relevant for this action');
+  }
+  if (AdjustmentActions.includes(action) && overrides?.count === undefined) {
+    throw new CountRequiredError();
+  }
+  const lastLog = game.log.length > 0 ? game.log[game.log.length - 1] : null;
+  if (
+    lastLog !== null &&
+    lastLog.action === GameLogAction.PAUSE &&
+    action !== GameLogAction.UNPAUSE
+  ) {
+    throw new GamePausedError();
   }
   const { field } = getFieldAndSubfieldFromAction(action);
 
@@ -548,10 +608,7 @@ export function calculateVictoryPointsAndSupplyByTurn(game: IGame): IVictoryGrap
       log: game.log.slice(0, index + 1),
     });
 
-    if (
-      entry.action === GameLogActionWithCount.NEXT_TURN ||
-      entry.action === GameLogActionWithCount.END_GAME
-    ) {
+    if (entry.action === GameLogAction.NEXT_TURN || entry.action === GameLogAction.END_GAME) {
       const victoryPointsByPlayer = reconstructedGame.players.map((player) =>
         calculateVictoryPoints(player)
       );

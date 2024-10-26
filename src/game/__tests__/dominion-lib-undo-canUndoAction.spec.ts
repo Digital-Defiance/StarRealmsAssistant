@@ -1,7 +1,7 @@
 import * as undoModule from '@/game/dominion-lib-undo';
 import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { faker } from '@faker-js/faker';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import {
@@ -26,7 +26,7 @@ describe('canUndoAction', () => {
   let reconstructGameStateSpy: jest.SpyInstance;
 
   const createLogEntry = (
-    action: GameLogActionWithCount,
+    action: GameLogAction,
     count?: number,
     id?: string,
     linkedActionId?: string
@@ -39,7 +39,7 @@ describe('canUndoAction', () => {
     currentPlayerIndex: 0,
     turn: 1,
     playerTurnDetails:
-      action === GameLogActionWithCount.NEXT_TURN
+      action === GameLogAction.NEXT_TURN
         ? [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }]
         : undefined,
     linkedActionId,
@@ -72,10 +72,7 @@ describe('canUndoAction', () => {
 
   it('should return true for NEXT_TURN when most recent action', () => {
     const game = createMockGame(2, {
-      log: [
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS),
-        createLogEntry(GameLogActionWithCount.NEXT_TURN),
-      ],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS), createLogEntry(GameLogAction.NEXT_TURN)],
     });
     expect(undoModule.canUndoAction(game, 1)).toBe(true);
     expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(1);
@@ -86,9 +83,9 @@ describe('canUndoAction', () => {
   it('should return false for NEXT_TURN when not most recent action', () => {
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.START_GAME),
-        createLogEntry(GameLogActionWithCount.NEXT_TURN),
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS),
+        createLogEntry(GameLogAction.START_GAME),
+        createLogEntry(GameLogAction.NEXT_TURN),
+        createLogEntry(GameLogAction.ADD_ACTIONS),
       ],
     });
     expect(undoModule.canUndoAction(game, 1)).toBe(false);
@@ -99,7 +96,7 @@ describe('canUndoAction', () => {
 
   it('should return true for a regular action that can be undone', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS, 1)],
     });
     expect(undoModule.canUndoAction(game, 0)).toBe(true);
     expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(1);
@@ -113,12 +110,12 @@ describe('canUndoAction', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           playerIndex: 0,
         } as ILogEntry,
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1), // actions to 2
-        createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1), // actions to 1
-        createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1), // actions to 0
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1), // actions to 2
+        createLogEntry(GameLogAction.REMOVE_ACTIONS, 1), // actions to 1
+        createLogEntry(GameLogAction.REMOVE_ACTIONS, 1), // actions to 0
       ],
     });
 
@@ -127,11 +124,11 @@ describe('canUndoAction', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           playerIndex: 0,
         } as ILogEntry,
-        createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1), // actions to 0
-        createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1), // actions to -1
+        createLogEntry(GameLogAction.REMOVE_ACTIONS, 1), // actions to 0
+        createLogEntry(GameLogAction.REMOVE_ACTIONS, 1), // actions to -1
       ],
     });
 
@@ -152,7 +149,7 @@ describe('canUndoAction', () => {
 
   it('should return true if reconstructGameState succeeds', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS, 1)],
     });
 
     reconstructGameStateSpy.mockImplementation(() => {
@@ -169,8 +166,8 @@ describe('canUndoAction', () => {
     const mainActionId = 'main-action';
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1, mainActionId),
-        createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1, undefined, mainActionId),
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1, mainActionId),
+        createLogEntry(GameLogAction.REMOVE_ACTIONS, 1, undefined, mainActionId),
       ],
     });
 
@@ -192,9 +189,9 @@ describe('canUndoAction', () => {
   it('should return true for the last action in the log', () => {
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1),
-        createLogEntry(GameLogActionWithCount.ADD_BUYS, 1),
-        createLogEntry(GameLogActionWithCount.ADD_COINS, 1),
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1),
+        createLogEntry(GameLogAction.ADD_BUYS, 1),
+        createLogEntry(GameLogAction.ADD_COINS, 1),
       ],
     });
     expect(undoModule.canUndoAction(game, 2)).toBe(true);
@@ -206,8 +203,8 @@ describe('canUndoAction', () => {
   it('should return true for the first action in the log', () => {
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1),
-        createLogEntry(GameLogActionWithCount.ADD_BUYS, 1),
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1),
+        createLogEntry(GameLogAction.ADD_BUYS, 1),
       ],
     });
     expect(undoModule.canUndoAction(game, 0)).toBe(true);
@@ -218,7 +215,7 @@ describe('canUndoAction', () => {
 
   it('should return true when undoing the only action in the log', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.ADD_BUYS, 1)],
+      log: [createLogEntry(GameLogAction.ADD_BUYS, 1)],
     });
     expect(undoModule.canUndoAction(game, 0)).toBe(true);
     expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(1);
@@ -229,7 +226,7 @@ describe('canUndoAction', () => {
   it("should return false when linked action's main action is missing", () => {
     const linkedActionId = 'non-existent-main-action';
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1, undefined, linkedActionId)],
+      log: [createLogEntry(GameLogAction.REMOVE_ACTIONS, 1, undefined, linkedActionId)],
     });
     expect(undoModule.canUndoAction(game, 0)).toBe(false);
     expect(removeTargetAndLinkedActionsSpy).not.toHaveBeenCalled();
@@ -239,7 +236,7 @@ describe('canUndoAction', () => {
 
   it('should return false if reconstructGameState throws NotEnoughSupplyError', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.REMOVE_ESTATES, 1)],
+      log: [createLogEntry(GameLogAction.REMOVE_ESTATES, 1)],
     });
 
     reconstructGameStateSpy.mockImplementation(() => {
@@ -265,7 +262,7 @@ describe('canUndoAction', () => {
         expansions: { risingSun: true, renaissance: false, prosperity: false },
       },
       log: [
-        createLogEntry(GameLogActionWithCount.ADD_PROPHECY, 1), // Prophecy suns to 1
+        createLogEntry(GameLogAction.ADD_PROPHECY, 1), // Prophecy suns to 1
       ],
     });
 
@@ -286,7 +283,7 @@ describe('canUndoAction', () => {
 
   it.each(NoUndoActions)('should return false when undoing a no undo action', (action) => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogActionWithCount.START_GAME), createLogEntry(action)],
+      log: [createLogEntry(GameLogAction.START_GAME), createLogEntry(action)],
     });
 
     reconstructGameStateSpy.mockImplementation(() => {
@@ -303,10 +300,10 @@ describe('canUndoAction', () => {
     const mainActionId = 'main-action';
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.START_GAME),
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1, mainActionId),
-        createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1, undefined, mainActionId),
-        createLogEntry(GameLogActionWithCount.ADD_BUYS, 1, undefined, mainActionId),
+        createLogEntry(GameLogAction.START_GAME),
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1, mainActionId),
+        createLogEntry(GameLogAction.REMOVE_ACTIONS, 1, undefined, mainActionId),
+        createLogEntry(GameLogAction.ADD_BUYS, 1, undefined, mainActionId),
       ],
     });
 
@@ -320,7 +317,7 @@ describe('canUndoAction', () => {
     'should return true when undoing an action allowed for the most recent action',
     (action) => {
       const game = createMockGame(2, {
-        log: [createLogEntry(GameLogActionWithCount.START_GAME), createLogEntry(action)],
+        log: [createLogEntry(GameLogAction.START_GAME), createLogEntry(action)],
       });
 
       reconstructGameStateSpy.mockImplementation(() => {
@@ -339,9 +336,9 @@ describe('canUndoAction', () => {
     (action) => {
       const game = createMockGame(2, {
         log: [
-          createLogEntry(GameLogActionWithCount.START_GAME),
+          createLogEntry(GameLogAction.START_GAME),
           createLogEntry(action),
-          createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1),
+          createLogEntry(GameLogAction.ADD_ACTIONS, 1),
         ],
       });
 
@@ -360,10 +357,10 @@ describe('canUndoAction', () => {
     const mainActionId = 'main-action';
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.START_GAME),
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1, mainActionId),
-        createLogEntry(GameLogActionWithCount.REMOVE_ACTIONS, 1, undefined, mainActionId),
-        createLogEntry(GameLogActionWithCount.ADD_BUYS, 1, undefined, mainActionId),
+        createLogEntry(GameLogAction.START_GAME),
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1, mainActionId),
+        createLogEntry(GameLogAction.REMOVE_ACTIONS, 1, undefined, mainActionId),
+        createLogEntry(GameLogAction.ADD_BUYS, 1, undefined, mainActionId),
       ],
     });
 
@@ -376,12 +373,12 @@ describe('canUndoAction', () => {
   it('should return true when undoing an action in a complex game log', () => {
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.START_GAME),
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1),
-        createLogEntry(GameLogActionWithCount.ADD_BUYS, 1),
-        createLogEntry(GameLogActionWithCount.NEXT_TURN),
-        createLogEntry(GameLogActionWithCount.ADD_COINS, 1),
-        createLogEntry(GameLogActionWithCount.REMOVE_COINS, 1),
+        createLogEntry(GameLogAction.START_GAME),
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1),
+        createLogEntry(GameLogAction.ADD_BUYS, 1),
+        createLogEntry(GameLogAction.NEXT_TURN),
+        createLogEntry(GameLogAction.ADD_COINS, 1),
+        createLogEntry(GameLogAction.REMOVE_COINS, 1),
       ],
     });
 
@@ -394,8 +391,8 @@ describe('canUndoAction', () => {
   it('should handle consecutive undo operations', () => {
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1),
-        createLogEntry(GameLogActionWithCount.ADD_BUYS, 1),
+        createLogEntry(GameLogAction.ADD_ACTIONS, 1),
+        createLogEntry(GameLogAction.ADD_BUYS, 1),
       ],
     });
 
@@ -410,7 +407,7 @@ describe('canUndoAction', () => {
     // Update game to reflect first undo
     const gameAfterFirstUndo = {
       ...game,
-      log: [createLogEntry(GameLogActionWithCount.ADD_ACTIONS, 1)],
+      log: [createLogEntry(GameLogAction.ADD_ACTIONS, 1)],
     };
 
     jest.clearAllMocks();

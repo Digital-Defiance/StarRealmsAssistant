@@ -16,7 +16,7 @@ import SuperCapsText from '@/components/SuperCapsText';
 import IncrementDecrementControl from '@/components/IncrementDecrementControl';
 import { updatePlayerField } from '@/game/dominion-lib';
 import { addLogEntry, fieldSubfieldToGameLogAction } from '@/game/dominion-lib-log';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
 import '@/styles.scss';
@@ -68,6 +68,18 @@ const Player: React.FC = () => {
 
   const player = gameState.players[gameState.selectedPlayerIndex];
   const isCurrentPlayer = gameState.selectedPlayerIndex === gameState.currentPlayerIndex;
+
+  // Apply a gray overlay and disable all controls when the game is paused
+  const DisabledOverlay = styled(Box)(() => ({
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(128, 128, 128, 0.5)',
+    zIndex: 1,
+    display: isGamePaused() ? 'block' : 'none',
+  }));
 
   const handleFieldChange = <T extends keyof PlayerFieldMap>(
     field: T,
@@ -185,12 +197,9 @@ const Player: React.FC = () => {
       if (prevState.risingSun && prevState.options.expansions.risingSun) {
         const newGameState = { ...prevState };
         // prophecy is always triggered by the selected player, not the current player in case there is an off-turn action triggered by a defense, etc
-        addLogEntry(
-          newGameState,
-          newGameState.selectedPlayerIndex,
-          GameLogActionWithCount.ADD_PROPHECY,
-          { count: 1 }
-        );
+        addLogEntry(newGameState, newGameState.selectedPlayerIndex, GameLogAction.ADD_PROPHECY, {
+          count: 1,
+        });
         newGameState.risingSun.prophecy.suns += 1;
         return newGameState;
       }
@@ -205,12 +214,9 @@ const Player: React.FC = () => {
           return prevState;
         }
         const newGameState = { ...prevState };
-        addLogEntry(
-          newGameState,
-          newGameState.selectedPlayerIndex,
-          GameLogActionWithCount.REMOVE_PROPHECY,
-          { count: 1 }
-        );
+        addLogEntry(newGameState, newGameState.selectedPlayerIndex, GameLogAction.REMOVE_PROPHECY, {
+          count: 1,
+        });
 
         newGameState.risingSun.prophecy.suns = Math.max(
           0,
@@ -232,6 +238,11 @@ const Player: React.FC = () => {
     setShowNewTurnSettings(false);
   };
 
+  const isGamePaused = (): boolean => {
+    const lastLogEntry = gameState.log.length > 0 ? gameState.log[gameState.log.length - 1] : null;
+    return lastLogEntry !== null && lastLogEntry.action === GameLogAction.PAUSE;
+  };
+
   return (
     <StyledPaper
       elevation={3}
@@ -240,259 +251,262 @@ const Player: React.FC = () => {
         boxShadow: !isCurrentPlayer ? `0 0 10px ${player.color}, 0 0 20px ${player.color}` : 'none',
       }}
     >
-      <Box mb={2} display="flex" alignItems="center" justifyContent="space-between">
-        <Box display="flex" alignItems="center">
-          <Tooltip
-            title={
-              isCurrentPlayer
-                ? `${player.name} is the current player`
-                : `${player.name} is not the current player`
-            }
-          >
-            <Chip
-              label={player.name.charAt(0).toUpperCase()}
-              size="small"
-              style={{
-                backgroundColor: player.color,
-                color: 'white',
-                fontWeight: isCurrentPlayer ? 'bold' : 'normal',
-                border: isCurrentPlayer ? '2px solid #000' : 'none',
-                marginRight: '8px',
-              }}
-            />
-          </Tooltip>
-          <SuperCapsText className={`typography-title`}>{player.name}</SuperCapsText>
+      <DisabledOverlay />
+      <Box sx={{ position: 'relative', pointerEvents: isGamePaused() ? 'none' : 'auto' }}>
+        <Box mb={2} display="flex" alignItems="center" justifyContent="space-between">
+          <Box display="flex" alignItems="center">
+            <Tooltip
+              title={
+                isCurrentPlayer
+                  ? `${player.name} is the current player`
+                  : `${player.name} is not the current player`
+              }
+            >
+              <Chip
+                label={player.name.charAt(0).toUpperCase()}
+                size="small"
+                style={{
+                  backgroundColor: player.color,
+                  color: 'white',
+                  fontWeight: isCurrentPlayer ? 'bold' : 'normal',
+                  border: isCurrentPlayer ? '2px solid #000' : 'none',
+                  marginRight: '8px',
+                }}
+              />
+            </Tooltip>
+            <SuperCapsText className={`typography-title`}>{player.name}</SuperCapsText>
+          </Box>
+          <IconButton onClick={handleNewTurnClick}>
+            <SettingsIcon />
+          </IconButton>
         </Box>
-        <IconButton onClick={handleNewTurnClick}>
-          <SettingsIcon />
-        </IconButton>
-      </Box>
-      <CorrectionCheckboxContainer>
-        <Checkbox
-          checked={isCorrection}
-          onChange={handleCorrectionChange}
-          inputProps={{ 'aria-label': 'Correction Checkbox' }}
-        />
-        <Tooltip title="Use to reverse accidental changes. They will be marked as corrections in the log.">
-          <Typography variant="body2">Correction</Typography>
-        </Tooltip>
-      </CorrectionCheckboxContainer>
-      {player && (
-        <Box display="flex" flexWrap="wrap">
-          <ColumnBox>
+        <CorrectionCheckboxContainer>
+          <Checkbox
+            checked={isCorrection}
+            onChange={handleCorrectionChange}
+            inputProps={{ 'aria-label': 'Correction Checkbox' }}
+          />
+          <Tooltip title="Use to reverse accidental changes. They will be marked as corrections in the log.">
+            <Typography variant="body2">Correction</Typography>
+          </Tooltip>
+        </CorrectionCheckboxContainer>
+        {player && (
+          <Box display="flex" flexWrap="wrap">
+            <ColumnBox>
+              <CenteredTitle>
+                <Tooltip title="These values reset every turn">
+                  <SuperCapsText className={`typography-large-title`}>Turn</SuperCapsText>
+                </Tooltip>
+              </CenteredTitle>
+              <IncrementDecrementControl
+                label="Actions"
+                value={player.turn.actions}
+                onIncrement={() => handleFieldChange('turn', 'actions', 1)}
+                onDecrement={() => {
+                  // greatLeaderProphecy gives unlimited actions when the prophecy is empty
+                  if (
+                    !isCorrection &&
+                    gameState.risingSun.greatLeaderProphecy &&
+                    gameState.risingSun.prophecy.suns === 0
+                  ) {
+                    handleCombinedFieldChange('turn', 'actions', -1, 'turn', 'actions', 1);
+                  } else {
+                    handleFieldChange('turn', 'actions', -1);
+                  }
+                }}
+              />
+              <IncrementDecrementControl
+                label="Buys"
+                value={player.turn.buys}
+                onIncrement={() => handleFieldChange('turn', 'buys', 1)}
+                onDecrement={() => handleFieldChange('turn', 'buys', -1)}
+              />
+              <IncrementDecrementControl
+                label="Coins"
+                value={player.turn.coins}
+                onIncrement={() => handleFieldChange('turn', 'coins', 1)}
+                onDecrement={() => handleFieldChange('turn', 'coins', -1)}
+              />
+            </ColumnBox>
+            {(showMats || showGlobalMats) && (
+              <ColumnBox>
+                {showMats && (
+                  <CenteredTitle>
+                    <Tooltip title="These player mat values persist between turns">
+                      <SuperCapsText className={`typography-large-title`}>Mats</SuperCapsText>
+                    </Tooltip>
+                  </CenteredTitle>
+                )}
+                {gameState.options.mats.coffersVillagers && (
+                  <>
+                    <IncrementDecrementControl
+                      label="Coffers"
+                      value={player.mats.coffers}
+                      tooltip="Spending a coffer automatically gives a coin"
+                      onIncrement={() => handleFieldChange('mats', 'coffers', 1)}
+                      onDecrement={() => {
+                        if (!isCorrection) {
+                          // spending a coffer gives a coin
+                          handleCombinedFieldChange('mats', 'coffers', -1, 'turn', 'coins', 1);
+                        } else {
+                          handleFieldChange('mats', 'coffers', -1);
+                        }
+                      }}
+                    />
+                    <IncrementDecrementControl
+                      label="Villagers"
+                      value={player.mats.villagers}
+                      tooltip="Spending a villager automatically gives an action"
+                      onIncrement={() => handleFieldChange('mats', 'villagers', 1)}
+                      onDecrement={() => {
+                        if (!isCorrection) {
+                          // spending a villager gives an action
+                          handleCombinedFieldChange('mats', 'villagers', -1, 'turn', 'actions', 1);
+                        } else {
+                          handleFieldChange('mats', 'villagers', -1);
+                        }
+                      }}
+                    />
+                  </>
+                )}
+                {gameState.options.mats.debt && (
+                  <IncrementDecrementControl
+                    label="Debt"
+                    value={player.mats.debt}
+                    onIncrement={() => handleFieldChange('mats', 'debt', 1)}
+                    onDecrement={() => handleFieldChange('mats', 'debt', -1)}
+                  />
+                )}
+                {gameState.options.mats.favors && (
+                  <IncrementDecrementControl
+                    label="Favors"
+                    value={player.mats.favors}
+                    onIncrement={() => handleFieldChange('mats', 'favors', 1)}
+                    onDecrement={() => handleFieldChange('mats', 'favors', -1)}
+                  />
+                )}
+                {showGlobalMats && (
+                  <>
+                    <Box sx={showMats ? { paddingTop: 2 } : {}}>
+                      <CenteredTitle>
+                        <Tooltip title="Global Mats affect all players and persist between turns">
+                          <SuperCapsText className={`typography-large-title`}>
+                            Global Mats
+                          </SuperCapsText>
+                        </Tooltip>
+                      </CenteredTitle>
+                    </Box>
+                    {gameState.options.expansions.risingSun && gameState.risingSun && (
+                      <IncrementDecrementControl
+                        label="Prophecy"
+                        value={gameState.risingSun.prophecy.suns}
+                        tooltip="Rising Sun Prophecy affects all players and persists between turns"
+                        onIncrement={handleProphecyIncrease}
+                        onDecrement={handleProphecyDecrease}
+                      />
+                    )}
+                  </>
+                )}
+              </ColumnBox>
+            )}
+            <ColumnBox sx={{ marginLeft: '10px' }}>
+              <CenteredTitle>
+                <Tooltip title="Victory points" arrow>
+                  <SuperCapsText className={`typography-large-title`}>Victory</SuperCapsText>
+                </Tooltip>
+              </CenteredTitle>
+              {gameState.options.curses && (
+                <IncrementDecrementControl
+                  label="Curses"
+                  value={player.victory.curses}
+                  onIncrement={() => handleFieldChange('victory', 'curses', 1)}
+                  onDecrement={() => handleFieldChange('victory', 'curses', -1)}
+                  onTrash={() => handleFieldChange('victory', 'curses', -1, undefined, true)}
+                />
+              )}
+              <IncrementDecrementControl
+                label="Estates"
+                value={player.victory.estates}
+                onIncrement={() => handleFieldChange('victory', 'estates', 1)}
+                onDecrement={() => handleFieldChange('victory', 'estates', -1)}
+                onTrash={() => handleFieldChange('victory', 'estates', -1, undefined, true)}
+              />
+              <IncrementDecrementControl
+                label="Duchies"
+                value={player.victory.duchies}
+                onIncrement={() => handleFieldChange('victory', 'duchies', 1)}
+                onDecrement={() => handleFieldChange('victory', 'duchies', -1)}
+                onTrash={() => handleFieldChange('victory', 'duchies', -1, undefined, true)}
+              />
+              <IncrementDecrementControl
+                label="Provinces"
+                value={player.victory.provinces}
+                onIncrement={() => handleFieldChange('victory', 'provinces', 1)}
+                onDecrement={() => handleFieldChange('victory', 'provinces', -1)}
+                onTrash={() => handleFieldChange('victory', 'provinces', -1, undefined, true)}
+              />
+              {gameState.options.expansions.prosperity && (
+                <IncrementDecrementControl
+                  label="Colonies"
+                  value={player.victory.colonies}
+                  onIncrement={() => handleFieldChange('victory', 'colonies', 1)}
+                  onDecrement={() => handleFieldChange('victory', 'colonies', -1)}
+                  onTrash={() => handleFieldChange('victory', 'colonies', -1, undefined, true)}
+                />
+              )}
+              <IncrementDecrementControl
+                label="Tokens"
+                value={player.victory.tokens}
+                onIncrement={() => handleFieldChange('victory', 'tokens', 1)}
+                onDecrement={() => handleFieldChange('victory', 'tokens', -1)}
+              />
+              <IncrementDecrementControl
+                label="Other"
+                value={player.victory.other}
+                onIncrement={() => handleFieldChange('victory', 'other', 1)}
+                onDecrement={() => handleFieldChange('victory', 'other', -1)}
+              />
+            </ColumnBox>
+          </Box>
+        )}
+        <Popover
+          open={showNewTurnSettings}
+          anchorEl={anchorEl}
+          onClose={handleNewTurnClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <Box p={2}>
             <CenteredTitle>
-              <Tooltip title="These values reset every turn">
-                <SuperCapsText className={`typography-large-title`}>Turn</SuperCapsText>
-              </Tooltip>
+              <SuperCapsText className={`typography-title`}>Next Turn</SuperCapsText>
             </CenteredTitle>
             <IncrementDecrementControl
               label="Actions"
-              value={player.turn.actions}
-              onIncrement={() => handleFieldChange('turn', 'actions', 1)}
-              onDecrement={() => {
-                // greatLeaderProphecy gives unlimited actions when the prophecy is empty
-                if (
-                  !isCorrection &&
-                  gameState.risingSun.greatLeaderProphecy &&
-                  gameState.risingSun.prophecy.suns === 0
-                ) {
-                  handleCombinedFieldChange('turn', 'actions', -1, 'turn', 'actions', 1);
-                } else {
-                  handleFieldChange('turn', 'actions', -1);
-                }
-              }}
+              value={player.newTurn.actions}
+              onIncrement={() => handleFieldChange('newTurn', 'actions', 1)}
+              onDecrement={() => handleFieldChange('newTurn', 'actions', -1)}
             />
             <IncrementDecrementControl
               label="Buys"
-              value={player.turn.buys}
-              onIncrement={() => handleFieldChange('turn', 'buys', 1)}
-              onDecrement={() => handleFieldChange('turn', 'buys', -1)}
+              value={player.newTurn.buys}
+              onIncrement={() => handleFieldChange('newTurn', 'buys', 1)}
+              onDecrement={() => handleFieldChange('newTurn', 'buys', -1)}
             />
             <IncrementDecrementControl
               label="Coins"
-              value={player.turn.coins}
-              onIncrement={() => handleFieldChange('turn', 'coins', 1)}
-              onDecrement={() => handleFieldChange('turn', 'coins', -1)}
+              value={player.newTurn.coins}
+              onIncrement={() => handleFieldChange('newTurn', 'coins', 1)}
+              onDecrement={() => handleFieldChange('newTurn', 'coins', -1)}
             />
-          </ColumnBox>
-          {(showMats || showGlobalMats) && (
-            <ColumnBox>
-              {showMats && (
-                <CenteredTitle>
-                  <Tooltip title="These player mat values persist between turns">
-                    <SuperCapsText className={`typography-large-title`}>Mats</SuperCapsText>
-                  </Tooltip>
-                </CenteredTitle>
-              )}
-              {gameState.options.mats.coffersVillagers && (
-                <>
-                  <IncrementDecrementControl
-                    label="Coffers"
-                    value={player.mats.coffers}
-                    tooltip="Spending a coffer automatically gives a coin"
-                    onIncrement={() => handleFieldChange('mats', 'coffers', 1)}
-                    onDecrement={() => {
-                      if (!isCorrection) {
-                        // spending a coffer gives a coin
-                        handleCombinedFieldChange('mats', 'coffers', -1, 'turn', 'coins', 1);
-                      } else {
-                        handleFieldChange('mats', 'coffers', -1);
-                      }
-                    }}
-                  />
-                  <IncrementDecrementControl
-                    label="Villagers"
-                    value={player.mats.villagers}
-                    tooltip="Spending a villager automatically gives an action"
-                    onIncrement={() => handleFieldChange('mats', 'villagers', 1)}
-                    onDecrement={() => {
-                      if (!isCorrection) {
-                        // spending a villager gives an action
-                        handleCombinedFieldChange('mats', 'villagers', -1, 'turn', 'actions', 1);
-                      } else {
-                        handleFieldChange('mats', 'villagers', -1);
-                      }
-                    }}
-                  />
-                </>
-              )}
-              {gameState.options.mats.debt && (
-                <IncrementDecrementControl
-                  label="Debt"
-                  value={player.mats.debt}
-                  onIncrement={() => handleFieldChange('mats', 'debt', 1)}
-                  onDecrement={() => handleFieldChange('mats', 'debt', -1)}
-                />
-              )}
-              {gameState.options.mats.favors && (
-                <IncrementDecrementControl
-                  label="Favors"
-                  value={player.mats.favors}
-                  onIncrement={() => handleFieldChange('mats', 'favors', 1)}
-                  onDecrement={() => handleFieldChange('mats', 'favors', -1)}
-                />
-              )}
-              {showGlobalMats && (
-                <>
-                  <Box sx={showMats ? { paddingTop: 2 } : {}}>
-                    <CenteredTitle>
-                      <Tooltip title="Global Mats affect all players and persist between turns">
-                        <SuperCapsText className={`typography-large-title`}>
-                          Global Mats
-                        </SuperCapsText>
-                      </Tooltip>
-                    </CenteredTitle>
-                  </Box>
-                  {gameState.options.expansions.risingSun && gameState.risingSun && (
-                    <IncrementDecrementControl
-                      label="Prophecy"
-                      value={gameState.risingSun.prophecy.suns}
-                      tooltip="Rising Sun Prophecy affects all players and persists between turns"
-                      onIncrement={handleProphecyIncrease}
-                      onDecrement={handleProphecyDecrease}
-                    />
-                  )}
-                </>
-              )}
-            </ColumnBox>
-          )}
-          <ColumnBox sx={{ marginLeft: '10px' }}>
-            <CenteredTitle>
-              <Tooltip title="Victory points" arrow>
-                <SuperCapsText className={`typography-large-title`}>Victory</SuperCapsText>
-              </Tooltip>
-            </CenteredTitle>
-            {gameState.options.curses && (
-              <IncrementDecrementControl
-                label="Curses"
-                value={player.victory.curses}
-                onIncrement={() => handleFieldChange('victory', 'curses', 1)}
-                onDecrement={() => handleFieldChange('victory', 'curses', -1)}
-                onTrash={() => handleFieldChange('victory', 'curses', -1, undefined, true)}
-              />
-            )}
-            <IncrementDecrementControl
-              label="Estates"
-              value={player.victory.estates}
-              onIncrement={() => handleFieldChange('victory', 'estates', 1)}
-              onDecrement={() => handleFieldChange('victory', 'estates', -1)}
-              onTrash={() => handleFieldChange('victory', 'estates', -1, undefined, true)}
-            />
-            <IncrementDecrementControl
-              label="Duchies"
-              value={player.victory.duchies}
-              onIncrement={() => handleFieldChange('victory', 'duchies', 1)}
-              onDecrement={() => handleFieldChange('victory', 'duchies', -1)}
-              onTrash={() => handleFieldChange('victory', 'duchies', -1, undefined, true)}
-            />
-            <IncrementDecrementControl
-              label="Provinces"
-              value={player.victory.provinces}
-              onIncrement={() => handleFieldChange('victory', 'provinces', 1)}
-              onDecrement={() => handleFieldChange('victory', 'provinces', -1)}
-              onTrash={() => handleFieldChange('victory', 'provinces', -1, undefined, true)}
-            />
-            {gameState.options.expansions.prosperity && (
-              <IncrementDecrementControl
-                label="Colonies"
-                value={player.victory.colonies}
-                onIncrement={() => handleFieldChange('victory', 'colonies', 1)}
-                onDecrement={() => handleFieldChange('victory', 'colonies', -1)}
-                onTrash={() => handleFieldChange('victory', 'colonies', -1, undefined, true)}
-              />
-            )}
-            <IncrementDecrementControl
-              label="Tokens"
-              value={player.victory.tokens}
-              onIncrement={() => handleFieldChange('victory', 'tokens', 1)}
-              onDecrement={() => handleFieldChange('victory', 'tokens', -1)}
-            />
-            <IncrementDecrementControl
-              label="Other"
-              value={player.victory.other}
-              onIncrement={() => handleFieldChange('victory', 'other', 1)}
-              onDecrement={() => handleFieldChange('victory', 'other', -1)}
-            />
-          </ColumnBox>
-        </Box>
-      )}
-      <Popover
-        open={showNewTurnSettings}
-        anchorEl={anchorEl}
-        onClose={handleNewTurnClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <Box p={2}>
-          <CenteredTitle>
-            <SuperCapsText className={`typography-title`}>Next Turn</SuperCapsText>
-          </CenteredTitle>
-          <IncrementDecrementControl
-            label="Actions"
-            value={player.newTurn.actions}
-            onIncrement={() => handleFieldChange('newTurn', 'actions', 1)}
-            onDecrement={() => handleFieldChange('newTurn', 'actions', -1)}
-          />
-          <IncrementDecrementControl
-            label="Buys"
-            value={player.newTurn.buys}
-            onIncrement={() => handleFieldChange('newTurn', 'buys', 1)}
-            onDecrement={() => handleFieldChange('newTurn', 'buys', -1)}
-          />
-          <IncrementDecrementControl
-            label="Coins"
-            value={player.newTurn.coins}
-            onIncrement={() => handleFieldChange('newTurn', 'coins', 1)}
-            onDecrement={() => handleFieldChange('newTurn', 'coins', -1)}
-          />
-        </Box>
-      </Popover>
+          </Box>
+        </Popover>
+      </Box>
     </StyledPaper>
   );
 };

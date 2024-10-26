@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { IGameSupply } from '@/game/interfaces/game-supply';
 import {
@@ -195,7 +195,7 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
         playerIndex: gameStateWithOptions.firstPlayerIndex,
         currentPlayerIndex: gameStateWithOptions.firstPlayerIndex,
         turn: 1,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
       },
     ],
     selectedPlayerIndex: gameStateWithOptions.firstPlayerIndex,
@@ -280,61 +280,61 @@ export function updatePlayerField<T extends keyof PlayerFieldMap>(
  * @param action - The game log action
  * @returns The field and subfield
  */
-export function getFieldAndSubfieldFromAction(action: GameLogActionWithCount): {
+export function getFieldAndSubfieldFromAction(action: GameLogAction): {
   field: PlayerField | null;
   subfield: PlayerSubFields | null;
 } {
   switch (action) {
-    case GameLogActionWithCount.ADD_ACTIONS:
-    case GameLogActionWithCount.REMOVE_ACTIONS:
+    case GameLogAction.ADD_ACTIONS:
+    case GameLogAction.REMOVE_ACTIONS:
       return { field: 'turn', subfield: 'actions' };
-    case GameLogActionWithCount.ADD_BUYS:
-    case GameLogActionWithCount.REMOVE_BUYS:
+    case GameLogAction.ADD_BUYS:
+    case GameLogAction.REMOVE_BUYS:
       return { field: 'turn', subfield: 'buys' };
-    case GameLogActionWithCount.ADD_COINS:
-    case GameLogActionWithCount.REMOVE_COINS:
+    case GameLogAction.ADD_COINS:
+    case GameLogAction.REMOVE_COINS:
       return { field: 'turn', subfield: 'coins' };
-    case GameLogActionWithCount.ADD_COFFERS:
-    case GameLogActionWithCount.REMOVE_COFFERS:
+    case GameLogAction.ADD_COFFERS:
+    case GameLogAction.REMOVE_COFFERS:
       return { field: 'mats', subfield: 'coffers' };
-    case GameLogActionWithCount.ADD_VILLAGERS:
-    case GameLogActionWithCount.REMOVE_VILLAGERS:
+    case GameLogAction.ADD_VILLAGERS:
+    case GameLogAction.REMOVE_VILLAGERS:
       return { field: 'mats', subfield: 'villagers' };
-    case GameLogActionWithCount.ADD_DEBT:
-    case GameLogActionWithCount.REMOVE_DEBT:
+    case GameLogAction.ADD_DEBT:
+    case GameLogAction.REMOVE_DEBT:
       return { field: 'mats', subfield: 'debt' };
-    case GameLogActionWithCount.ADD_FAVORS:
-    case GameLogActionWithCount.REMOVE_FAVORS:
+    case GameLogAction.ADD_FAVORS:
+    case GameLogAction.REMOVE_FAVORS:
       return { field: 'mats', subfield: 'favors' };
-    case GameLogActionWithCount.ADD_CURSES:
-    case GameLogActionWithCount.REMOVE_CURSES:
+    case GameLogAction.ADD_CURSES:
+    case GameLogAction.REMOVE_CURSES:
       return { field: 'victory', subfield: 'curses' };
-    case GameLogActionWithCount.ADD_ESTATES:
-    case GameLogActionWithCount.REMOVE_ESTATES:
+    case GameLogAction.ADD_ESTATES:
+    case GameLogAction.REMOVE_ESTATES:
       return { field: 'victory', subfield: 'estates' };
-    case GameLogActionWithCount.ADD_DUCHIES:
-    case GameLogActionWithCount.REMOVE_DUCHIES:
+    case GameLogAction.ADD_DUCHIES:
+    case GameLogAction.REMOVE_DUCHIES:
       return { field: 'victory', subfield: 'duchies' };
-    case GameLogActionWithCount.ADD_PROVINCES:
-    case GameLogActionWithCount.REMOVE_PROVINCES:
+    case GameLogAction.ADD_PROVINCES:
+    case GameLogAction.REMOVE_PROVINCES:
       return { field: 'victory', subfield: 'provinces' };
-    case GameLogActionWithCount.ADD_COLONIES:
-    case GameLogActionWithCount.REMOVE_COLONIES:
+    case GameLogAction.ADD_COLONIES:
+    case GameLogAction.REMOVE_COLONIES:
       return { field: 'victory', subfield: 'colonies' };
-    case GameLogActionWithCount.ADD_VP_TOKENS:
-    case GameLogActionWithCount.REMOVE_VP_TOKENS:
+    case GameLogAction.ADD_VP_TOKENS:
+    case GameLogAction.REMOVE_VP_TOKENS:
       return { field: 'victory', subfield: 'tokens' };
-    case GameLogActionWithCount.ADD_OTHER_VP:
-    case GameLogActionWithCount.REMOVE_OTHER_VP:
+    case GameLogAction.ADD_OTHER_VP:
+    case GameLogAction.REMOVE_OTHER_VP:
       return { field: 'victory', subfield: 'other' };
-    case GameLogActionWithCount.ADD_NEXT_TURN_ACTIONS:
-    case GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS:
+    case GameLogAction.ADD_NEXT_TURN_ACTIONS:
+    case GameLogAction.REMOVE_NEXT_TURN_ACTIONS:
       return { field: 'newTurn', subfield: 'actions' };
-    case GameLogActionWithCount.ADD_NEXT_TURN_BUYS:
-    case GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS:
+    case GameLogAction.ADD_NEXT_TURN_BUYS:
+    case GameLogAction.REMOVE_NEXT_TURN_BUYS:
       return { field: 'newTurn', subfield: 'buys' };
-    case GameLogActionWithCount.ADD_NEXT_TURN_COINS:
-    case GameLogActionWithCount.REMOVE_NEXT_TURN_COINS:
+    case GameLogAction.ADD_NEXT_TURN_COINS:
+    case GameLogAction.REMOVE_NEXT_TURN_COINS:
       return { field: 'newTurn', subfield: 'coins' };
     default:
       return { field: null, subfield: null };

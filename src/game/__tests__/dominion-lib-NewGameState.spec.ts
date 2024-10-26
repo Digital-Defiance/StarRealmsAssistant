@@ -6,7 +6,7 @@ import { MAX_PLAYERS, NOT_PRESENT } from '@/game/constants';
 import { MinPlayersError } from '@/game/errors/min-players';
 import { MaxPlayersError } from '@/game/errors/max-players';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { faker } from '@faker-js/faker';
 
 jest.mock('@/game/interfaces/set-mats/prophecy', () => ({
@@ -39,7 +39,7 @@ describe('NewGameState', () => {
       {
         id: expect.any(String),
         timestamp: expect.any(Date),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: initialGameState.firstPlayerIndex,
         currentPlayerIndex: initialGameState.currentPlayerIndex,
         turn: 1,

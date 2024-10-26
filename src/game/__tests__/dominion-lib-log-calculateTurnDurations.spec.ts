@@ -1,6 +1,7 @@
 import { calculateTurnDurations } from '@/game/dominion-lib-log';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
+import { GamePausedError } from '../errors/game-paused';
 
 describe('calculateTurnDurations', () => {
   it('should return an empty array if logEntries is empty', () => {
@@ -14,7 +15,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date(),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -29,7 +30,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date(),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -44,7 +45,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T10:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -52,7 +53,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T10:05:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -61,7 +62,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T10:10:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 3,
@@ -72,14 +73,14 @@ describe('calculateTurnDurations', () => {
 
     expect(result).toEqual([
       {
-        turn: 2,
+        turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T10:00:00Z'),
         end: new Date('2021-01-01T10:05:00Z'),
         duration: 300000, // 5 minutes
       },
       {
-        turn: 3,
+        turn: 2,
         playerIndex: 1,
         start: new Date('2021-01-01T10:05:00Z'),
         end: new Date('2021-01-01T10:10:00Z'),
@@ -94,7 +95,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -102,7 +103,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -110,7 +111,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:10:00Z'),
-        action: GameLogActionWithCount.LOAD_GAME,
+        action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -118,7 +119,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T09:15:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -129,7 +130,7 @@ describe('calculateTurnDurations', () => {
 
     expect(result).toEqual([
       {
-        turn: 2,
+        turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T09:00:00Z'),
         end: new Date('2021-01-01T09:15:00Z'),
@@ -144,7 +145,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -153,7 +154,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -161,7 +162,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:10:00Z'),
-        action: GameLogActionWithCount.LOAD_GAME,
+        action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -170,7 +171,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T09:12:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -178,7 +179,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '5',
         timestamp: new Date('2021-01-01T09:14:00Z'),
-        action: GameLogActionWithCount.LOAD_GAME,
+        action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -187,7 +188,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '6',
         timestamp: new Date('2021-01-01T09:20:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -198,7 +199,7 @@ describe('calculateTurnDurations', () => {
 
     expect(result).toEqual([
       {
-        turn: 2,
+        turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T09:00:00Z'),
         end: new Date('2021-01-01T09:20:00Z'),
@@ -213,7 +214,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -222,7 +223,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -231,7 +232,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:10:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -243,7 +244,7 @@ describe('calculateTurnDurations', () => {
     // The paused time is from SAVE_GAME to NEXT_TURN (5 mins)
     expect(result).toEqual([
       {
-        turn: 2,
+        turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T09:00:00Z'),
         end: new Date('2021-01-01T09:10:00Z'),
@@ -258,7 +259,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T08:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -267,7 +268,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T08:30:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -277,7 +278,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.END_GAME,
+        action: GameLogAction.END_GAME,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -287,7 +288,7 @@ describe('calculateTurnDurations', () => {
 
     expect(result).toEqual([
       {
-        turn: 2,
+        turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T08:00:00Z'),
         end: new Date('2021-01-01T08:30:00Z'),
@@ -309,7 +310,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T08:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -318,7 +319,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T08:30:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -328,7 +329,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogActionWithCount.END_GAME,
+        action: GameLogAction.END_GAME,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -337,7 +338,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T09:05:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 3,
@@ -348,7 +349,7 @@ describe('calculateTurnDurations', () => {
 
     expect(result).toEqual([
       {
-        turn: 2,
+        turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T08:00:00Z'),
         end: new Date('2021-01-01T08:30:00Z'),
@@ -370,7 +371,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T08:00:00Z'),
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -379,7 +380,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T08:10:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -388,7 +389,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T08:15:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -397,7 +398,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T08:20:00Z'),
-        action: GameLogActionWithCount.LOAD_GAME,
+        action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -406,7 +407,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '5',
         timestamp: new Date('2021-01-01T08:30:00Z'),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -427,11 +428,132 @@ describe('calculateTurnDurations', () => {
 
     expect(result).toEqual([
       {
-        turn: 2,
+        turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T08:00:00Z'),
         end: new Date('2021-01-01T08:30:00Z'),
         duration: expectedDuration,
+      },
+    ]);
+  });
+
+  it('should handle PAUSE and UNPAUSE actions within a turn', () => {
+    const logEntries: ILogEntry[] = [
+      {
+        id: '1',
+        timestamp: new Date('2021-01-01T09:00:00Z'),
+        action: GameLogAction.START_GAME,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+      },
+      {
+        id: '2',
+        timestamp: new Date('2021-01-01T09:05:00Z'),
+        action: GameLogAction.PAUSE,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+      },
+      {
+        id: '3',
+        timestamp: new Date('2021-01-01T09:10:00Z'),
+        action: GameLogAction.UNPAUSE,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+      },
+      {
+        id: '4',
+        timestamp: new Date('2021-01-01T09:20:00Z'),
+        action: GameLogAction.NEXT_TURN,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+        prevPlayerIndex: 0,
+      },
+    ];
+    const result = calculateTurnDurations(logEntries);
+
+    expect(result).toEqual([
+      {
+        turn: 1,
+        playerIndex: 0,
+        start: new Date('2021-01-01T09:00:00Z'),
+        end: new Date('2021-01-01T09:20:00Z'),
+        duration: 900000, // 15 minutes (20 minutes total - 5 minutes pause)
+      },
+    ]);
+  });
+
+  it('should throw after a PAUSE action without an UNPAUSE', () => {
+    const logEntries: ILogEntry[] = [
+      {
+        id: '1',
+        timestamp: new Date('2021-01-01T09:00:00Z'),
+        action: GameLogAction.START_GAME,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+      },
+      {
+        id: '2',
+        timestamp: new Date('2021-01-01T09:05:00Z'),
+        action: GameLogAction.PAUSE,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+      },
+      {
+        id: '3',
+        timestamp: new Date('2021-01-01T09:20:00Z'),
+        action: GameLogAction.NEXT_TURN,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+        prevPlayerIndex: 0,
+      },
+    ];
+    expect(() => calculateTurnDurations(logEntries)).toThrow(GamePausedError);
+  });
+
+  it('should handle unpaired SAVE_GAME actions within a turn', () => {
+    const logEntries: ILogEntry[] = [
+      {
+        id: '1',
+        timestamp: new Date('2021-01-01T09:00:00Z'),
+        action: GameLogAction.START_GAME,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+      },
+      {
+        id: '2',
+        timestamp: new Date('2021-01-01T09:05:00Z'),
+        action: GameLogAction.SAVE_GAME,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
+        turn: 1,
+      },
+      {
+        id: '3',
+        timestamp: new Date('2021-01-01T09:20:00Z'),
+        action: GameLogAction.NEXT_TURN,
+        playerIndex: 1,
+        currentPlayerIndex: 1,
+        turn: 2,
+        prevPlayerIndex: 0,
+      },
+    ];
+    const result = calculateTurnDurations(logEntries);
+
+    expect(result).toEqual([
+      {
+        turn: 1,
+        playerIndex: 0,
+        start: new Date('2021-01-01T09:00:00Z'),
+        end: new Date('2021-01-01T09:20:00Z'),
+        duration: 300000, // 5 minutes (20 minutes total - 15 minutes save)
       },
     ]);
   });

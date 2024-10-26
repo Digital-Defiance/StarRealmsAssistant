@@ -5,7 +5,7 @@ import {
   NoUndoActions,
 } from '@/game/constants';
 import { getFieldAndSubfieldFromAction, updatePlayerField } from '@/game/dominion-lib';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { PlayerFieldMap } from '@/game/types';
@@ -15,6 +15,7 @@ import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { getSignedCount } from '@/game/dominion-lib-log';
+import { GamePausedError } from '@/game/errors/game-paused';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -126,11 +127,11 @@ export function undoAction(game: IGame, logIndex: number): { game: IGame; succes
 export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   let updatedGame = { ...game };
 
-  if (logEntry.action === GameLogActionWithCount.START_GAME) {
+  if (logEntry.action === GameLogAction.START_GAME) {
     // set first player to the player who started the game
     updatedGame.firstPlayerIndex = logEntry.playerIndex;
     updatedGame.selectedPlayerIndex = logEntry.playerIndex;
-  } else if (logEntry.action === GameLogActionWithCount.NEXT_TURN) {
+  } else if (logEntry.action === GameLogAction.NEXT_TURN) {
     // Move to next player
     updatedGame.currentTurn = game.currentTurn + 1;
     updatedGame.currentPlayerIndex = logEntry.playerIndex;
@@ -141,7 +142,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
       ...player,
       turn: { ...player.newTurn },
     }));
-  } else if (logEntry.action === GameLogActionWithCount.SELECT_PLAYER) {
+  } else if (logEntry.action === GameLogAction.SELECT_PLAYER) {
     updatedGame.selectedPlayerIndex = logEntry.playerIndex ?? updatedGame.selectedPlayerIndex;
   } else if (
     logEntry.playerIndex !== NO_PLAYER &&
@@ -165,17 +166,17 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   // Handle game-wide counters
   if (
     game.options.expansions.risingSun &&
-    (logEntry.action === GameLogActionWithCount.ADD_PROPHECY ||
-      logEntry.action === GameLogActionWithCount.REMOVE_PROPHECY)
+    (logEntry.action === GameLogAction.ADD_PROPHECY ||
+      logEntry.action === GameLogAction.REMOVE_PROPHECY)
   ) {
     const increment =
-      logEntry.action === GameLogActionWithCount.ADD_PROPHECY
+      logEntry.action === GameLogAction.ADD_PROPHECY
         ? (logEntry.count ?? 1)
         : -(logEntry.count ?? 1);
 
     // RisingSun always exists, so we can directly update the prophecy
     if (
-      logEntry.action === GameLogActionWithCount.REMOVE_PROPHECY &&
+      logEntry.action === GameLogAction.REMOVE_PROPHECY &&
       updatedGame.risingSun.prophecy.suns + increment < 0
     ) {
       throw new NotEnoughProphecyError();
@@ -185,6 +186,17 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
       updatedGame.risingSun.prophecy.suns + increment
     );
   }
+
+  // If the game is paused, do not allow any other actions except UNPAUSE
+  const lastLog = game.log.length > 0 ? game.log[game.log.length - 1] : null;
+  if (
+    lastLog &&
+    lastLog.action === GameLogAction.PAUSE &&
+    logEntry.action !== GameLogAction.UNPAUSE
+  ) {
+    throw new GamePausedError();
+  }
+
   updatedGame.log.push({ ...logEntry });
 
   return updatedGame;

@@ -1,7 +1,7 @@
 import { applyLogAction } from '@/game/dominion-lib-undo';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { DefaultTurnDetails, NO_PLAYER } from '@/game/constants';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
@@ -19,7 +19,7 @@ describe('applyLogAction', () => {
     const initialPlayerStates = mockGame.players.map((player) => ({ ...player.turn }));
 
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.NEXT_TURN,
+      action: GameLogAction.NEXT_TURN,
       playerIndex: 1,
       id: '1',
       timestamp: new Date(),
@@ -51,7 +51,7 @@ describe('applyLogAction', () => {
 
   it('should handle NEXT_TURN action', () => {
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.NEXT_TURN,
+      action: GameLogAction.NEXT_TURN,
       playerIndex: 1,
       id: '1',
       timestamp: new Date(),
@@ -69,7 +69,7 @@ describe('applyLogAction', () => {
   it('should wrap around player index on NEXT_TURN', () => {
     mockGame.currentPlayerIndex = 1;
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.NEXT_TURN,
+      action: GameLogAction.NEXT_TURN,
       playerIndex: 0,
       id: '1',
       timestamp: new Date(),
@@ -86,7 +86,7 @@ describe('applyLogAction', () => {
 
   it('should update player field for ADD_ACTIONS', () => {
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.ADD_ACTIONS,
+      action: GameLogAction.ADD_ACTIONS,
       playerIndex: 0,
       count: 2,
       id: '1',
@@ -103,7 +103,7 @@ describe('applyLogAction', () => {
   it('should update player field for REMOVE_ACTIONS', () => {
     mockGame.players[0].turn.actions = 3;
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.REMOVE_ACTIONS,
+      action: GameLogAction.REMOVE_ACTIONS,
       playerIndex: 0,
       count: 2,
       id: '1',
@@ -121,7 +121,7 @@ describe('applyLogAction', () => {
     mockGame.options.expansions.risingSun = true;
     mockGame.risingSun.prophecy.suns = 0;
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.ADD_PROPHECY,
+      action: GameLogAction.ADD_PROPHECY,
       playerIndex: 0,
       count: 3,
       id: '1',
@@ -139,7 +139,7 @@ describe('applyLogAction', () => {
     mockGame.options.expansions.risingSun = true;
     mockGame.risingSun.prophecy.suns = 5;
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.REMOVE_PROPHECY,
+      action: GameLogAction.REMOVE_PROPHECY,
       playerIndex: NO_PLAYER,
       count: 2,
       id: '1',
@@ -155,7 +155,7 @@ describe('applyLogAction', () => {
 
   it('should not allow negative player field/subfield counters', () => {
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.REMOVE_ACTIONS,
+      action: GameLogAction.REMOVE_ACTIONS,
       playerIndex: 0,
       count: 2,
       id: '1',
@@ -171,7 +171,7 @@ describe('applyLogAction', () => {
     mockGame.options.expansions.risingSun = true;
     mockGame.risingSun.prophecy.suns = 1;
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.REMOVE_PROPHECY,
+      action: GameLogAction.REMOVE_PROPHECY,
       playerIndex: NO_PLAYER,
       count: 2,
       id: '1',
@@ -187,7 +187,7 @@ describe('applyLogAction', () => {
     mockGame.options.expansions.risingSun = true;
     mockGame.risingSun.prophecy.suns = 0;
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.ADD_PROPHECY,
+      action: GameLogAction.ADD_PROPHECY,
       playerIndex: NO_PLAYER,
       id: '1',
       timestamp: new Date(),
@@ -204,7 +204,7 @@ describe('applyLogAction', () => {
     mockGame.options.expansions.risingSun = true;
     mockGame.risingSun.prophecy.suns = 3;
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.REMOVE_PROPHECY,
+      action: GameLogAction.REMOVE_PROPHECY,
       playerIndex: NO_PLAYER,
       id: '1',
       timestamp: new Date(),
@@ -219,7 +219,7 @@ describe('applyLogAction', () => {
 
   it('should handle actions with no count', () => {
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.ADD_ACTIONS,
+      action: GameLogAction.ADD_ACTIONS,
       playerIndex: 0,
       id: '1',
       timestamp: new Date(),
@@ -235,7 +235,7 @@ describe('applyLogAction', () => {
 
   it('should ignore actions with invalid player index', () => {
     const logEntry: ILogEntry = {
-      action: GameLogActionWithCount.ADD_ACTIONS,
+      action: GameLogAction.ADD_ACTIONS,
       playerIndex: 99, // Invalid player index
       count: 2,
       id: '1',
@@ -251,7 +251,7 @@ describe('applyLogAction', () => {
 
   it('should handle unknown action types gracefully', () => {
     const logEntry: ILogEntry = {
-      action: 'UNKNOWN_ACTION' as GameLogActionWithCount,
+      action: 'UNKNOWN_ACTION' as GameLogAction,
       playerIndex: 0,
       count: 1,
       id: '1',
@@ -274,7 +274,7 @@ describe('applyLogAction', () => {
       id: '1',
       playerIndex: 2,
       timestamp: new Date(),
-      action: GameLogActionWithCount.SELECT_PLAYER,
+      action: GameLogAction.SELECT_PLAYER,
       currentPlayerIndex: 2,
       turn: 1,
     };
@@ -292,7 +292,7 @@ describe('applyLogAction', () => {
       id: '1',
       playerIndex: 0,
       timestamp: new Date(),
-      action: GameLogActionWithCount.SELECT_PLAYER,
+      action: GameLogAction.SELECT_PLAYER,
       currentPlayerIndex: 0,
       turn: 1,
     };
@@ -310,7 +310,7 @@ describe('applyLogAction', () => {
       id: '1',
       playerIndex: 0,
       timestamp: new Date(),
-      action: GameLogActionWithCount.ADD_ACTIONS,
+      action: GameLogAction.ADD_ACTIONS,
       count: 1,
       currentPlayerIndex: 0,
       turn: 1,

@@ -8,7 +8,7 @@ import {
   DefaultPlayerColors,
 } from '@/game/constants';
 import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { IGame } from '@/game/interfaces/game';
 import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
@@ -50,7 +50,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
       },
     ],
     currentStep: CurrentStep.GameScreen,
@@ -84,7 +84,7 @@ export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
     playerIndex: faker.number.int({ min: 0, max: 3 }),
     currentPlayerIndex: faker.number.int({ min: 0, max: 3 }),
     turn: faker.number.int({ min: 1, max: 10 }),
-    action: GameLogActionWithCount.ADD_ACTIONS,
+    action: GameLogAction.ADD_ACTIONS,
     count: faker.number.int({ min: 1, max: 5 }),
     correction: false,
     linkedActionId: faker.string.uuid(),

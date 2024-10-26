@@ -1,7 +1,7 @@
 import { restoreSavedGame } from '@/game/dominion-lib-load-save';
 import { IGameRaw } from '@/game/interfaces/game-raw';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { NO_PLAYER } from '@/game/constants';
 import { faker } from '@faker-js/faker';
@@ -23,7 +23,7 @@ describe('restoreSavedGame', () => {
   const saveGameTime = new Date();
   const validLogEntryRaw: ILogEntryRaw = {
     id: faker.string.uuid(),
-    action: GameLogActionWithCount.SAVE_GAME,
+    action: GameLogAction.SAVE_GAME,
     timestamp: saveGameTime.toISOString(),
     playerIndex: NO_PLAYER,
     currentPlayerIndex: 0,

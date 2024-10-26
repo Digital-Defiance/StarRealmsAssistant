@@ -17,7 +17,7 @@ import SuperCapsText from '@/components/SuperCapsText';
 import { calculateVictoryPoints } from '@/game/dominion-lib';
 import { useGameContext } from '@/components/GameContext';
 import { addLogEntry } from '@/game/dominion-lib-log';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 
 const TableText = styled(Typography)(() => ({
@@ -45,7 +45,7 @@ const Scoreboard: React.FC = () => {
       if (prevState.selectedPlayerIndex === index) {
         return prevState;
       }
-      addLogEntry(prevState, index, GameLogActionWithCount.SELECT_PLAYER, {
+      addLogEntry(prevState, index, GameLogAction.SELECT_PLAYER, {
         prevPlayerIndex: prevState.selectedPlayerIndex,
       });
       return { ...prevState, selectedPlayerIndex: index };
@@ -54,6 +54,11 @@ const Scoreboard: React.FC = () => {
 
   const getCurrentPlayerIndex = () => {
     return (gameState.firstPlayerIndex + gameState.currentTurn - 1) % gameState.players.length;
+  };
+
+  const isGamePaused = (): boolean => {
+    const lastLogEntry = gameState.log.length > 0 ? gameState.log[gameState.log.length - 1] : null;
+    return lastLogEntry !== null && lastLogEntry.action === GameLogAction.PAUSE;
   };
 
   return (
@@ -121,6 +126,7 @@ const Scoreboard: React.FC = () => {
                     variant="contained"
                     size="small"
                     onClick={() => handlePlayerSelect(index)}
+                    disabled={isGamePaused()}
                   >
                     <TableText className={`typography-text`}>Select</TableText>
                   </StyledButton>

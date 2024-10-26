@@ -1,5 +1,5 @@
 import { getStartDateFromLog } from '@/game/dominion-lib-log';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { InvalidLogStartGameError } from '../errors/invalid-log-start-game';
@@ -14,7 +14,7 @@ describe('getStartDateFromLog', () => {
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
-          action: GameLogActionWithCount.ADD_ACTIONS,
+          action: GameLogAction.ADD_ACTIONS,
           count: 1,
         },
       ])
@@ -28,7 +28,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
       },
     ];
     const result = getStartDateFromLog(logEntries);
@@ -43,7 +43,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
       },
       {
         id: '2',
@@ -51,7 +51,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 1,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.ADD_COINS,
+        action: GameLogAction.ADD_COINS,
       },
     ];
     const result = getStartDateFromLog(logEntries);
@@ -66,7 +66,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
       },
       {
         id: '2',
@@ -74,7 +74,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 1,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.ADD_COINS,
+        action: GameLogAction.ADD_COINS,
       },
       {
         id: '3',
@@ -82,7 +82,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 2,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.REMOVE_COINS,
+        action: GameLogAction.REMOVE_COINS,
       },
     ];
     const result = getStartDateFromLog(logEntries);
@@ -97,7 +97,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
       },
       {
         id: '2',
@@ -105,7 +105,7 @@ describe('getStartDateFromLog', () => {
         playerIndex: 1,
         currentPlayerIndex: 0,
         turn: 1,
-        action: GameLogActionWithCount.ADD_COINS,
+        action: GameLogAction.ADD_COINS,
       },
     ];
     const result = getStartDateFromLog(logEntries);

@@ -1,6 +1,6 @@
 import { getSignedCount } from '@/game/dominion-lib-log';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { faker } from '@faker-js/faker';
 
 describe('getSignedCount', () => {
@@ -8,7 +8,7 @@ describe('getSignedCount', () => {
     const log: ILogEntry = {
       id: '1',
       timestamp: new Date(),
-      action: GameLogActionWithCount.ADD_ACTIONS,
+      action: GameLogAction.ADD_ACTIONS,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -21,7 +21,7 @@ describe('getSignedCount', () => {
     const log: ILogEntry = {
       id: '2',
       timestamp: new Date(),
-      action: GameLogActionWithCount.REMOVE_ACTIONS,
+      action: GameLogAction.REMOVE_ACTIONS,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -34,7 +34,7 @@ describe('getSignedCount', () => {
     const log: ILogEntry = {
       id: '3',
       timestamp: new Date(),
-      action: GameLogActionWithCount.ADD_ACTIONS,
+      action: GameLogAction.ADD_ACTIONS,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,

@@ -1,4 +1,4 @@
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 
 export interface ILogEntry {
@@ -13,7 +13,7 @@ export interface ILogEntry {
   /**
    * Action that was taken
    */
-  action: GameLogActionWithCount;
+  action: GameLogAction;
   /**
    * Index of the player that took the action
    */

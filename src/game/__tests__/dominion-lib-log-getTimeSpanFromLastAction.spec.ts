@@ -1,6 +1,6 @@
 import { getTimeSpanFromLastAction } from '@/game/dominion-lib-log';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 
 describe('getTimeSpanFromLastAction', () => {
@@ -18,7 +18,7 @@ describe('getTimeSpanFromLastAction', () => {
       createMockLog({
         id: '1',
         timestamp: lastActionTime,
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,

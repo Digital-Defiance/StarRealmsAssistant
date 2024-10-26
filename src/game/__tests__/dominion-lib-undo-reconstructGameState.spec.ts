@@ -1,7 +1,7 @@
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { getNextPlayerIndex, EmptyGameState, newPlayer, NewGameState } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { DefaultTurnDetails, NO_PLAYER } from '@/game/constants';
 import { faker } from '@faker-js/faker';
 import { ILogEntry } from '@/game/interfaces/log-entry';
@@ -36,7 +36,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_COINS,
+          action: GameLogAction.ADD_COINS,
           playerIndex: 0,
           count: 1,
           currentPlayerIndex: 0,
@@ -57,7 +57,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_COINS,
+          action: GameLogAction.ADD_COINS,
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
@@ -66,7 +66,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_ACTIONS,
+          action: GameLogAction.ADD_ACTIONS,
           playerIndex: 1,
           currentPlayerIndex: 0,
           turn: 1,
@@ -89,7 +89,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.NEXT_TURN,
+          action: GameLogAction.NEXT_TURN,
           playerIndex: nextPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
           turn: 2,
@@ -114,7 +114,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_COINS,
+          action: GameLogAction.ADD_COINS,
           playerIndex: baseGame.currentPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
           turn: 1,
@@ -123,7 +123,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.NEXT_TURN,
+          action: GameLogAction.NEXT_TURN,
           playerIndex: nextPlayerIndex,
           playerTurnDetails: [
             { actions: 5, coins: 2, buys: 4 } as IPlayerGameTurnDetails,
@@ -168,7 +168,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.REMOVE_PROPHECY,
+          action: GameLogAction.REMOVE_PROPHECY,
           playerIndex: NO_PLAYER,
           currentPlayerIndex: 0,
           turn: 1,
@@ -189,7 +189,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.REMOVE_COINS,
+          action: GameLogAction.REMOVE_COINS,
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
@@ -222,7 +222,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.REMOVE_PROPHECY,
+          action: GameLogAction.REMOVE_PROPHECY,
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
@@ -243,7 +243,7 @@ describe('reconstructGameState', () => {
         {
           id: mainActionId,
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_COINS,
+          action: GameLogAction.ADD_COINS,
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
@@ -252,7 +252,7 @@ describe('reconstructGameState', () => {
         {
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_ACTIONS,
+          action: GameLogAction.ADD_ACTIONS,
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
@@ -276,7 +276,7 @@ describe('reconstructGameState', () => {
           // player 0 coins to 3
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_COINS,
+          action: GameLogAction.ADD_COINS,
           playerIndex: 1,
           currentPlayerIndex: 1,
           turn: 1,
@@ -287,7 +287,7 @@ describe('reconstructGameState', () => {
           // will reset player 0 coins to 0
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.NEXT_TURN,
+          action: GameLogAction.NEXT_TURN,
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 2,
@@ -298,7 +298,7 @@ describe('reconstructGameState', () => {
           // player 1 actions to 3
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_ACTIONS,
+          action: GameLogAction.ADD_ACTIONS,
           playerIndex: 1,
           currentPlayerIndex: 0,
           turn: 2,
@@ -309,7 +309,7 @@ describe('reconstructGameState', () => {
           // will reset actions to 1
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.NEXT_TURN,
+          action: GameLogAction.NEXT_TURN,
           playerIndex: 1,
           currentPlayerIndex: 1,
           turn: 3,
@@ -320,7 +320,7 @@ describe('reconstructGameState', () => {
           // player 0 buys to 1
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_BUYS,
+          action: GameLogAction.ADD_BUYS,
           playerIndex: 0,
           currentPlayerIndex: 1,
           turn: 3,
@@ -330,7 +330,7 @@ describe('reconstructGameState', () => {
           // player 1 coins to 3
           id: faker.string.uuid(),
           timestamp: new Date(),
-          action: GameLogActionWithCount.ADD_COINS,
+          action: GameLogAction.ADD_COINS,
           playerIndex: 1,
           currentPlayerIndex: 1,
           turn: 3,

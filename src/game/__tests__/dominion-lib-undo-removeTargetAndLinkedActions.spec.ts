@@ -1,7 +1,7 @@
 import { removeTargetAndLinkedActions } from '@/game/dominion-lib-undo-helpers';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 
 describe('removeTargetAndLinkedActions', () => {
@@ -13,7 +13,7 @@ describe('removeTargetAndLinkedActions', () => {
 
   const createLogEntry = (
     id: string,
-    action: GameLogActionWithCount,
+    action: GameLogAction,
     linkedActionId?: string
   ): ILogEntry => ({
     id,
@@ -28,9 +28,9 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should remove the target action when it has no links', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('2', GameLogActionWithCount.ADD_BUYS),
-      createLogEntry('3', GameLogActionWithCount.ADD_COINS),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
+      createLogEntry('2', GameLogAction.ADD_BUYS),
+      createLogEntry('3', GameLogAction.ADD_COINS),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 1);
@@ -42,11 +42,11 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should remove the main action and all its linked actions', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('2', GameLogActionWithCount.ADD_BUYS),
-      createLogEntry('3', GameLogActionWithCount.REMOVE_BUYS, '2'),
-      createLogEntry('4', GameLogActionWithCount.ADD_COINS, '2'),
-      createLogEntry('5', GameLogActionWithCount.ADD_ACTIONS),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
+      createLogEntry('2', GameLogAction.ADD_BUYS),
+      createLogEntry('3', GameLogAction.REMOVE_BUYS, '2'),
+      createLogEntry('4', GameLogAction.ADD_COINS, '2'),
+      createLogEntry('5', GameLogAction.ADD_ACTIONS),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 1);
@@ -58,11 +58,11 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should remove the main action and all linked actions when targeting a linked action', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('2', GameLogActionWithCount.ADD_BUYS),
-      createLogEntry('3', GameLogActionWithCount.REMOVE_BUYS, '2'),
-      createLogEntry('4', GameLogActionWithCount.ADD_COINS, '2'),
-      createLogEntry('5', GameLogActionWithCount.ADD_ACTIONS),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
+      createLogEntry('2', GameLogAction.ADD_BUYS),
+      createLogEntry('3', GameLogAction.REMOVE_BUYS, '2'),
+      createLogEntry('4', GameLogAction.ADD_COINS, '2'),
+      createLogEntry('5', GameLogAction.ADD_ACTIONS),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 3);
@@ -74,8 +74,8 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should handle removing the last action in the log', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('2', GameLogActionWithCount.ADD_BUYS),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
+      createLogEntry('2', GameLogAction.ADD_BUYS),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 1);
@@ -86,8 +86,8 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should handle removing the first action in the log', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('2', GameLogActionWithCount.ADD_BUYS),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
+      createLogEntry('2', GameLogAction.ADD_BUYS),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 0);
@@ -104,8 +104,8 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should handle an invalid index', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('2', GameLogActionWithCount.ADD_BUYS),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
+      createLogEntry('2', GameLogAction.ADD_BUYS),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 5);
@@ -116,13 +116,13 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should handle complex linking scenarios', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('2', GameLogActionWithCount.ADD_BUYS),
-      createLogEntry('3', GameLogActionWithCount.REMOVE_BUYS, '2'),
-      createLogEntry('4', GameLogActionWithCount.ADD_COINS, '2'),
-      createLogEntry('5', GameLogActionWithCount.ADD_ACTIONS),
-      createLogEntry('6', GameLogActionWithCount.REMOVE_ACTIONS, '5'),
-      createLogEntry('7', GameLogActionWithCount.ADD_BUYS, '5'),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
+      createLogEntry('2', GameLogAction.ADD_BUYS),
+      createLogEntry('3', GameLogAction.REMOVE_BUYS, '2'),
+      createLogEntry('4', GameLogAction.ADD_COINS, '2'),
+      createLogEntry('5', GameLogAction.ADD_ACTIONS),
+      createLogEntry('6', GameLogAction.REMOVE_ACTIONS, '5'),
+      createLogEntry('7', GameLogAction.ADD_BUYS, '5'),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 5);
@@ -133,10 +133,10 @@ describe('removeTargetAndLinkedActions', () => {
 
   it('should handle when the main action for a linked action is not found', () => {
     mockGame.log = [
-      createLogEntry('1', GameLogActionWithCount.ADD_ACTIONS),
+      createLogEntry('1', GameLogAction.ADD_ACTIONS),
       // The linkedAction 'non-existent-id' does not exist in the log
-      createLogEntry('2', GameLogActionWithCount.REMOVE_BUYS, 'non-existent-id'),
-      createLogEntry('3', GameLogActionWithCount.ADD_COINS),
+      createLogEntry('2', GameLogAction.REMOVE_BUYS, 'non-existent-id'),
+      createLogEntry('3', GameLogAction.ADD_COINS),
     ];
 
     const result = removeTargetAndLinkedActions(mockGame, 1);

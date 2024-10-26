@@ -1,6 +1,6 @@
 import { calculateDurationUpToEvent } from '@/game/dominion-lib-log';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 
 describe('calculateDurationUpToEvent', () => {
@@ -18,7 +18,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '1',
         timestamp: startGameTime,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -35,7 +35,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '1',
         timestamp: startGameTime,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -44,7 +44,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '2',
         timestamp: new Date('2021-01-01T09:15:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -52,7 +52,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '3',
         timestamp: new Date('2021-01-01T09:30:00Z'),
-        action: GameLogActionWithCount.LOAD_GAME,
+        action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -61,7 +61,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '4',
         timestamp: new Date('2021-01-01T10:15:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -80,7 +80,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '1',
         timestamp: startGameTime,
-        action: GameLogActionWithCount.START_GAME,
+        action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -89,7 +89,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '2',
         timestamp: new Date('2021-01-01T09:15:00Z'),
-        action: GameLogActionWithCount.SAVE_GAME,
+        action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,

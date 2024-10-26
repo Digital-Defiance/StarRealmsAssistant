@@ -1,6 +1,6 @@
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { faker } from '@faker-js/faker';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { logEntryToString } from '@/game/dominion-lib-log';
 
 describe('logEntryToString', () => {
@@ -11,7 +11,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
       count: 5,
     };
     expect(logEntryToString(logEntry)).toBe('Added 5 Coins');
@@ -24,7 +24,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
       count: 5,
     };
     expect(logEntryToString(logEntry)).toBe('Added 5 Coins');
@@ -37,7 +37,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
   });
@@ -49,7 +49,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
   });
@@ -61,7 +61,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
       count: 3,
     };
     expect(logEntryToString(logEntry)).toBe('Added 3 Coins');
@@ -74,7 +74,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
       count: undefined,
     };
     expect(logEntryToString(logEntry)).toBe('Added Coins');
@@ -87,7 +87,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
       count: 2,
       correction: true,
     };
@@ -101,7 +101,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
       count: 4,
       linkedActionId: 'some-linked-action-id',
     };
@@ -115,7 +115,7 @@ describe('logEntryToString', () => {
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
-      action: GameLogActionWithCount.ADD_COINS,
+      action: GameLogAction.ADD_COINS,
       count: 6,
       correction: true,
       linkedActionId: 'some-linked-action-id',
