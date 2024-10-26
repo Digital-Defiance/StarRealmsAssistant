@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Oct 26 14:01:00 2024
+
+- Version 0.3.0
+  - Added load/save game functionality
+
 ### Fri Oct 25 16:31:00 2024
 
 - Version 0.2.0

@@ -7,7 +7,7 @@ import { IVictoryDetails } from '@/game/interfaces/victory-details';
 import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
 
-export const VERSION_NUMBER = '0.2.0';
+export const VERSION_NUMBER = '0.3.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
