@@ -4,7 +4,7 @@ import { IStorageService } from '@/game/interfaces/storage-service';
 import { NO_PLAYER, SaveGameStorageKeyPrefix } from '@/game/constants';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { faker } from '@faker-js/faker';
 
@@ -63,7 +63,7 @@ describe('loadGame', () => {
       log: [
         {
           id: id,
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           timestamp: new Date(),
           playerIndex: 0,
           currentPlayerIndex: 0,
@@ -87,7 +87,7 @@ describe('loadGame', () => {
       log: [
         {
           id: faker.string.uuid(),
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           timestamp: new Date(),
           playerIndex: 0,
           currentPlayerIndex: 0,
@@ -95,7 +95,7 @@ describe('loadGame', () => {
         },
         {
           id: saveGameLogId,
-          action: GameLogActionWithCount.SAVE_GAME,
+          action: GameLogAction.SAVE_GAME,
           timestamp: new Date(),
           playerIndex: NO_PLAYER,
           currentPlayerIndex: 0,
@@ -117,7 +117,7 @@ describe('loadGame', () => {
           playerIndex: NO_PLAYER,
           currentPlayerIndex: 0,
           turn: 1,
-          action: GameLogActionWithCount.LOAD_GAME,
+          action: GameLogAction.LOAD_GAME,
           linkedActionId: saveGameLogId,
         },
       ],

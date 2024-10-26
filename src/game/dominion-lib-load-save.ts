@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ISavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 import { ISavedGameMetadataRaw } from '@/game/interfaces/saved-game-metadata-raw';
 import { EmptyLogError } from '@/game/errors/empty-log';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
 import { NO_PLAYER, SaveGameStorageKey, SaveGameStorageKeyPrefix } from '@/game/constants';
 import { addLogEntry } from '@/game/dominion-lib-log';
@@ -49,8 +49,22 @@ export function saveGame(
   storageService: IStorageService,
   existingId?: string
 ): boolean {
-  // add the SAVE_GAME log entry
-  addLogEntry(game, NO_PLAYER, GameLogActionWithCount.SAVE_GAME);
+  if (game.log.length === 0) {
+    throw new EmptyLogError();
+  }
+  const lastLog = game.log[game.log.length - 1];
+  const isPaused = lastLog.action === GameLogAction.PAUSE;
+  if (isPaused) {
+    // remove the PAUSE log entry
+    game.log.pop();
+    // insert the new SAVE_GAME log entry before the PAUSE entry
+    addLogEntry(game, NO_PLAYER, GameLogAction.SAVE_GAME, { timestamp: lastLog.timestamp });
+    // add the PAUSE log entry back after the new SAVE_GAME log entry
+    game.log.push(lastLog);
+  } else {
+    // add the SAVE_GAME log entry normally
+    addLogEntry(game, NO_PLAYER, GameLogAction.SAVE_GAME);
+  }
   try {
     const saveId = saveGameData(game, storageService, existingId);
     addToSavedGamesList(
@@ -266,11 +280,20 @@ export function loadGameAddLog(gameState: IGame): IGame {
   if (gameState.log.length === 0) {
     throw new EmptyLogError();
   }
-  const savedGameLog = gameState.log[gameState.log.length - 1];
-  if (savedGameLog.action !== GameLogActionWithCount.SAVE_GAME) {
+  let savedGameLog = gameState.log[gameState.log.length - 1];
+  // special case, if the last log entry is a PAUSE, then we need to remove the PAUSE log entry
+  // the save entry will have the time of the pause, so the game time calculations will still be correct
+  if (savedGameLog.action === GameLogAction.PAUSE) {
+    gameState.log.pop();
+    if (gameState.log.length === 0) {
+      throw new EmptyLogError();
+    }
+    savedGameLog = gameState.log[gameState.log.length - 1];
+  }
+  if (savedGameLog.action !== GameLogAction.SAVE_GAME) {
     throw new InvalidLogSaveGameError();
   }
-  addLogEntry(gameState, NO_PLAYER, GameLogActionWithCount.LOAD_GAME, {
+  addLogEntry(gameState, NO_PLAYER, GameLogAction.LOAD_GAME, {
     linkedActionId: savedGameLog.id,
   });
   return gameState;

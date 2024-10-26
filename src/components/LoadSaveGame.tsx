@@ -158,6 +158,10 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
+  const isGameActive = gameState.currentStep === CurrentStep.GameScreen;
+  const isGameOver = gameState.currentStep === CurrentStep.EndGame;
+  const canSave = isGameActive || isGameOver;
+
   return (
     <Box sx={{ p: 2 }}>
       <Typography variant="h5" gutterBottom>
@@ -168,10 +172,15 @@ const LoadSaveGame: React.FC = () => {
           value={saveName}
           onChange={(e) => setSaveName(e.target.value)}
           placeholder="Enter save name"
+          disabled={!canSave}
           fullWidth
           sx={{ mr: 1 }}
         />
-        <IconButton onClick={handleSaveGame} color="primary" disabled={!gameState || !saveName}>
+        <IconButton
+          onClick={handleSaveGame}
+          color="primary"
+          disabled={!gameState || !saveName || !canSave}
+        >
           <SaveIcon />
         </IconButton>
       </Box>

@@ -1,7 +1,7 @@
 import { safeParseSavedGame } from '@/game/dominion-lib-load-save';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 
 describe('safeParseSavedGame', () => {
   let consoleErrorSpy: jest.SpyInstance;
@@ -26,7 +26,7 @@ describe('safeParseSavedGame', () => {
 
     expect(result.log).toHaveLength(1);
     expect(result.log[0].id).toBe(mockGame.log[0].id);
-    expect(result.log[0].action).toBe(GameLogActionWithCount.START_GAME);
+    expect(result.log[0].action).toBe(GameLogAction.START_GAME);
     expect(consoleErrorSpy).not.toHaveBeenCalled(); // No error should be logged
   });
 

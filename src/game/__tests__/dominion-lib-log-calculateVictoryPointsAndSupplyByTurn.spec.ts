@@ -1,6 +1,6 @@
 import { calculateVictoryPointsAndSupplyByTurn } from '@/game/dominion-lib-log';
 import { IGameSupply } from '@/game/interfaces/game-supply';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { IGame } from '@/game/interfaces/game';
 
@@ -18,7 +18,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '2',
         timestamp: new Date(),
-        action: GameLogActionWithCount.ADD_ESTATES,
+        action: GameLogAction.ADD_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -27,7 +27,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '3',
         timestamp: new Date(),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -53,7 +53,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '2',
         timestamp: new Date(),
-        action: GameLogActionWithCount.REMOVE_ESTATES,
+        action: GameLogAction.REMOVE_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -63,7 +63,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '3',
         timestamp: new Date(),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -88,7 +88,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '2',
         timestamp: new Date(),
-        action: GameLogActionWithCount.ADD_ESTATES,
+        action: GameLogAction.ADD_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -97,7 +97,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '3',
         timestamp: new Date(),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -106,7 +106,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '4',
         timestamp: new Date(),
-        action: GameLogActionWithCount.ADD_DUCHIES,
+        action: GameLogAction.ADD_DUCHIES,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -115,7 +115,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '4',
         timestamp: new Date(),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
         prevPlayerIndex: 1,
@@ -150,7 +150,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '2',
         timestamp: new Date(),
-        action: GameLogActionWithCount.ADD_ESTATES,
+        action: GameLogAction.ADD_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -159,7 +159,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '3',
         timestamp: new Date(),
-        action: GameLogActionWithCount.ADD_VP_TOKENS,
+        action: GameLogAction.ADD_VP_TOKENS,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -168,7 +168,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       {
         id: '4',
         timestamp: new Date(),
-        action: GameLogActionWithCount.NEXT_TURN,
+        action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 3,

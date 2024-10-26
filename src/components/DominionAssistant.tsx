@@ -4,7 +4,7 @@ import SelectFirstPlayer from '@/components/SelectFirstPlayer';
 import SetGameOptions from '@/components/SetGameOptions';
 import GameScreen from '@/components/GameScreen';
 import EndGame from '@/components/EndGame';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { useGameContext } from '@/components/GameContext';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { NO_PLAYER, StepTransitions } from '@/game/constants';
@@ -68,7 +68,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   const nextTurn = () => {
     setGameState((prevGame: IGame) => {
       const nextPlayerIndex = getNextPlayerIndex(prevGame);
-      addLogEntry(prevGame, nextPlayerIndex, GameLogActionWithCount.NEXT_TURN, {
+      addLogEntry(prevGame, nextPlayerIndex, GameLogAction.NEXT_TURN, {
         currentPlayerIndex: nextPlayerIndex,
         playerTurnDetails: gameState.players.map((player) => player.turn),
         prevPlayerIndex: gameState.currentPlayerIndex,
@@ -81,7 +81,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
 
   const endGame = () => {
     setGameState((prevState: IGame) => {
-      addLogEntry(prevState, NO_PLAYER, GameLogActionWithCount.END_GAME, {
+      addLogEntry(prevState, NO_PLAYER, GameLogAction.END_GAME, {
         prevPlayerIndex: gameState.currentPlayerIndex,
       });
 

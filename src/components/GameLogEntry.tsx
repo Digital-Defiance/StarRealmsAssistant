@@ -27,7 +27,7 @@ import {
   formatTimeSpan,
   logEntryToString,
 } from '@/game/dominion-lib-log';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
 
@@ -89,13 +89,12 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
 
   const relevantPlayer = entry.playerIndex > -1 ? gameState.players[entry.playerIndex] : undefined;
   const isActivePlayer = entry.playerIndex === entry.currentPlayerIndex;
-  const isNewTurn = entry.action === GameLogActionWithCount.NEXT_TURN;
+  const isNewTurn = entry.action === GameLogAction.NEXT_TURN;
   const isAttributeChange = AdjustmentActions.includes(entry.action);
   const isAttributeChangeOutOfTurn = isAttributeChange && !isActivePlayer;
-  const isNotTriggeredByPlayer = [
-    GameLogActionWithCount.SELECT_PLAYER,
-    GameLogActionWithCount.NEXT_TURN,
-  ].includes(entry.action);
+  const isNotTriggeredByPlayer = [GameLogAction.SELECT_PLAYER, GameLogAction.NEXT_TURN].includes(
+    entry.action
+  );
 
   if (entry.playerIndex > -1 && !gameState.players[entry.playerIndex]) {
     console.warn(`Player not found for index ${entry.playerIndex}`, {
@@ -145,9 +144,8 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
               {isNotTriggeredByPlayer && relevantPlayer !== undefined && (
                 <ColoredPlayerName player={relevantPlayer} marginDirection="left" />
               )}
-              {[GameLogActionWithCount.START_GAME, GameLogActionWithCount.NEXT_TURN].includes(
-                entry.action
-              ) && `\u00A0(\u00A0${entry.turn}\u00A0)`}
+              {[GameLogAction.START_GAME, GameLogAction.NEXT_TURN].includes(entry.action) &&
+                `\u00A0(\u00A0${entry.turn}\u00A0)`}
               {entry.trash === true && (
                 <Tooltip title="The card was trashed" arrow>
                   <DeleteIcon

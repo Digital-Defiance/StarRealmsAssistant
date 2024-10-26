@@ -1,5 +1,5 @@
 import { loadGameAddLog } from '@/game/dominion-lib-load-save';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
 import { NO_PLAYER } from '@/game/constants';
@@ -13,13 +13,13 @@ describe('loadGameAddLog', () => {
         {
           id: 'start',
           playerIndex: 0,
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
-          action: GameLogActionWithCount.SAVE_GAME,
+          action: GameLogAction.SAVE_GAME,
           timestamp: new Date(),
         } as ILogEntry,
       ],
@@ -29,7 +29,7 @@ describe('loadGameAddLog', () => {
 
     expect(result.log).toHaveLength(3);
     expect(result.log[2]).toMatchObject({
-      action: GameLogActionWithCount.LOAD_GAME,
+      action: GameLogAction.LOAD_GAME,
       playerIndex: NO_PLAYER,
       linkedActionId: 'save',
     });
@@ -47,13 +47,13 @@ describe('loadGameAddLog', () => {
         {
           id: 'start',
           playerIndex: 0,
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
         {
           id: 'turn',
           playerIndex: NO_PLAYER,
-          action: GameLogActionWithCount.NEXT_TURN,
+          action: GameLogAction.NEXT_TURN,
           timestamp: new Date(),
         } as ILogEntry,
       ],
@@ -68,25 +68,25 @@ describe('loadGameAddLog', () => {
         {
           id: 'start',
           playerIndex: 0,
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
         {
           id: 'save1',
           playerIndex: NO_PLAYER,
-          action: GameLogActionWithCount.SAVE_GAME,
+          action: GameLogAction.SAVE_GAME,
           timestamp: new Date(),
         } as ILogEntry,
         {
           id: 'turn',
           playerIndex: NO_PLAYER,
-          action: GameLogActionWithCount.NEXT_TURN,
+          action: GameLogAction.NEXT_TURN,
           timestamp: new Date(),
         } as ILogEntry,
         {
           id: 'save2',
           playerIndex: NO_PLAYER,
-          action: GameLogActionWithCount.SAVE_GAME,
+          action: GameLogAction.SAVE_GAME,
           timestamp: new Date(),
         } as ILogEntry,
       ],
@@ -96,7 +96,7 @@ describe('loadGameAddLog', () => {
 
     expect(result.log).toHaveLength(5);
     expect(result.log[4]).toMatchObject({
-      action: GameLogActionWithCount.LOAD_GAME,
+      action: GameLogAction.LOAD_GAME,
       playerIndex: NO_PLAYER,
       linkedActionId: 'save2',
     });
@@ -108,13 +108,13 @@ describe('loadGameAddLog', () => {
         {
           id: 'start',
           playerIndex: 0,
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
-          action: GameLogActionWithCount.SAVE_GAME,
+          action: GameLogAction.SAVE_GAME,
           timestamp: new Date(),
         } as ILogEntry,
       ],
@@ -126,9 +126,7 @@ describe('loadGameAddLog', () => {
 
     expect(result).toMatchObject({
       ...mockGame,
-      log: expect.arrayContaining([
-        expect.objectContaining({ action: GameLogActionWithCount.LOAD_GAME }),
-      ]),
+      log: expect.arrayContaining([expect.objectContaining({ action: GameLogAction.LOAD_GAME })]),
     });
     expect(result.currentTurn).toBe(5);
     expect(result.currentPlayerIndex).toBe(2);
@@ -140,13 +138,13 @@ describe('loadGameAddLog', () => {
         {
           id: 'start',
           playerIndex: 0,
-          action: GameLogActionWithCount.START_GAME,
+          action: GameLogAction.START_GAME,
           timestamp: new Date(),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
-          action: GameLogActionWithCount.SAVE_GAME,
+          action: GameLogAction.SAVE_GAME,
           timestamp: new Date(),
         } as ILogEntry,
       ],
@@ -157,5 +155,96 @@ describe('loadGameAddLog', () => {
     expect(result.log[2].id).toBeDefined();
     expect(result.log[2].id).not.toBe('start');
     expect(result.log[2].id).not.toBe('save');
+  });
+
+  it('should remove the PAUSE log entry if it is the last entry', () => {
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: 0,
+          action: GameLogAction.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'save',
+          playerIndex: NO_PLAYER,
+          action: GameLogAction.SAVE_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'pause',
+          playerIndex: NO_PLAYER,
+          action: GameLogAction.PAUSE,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
+
+    const result = loadGameAddLog(mockGame);
+
+    expect(result.log.length).toBe(3);
+    expect(result.log[2].action).toBe(GameLogAction.LOAD_GAME);
+    expect(result.log).not.toContainEqual(expect.objectContaining({ action: GameLogAction.PAUSE }));
+  });
+
+  it('should throw an error if the last log entry is not SAVE_GAME after removing PAUSE', () => {
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: 0,
+          action: GameLogAction.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'pause',
+          playerIndex: NO_PLAYER,
+          action: GameLogAction.PAUSE,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
+
+    expect(() => loadGameAddLog(mockGame)).toThrow('The last log entry is not a SAVE_GAME event.');
+  });
+
+  it('should handle the case where the last log entry is SAVE_GAME', () => {
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'start',
+          playerIndex: 0,
+          action: GameLogAction.START_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+        {
+          id: 'save',
+          playerIndex: NO_PLAYER,
+          action: GameLogAction.SAVE_GAME,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
+
+    const result = loadGameAddLog(mockGame);
+
+    expect(result.log.length).toBe(3);
+    expect(result.log[2].action).toBe(GameLogAction.LOAD_GAME);
+  });
+
+  it('should throw empty log if the only entry is a PAUSE entry', () => {
+    const mockGame = createMockGame(2, {
+      log: [
+        {
+          id: 'pause',
+          playerIndex: NO_PLAYER,
+          action: GameLogAction.PAUSE,
+          timestamp: new Date(),
+        } as ILogEntry,
+      ],
+    });
+
+    expect(() => loadGameAddLog(mockGame)).toThrow(EmptyLogError);
   });
 });

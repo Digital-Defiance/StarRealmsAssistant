@@ -1,5 +1,5 @@
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { GameLogActionWithCount } from '@/game/enumerations/game-log-action-with-count';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGameSupply } from '@/game/interfaces/game-supply';
 import { IMatDetails } from '@/game/interfaces/mat-details';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
@@ -115,79 +115,81 @@ export const EmptyVictoryDetails: IVictoryDetails = {
  * A list of actions that do not affect player state.
  */
 export const NoPlayerActions = [
-  GameLogActionWithCount.END_GAME,
-  GameLogActionWithCount.SAVE_GAME,
-  GameLogActionWithCount.LOAD_GAME,
+  GameLogAction.END_GAME,
+  GameLogAction.SAVE_GAME,
+  GameLogAction.LOAD_GAME,
+  GameLogAction.PAUSE,
+  GameLogAction.UNPAUSE,
 ];
 
 export const AdjustmentActions = [
   // turn actions
-  GameLogActionWithCount.ADD_ACTIONS,
-  GameLogActionWithCount.REMOVE_ACTIONS,
-  GameLogActionWithCount.ADD_COINS,
-  GameLogActionWithCount.REMOVE_COINS,
-  GameLogActionWithCount.ADD_BUYS,
-  GameLogActionWithCount.REMOVE_BUYS,
+  GameLogAction.ADD_ACTIONS,
+  GameLogAction.REMOVE_ACTIONS,
+  GameLogAction.ADD_COINS,
+  GameLogAction.REMOVE_COINS,
+  GameLogAction.ADD_BUYS,
+  GameLogAction.REMOVE_BUYS,
   // mats
-  GameLogActionWithCount.ADD_COFFERS,
-  GameLogActionWithCount.REMOVE_COFFERS,
-  GameLogActionWithCount.ADD_VILLAGERS,
-  GameLogActionWithCount.REMOVE_VILLAGERS,
-  GameLogActionWithCount.ADD_DEBT,
-  GameLogActionWithCount.REMOVE_DEBT,
-  GameLogActionWithCount.ADD_FAVORS,
-  GameLogActionWithCount.REMOVE_FAVORS,
+  GameLogAction.ADD_COFFERS,
+  GameLogAction.REMOVE_COFFERS,
+  GameLogAction.ADD_VILLAGERS,
+  GameLogAction.REMOVE_VILLAGERS,
+  GameLogAction.ADD_DEBT,
+  GameLogAction.REMOVE_DEBT,
+  GameLogAction.ADD_FAVORS,
+  GameLogAction.REMOVE_FAVORS,
   // global mats
-  GameLogActionWithCount.ADD_PROPHECY,
-  GameLogActionWithCount.REMOVE_PROPHECY,
+  GameLogAction.ADD_PROPHECY,
+  GameLogAction.REMOVE_PROPHECY,
   // victory points
-  GameLogActionWithCount.ADD_ESTATES,
-  GameLogActionWithCount.REMOVE_ESTATES,
-  GameLogActionWithCount.ADD_DUCHIES,
-  GameLogActionWithCount.REMOVE_DUCHIES,
-  GameLogActionWithCount.ADD_PROVINCES,
-  GameLogActionWithCount.REMOVE_PROVINCES,
-  GameLogActionWithCount.ADD_COLONIES,
-  GameLogActionWithCount.REMOVE_COLONIES,
-  GameLogActionWithCount.ADD_VP_TOKENS,
-  GameLogActionWithCount.REMOVE_VP_TOKENS,
-  GameLogActionWithCount.ADD_OTHER_VP,
-  GameLogActionWithCount.REMOVE_OTHER_VP,
-  GameLogActionWithCount.ADD_CURSES,
-  GameLogActionWithCount.REMOVE_CURSES,
+  GameLogAction.ADD_ESTATES,
+  GameLogAction.REMOVE_ESTATES,
+  GameLogAction.ADD_DUCHIES,
+  GameLogAction.REMOVE_DUCHIES,
+  GameLogAction.ADD_PROVINCES,
+  GameLogAction.REMOVE_PROVINCES,
+  GameLogAction.ADD_COLONIES,
+  GameLogAction.REMOVE_COLONIES,
+  GameLogAction.ADD_VP_TOKENS,
+  GameLogAction.REMOVE_VP_TOKENS,
+  GameLogAction.ADD_OTHER_VP,
+  GameLogAction.REMOVE_OTHER_VP,
+  GameLogAction.ADD_CURSES,
+  GameLogAction.REMOVE_CURSES,
   // next turn actions
-  GameLogActionWithCount.ADD_NEXT_TURN_ACTIONS,
-  GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS,
-  GameLogActionWithCount.ADD_NEXT_TURN_BUYS,
-  GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS,
-  GameLogActionWithCount.ADD_NEXT_TURN_COINS,
-  GameLogActionWithCount.REMOVE_NEXT_TURN_COINS,
+  GameLogAction.ADD_NEXT_TURN_ACTIONS,
+  GameLogAction.REMOVE_NEXT_TURN_ACTIONS,
+  GameLogAction.ADD_NEXT_TURN_BUYS,
+  GameLogAction.REMOVE_NEXT_TURN_BUYS,
+  GameLogAction.ADD_NEXT_TURN_COINS,
+  GameLogAction.REMOVE_NEXT_TURN_COINS,
 ];
 
 export const NegativeAdjustmentActions = [
   // turn actions
-  GameLogActionWithCount.REMOVE_ACTIONS,
-  GameLogActionWithCount.REMOVE_COINS,
-  GameLogActionWithCount.REMOVE_BUYS,
+  GameLogAction.REMOVE_ACTIONS,
+  GameLogAction.REMOVE_COINS,
+  GameLogAction.REMOVE_BUYS,
   // mats
-  GameLogActionWithCount.REMOVE_COFFERS,
-  GameLogActionWithCount.REMOVE_VILLAGERS,
-  GameLogActionWithCount.REMOVE_DEBT,
-  GameLogActionWithCount.REMOVE_FAVORS,
+  GameLogAction.REMOVE_COFFERS,
+  GameLogAction.REMOVE_VILLAGERS,
+  GameLogAction.REMOVE_DEBT,
+  GameLogAction.REMOVE_FAVORS,
   // global mats
-  GameLogActionWithCount.REMOVE_PROPHECY,
+  GameLogAction.REMOVE_PROPHECY,
   // victory points
-  GameLogActionWithCount.REMOVE_ESTATES,
-  GameLogActionWithCount.REMOVE_DUCHIES,
-  GameLogActionWithCount.REMOVE_PROVINCES,
-  GameLogActionWithCount.REMOVE_COLONIES,
-  GameLogActionWithCount.REMOVE_VP_TOKENS,
-  GameLogActionWithCount.REMOVE_OTHER_VP,
-  GameLogActionWithCount.REMOVE_CURSES,
+  GameLogAction.REMOVE_ESTATES,
+  GameLogAction.REMOVE_DUCHIES,
+  GameLogAction.REMOVE_PROVINCES,
+  GameLogAction.REMOVE_COLONIES,
+  GameLogAction.REMOVE_VP_TOKENS,
+  GameLogAction.REMOVE_OTHER_VP,
+  GameLogAction.REMOVE_CURSES,
   // next turn actions
-  GameLogActionWithCount.REMOVE_NEXT_TURN_ACTIONS,
-  GameLogActionWithCount.REMOVE_NEXT_TURN_BUYS,
-  GameLogActionWithCount.REMOVE_NEXT_TURN_COINS,
+  GameLogAction.REMOVE_NEXT_TURN_ACTIONS,
+  GameLogAction.REMOVE_NEXT_TURN_BUYS,
+  GameLogAction.REMOVE_NEXT_TURN_COINS,
 ];
 
 /**
@@ -195,23 +197,20 @@ export const NegativeAdjustmentActions = [
  */
 export const ActionsWithPlayer = [
   ...AdjustmentActions,
-  GameLogActionWithCount.START_GAME,
-  GameLogActionWithCount.NEXT_TURN,
-  GameLogActionWithCount.SELECT_PLAYER,
+  GameLogAction.START_GAME,
+  GameLogAction.NEXT_TURN,
+  GameLogAction.SELECT_PLAYER,
 ];
 
 /**
  * Actions that can only be undone if they are the last action in the game log.
  */
-export const ActionsWithOnlyLastActionUndo = [
-  GameLogActionWithCount.SELECT_PLAYER,
-  GameLogActionWithCount.NEXT_TURN,
-];
+export const ActionsWithOnlyLastActionUndo = [GameLogAction.SELECT_PLAYER, GameLogAction.NEXT_TURN];
 
 /**
  * Actions that cannot be undone.
  */
-export const NoUndoActions = [...NoPlayerActions, GameLogActionWithCount.START_GAME];
+export const NoUndoActions = [...NoPlayerActions, GameLogAction.START_GAME];
 
 export const StepTransitions: Record<CurrentStep, CurrentStep> = {
   [CurrentStep.AddPlayerNames]: CurrentStep.SelectFirstPlayer,
