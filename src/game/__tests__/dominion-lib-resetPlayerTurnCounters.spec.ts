@@ -22,7 +22,7 @@ describe('resetPlayerTurnCounters', () => {
     color: DefaultPlayerColors[0],
     mats: EmptyMatDetails(),
     turn: { ...DefaultTurnDetails(), ...deepClone<IPlayerGameTurnDetails>(turn) },
-    newTurn: { ...DefaultTurnDetails(), ...newTurn },
+    newTurn: { ...DefaultTurnDetails(), ...deepClone<IPlayerGameTurnDetails>(newTurn) },
     victory: EmptyVictoryDetails(),
   });
 
@@ -55,20 +55,20 @@ describe('resetPlayerTurnCounters', () => {
     const initialGame = createMockGame([
       createMockPlayer(
         'Player 1',
-        { actions: 0, buys: 0, coins: 0 },
-        { actions: 1, buys: 1, coins: 0 }
+        { actions: 0, buys: 0, coins: 0, cards: 5 },
+        { actions: 1, buys: 1, coins: 0, cards: 5 }
       ),
       createMockPlayer(
         'Player 2',
-        { actions: 2, buys: 1, coins: 3 },
-        { actions: 1, buys: 1, coins: 0 }
+        { actions: 2, buys: 1, coins: 3, cards: 5 },
+        { actions: 1, buys: 1, coins: 0, cards: 5 }
       ),
     ]);
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
-    expect(updatedGame.players[0].turn).toEqual({ actions: 1, buys: 1, coins: 0 });
-    expect(updatedGame.players[1].turn).toEqual({ actions: 1, buys: 1, coins: 0 });
+    expect(updatedGame.players[0].turn).toEqual({ actions: 1, buys: 1, coins: 0, cards: 5 });
+    expect(updatedGame.players[1].turn).toEqual({ actions: 1, buys: 1, coins: 0, cards: 5 });
   });
 
   it('should handle an empty player array', () => {
@@ -83,8 +83,8 @@ describe('resetPlayerTurnCounters', () => {
     const initialGame = createMockGame([
       createMockPlayer(
         'Player 1',
-        { actions: 0, buys: 0, coins: 0 },
-        { actions: 1, buys: 1, coins: 0 }
+        { actions: 0, buys: 0, coins: 0, cards: 5 },
+        { actions: 1, buys: 1, coins: 0, cards: 5 }
       ),
     ]);
     initialGame.players[0].victory = { ...EmptyVictoryDetails(), estates: 3 };
@@ -110,6 +110,7 @@ describe('resetPlayerTurnCounters', () => {
       actions: 1,
       buys: 1,
       coins: 0,
+      cards: 5,
     });
   });
 
@@ -117,8 +118,8 @@ describe('resetPlayerTurnCounters', () => {
     const initialGame = createMockGame([
       createMockPlayer(
         'Player 1',
-        { actions: 0, buys: 0, coins: 0 },
-        { actions: 1, buys: 1, coins: 0 }
+        { actions: 0, buys: 0, coins: 0, cards: 5 },
+        { actions: 1, buys: 1, coins: 0, cards: 5 }
       ),
     ]);
 
@@ -128,6 +129,6 @@ describe('resetPlayerTurnCounters', () => {
     expect(updatedGame.players).not.toBe(initialGame.players);
     expect(updatedGame.players[0]).not.toBe(initialGame.players[0]);
     expect(updatedGame.players[0].turn).not.toBe(initialGame.players[0].turn);
-    expect(initialGame.players[0].turn).toEqual({ actions: 0, buys: 0, coins: 0 });
+    expect(initialGame.players[0].turn).toEqual({ actions: 0, buys: 0, coins: 0, cards: 5 });
   });
 });

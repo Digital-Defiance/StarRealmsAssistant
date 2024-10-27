@@ -293,6 +293,9 @@ export function getFieldAndSubfieldFromAction(action: GameLogAction): {
     case GameLogAction.ADD_COINS:
     case GameLogAction.REMOVE_COINS:
       return { field: 'turn', subfield: 'coins' };
+    case GameLogAction.ADD_CARDS:
+    case GameLogAction.REMOVE_CARDS:
+      return { field: 'turn', subfield: 'cards' };
     case GameLogAction.ADD_COFFERS:
     case GameLogAction.REMOVE_COFFERS:
       return { field: 'mats', subfield: 'coffers' };
@@ -335,6 +338,9 @@ export function getFieldAndSubfieldFromAction(action: GameLogAction): {
     case GameLogAction.ADD_NEXT_TURN_COINS:
     case GameLogAction.REMOVE_NEXT_TURN_COINS:
       return { field: 'newTurn', subfield: 'coins' };
+    case GameLogAction.ADD_NEXT_TURN_CARDS:
+    case GameLogAction.REMOVE_NEXT_TURN_CARDS:
+      return { field: 'newTurn', subfield: 'cards' };
     default:
       return { field: null, subfield: null };
   }

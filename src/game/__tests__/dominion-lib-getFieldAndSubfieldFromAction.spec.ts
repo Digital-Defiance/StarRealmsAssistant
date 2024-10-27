@@ -10,6 +10,8 @@ describe('getFieldAndSubfieldFromAction', () => {
     [GameLogAction.REMOVE_BUYS, 'turn', 'buys'],
     [GameLogAction.ADD_COINS, 'turn', 'coins'],
     [GameLogAction.REMOVE_COINS, 'turn', 'coins'],
+    [GameLogAction.ADD_CARDS, 'turn', 'cards'],
+    [GameLogAction.REMOVE_CARDS, 'turn', 'cards'],
   ])(
     'should return correct field and subfield for %s',
     (action, expectedField, expectedSubfield) => {
@@ -68,6 +70,8 @@ describe('getFieldAndSubfieldFromAction', () => {
     [GameLogAction.REMOVE_NEXT_TURN_BUYS, 'newTurn', 'buys'],
     [GameLogAction.ADD_NEXT_TURN_COINS, 'newTurn', 'coins'],
     [GameLogAction.REMOVE_NEXT_TURN_COINS, 'newTurn', 'coins'],
+    [GameLogAction.ADD_NEXT_TURN_CARDS, 'newTurn', 'cards'],
+    [GameLogAction.REMOVE_NEXT_TURN_CARDS, 'newTurn', 'cards'],
   ])(
     'should return correct field and subfield for %s',
     (action, expectedField, expectedSubfield) => {

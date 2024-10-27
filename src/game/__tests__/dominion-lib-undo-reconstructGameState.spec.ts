@@ -126,8 +126,8 @@ describe('reconstructGameState', () => {
           action: GameLogAction.NEXT_TURN,
           playerIndex: nextPlayerIndex,
           playerTurnDetails: [
-            { actions: 5, coins: 2, buys: 4 } as IPlayerGameTurnDetails,
-            { ...DefaultTurnDetails() },
+            { actions: 5, coins: 2, buys: 4, cards: 5 } as IPlayerGameTurnDetails,
+            DefaultTurnDetails(),
           ],
           prevPlayerIndex: baseGame.currentPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
@@ -346,11 +346,13 @@ describe('reconstructGameState', () => {
       actions: 1,
       coins: 0,
       buys: 2,
+      cards: 5,
     });
     expect(result.players[1].turn).toStrictEqual({
       actions: 1,
       coins: 3,
       buys: 1,
+      cards: 5,
     });
   });
 });

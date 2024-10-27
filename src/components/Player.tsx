@@ -328,6 +328,12 @@ const Player: React.FC = () => {
                 onIncrement={() => handleFieldChange('turn', 'coins', 1)}
                 onDecrement={() => handleFieldChange('turn', 'coins', -1)}
               />
+              <IncrementDecrementControl
+                label="Cards"
+                value={player.turn.cards}
+                onIncrement={() => handleFieldChange('turn', 'cards', 1)}
+                onDecrement={() => handleFieldChange('turn', 'cards', -1)}
+              />
             </ColumnBox>
             {(showMats || showGlobalMats) && (
               <ColumnBox>
@@ -504,6 +510,12 @@ const Player: React.FC = () => {
               value={player.newTurn.coins}
               onIncrement={() => handleFieldChange('newTurn', 'coins', 1)}
               onDecrement={() => handleFieldChange('newTurn', 'coins', -1)}
+            />
+            <IncrementDecrementControl
+              label="Cards"
+              value={player.newTurn.cards}
+              onIncrement={() => handleFieldChange('newTurn', 'cards', 1)}
+              onDecrement={() => handleFieldChange('newTurn', 'cards', -1)}
             />
           </Box>
         </Popover>

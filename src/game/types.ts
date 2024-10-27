@@ -1,7 +1,7 @@
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { IPlayer } from '@/game/interfaces/player';
 
-export type TurnField = 'actions' | 'buys' | 'coins';
+export type TurnField = 'actions' | 'buys' | 'coins' | 'cards';
 export type VictoryField =
   | 'curses'
   | 'estates'
@@ -11,13 +11,12 @@ export type VictoryField =
   | 'tokens'
   | 'other';
 export type MatField = 'coffers' | 'villagers' | 'debt' | 'favors';
-export type NewTurnField = 'actions' | 'buys' | 'coins';
 
 export type PlayerFieldMap = {
   turn: TurnField;
   victory: VictoryField;
   mats: MatField;
-  newTurn: NewTurnField;
+  newTurn: TurnField;
 };
 
 export type PlayerField = 'turn' | 'mats' | 'victory' | 'newTurn';

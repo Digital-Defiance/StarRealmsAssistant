@@ -78,7 +78,7 @@ describe('addLogEntry', () => {
   });
 
   it('should add a log entry with player turn details', () => {
-    const playerTurnDetails = [{ playerIndex: 0, actions: 1, buys: 1, coins: 1 }];
+    const playerTurnDetails = [{ playerIndex: 0, actions: 1, buys: 1, coins: 1, cards: 5 }];
     addLogEntry(mockGame, 0, GameLogAction.ADD_COINS, {
       count: 5,
       playerTurnDetails,

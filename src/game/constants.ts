@@ -8,7 +8,7 @@ import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { deepClone } from '@/game/utils';
 
-export const VERSION_NUMBER = '0.4.1';
+export const VERSION_NUMBER = '0.5.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -106,6 +106,7 @@ export function DefaultTurnDetails(): IPlayerGameTurnDetails {
     actions: 1,
     buys: 1,
     coins: 0,
+    cards: 5,
   });
 }
 
@@ -143,6 +144,8 @@ export const AdjustmentActions = [
   GameLogAction.REMOVE_COINS,
   GameLogAction.ADD_BUYS,
   GameLogAction.REMOVE_BUYS,
+  GameLogAction.ADD_CARDS,
+  GameLogAction.REMOVE_CARDS,
   // mats
   GameLogAction.ADD_COFFERS,
   GameLogAction.REMOVE_COFFERS,
@@ -177,6 +180,8 @@ export const AdjustmentActions = [
   GameLogAction.REMOVE_NEXT_TURN_BUYS,
   GameLogAction.ADD_NEXT_TURN_COINS,
   GameLogAction.REMOVE_NEXT_TURN_COINS,
+  GameLogAction.ADD_NEXT_TURN_CARDS,
+  GameLogAction.REMOVE_NEXT_TURN_CARDS,
 ];
 
 export const NegativeAdjustmentActions = [
@@ -184,6 +189,7 @@ export const NegativeAdjustmentActions = [
   GameLogAction.REMOVE_ACTIONS,
   GameLogAction.REMOVE_COINS,
   GameLogAction.REMOVE_BUYS,
+  GameLogAction.REMOVE_CARDS,
   // mats
   GameLogAction.REMOVE_COFFERS,
   GameLogAction.REMOVE_VILLAGERS,
@@ -203,6 +209,7 @@ export const NegativeAdjustmentActions = [
   GameLogAction.REMOVE_NEXT_TURN_ACTIONS,
   GameLogAction.REMOVE_NEXT_TURN_BUYS,
   GameLogAction.REMOVE_NEXT_TURN_COINS,
+  GameLogAction.REMOVE_NEXT_TURN_CARDS,
 ];
 
 /**

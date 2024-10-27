@@ -36,6 +36,8 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
           return increment > 0 ? GameLogAction.ADD_BUYS : GameLogAction.REMOVE_BUYS;
         case 'coins':
           return increment > 0 ? GameLogAction.ADD_COINS : GameLogAction.REMOVE_COINS;
+        case 'cards':
+          return increment > 0 ? GameLogAction.ADD_CARDS : GameLogAction.REMOVE_CARDS;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }
@@ -85,6 +87,10 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
           return increment > 0
             ? GameLogAction.ADD_NEXT_TURN_COINS
             : GameLogAction.REMOVE_NEXT_TURN_COINS;
+        case 'cards':
+          return increment > 0
+            ? GameLogAction.ADD_NEXT_TURN_CARDS
+            : GameLogAction.REMOVE_NEXT_TURN_CARDS;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }

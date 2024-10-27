@@ -28,6 +28,14 @@ describe('victoryFieldToGameLogAction', () => {
     expect(fieldSubfieldToGameLogAction('turn', 'coins', -1)).toBe(GameLogAction.REMOVE_COINS);
   });
 
+  it('should return ADD_CARDS for turn cards increment', () => {
+    expect(fieldSubfieldToGameLogAction('turn', 'cards', 1)).toBe(GameLogAction.ADD_CARDS);
+  });
+
+  it('should return REMOVE_CARDS for turn cards decrement', () => {
+    expect(fieldSubfieldToGameLogAction('turn', 'cards', -1)).toBe(GameLogAction.REMOVE_CARDS);
+  });
+
   it('should return ADD_COFFERS for mats coffers increment', () => {
     expect(fieldSubfieldToGameLogAction('mats', 'coffers', 1)).toBe(GameLogAction.ADD_COFFERS);
   });
@@ -189,6 +197,18 @@ describe('victoryFieldToGameLogAction', () => {
   it('should return REMOVE_COINS for newTurn coins decrement', () => {
     expect(fieldSubfieldToGameLogAction('newTurn', 'coins', -1)).toBe(
       GameLogAction.REMOVE_NEXT_TURN_COINS
+    );
+  });
+
+  it('should return ADD_CARDS for newTurn cards increment', () => {
+    expect(fieldSubfieldToGameLogAction('newTurn', 'cards', 1)).toBe(
+      GameLogAction.ADD_NEXT_TURN_CARDS
+    );
+  });
+
+  it('should return REMOVE_CARDS for newTurn cards decrement', () => {
+    expect(fieldSubfieldToGameLogAction('newTurn', 'cards', -1)).toBe(
+      GameLogAction.REMOVE_NEXT_TURN_CARDS
     );
   });
 
