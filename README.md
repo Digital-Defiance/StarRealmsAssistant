@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Oct 27 16:13:00 2024
+
+- Version 0.6.1
+  - Fix game log/statistics scrollability at bottom for tab bar
+
 ### Sun Oct 27 16:00:00 2024
 
 - Version 0.6.0

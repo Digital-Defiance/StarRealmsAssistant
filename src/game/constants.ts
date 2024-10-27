@@ -8,7 +8,7 @@ import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { deepClone } from '@/game/utils';
 
-export const VERSION_NUMBER = '0.6.0';
+export const VERSION_NUMBER = '0.6.1';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
