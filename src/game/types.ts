@@ -1,7 +1,7 @@
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { IPlayer } from '@/game/interfaces/player';
 
-export type TurnField = 'actions' | 'buys' | 'coins' | 'cards';
+export type TurnField = 'actions' | 'buys' | 'coins' | 'cards' | 'gains';
 export type VictoryField =
   | 'curses'
   | 'estates'

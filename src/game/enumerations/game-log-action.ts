@@ -15,6 +15,8 @@ export enum GameLogAction {
   REMOVE_COINS = 'Removed {COUNT} Coins',
   ADD_CARDS = 'Added {COUNT} Cards',
   REMOVE_CARDS = 'Removed {COUNT} Cards',
+  ADD_GAINS = 'Added {COUNT} Gains',
+  REMOVE_GAINS = 'Removed {COUNT} Gains',
   ADD_COFFERS = 'Added {COUNT} Coffers',
   REMOVE_COFFERS = 'Removed {COUNT} Coffers',
   ADD_VILLAGERS = 'Added {COUNT} Villagers',

@@ -17,8 +17,8 @@ describe('updatePlayerField', () => {
       name: 'Test Player',
       color: DefaultPlayerColors[0],
       mats: { coffers: 0, villagers: 0, debt: 0, favors: 0 },
-      turn: { actions: 1, buys: 1, coins: 0, cards: 5 },
-      newTurn: { actions: 1, buys: 1, coins: 0, cards: 5 },
+      turn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 },
+      newTurn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 },
       victory: {
         estates: 3,
         duchies: 0,

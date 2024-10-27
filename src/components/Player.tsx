@@ -46,8 +46,8 @@ const CenteredTitle = styled(Box)({
 
 const CorrectionCheckboxContainer = styled(Box)({
   position: 'absolute',
-  bottom: 10,
-  left: 30,
+  bottom: 0,
+  left: 10,
   display: 'flex',
   alignItems: 'center',
 });
@@ -302,6 +302,7 @@ const Player: React.FC = () => {
               <IncrementDecrementControl
                 label="Actions"
                 value={player.turn.actions}
+                tooltip="Tracks the number of actions available this turn"
                 onIncrement={() => handleFieldChange('turn', 'actions', 1)}
                 onDecrement={() => {
                   // greatLeaderProphecy gives unlimited actions when the prophecy is empty
@@ -319,20 +320,30 @@ const Player: React.FC = () => {
               <IncrementDecrementControl
                 label="Buys"
                 value={player.turn.buys}
+                tooltip="Tracks the number of buys available this turn"
                 onIncrement={() => handleFieldChange('turn', 'buys', 1)}
                 onDecrement={() => handleFieldChange('turn', 'buys', -1)}
               />
               <IncrementDecrementControl
                 label="Coins"
                 value={player.turn.coins}
+                tooltip="Tracks the number of coins played this turn"
                 onIncrement={() => handleFieldChange('turn', 'coins', 1)}
                 onDecrement={() => handleFieldChange('turn', 'coins', -1)}
               />
               <IncrementDecrementControl
                 label="Cards"
                 value={player.turn.cards}
+                tooltip="Tracks the number of cards drawn this turn"
                 onIncrement={() => handleFieldChange('turn', 'cards', 1)}
                 onDecrement={() => handleFieldChange('turn', 'cards', -1)}
+              />
+              <IncrementDecrementControl
+                label="Gains"
+                value={player.turn.gains}
+                tooltip="Tracks the number of cards gained this turn"
+                onIncrement={() => handleFieldChange('turn', 'gains', 1)}
+                onDecrement={() => handleFieldChange('turn', 'gains', -1)}
               />
             </ColumnBox>
             {(showMats || showGlobalMats) && (
@@ -380,6 +391,7 @@ const Player: React.FC = () => {
                   <IncrementDecrementControl
                     label="Debt"
                     value={player.mats.debt}
+                    tooltip="Tracks players' debt across turns"
                     onIncrement={() => handleFieldChange('mats', 'debt', 1)}
                     onDecrement={() => handleFieldChange('mats', 'debt', -1)}
                   />
@@ -388,6 +400,7 @@ const Player: React.FC = () => {
                   <IncrementDecrementControl
                     label="Favors"
                     value={player.mats.favors}
+                    tooltip="Tracks players' favors across turns"
                     onIncrement={() => handleFieldChange('mats', 'favors', 1)}
                     onDecrement={() => handleFieldChange('mats', 'favors', -1)}
                   />
@@ -426,6 +439,7 @@ const Player: React.FC = () => {
                 <IncrementDecrementControl
                   label="Curses"
                   value={player.victory.curses}
+                  tooltip="Tracks players' curses across turns"
                   onIncrement={() => handleFieldChange('victory', 'curses', 1)}
                   onDecrement={() => handleFieldChange('victory', 'curses', -1)}
                   onTrash={() => handleFieldChange('victory', 'curses', -1, undefined, true)}
@@ -434,6 +448,7 @@ const Player: React.FC = () => {
               <IncrementDecrementControl
                 label="Estates"
                 value={player.victory.estates}
+                tooltip="Tracks players' estates owned across turns"
                 onIncrement={() => handleFieldChange('victory', 'estates', 1)}
                 onDecrement={() => handleFieldChange('victory', 'estates', -1)}
                 onTrash={() => handleFieldChange('victory', 'estates', -1, undefined, true)}
@@ -441,6 +456,7 @@ const Player: React.FC = () => {
               <IncrementDecrementControl
                 label="Duchies"
                 value={player.victory.duchies}
+                tooltip="Tracks players' duchies owned across turns"
                 onIncrement={() => handleFieldChange('victory', 'duchies', 1)}
                 onDecrement={() => handleFieldChange('victory', 'duchies', -1)}
                 onTrash={() => handleFieldChange('victory', 'duchies', -1, undefined, true)}
@@ -448,6 +464,7 @@ const Player: React.FC = () => {
               <IncrementDecrementControl
                 label="Provinces"
                 value={player.victory.provinces}
+                tooltip="Tracks players' provinces owned across turns"
                 onIncrement={() => handleFieldChange('victory', 'provinces', 1)}
                 onDecrement={() => handleFieldChange('victory', 'provinces', -1)}
                 onTrash={() => handleFieldChange('victory', 'provinces', -1, undefined, true)}
@@ -456,6 +473,7 @@ const Player: React.FC = () => {
                 <IncrementDecrementControl
                   label="Colonies"
                   value={player.victory.colonies}
+                  tooltip="Tracks players' colonies owned across turns"
                   onIncrement={() => handleFieldChange('victory', 'colonies', 1)}
                   onDecrement={() => handleFieldChange('victory', 'colonies', -1)}
                   onTrash={() => handleFieldChange('victory', 'colonies', -1, undefined, true)}
@@ -464,12 +482,14 @@ const Player: React.FC = () => {
               <IncrementDecrementControl
                 label="Tokens"
                 value={player.victory.tokens}
+                tooltip="Tracks players' victory tokens owned across turns"
                 onIncrement={() => handleFieldChange('victory', 'tokens', 1)}
                 onDecrement={() => handleFieldChange('victory', 'tokens', -1)}
               />
               <IncrementDecrementControl
                 label="Other"
                 value={player.victory.other}
+                tooltip="Tracks players' other victory points owned across turns"
                 onIncrement={() => handleFieldChange('victory', 'other', 1)}
                 onDecrement={() => handleFieldChange('victory', 'other', -1)}
               />
@@ -496,24 +516,28 @@ const Player: React.FC = () => {
             <IncrementDecrementControl
               label="Actions"
               value={player.newTurn.actions}
+              tooltip="Number of actions available for new turns"
               onIncrement={() => handleFieldChange('newTurn', 'actions', 1)}
               onDecrement={() => handleFieldChange('newTurn', 'actions', -1)}
             />
             <IncrementDecrementControl
               label="Buys"
               value={player.newTurn.buys}
+              tooltip="Number of buys available for new turns"
               onIncrement={() => handleFieldChange('newTurn', 'buys', 1)}
               onDecrement={() => handleFieldChange('newTurn', 'buys', -1)}
             />
             <IncrementDecrementControl
               label="Coins"
               value={player.newTurn.coins}
+              tooltip="Number of coins available for new turns"
               onIncrement={() => handleFieldChange('newTurn', 'coins', 1)}
               onDecrement={() => handleFieldChange('newTurn', 'coins', -1)}
             />
             <IncrementDecrementControl
               label="Cards"
               value={player.newTurn.cards}
+              tooltip="Number of cards available for new turns"
               onIncrement={() => handleFieldChange('newTurn', 'cards', 1)}
               onDecrement={() => handleFieldChange('newTurn', 'cards', -1)}
             />

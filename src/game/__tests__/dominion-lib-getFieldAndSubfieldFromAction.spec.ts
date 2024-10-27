@@ -12,6 +12,8 @@ describe('getFieldAndSubfieldFromAction', () => {
     [GameLogAction.REMOVE_COINS, 'turn', 'coins'],
     [GameLogAction.ADD_CARDS, 'turn', 'cards'],
     [GameLogAction.REMOVE_CARDS, 'turn', 'cards'],
+    [GameLogAction.ADD_GAINS, 'turn', 'gains'],
+    [GameLogAction.REMOVE_GAINS, 'turn', 'gains'],
   ])(
     'should return correct field and subfield for %s',
     (action, expectedField, expectedSubfield) => {

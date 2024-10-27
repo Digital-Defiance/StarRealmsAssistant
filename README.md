@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Oct 27 16:00:00 2024
+
+- Version 0.6.0
+  - Added turn card gains count tracking
+
 ### Sun Oct 27 15:35:00 2024
 
 - Version 0.5.0

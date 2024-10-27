@@ -296,6 +296,9 @@ export function getFieldAndSubfieldFromAction(action: GameLogAction): {
     case GameLogAction.ADD_CARDS:
     case GameLogAction.REMOVE_CARDS:
       return { field: 'turn', subfield: 'cards' };
+    case GameLogAction.ADD_GAINS:
+    case GameLogAction.REMOVE_GAINS:
+      return { field: 'turn', subfield: 'gains' };
     case GameLogAction.ADD_COFFERS:
     case GameLogAction.REMOVE_COFFERS:
       return { field: 'mats', subfield: 'coffers' };

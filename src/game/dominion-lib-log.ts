@@ -38,6 +38,8 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
           return increment > 0 ? GameLogAction.ADD_COINS : GameLogAction.REMOVE_COINS;
         case 'cards':
           return increment > 0 ? GameLogAction.ADD_CARDS : GameLogAction.REMOVE_CARDS;
+        case 'gains':
+          return increment > 0 ? GameLogAction.ADD_GAINS : GameLogAction.REMOVE_GAINS;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }

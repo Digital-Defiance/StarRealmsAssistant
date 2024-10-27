@@ -347,12 +347,14 @@ describe('reconstructGameState', () => {
       coins: 0,
       buys: 2,
       cards: 5,
+      gains: 0,
     });
     expect(result.players[1].turn).toStrictEqual({
       actions: 1,
       coins: 3,
       buys: 1,
       cards: 5,
+      gains: 0,
     });
   });
 });

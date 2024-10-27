@@ -8,7 +8,7 @@ import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { deepClone } from '@/game/utils';
 
-export const VERSION_NUMBER = '0.5.0';
+export const VERSION_NUMBER = '0.6.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -107,6 +107,7 @@ export function DefaultTurnDetails(): IPlayerGameTurnDetails {
     buys: 1,
     coins: 0,
     cards: 5,
+    gains: 0,
   });
 }
 
@@ -146,6 +147,8 @@ export const AdjustmentActions = [
   GameLogAction.REMOVE_BUYS,
   GameLogAction.ADD_CARDS,
   GameLogAction.REMOVE_CARDS,
+  GameLogAction.ADD_GAINS,
+  GameLogAction.REMOVE_GAINS,
   // mats
   GameLogAction.ADD_COFFERS,
   GameLogAction.REMOVE_COFFERS,
@@ -190,6 +193,7 @@ export const NegativeAdjustmentActions = [
   GameLogAction.REMOVE_COINS,
   GameLogAction.REMOVE_BUYS,
   GameLogAction.REMOVE_CARDS,
+  GameLogAction.REMOVE_GAINS,
   // mats
   GameLogAction.REMOVE_COFFERS,
   GameLogAction.REMOVE_VILLAGERS,

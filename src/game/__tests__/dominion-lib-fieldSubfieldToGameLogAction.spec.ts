@@ -36,6 +36,14 @@ describe('victoryFieldToGameLogAction', () => {
     expect(fieldSubfieldToGameLogAction('turn', 'cards', -1)).toBe(GameLogAction.REMOVE_CARDS);
   });
 
+  it('should return ADD_GAINS for turn gains increment', () => {
+    expect(fieldSubfieldToGameLogAction('turn', 'gains', 1)).toBe(GameLogAction.ADD_GAINS);
+  });
+
+  it('should return REMOVE_GAINS for turn gains decrement', () => {
+    expect(fieldSubfieldToGameLogAction('turn', 'gains', -1)).toBe(GameLogAction.REMOVE_GAINS);
+  });
+
   it('should return ADD_COFFERS for mats coffers increment', () => {
     expect(fieldSubfieldToGameLogAction('mats', 'coffers', 1)).toBe(GameLogAction.ADD_COFFERS);
   });

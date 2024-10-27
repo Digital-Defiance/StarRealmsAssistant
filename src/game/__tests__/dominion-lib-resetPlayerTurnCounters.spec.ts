@@ -55,20 +55,32 @@ describe('resetPlayerTurnCounters', () => {
     const initialGame = createMockGame([
       createMockPlayer(
         'Player 1',
-        { actions: 0, buys: 0, coins: 0, cards: 5 },
-        { actions: 1, buys: 1, coins: 0, cards: 5 }
+        { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
+        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
       ),
       createMockPlayer(
         'Player 2',
-        { actions: 2, buys: 1, coins: 3, cards: 5 },
-        { actions: 1, buys: 1, coins: 0, cards: 5 }
+        { actions: 2, buys: 1, coins: 3, cards: 5, gains: 0 },
+        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
       ),
     ]);
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
-    expect(updatedGame.players[0].turn).toEqual({ actions: 1, buys: 1, coins: 0, cards: 5 });
-    expect(updatedGame.players[1].turn).toEqual({ actions: 1, buys: 1, coins: 0, cards: 5 });
+    expect(updatedGame.players[0].turn).toEqual({
+      actions: 1,
+      buys: 1,
+      coins: 0,
+      cards: 5,
+      gains: 0,
+    });
+    expect(updatedGame.players[1].turn).toEqual({
+      actions: 1,
+      buys: 1,
+      coins: 0,
+      cards: 5,
+      gains: 0,
+    });
   });
 
   it('should handle an empty player array', () => {
@@ -83,8 +95,8 @@ describe('resetPlayerTurnCounters', () => {
     const initialGame = createMockGame([
       createMockPlayer(
         'Player 1',
-        { actions: 0, buys: 0, coins: 0, cards: 5 },
-        { actions: 1, buys: 1, coins: 0, cards: 5 }
+        { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
+        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
       ),
     ]);
     initialGame.players[0].victory = { ...EmptyVictoryDetails(), estates: 3 };
@@ -111,6 +123,7 @@ describe('resetPlayerTurnCounters', () => {
       buys: 1,
       coins: 0,
       cards: 5,
+      gains: 0,
     });
   });
 
@@ -118,8 +131,8 @@ describe('resetPlayerTurnCounters', () => {
     const initialGame = createMockGame([
       createMockPlayer(
         'Player 1',
-        { actions: 0, buys: 0, coins: 0, cards: 5 },
-        { actions: 1, buys: 1, coins: 0, cards: 5 }
+        { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
+        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
       ),
     ]);
 
@@ -129,6 +142,12 @@ describe('resetPlayerTurnCounters', () => {
     expect(updatedGame.players).not.toBe(initialGame.players);
     expect(updatedGame.players[0]).not.toBe(initialGame.players[0]);
     expect(updatedGame.players[0].turn).not.toBe(initialGame.players[0].turn);
-    expect(initialGame.players[0].turn).toEqual({ actions: 0, buys: 0, coins: 0, cards: 5 });
+    expect(initialGame.players[0].turn).toEqual({
+      actions: 0,
+      buys: 0,
+      coins: 0,
+      cards: 5,
+      gains: 0,
+    });
   });
 });
