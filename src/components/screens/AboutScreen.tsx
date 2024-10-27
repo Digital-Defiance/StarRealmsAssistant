@@ -82,7 +82,7 @@ export default function AboutScreen() {
                     'Save/Load Games: Save progress and resume later',
                     'Intuitive UI: User-friendly Material-UI components',
                     'Victory point graphing/statistics',
-                    'Most-recent move is auto-savedto local storage',
+                    'Most-recent move is auto-saved to local storage',
                   ].map((feature, index) => (
                     <ListItem key={index}>
                       <ListItemText primary={feature} />
