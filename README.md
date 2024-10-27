@@ -200,6 +200,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Oct 27 14:39:00 2024
+
+- Version 0.4.1
+  - Restricted Load/Save screen from saving over auto saves
+  - Fixed viewport issues and start working towards responsiveness to different screen sizes.
+
 ### Sat Oct 26 14:46:00 2024
 
 - Version 0.4.0

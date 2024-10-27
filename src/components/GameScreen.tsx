@@ -128,7 +128,15 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
 
   return (
     <>
-      <Container>
+      <Container
+        sx={{
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: 1,
+          overflow: 'auto',
+        }}
+      >
         <Scoreboard />
         <Player />
         <ButtonContainer>

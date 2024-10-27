@@ -10,7 +10,7 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   padding: theme.spacing(2),
-  height: '100vh',
+  height: 'calc(100vh - 56px)',
 }));
 
 export default function DominionAssistantScreen() {

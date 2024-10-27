@@ -41,8 +41,6 @@ const TabView: React.FC<TabViewProps> = ({ tabs }) => {
         sx={{
           flex: 1,
           overflow: 'auto',
-          // Add bottom padding to prevent content from hiding behind nav
-          paddingBottom: '56px', // Height of BottomNavigation
         }}
       >
         <Outlet />

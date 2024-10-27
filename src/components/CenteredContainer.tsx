@@ -6,7 +6,8 @@ const CenteredContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  minHeight: 'calc(100vh - 56px)', // Subtract BottomNavigation height
+  height: 'calc(100vh - 56px)', // instead of minHeight
+  overflow: 'auto', // only show scrollbar when needed
   padding: theme.spacing(2),
   boxSizing: 'border-box',
 }));

@@ -1,21 +1,31 @@
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Link,
-  Container,
-  Paper,
-  List,
-  ListItem,
-  ListItemText,
-} from '@mui/material';
+import { Box, Typography, Link, Paper, List, ListItem, ListItemText } from '@mui/material';
 import DominionTransparentLogo from '@/assets/images/Dominion-tx.png';
 import SuperCapsText from '@/components/SuperCapsText';
 import { VERSION_NUMBER } from '@/game/constants';
+import CenteredContainer from '../CenteredContainer';
 
 export default function AboutScreen() {
   return (
-    <Container maxWidth="md" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <CenteredContainer
+      sx={{
+        marginLeft: { xs: 0, md: '15%' },
+        marginRight: { xs: 0, md: '15%' },
+        minHeight: '100%',
+        overflow: 'hidden',
+        overflowY: 'auto',
+        scrollbarWidth: 'none', // For Firefox
+        justifyContent: 'flex-start',
+        py: 2,
+        '&::-webkit-scrollbar': {
+          display: 'none', // For Chrome, Safari, and Opera
+        },
+        '@media (max-width: 900px)': {
+          marginLeft: 0,
+          marginRight: 0,
+        },
+      }}
+    >
       <Box sx={{ flexGrow: 1, py: 4 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           <Box>
@@ -157,9 +167,9 @@ export default function AboutScreen() {
           </Box>
         </Box>
       </Box>
-      <Box mt={4} width="100%" textAlign="center">
+      <Box mt={4} width="100%" textAlign="center" sx={{ paddingBottom: '56px' }}>
         <Typography variant="body2">Version: {VERSION_NUMBER}</Typography>
       </Box>
-    </Container>
+    </CenteredContainer>
   );
 }
