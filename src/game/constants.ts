@@ -235,6 +235,8 @@ export const StepTransitions: Record<CurrentStep, CurrentStep> = {
 
 export const SaveGameStorageKey = '@dominion_saved_games';
 export const SaveGameStorageKeyPrefix = '@dominion_game_';
+export const AutoSaveGameSaveName = 'AutoSave';
+export const AutoSaveGameSaveId = 'autosave';
 
 export const DefaultPlayerColors = [
   '#e57373',

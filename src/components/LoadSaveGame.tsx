@@ -33,6 +33,9 @@ import {
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { useAlert } from '@/components/AlertContext';
 import { LocalStorageService } from '@/game/local-storage-service';
+import { AutoSaveGameSaveName } from '@/game/constants';
+import { deepClone } from '@/game/utils';
+import { IGame } from '@/game/interfaces/game';
 
 const LoadSaveGame: React.FC = () => {
   const { showAlert } = useAlert();
@@ -55,22 +58,45 @@ const LoadSaveGame: React.FC = () => {
     setSavedGames(games);
   };
 
+  const isValidSaveName = (name: string): boolean => {
+    const trimmedName = name.trim();
+    return (
+      trimmedName.length > 0 && trimmedName.toLowerCase() !== AutoSaveGameSaveName.toLowerCase()
+    );
+  };
+
   const handleSaveGame = () => {
     if (gameState && saveName) {
+      if (!isValidSaveName(saveName)) {
+        showAlert(
+          'Reserved save name.',
+          `Reserved save name. Please enter a valid name that is not "${AutoSaveGameSaveName}".`
+        );
+        return;
+      }
+      if (selectedGameId && selectedGameId === AutoSaveGameSaveName) {
+        showAlert(
+          `Cannot overwrite ${AutoSaveGameSaveName}`,
+          `Cannot overwrite the ${AutoSaveGameSaveName} game.`
+        );
+        return;
+      }
       if (selectedGameId) {
         // If a game is selected, prompt for overwrite
         setOpenOverwriteDialog(true);
       } else {
         // If no game is selected, save as a new game
         setGameState((prevGame) => {
-          const result = saveGame(prevGame, saveName, storageService); // Pass storageService
+          const newGame = deepClone<IGame>(prevGame);
+          const result = saveGame(newGame, saveName, storageService); // Pass storageService
           if (!result) {
             showAlert('Failed to save game', 'An error occurred while saving the game.');
+            return prevGame;
           } else {
             setSaveName('');
             loadSavedGamesList();
           }
-          return prevGame;
+          return newGame;
         });
       }
     }
@@ -79,16 +105,18 @@ const LoadSaveGame: React.FC = () => {
   const handleOverwriteConfirm = () => {
     if (gameState && saveName && selectedGameId) {
       setGameState((prevGame) => {
-        const result = saveGame(prevGame, saveName, storageService, selectedGameId); // Pass storageService
+        const newGame = deepClone<IGame>(prevGame);
+        const result = saveGame(newGame, saveName, storageService, selectedGameId); // Pass storageService
         setOpenOverwriteDialog(false);
         if (!result) {
           showAlert('Failed to save game', 'An error occurred while saving the game.');
+          return prevGame;
         } else {
           setSaveName('');
           setSelectedGameId(null);
           loadSavedGamesList();
         }
-        return prevGame;
+        return newGame;
       });
     }
   };
@@ -137,7 +165,9 @@ const LoadSaveGame: React.FC = () => {
 
   const handleSelectGame = (game: ISavedGameMetadata) => {
     setSelectedGameId(game.id);
-    setSaveName(game.name);
+    if (game.name !== AutoSaveGameSaveName) {
+      setSaveName(game.name);
+    }
   };
 
   const handleExport = () => {
@@ -179,7 +209,7 @@ const LoadSaveGame: React.FC = () => {
         <IconButton
           onClick={handleSaveGame}
           color="primary"
-          disabled={!gameState || !saveName || !canSave}
+          disabled={!gameState || !saveName || !canSave || !isValidSaveName(saveName)}
         >
           <SaveIcon />
         </IconButton>

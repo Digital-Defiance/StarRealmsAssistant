@@ -7,6 +7,7 @@ const ScrollableContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   padding: theme.spacing(2),
   boxSizing: 'border-box',
+  minHeight: 'calc(100vh - 56px)', // Subtract BottomNavigation height
 }));
 
 export default ScrollableContainer;

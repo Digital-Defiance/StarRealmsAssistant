@@ -29,11 +29,34 @@ const TabView: React.FC<TabViewProps> = ({ tabs }) => {
   };
 
   return (
-    <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
+    <Box
+      sx={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden', // Prevent scrollbar on main container
+      }}
+    >
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          // Add bottom padding to prevent content from hiding behind nav
+          paddingBottom: '56px', // Height of BottomNavigation
+        }}
+      >
         <Outlet />
       </Box>
-      <Paper elevation={3}>
+      <Paper
+        elevation={3}
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1100,
+        }}
+      >
         <StyledBottomNavigation
           value={tabs.findIndex((tab) => tab.path === location.pathname)}
           onChange={handleChange}

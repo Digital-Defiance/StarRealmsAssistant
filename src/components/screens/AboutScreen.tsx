@@ -71,6 +71,8 @@ export default function AboutScreen() {
                     'Expansion Support: Compatible with various Dominion expansions',
                     'Save/Load Games: Save progress and resume later',
                     'Intuitive UI: User-friendly Material-UI components',
+                    'Victory point graphing/statistics',
+                    'Most-recent move is auto-savedto local storage',
                   ].map((feature, index) => (
                     <ListItem key={index}>
                       <ListItemText primary={feature} />

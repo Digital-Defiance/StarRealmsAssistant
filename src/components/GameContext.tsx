@@ -4,6 +4,7 @@ import { IGame } from '@/game/interfaces/game';
 import React, { createContext, useContext, useState, ReactNode, useMemo, useEffect } from 'react';
 import { LocalStorageService } from '@/game/local-storage-service';
 import { deepClone } from '@/game/utils';
+import { AutoSaveGameSaveId, AutoSaveGameSaveName } from '@/game/constants';
 
 // Define the shape of the context
 interface GameContextProps {
@@ -32,11 +33,10 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
     const storageService = new LocalStorageService();
-    const saveId = 'autosave';
     // the saved game branches from the active game and has the save game entry at the top of the log
     // saveGame adds a new entry to the log
     const newState = deepClone<IGame>(gameState);
-    saveGame(newState, 'AutoSave', storageService, saveId);
+    saveGame(newState, AutoSaveGameSaveName, storageService, AutoSaveGameSaveId);
   }, [gameState]);
 
   // Stabilize the context value to prevent unnecessary re-renders
