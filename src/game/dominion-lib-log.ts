@@ -12,8 +12,9 @@ import { calculateVictoryPoints, getFieldAndSubfieldFromAction } from '@/game/do
 import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
-import { GamePausedError } from './errors/game-paused';
-import { CountRequiredError } from './errors/count-required';
+import { GamePausedError } from '@/game/errors/game-paused';
+import { CountRequiredError } from '@/game/errors/count-required';
+import { updateCache } from '@/game/dominion-lib-time';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -444,15 +445,19 @@ export function calculateDurationUpToEvent(logEntries: ILogEntry[], eventTime: D
   let pauseStartTime: Date | null = null;
 
   // Find the START_GAME action
-  for (const entry of logEntries) {
-    if (entry.action === GameLogAction.START_GAME) {
-      startGameTime = entry.timestamp;
-      break;
-    }
+  if (logEntries.length === 0) {
+    return 0;
+  }
+  const firstLog = logEntries[0];
+  if (firstLog.action === GameLogAction.START_GAME) {
+    startGameTime = firstLog.timestamp;
+  } else {
+    // No START_GAME found
+    return 0;
   }
 
-  if (startGameTime === null || startGameTime >= eventTime) {
-    // No START_GAME found or eventTime is before the game started
+  if (startGameTime >= eventTime) {
+    // eventTime is before the game started
     return 0;
   }
 
@@ -542,7 +547,7 @@ export function formatTimeSpan(timeSpan: number): string {
 
 /**
  * Add a log entry to the game log.
- * @param game - The game object
+ * @param game - The game object (gets modified in-place)
  * @param playerIndex - The index of the player whose turn it is
  * @param action - The log action
  * @param overrides - Additional properties to be included in the log entry (optional)
@@ -589,6 +594,7 @@ export function addLogEntry(
     throw new InvalidTrashActionError();
   }
   game.log.push(newLog);
+  game.timeCache = updateCache(game);
   return newLog;
 }
 

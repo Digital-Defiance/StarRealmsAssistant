@@ -1,8 +1,8 @@
 import { IGame } from '@/game/interfaces/game';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { EmptyGameState, newPlayer, NewGameState } from '@/game/dominion-lib';
+import { newPlayer, NewGameState } from '@/game/dominion-lib';
 import { calculateInitialSunTokens } from '@/game/interfaces/set-mats/prophecy';
-import { MAX_PLAYERS, NOT_PRESENT } from '@/game/constants';
+import { EmptyGameState, MAX_PLAYERS, NOT_PRESENT } from '@/game/constants';
 import { MinPlayersError } from '@/game/errors/min-players';
 import { MaxPlayersError } from '@/game/errors/max-players';
 import { ILogEntry } from '@/game/interfaces/log-entry';

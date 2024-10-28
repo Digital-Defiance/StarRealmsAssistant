@@ -7,8 +7,9 @@ import { IVictoryDetails } from '@/game/interfaces/victory-details';
 import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { deepClone } from '@/game/utils';
+import { IGame } from '@/game/interfaces/game';
 
-export const VERSION_NUMBER = '0.6.1';
+export const VERSION_NUMBER = '0.7.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -123,6 +124,37 @@ export function EmptyVictoryDetails(): IVictoryDetails {
     colonies: 0,
     other: 0,
     curses: 0,
+  });
+}
+
+/**
+ * A basic game state with no players or options.
+ */
+export function EmptyGameState(): IGame {
+  return deepClone<IGame>({
+    currentStep: 1,
+    players: [],
+    setsRequired: 1,
+    supply: EmptyGameSupply(),
+    options: {
+      curses: true,
+      expansions: { prosperity: false, renaissance: false, risingSun: false },
+      mats: {
+        coffersVillagers: false,
+        debt: false,
+        favors: false,
+      },
+    },
+    currentTurn: 1,
+    risingSun: {
+      prophecy: { suns: NOT_PRESENT },
+      greatLeaderProphecy: false,
+    },
+    currentPlayerIndex: NO_PLAYER,
+    firstPlayerIndex: NO_PLAYER,
+    selectedPlayerIndex: NO_PLAYER,
+    log: [],
+    timeCache: [],
   });
 }
 

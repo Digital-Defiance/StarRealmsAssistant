@@ -16,7 +16,9 @@ import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { deepClone } from '@/game/utils';
-import { IVictoryDetails } from '@/game/interfaces/victory-details';
+import { IGameRaw } from '@/game/interfaces/game-raw';
+import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
+import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 
 export function createMockGame(playerCount: number, overrides?: Partial<IGame>): IGame {
   const options: IGameOptions = {
@@ -32,7 +34,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
   const game: IGame = {
     players: Array(playerCount)
       .fill(null)
-      .map((value, index) => createMockPlayer(undefined, index)),
+      .map((value, index) => createMockPlayer(index, overrides?.players?.[index])),
     supply,
     options,
     risingSun: {
@@ -55,14 +57,15 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
         action: GameLogAction.START_GAME,
       },
     ],
+    timeCache: [],
     currentStep: CurrentStep.GameScreen,
     setsRequired: 1,
-    ...overrides,
+    ...(overrides ? deepClone<Partial<IGame>>(overrides) : {}),
   };
   return distributeInitialSupply(game);
 }
 
-export function createMockPlayer(victory?: Partial<IPlayer['victory']>, index?: number): IPlayer {
+export function createMockPlayer(index?: number, overrides?: Partial<IPlayer>): IPlayer {
   return {
     name: faker.person.firstName(),
     color:
@@ -72,10 +75,8 @@ export function createMockPlayer(victory?: Partial<IPlayer['victory']>, index?: 
     mats: EmptyMatDetails(),
     turn: DefaultTurnDetails(),
     newTurn: DefaultTurnDetails(),
-    victory: {
-      ...EmptyVictoryDetails(),
-      ...(victory ? deepClone<Partial<IVictoryDetails>>(victory) : {}),
-    },
+    victory: EmptyVictoryDetails(),
+    ...deepClone<Partial<IPlayer>>(overrides ?? {}),
   } as IPlayer;
 }
 
@@ -93,4 +94,54 @@ export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
     prevPlayerIndex: faker.number.int({ min: 0, max: 3 }),
     ...(log ? deepClone<Partial<ILogEntry>>(log) : {}),
   };
+}
+
+export function createMockGameRaw(numPlayers: number, overrides?: Partial<IGameRaw>): IGameRaw {
+  // First, create a mock game using createMockGame
+  const mockGame: IGame = createMockGame(numPlayers);
+
+  // Convert the IGame to IGameRaw
+  const baseGameRaw: IGameRaw = {
+    ...mockGame,
+    log: mockGame.log.map((logEntry) => ({
+      ...logEntry,
+      timestamp: logEntry.timestamp.toISOString(),
+    })),
+    timeCache: mockGame.timeCache.map((timeCache) => ({
+      ...timeCache,
+      saveStartTime: timeCache.saveStartTime ? timeCache.saveStartTime.toISOString() : null,
+      pauseStartTime: timeCache.pauseStartTime ? timeCache.pauseStartTime.toISOString() : null,
+    })),
+  };
+
+  // Apply overrides if provided
+  if (overrides) {
+    // Merge overrides with baseGameRaw
+    Object.keys(overrides).forEach((key) => {
+      if (key === 'log' && Array.isArray(overrides.log)) {
+        baseGameRaw.log = overrides.log.map((logEntry) => ({
+          ...logEntry,
+          timestamp:
+            typeof logEntry.timestamp === 'string'
+              ? logEntry.timestamp
+              : new Date(logEntry.timestamp).toISOString(),
+        }));
+      } else if (key === 'timeCache' && Array.isArray(overrides.timeCache)) {
+        baseGameRaw.timeCache = overrides.timeCache.map((timeCache) => ({
+          ...timeCache,
+          saveStartTime: timeCache.saveStartTime
+            ? new Date(timeCache.saveStartTime).toISOString()
+            : null,
+          pauseStartTime: timeCache.pauseStartTime
+            ? new Date(timeCache.pauseStartTime).toISOString()
+            : null,
+        }));
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (baseGameRaw as any)[key] = (overrides as any)[key];
+      }
+    });
+  }
+
+  return baseGameRaw;
 }

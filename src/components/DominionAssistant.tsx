@@ -9,7 +9,6 @@ import { useGameContext } from '@/components/GameContext';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { NO_PLAYER, StepTransitions } from '@/game/constants';
 import {
-  EmptyGameState,
   getNextPlayerIndex,
   incrementTurnCountersAndPlayerIndices,
   resetPlayerTurnCounters,
@@ -20,6 +19,7 @@ import { useAlert } from '@/components/AlertContext';
 import { Location, NavigateFunction } from 'react-router-dom';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
+import { EmptyGameState } from '@/game/constants';
 
 interface DominionAssistantProps {
   route: Location;

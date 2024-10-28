@@ -30,20 +30,15 @@ import {
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
+import { getAdjustedDurationFromCache } from '@/game/dominion-lib-time';
 
 interface GameLogEntryProps {
   logIndex: number;
   entry: ILogEntry;
-  isCurrentPlayer: boolean;
   hasLinkedAction: boolean;
 }
 
-const GameLogEntry: React.FC<GameLogEntryProps> = ({
-  logIndex,
-  entry,
-  isCurrentPlayer,
-  hasLinkedAction,
-}) => {
+const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedAction }) => {
   const { gameState, setGameState } = useGameContext();
   const [openUndoDialog, setOpenUndoDialog] = useState(false);
 
@@ -116,7 +111,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
         </TableCell>
         <TableCell style={{ width: '15%' }}>
           <Typography variant="caption">
-            {formatTimeSpan(calculateDurationUpToEvent(gameState.log, entry.timestamp))}
+            {formatTimeSpan(getAdjustedDurationFromCache(gameState, entry.id) ?? 0)}
           </Typography>
         </TableCell>
         <TableCell style={{ width: '60%' }}>

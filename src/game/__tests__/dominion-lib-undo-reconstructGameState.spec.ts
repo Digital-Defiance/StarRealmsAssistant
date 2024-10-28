@@ -1,13 +1,13 @@
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
-import { getNextPlayerIndex, EmptyGameState, newPlayer, NewGameState } from '@/game/dominion-lib';
+import { getNextPlayerIndex, newPlayer, NewGameState } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { DefaultTurnDetails, NO_PLAYER } from '@/game/constants';
+import { DefaultTurnDetails, EmptyGameState } from '@/game/constants';
 import { faker } from '@faker-js/faker';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
-import { NotEnoughSubfieldError } from '../errors/not-enough-subfield';
-import { NotEnoughProphecyError } from '../errors/not-enough-prophecy';
+import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
+import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
 
 describe('reconstructGameState', () => {
   let baseGame: IGame;
@@ -21,6 +21,17 @@ describe('reconstructGameState', () => {
       currentPlayerIndex: 1,
       selectedPlayerIndex: 1,
     });
+    baseGame.timeCache = [
+      {
+        adjustedDuration: 0,
+        eventId: baseGame.log[0].id,
+        inPauseState: false,
+        inSaveState: false,
+        pauseStartTime: null,
+        saveStartTime: null,
+        totalPauseTime: 0,
+      },
+    ];
   });
 
   it('should return an identical game state whhen given an existing game', () => {

@@ -1,69 +1,24 @@
 import { resetPlayerTurnCounters } from '../dominion-lib';
-import { IGame } from '@/game/interfaces/game';
 import { IPlayer } from '@/game/interfaces/player';
-import {
-  DefaultMatsEnabled,
-  DefaultPlayerColors,
-  DefaultTurnDetails,
-  EmptyGameSupply,
-  EmptyMatDetails,
-  EmptyVictoryDetails,
-} from '@/game/constants';
-import { IPlayerGameTurnDetails } from '../interfaces/player-game-turn-details';
-import { deepClone } from '@/game/utils';
+import { EmptyMatDetails, EmptyVictoryDetails } from '@/game/constants';
+import { createMockGame, createMockPlayer } from '@/__fixtures__/dominion-lib-fixtures';
 
 describe('resetPlayerTurnCounters', () => {
-  const createMockPlayer = (
-    name: string,
-    turn: IPlayerGameTurnDetails,
-    newTurn: IPlayerGameTurnDetails
-  ): IPlayer => ({
-    name,
-    color: DefaultPlayerColors[0],
-    mats: EmptyMatDetails(),
-    turn: { ...DefaultTurnDetails(), ...deepClone<IPlayerGameTurnDetails>(turn) },
-    newTurn: { ...DefaultTurnDetails(), ...deepClone<IPlayerGameTurnDetails>(newTurn) },
-    victory: EmptyVictoryDetails(),
-  });
-
-  const createMockGame = (players: IPlayer[]): IGame => ({
-    currentStep: 1,
-    players,
-    setsRequired: 1,
-    supply: EmptyGameSupply(),
-    options: {
-      curses: true,
-      expansions: {
-        prosperity: false,
-        renaissance: false,
-        risingSun: false,
-      },
-      mats: DefaultMatsEnabled(),
-    },
-    currentTurn: 1,
-    risingSun: {
-      prophecy: { suns: -1 },
-      greatLeaderProphecy: false,
-    },
-    currentPlayerIndex: 0,
-    firstPlayerIndex: 0,
-    selectedPlayerIndex: 0,
-    log: [],
-  });
-
   it('should reset turn counters for all players', () => {
-    const initialGame = createMockGame([
-      createMockPlayer(
-        'Player 1',
-        { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
-        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
-      ),
-      createMockPlayer(
-        'Player 2',
-        { actions: 2, buys: 1, coins: 3, cards: 5, gains: 0 },
-        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
-      ),
-    ]);
+    const initialGame = createMockGame(2, {
+      players: [
+        createMockPlayer(0, {
+          name: 'Player 1',
+          turn: { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
+          newTurn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 },
+        }),
+        createMockPlayer(0, {
+          name: 'Player 2',
+          turn: { actions: 2, buys: 1, coins: 3, cards: 5, gains: 0 },
+          newTurn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 },
+        }),
+      ],
+    });
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
@@ -84,7 +39,7 @@ describe('resetPlayerTurnCounters', () => {
   });
 
   it('should handle an empty player array', () => {
-    const initialGame = createMockGame([]);
+    const initialGame = createMockGame(2, { players: [] });
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
@@ -92,14 +47,17 @@ describe('resetPlayerTurnCounters', () => {
   });
 
   it('should not modify other player properties', () => {
-    const initialGame = createMockGame([
-      createMockPlayer(
-        'Player 1',
-        { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
-        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
-      ),
-    ]);
-    initialGame.players[0].victory = { ...EmptyVictoryDetails(), estates: 3 };
+    const initialGame = createMockGame(2, {
+      players: [
+        createMockPlayer(0, {
+          name: 'Player 1',
+          turn: { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
+          newTurn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 },
+          victory: { ...EmptyVictoryDetails(), estates: 3 },
+        }),
+        createMockPlayer(1),
+      ],
+    });
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
@@ -114,7 +72,7 @@ describe('resetPlayerTurnCounters', () => {
       victory: EmptyVictoryDetails(),
     };
 
-    const initialGame = createMockGame([incompletePlayer as IPlayer]);
+    const initialGame = createMockGame(2, { players: [incompletePlayer as IPlayer] });
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 
@@ -128,13 +86,16 @@ describe('resetPlayerTurnCounters', () => {
   });
 
   it('should not modify the original game object', () => {
-    const initialGame = createMockGame([
-      createMockPlayer(
-        'Player 1',
-        { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
-        { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 }
-      ),
-    ]);
+    const initialGame = createMockGame(2, {
+      players: [
+        createMockPlayer(0, {
+          name: 'Player 1',
+          turn: { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0 },
+          newTurn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0 },
+        }),
+        createMockPlayer(1),
+      ],
+    });
 
     const updatedGame = resetPlayerTurnCounters(initialGame);
 

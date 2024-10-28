@@ -208,11 +208,15 @@ describe('undoAction', () => {
 
   it('should handle consecutive undo operations', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogAction.ADD_ACTIONS), createLogEntry(GameLogAction.ADD_BUYS)],
+      log: [
+        createLogEntry(GameLogAction.START_GAME),
+        createLogEntry(GameLogAction.ADD_ACTIONS),
+        createLogEntry(GameLogAction.ADD_BUYS),
+      ],
     });
 
-    const gameAfterFirstUndo = { ...game, log: [game.log[0]] };
-    const gameAfterSecondUndo = { ...game, log: [] };
+    const gameAfterFirstUndo = { ...game, log: [game.log[0], game.log[1]] };
+    const gameAfterSecondUndo = { ...game, log: [game.log[0]] };
 
     // First undo
 
@@ -224,11 +228,11 @@ describe('undoAction', () => {
     removeTargetAndLinkedActionsSpy.mockReturnValueOnce(gameAfterFirstUndo);
     reconstructGameStateSpy.mockReturnValueOnce(gameAfterFirstUndo);
 
-    let result = undoModule.undoAction(game, 1);
+    let result = undoModule.undoAction(game, 2);
     expect(result.success).toBe(true);
-    expect(result.game.log.length).toBe(1);
+    expect(result.game.log.length).toBe(2);
     expect(result.game.log[0].action).toBe(game.log[0].action);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 1);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 2);
     expect(reconstructGameStateSpy).toHaveBeenCalledWith(gameAfterFirstUndo);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
 
@@ -244,10 +248,10 @@ describe('undoAction', () => {
     removeTargetAndLinkedActionsSpy.mockReturnValueOnce(gameAfterSecondUndo);
     reconstructGameStateSpy.mockReturnValueOnce(gameAfterSecondUndo);
 
-    result = undoModule.undoAction(gameAfterFirstUndo, 0);
+    result = undoModule.undoAction(gameAfterFirstUndo, 1);
     expect(result.success).toBe(true);
-    expect(result.game.log.length).toBe(0);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(gameAfterFirstUndo, 0);
+    expect(result.game.log.length).toBe(1);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(gameAfterFirstUndo, 1);
     expect(reconstructGameStateSpy).toHaveBeenCalledWith(gameAfterSecondUndo);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });

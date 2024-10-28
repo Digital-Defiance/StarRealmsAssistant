@@ -47,6 +47,7 @@ describe('distributeInitialSupply', () => {
       firstPlayerIndex: 0,
       selectedPlayerIndex: 0,
       log: [],
+      timeCache: [],
       currentStep: CurrentStep.GameScreen,
       setsRequired: 1,
     };

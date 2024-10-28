@@ -1,10 +1,9 @@
-import { EmptyGameState } from '@/game/dominion-lib';
 import { saveGame } from '@/game/dominion-lib-load-save';
 import { IGame } from '@/game/interfaces/game';
 import React, { createContext, useContext, useState, ReactNode, useMemo, useEffect } from 'react';
 import { LocalStorageService } from '@/game/local-storage-service';
 import { deepClone } from '@/game/utils';
-import { AutoSaveGameSaveId, AutoSaveGameSaveName } from '@/game/constants';
+import { AutoSaveGameSaveId, AutoSaveGameSaveName, EmptyGameState } from '@/game/constants';
 
 // Define the shape of the context
 interface GameContextProps {

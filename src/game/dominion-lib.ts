@@ -10,14 +10,11 @@ import {
   HAND_STARTING_ESTATES,
   PROVINCE_VP,
   COLONY_VP,
-  NO_PLAYER,
-  EmptyGameSupply,
   EmptyMatDetails,
   DefaultTurnDetails,
   EmptyVictoryDetails,
   MAX_PLAYERS,
   MIN_PLAYERS,
-  NOT_PRESENT,
   DefaultPlayerColors,
 } from '@/game/constants';
 import { computeStartingSupply as computeBaseStartingSupply } from '@/game/interfaces/set-kingdom/base';
@@ -128,36 +125,6 @@ export function newPlayer(playerName: string, index: number): IPlayer {
     victory: EmptyVictoryDetails(),
   };
   return newPlayer;
-}
-
-/**
- * A basic game state with no players or options.
- */
-export function EmptyGameState(): IGame {
-  return deepClone<IGame>({
-    currentStep: 1,
-    players: [],
-    setsRequired: 1,
-    supply: EmptyGameSupply(),
-    options: {
-      curses: true,
-      expansions: { prosperity: false, renaissance: false, risingSun: false },
-      mats: {
-        coffersVillagers: false,
-        debt: false,
-        favors: false,
-      },
-    },
-    currentTurn: 1,
-    risingSun: {
-      prophecy: { suns: NOT_PRESENT },
-      greatLeaderProphecy: false,
-    },
-    currentPlayerIndex: NO_PLAYER,
-    firstPlayerIndex: NO_PLAYER,
-    selectedPlayerIndex: NO_PLAYER,
-    log: [],
-  });
 }
 
 /**

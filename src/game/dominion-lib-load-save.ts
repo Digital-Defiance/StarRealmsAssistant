@@ -12,8 +12,11 @@ import { IPlayer } from '@/game/interfaces/player';
 import { IGameSupply } from '@/game/interfaces/game-supply';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { IStorageService } from '@/game/interfaces/storage-service';
+import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
+import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
+import { deepClone } from '@/game/utils';
+import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 
 /**
  * Save the game data using the provided storage service.
@@ -30,7 +33,10 @@ export function saveGameData(
   const saveId = existingId || uuidv4();
 
   // Save the game data
-  storageService.setItem(`${SaveGameStorageKeyPrefix}${saveId}`, JSON.stringify(game));
+  storageService.setItem(
+    `${SaveGameStorageKeyPrefix}${saveId}`,
+    JSON.stringify(convertGameToGameRaw(game))
+  );
 
   return saveId;
 }
@@ -108,51 +114,101 @@ export function getSavedGamesList(storageService: IStorageService): ISavedGameMe
 }
 
 /**
+ * Converts a game object to a raw game object.
+ * @param gameRaw - The raw game object to convert
+ * @returns The raw game object with proper types for storage
+ */
+export function convertGameRawToGame(gameRaw: IGameRaw): IGame {
+  const convertTimestamp = (timestamp: string | number | Date): Date => {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      throw new Error(`Invalid timestamp: ${timestamp}`);
+    }
+    return date;
+  };
+  const game: IGame = {
+    ...gameRaw,
+    log: gameRaw.log.map((entry) => ({
+      ...entry,
+      timestamp: convertTimestamp(entry.timestamp),
+    })) as ILogEntry[],
+    timeCache: gameRaw.timeCache.map((cache) => ({
+      ...cache,
+      saveStartTime: cache.saveStartTime ? convertTimestamp(cache.saveStartTime) : null,
+      pauseStartTime: cache.pauseStartTime ? convertTimestamp(cache.pauseStartTime) : null,
+    })) as IEventTimeCache[],
+    risingSun: {
+      ...gameRaw.risingSun,
+      prophecy: {
+        ...gameRaw.risingSun.prophecy,
+        suns: gameRaw.risingSun.prophecy.suns || 0,
+      },
+    },
+  };
+  return game;
+}
+
+/**
+ * Converts a game object to a raw game object.
+ * @param game - The game object to convert
+ * @returns The raw game object with proper types for storage
+ */
+export function convertGameToGameRaw(game: IGame): IGameRaw {
+  return {
+    ...deepClone<IGame>(game),
+    log: game.log.map((logEntry) => ({
+      ...logEntry,
+      timestamp:
+        logEntry.timestamp instanceof Date
+          ? logEntry.timestamp.toISOString()
+          : new Date(logEntry.timestamp).toISOString(), // Ensure timestamp is a Date object
+    })) as ILogEntryRaw[],
+    timeCache: game.timeCache.map((timeCache) => ({
+      ...timeCache,
+      saveStartTime: timeCache.saveStartTime
+        ? timeCache.saveStartTime instanceof Date
+          ? timeCache.saveStartTime.toISOString()
+          : new Date(timeCache.saveStartTime).toISOString()
+        : null,
+      pauseStartTime: timeCache.pauseStartTime
+        ? timeCache.pauseStartTime instanceof Date
+          ? timeCache.pauseStartTime.toISOString()
+          : new Date(timeCache.pauseStartTime).toISOString()
+        : null,
+    })) as IEventTimeCacheRaw[],
+    risingSun: {
+      ...game.risingSun,
+      prophecy: {
+        ...game.risingSun.prophecy,
+        suns: game.risingSun.prophecy.suns || 0,
+      },
+    },
+  };
+}
+
+/**
  * Restores the types in a game object by converting string dates to Date objects.
  * @param game - The game object to restore
  * @returns The restored game object with proper types
  * @throws Error if the game object is invalid or contains invalid dates
  */
-export function restoreSavedGame(game: IGameRaw): IGame {
-  if (!Array.isArray(game.log) || game.log.length === 0) {
+export function restoreSavedGame(gameRaw: IGameRaw): IGame {
+  if (!Array.isArray(gameRaw.log) || gameRaw.log.length === 0) {
     throw new EmptyLogError();
   }
 
-  // Restore the timestamps in the log entries
-  const newLog = game.log.map((log: ILogEntryRaw) => {
-    if (!log.timestamp) {
-      throw new Error('Invalid log entry timestamp');
-    }
-    const date = new Date(log.timestamp);
-    if (isNaN(date.getTime())) {
-      throw new Error('Invalid log entry timestamp');
-    }
-    return {
-      ...log,
-      timestamp: date,
-    } as ILogEntry;
-  });
+  try {
+    const game: IGame = convertGameRawToGame(gameRaw);
 
-  const newGame: IGame = {
-    ...game,
-    log: newLog,
-    risingSun: game.risingSun
-      ? {
-          ...game.risingSun,
-          prophecy: {
-            ...game.risingSun.prophecy,
-            suns: game.risingSun.prophecy.suns || 0,
-          },
-        }
-      : undefined,
-  } as IGame;
+    if (!isValidGame(game)) {
+      throw new Error('Invalid game object');
+    }
 
-  // Now validate the game object after restoring dates
-  if (!isValidGame(newGame)) {
-    throw new Error('Invalid game object');
+    return game;
+  } catch (error) {
+    console.error('Error restoring saved game:', error);
+    throw error;
   }
-
-  return newGame;
 }
 
 /**
@@ -177,9 +233,14 @@ export function loadGameJsonFromStorage(
  * Load a game using the provided storage service and add a log entry for the load event.
  * @param saveId - The ID of the save
  * @param storageService - The storage service to use
+ * @param loadTime - The date the game was loaded
  * @returns The loaded game or null if not found
  */
-export function loadGame(saveId: string, storageService: IStorageService): IGame | null {
+export function loadGame(
+  saveId: string,
+  storageService: IStorageService,
+  loadTime: Date
+): IGame | null {
   try {
     const gameString = loadGameJsonFromStorage(saveId, storageService);
     if (!gameString) {
@@ -188,7 +249,7 @@ export function loadGame(saveId: string, storageService: IStorageService): IGame
 
     let game: IGame;
     try {
-      game = safeParseSavedGame(gameString); // Parse game as IGameRaw
+      game = safeParseSavedGame(gameString);
     } catch (parseError) {
       console.error('Error parsing game JSON:', parseError);
       if (parseError instanceof EmptyLogError) {
@@ -197,7 +258,8 @@ export function loadGame(saveId: string, storageService: IStorageService): IGame
       return null;
     }
 
-    game = loadGameAddLog(game); // Ensure this is called
+    game = loadGameAddLog(game, loadTime);
+
     return game;
   } catch (error) {
     console.error('Error loading game:', error);
@@ -288,7 +350,7 @@ export function addToSavedGamesList(
  * @param gameState - The game state
  * @returns The updated game state
  */
-export function loadGameAddLog(gameState: IGame): IGame {
+export function loadGameAddLog(gameState: IGame, loadTime: Date): IGame {
   if (gameState.log.length === 0) {
     throw new EmptyLogError();
   }
@@ -306,6 +368,7 @@ export function loadGameAddLog(gameState: IGame): IGame {
     throw new InvalidLogSaveGameError();
   }
   addLogEntry(gameState, NO_PLAYER, GameLogAction.LOAD_GAME, {
+    timestamp: loadTime,
     linkedActionId: savedGameLog.id,
   });
   return gameState;

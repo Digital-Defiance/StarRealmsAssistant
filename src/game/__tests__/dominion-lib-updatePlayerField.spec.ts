@@ -1,12 +1,11 @@
 import { updatePlayerField } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
 import { IPlayer } from '@/game/interfaces/player';
-import { EmptyGameState } from '@/game/dominion-lib';
 import { InvalidFieldError } from '@/game/errors/invalid-field';
 import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import { PlayerFieldMap } from '@/game/types';
-import { DefaultPlayerColors } from '@/game/constants';
+import { DefaultPlayerColors, EmptyGameState } from '@/game/constants';
 
 describe('updatePlayerField', () => {
   let mockGame: IGame;

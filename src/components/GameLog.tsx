@@ -45,7 +45,6 @@ const GameLog: React.FC = () => {
                     key={entry.id || index}
                     logIndex={index}
                     entry={entry}
-                    isCurrentPlayer={index === gameState.currentPlayerIndex}
                     hasLinkedAction={hasLinkedAction}
                   />
                 );

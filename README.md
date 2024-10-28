@@ -200,6 +200,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Mon Oct 28 20:00:00 2024
+
+- Version 0.7.0
+  - Add import functionality
+  - Add caching of game time calculations so that game log is rendered faster on a big game
+
 ### Sun Oct 27 16:13:00 2024
 
 - Version 0.6.1

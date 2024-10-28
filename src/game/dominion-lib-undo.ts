@@ -19,7 +19,8 @@ import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { getSignedCount } from '@/game/dominion-lib-log';
 import { GamePausedError } from '@/game/errors/game-paused';
-import { IPlayerGameTurnDetails } from './interfaces/player-game-turn-details';
+import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
+import { updateCache } from '@/game/dominion-lib-time';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -103,7 +104,9 @@ export function undoAction(game: IGame, logIndex: number): { game: IGame; succes
   try {
     const gameWithRemovedActions = undoHelpers.removeTargetAndLinkedActions(game, logIndex);
     const reconstructedGame = undoHelpers.reconstructGameState(gameWithRemovedActions);
-
+    // reset the timeCache to invalidate the cache due to the removed actions
+    reconstructedGame.timeCache = [];
+    reconstructedGame.timeCache = updateCache(reconstructedGame);
     return { game: reconstructedGame, success: true };
   } catch (error) {
     if (
@@ -209,6 +212,7 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   }
 
   updatedGame.log.push(deepClone<ILogEntry>(logEntry));
+  updatedGame.timeCache = updateCache(updatedGame);
 
   return updatedGame;
 }

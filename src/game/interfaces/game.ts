@@ -5,6 +5,7 @@ import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { CurrentStep } from '@/game/enumerations/current-step';
+import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
 
 export interface IGame {
   players: IPlayer[];
@@ -17,6 +18,7 @@ export interface IGame {
   firstPlayerIndex: number;
   selectedPlayerIndex: number;
   log: ILogEntry[];
+  timeCache: Array<IEventTimeCache>;
   currentStep: CurrentStep;
   setsRequired: number;
 }

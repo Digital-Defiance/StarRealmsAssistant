@@ -1,11 +1,12 @@
 import { IGame } from '@/game/interfaces/game';
-import { EmptyGameState, NewGameState } from '@/game/dominion-lib';
+import { NewGameState } from '@/game/dominion-lib';
 import { deepClone } from '@/game/utils';
 import { DefaultTurnDetails, EmptyMatDetails, EmptyVictoryDetails } from '@/game/constants';
 import { applyLogAction } from '@/game/dominion-lib-undo';
 import { IPlayer } from '@/game/interfaces/player';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
+import { EmptyGameState } from '@/game/constants';
 
 /**
  * Remove the target action and its linked actions from the game log.
@@ -72,7 +73,8 @@ export function reconstructGameState(game: IGame): IGame {
   reconstructedGame.log = [];
 
   for (let i = 0; i <= game.log.length - 1; i++) {
-    reconstructedGame = applyLogAction(reconstructedGame, game.log[i]);
+    const entry = game.log[i];
+    reconstructedGame = applyLogAction(reconstructedGame, entry);
   }
 
   return reconstructedGame;

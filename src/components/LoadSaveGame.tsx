@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGameContext } from '@/components/GameContext';
 import {
   saveGame,
@@ -13,6 +13,9 @@ import {
   Typography,
   TextField,
   Button,
+  FormControl,
+  Input,
+  InputLabel,
   List,
   ListItem,
   ListItemText,
@@ -29,6 +32,7 @@ import {
   Delete as DeleteIcon,
   SaveAlt as SaveAltIcon,
   Save as SaveIcon,
+  Upload as UploadIcon,
 } from '@mui/icons-material';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { useAlert } from '@/components/AlertContext';
@@ -45,8 +49,10 @@ const LoadSaveGame: React.FC = () => {
   const [savedGames, setSavedGames] = useState<ISavedGameMetadata[]>([]);
   const [saveName, setSaveName] = useState('');
   const [selectedGameId, setSelectedGameId] = useState<string | null>(null);
+  const [importedGameData, setImportedGameData] = useState<IGame | null>(null);
 
-  const storageService = new LocalStorageService(); // Create an instance of the storage service
+  const storageService = new LocalStorageService();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadSavedGamesList();
@@ -54,7 +60,7 @@ const LoadSaveGame: React.FC = () => {
   }, []);
 
   const loadSavedGamesList = () => {
-    const games = getSavedGamesList(storageService); // Pass storageService
+    const games = getSavedGamesList(storageService);
     setSavedGames(games);
   };
 
@@ -102,11 +108,11 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
-  const handleOverwriteConfirm = () => {
+  const handleSaveOverwrite = () => {
     if (gameState && saveName && selectedGameId) {
       setGameState((prevGame) => {
         const newGame = deepClone<IGame>(prevGame);
-        const result = saveGame(newGame, saveName, storageService, selectedGameId); // Pass storageService
+        const result = saveGame(newGame, saveName, storageService, selectedGameId);
         setOpenOverwriteDialog(false);
         if (!result) {
           showAlert('Failed to save game', 'An error occurred while saving the game.');
@@ -115,9 +121,26 @@ const LoadSaveGame: React.FC = () => {
           setSaveName('');
           setSelectedGameId(null);
           loadSavedGamesList();
+          showAlert('Game saved', 'The game has been successfully saved.');
         }
         return newGame;
       });
+    }
+  };
+
+  const handleImportOverwrite = () => {
+    if (importedGameData && saveName && selectedGameId) {
+      const result = saveGame(importedGameData, saveName, storageService, selectedGameId);
+      setOpenOverwriteDialog(false);
+      if (!result) {
+        showAlert('Failed to import game', 'An error occurred while importing the game.');
+      } else {
+        setSaveName('');
+        setSelectedGameId(null);
+        setImportedGameData(null);
+        loadSavedGamesList();
+        showAlert('Game imported', 'The game has been successfully imported.');
+      }
     }
   };
 
@@ -133,7 +156,7 @@ const LoadSaveGame: React.FC = () => {
 
   const loadGameById = (id: string) => {
     setGameState((prevGame) => {
-      const loadedGame = loadGame(id, storageService); // Pass storageService
+      const loadedGame = loadGame(id, storageService, new Date());
       if (loadedGame) {
         setSelectedGameId(null);
         return loadedGame;
@@ -174,17 +197,59 @@ const LoadSaveGame: React.FC = () => {
     if (!selectedGameId) {
       return;
     }
+    let saveGameName = saveName;
+    if (!saveGameName && selectedGameId === AutoSaveGameSaveName) {
+      saveGameName = AutoSaveGameSaveName;
+    }
+
     const saveGameJson = loadGameJsonFromStorage(selectedGameId, storageService);
     if (saveGameJson) {
       const blob = new Blob([saveGameJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `${saveName}.json`;
+      a.download = `${saveGameName}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+    }
+  };
+
+  const handleImportGame = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const importedGame = JSON.parse(e.target?.result as string) as IGame;
+          const gameName = file.name.replace('.json', '');
+
+          // Check if a game with this name already exists
+          const existingGame = savedGames.find((game) => game.name === gameName);
+
+          if (existingGame) {
+            // If the game exists, set the selected game and open the overwrite dialog
+            setSelectedGameId(existingGame.id);
+            setSaveName(gameName);
+            setImportedGameData(importedGame);
+            setOpenOverwriteDialog(true);
+          } else {
+            // If the game doesn't exist, save it directly
+            const result = saveGame(importedGame, gameName, storageService);
+            if (result) {
+              showAlert('Game imported', 'The game has been successfully imported.');
+              loadSavedGamesList();
+            } else {
+              showAlert('Import failed', 'Failed to import the game. Please try again.');
+            }
+          }
+        } catch (error) {
+          console.error('Error importing game:', error);
+          showAlert('Import failed', 'The selected file is not a valid game save.');
+        }
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -193,7 +258,7 @@ const LoadSaveGame: React.FC = () => {
   const canSave = isGameActive || isGameOver;
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ width: '100%', maxWidth: 600, margin: 'auto', p: 2 }}>
       <Typography variant="h5" gutterBottom>
         Save Current Game
       </Typography>
@@ -224,22 +289,14 @@ const LoadSaveGame: React.FC = () => {
             key={game.id}
             disablePadding
             secondaryAction={
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => {
-                  handleDeleteGame(game.id);
-                }}
-              >
+              <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteGame(game.id)}>
                 <DeleteIcon />
               </IconButton>
             }
           >
             <ListItemButton
               selected={selectedGameId === game.id}
-              onClick={() => {
-                handleSelectGame(game);
-              }}
+              onClick={() => handleSelectGame(game)}
             >
               <ListItemText
                 primary={game.name}
@@ -250,66 +307,75 @@ const LoadSaveGame: React.FC = () => {
         ))}
       </List>
 
-      <Button
-        variant="contained"
-        onClick={handleLoadGame}
-        disabled={!selectedGameId}
-        startIcon={<ArrowRightIcon />}
-        sx={{ mt: 2 }}
-      >
-        Load Selected Game
-      </Button>
-      <Button
-        variant="contained"
-        onClick={handleExport}
-        disabled={!selectedGameId}
-        startIcon={<SaveAltIcon />}
-        sx={{ mt: 2, marginLeft: '8px' }}
-        color="secondary"
-      >
-        Export Selected Game
-      </Button>
-      <Dialog
-        open={openDialog}
-        onClose={handleDialogClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{'Game in Progress'}</DialogTitle>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleLoadGame}
+            disabled={!selectedGameId}
+            startIcon={<ArrowRightIcon />}
+          >
+            Load
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleExport}
+            disabled={!selectedGameId}
+            startIcon={<SaveAltIcon />}
+          >
+            Export
+          </Button>
+        </Box>
+
+        <Box>
+          <input
+            type="file"
+            accept=".json"
+            onChange={handleImportGame}
+            style={{ display: 'none' }}
+            ref={fileInputRef}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => fileInputRef.current?.click()}
+            startIcon={<UploadIcon />}
+          >
+            Import Game
+          </Button>
+        </Box>
+      </Box>
+
+      <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle>Load Game</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to load a new game? Your current game progress will be lost.
+          <DialogContentText>
+            Are you sure you want to load this game? Your current game progress will be lost.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Cancel</Button>
           <Button onClick={handleConfirmLoad} autoFocus>
-            OK
+            Load
           </Button>
         </DialogActions>
       </Dialog>
 
-      <Dialog
-        open={openOverwriteDialog}
-        onClose={() => {
-          setOpenOverwriteDialog(false);
-        }}
-      >
-        <DialogTitle>Confirm Overwrite</DialogTitle>
+      <Dialog open={openOverwriteDialog} onClose={() => setOpenOverwriteDialog(false)}>
+        <DialogTitle>Overwrite Game</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            A game with this name already exists. Do you want to overwrite it?
+            Are you sure you want to overwrite the existing game?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
+          <Button onClick={() => setOpenOverwriteDialog(false)}>Cancel</Button>
           <Button
-            onClick={() => {
-              setOpenOverwriteDialog(false);
-            }}
+            onClick={importedGameData ? handleImportOverwrite : handleSaveOverwrite}
+            autoFocus
           >
-            Cancel
-          </Button>
-          <Button onClick={handleOverwriteConfirm} autoFocus>
             Overwrite
           </Button>
         </DialogActions>

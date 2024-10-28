@@ -14,21 +14,22 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
           action: GameLogAction.SAVE_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
       ],
     });
 
-    const result = loadGameAddLog(mockGame);
+    const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
 
     expect(result.log).toHaveLength(3);
     expect(result.log[2]).toMatchObject({
+      timestamp: new Date('2023-01-01T00:02:00Z'),
       action: GameLogAction.LOAD_GAME,
       playerIndex: NO_PLAYER,
       linkedActionId: 'save',
@@ -38,7 +39,7 @@ describe('loadGameAddLog', () => {
   it('should throw EmptyLogError if the log is empty', () => {
     const mockGame = createMockGame(2, { log: [] });
 
-    expect(() => loadGameAddLog(mockGame)).toThrow(EmptyLogError);
+    expect(() => loadGameAddLog(mockGame, new Date())).toThrow(EmptyLogError);
   });
 
   it('should throw InvalidLogSaveGameError if the last entry is not SAVE_GAME', () => {
@@ -48,18 +49,18 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'turn',
           playerIndex: NO_PLAYER,
           action: GameLogAction.NEXT_TURN,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
       ],
     });
 
-    expect(() => loadGameAddLog(mockGame)).toThrow(InvalidLogSaveGameError);
+    expect(() => loadGameAddLog(mockGame, new Date())).toThrow(InvalidLogSaveGameError);
   });
 
   it('should handle multiple SAVE_GAME entries and link to the last one', () => {
@@ -69,33 +70,34 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'save1',
           playerIndex: NO_PLAYER,
           action: GameLogAction.SAVE_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
         {
           id: 'turn',
           playerIndex: NO_PLAYER,
           action: GameLogAction.NEXT_TURN,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:02:00Z'),
         } as ILogEntry,
         {
           id: 'save2',
           playerIndex: NO_PLAYER,
           action: GameLogAction.SAVE_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:03:00Z'),
         } as ILogEntry,
       ],
     });
 
-    const result = loadGameAddLog(mockGame);
+    const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:04:00Z'));
 
     expect(result.log).toHaveLength(5);
     expect(result.log[4]).toMatchObject({
+      timestamp: new Date('2023-01-01T00:04:00Z'),
       action: GameLogAction.LOAD_GAME,
       playerIndex: NO_PLAYER,
       linkedActionId: 'save2',
@@ -109,24 +111,29 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
           action: GameLogAction.SAVE_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
       ],
     });
     mockGame.currentTurn = 5;
     mockGame.currentPlayerIndex = 2;
 
-    const result = loadGameAddLog(mockGame);
+    const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
 
     expect(result).toMatchObject({
       ...mockGame,
-      log: expect.arrayContaining([expect.objectContaining({ action: GameLogAction.LOAD_GAME })]),
+      log: expect.arrayContaining([
+        expect.objectContaining({
+          timestamp: new Date('2023-01-01T00:02:00Z'),
+          action: GameLogAction.LOAD_GAME,
+        }),
+      ]),
     });
     expect(result.currentTurn).toBe(5);
     expect(result.currentPlayerIndex).toBe(2);
@@ -139,18 +146,18 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
           action: GameLogAction.SAVE_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
       ],
     });
 
-    const result = loadGameAddLog(mockGame);
+    const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
 
     expect(result.log[2].id).toBeDefined();
     expect(result.log[2].id).not.toBe('start');
@@ -164,28 +171,33 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
           action: GameLogAction.SAVE_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
         {
           id: 'pause',
           playerIndex: NO_PLAYER,
           action: GameLogAction.PAUSE,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:02:00Z'),
         } as ILogEntry,
       ],
     });
 
-    const result = loadGameAddLog(mockGame);
+    const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:03:00Z'));
 
     expect(result.log.length).toBe(3);
     expect(result.log[2].action).toBe(GameLogAction.LOAD_GAME);
-    expect(result.log).not.toContainEqual(expect.objectContaining({ action: GameLogAction.PAUSE }));
+    expect(result.log).not.toContainEqual(
+      expect.objectContaining({
+        timestamp: new Date('2023-01-01T00:02:00Z'),
+        action: GameLogAction.PAUSE,
+      })
+    );
   });
 
   it('should throw an error if the last log entry is not SAVE_GAME after removing PAUSE', () => {
@@ -195,18 +207,20 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'pause',
           playerIndex: NO_PLAYER,
           action: GameLogAction.PAUSE,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
       ],
     });
 
-    expect(() => loadGameAddLog(mockGame)).toThrow('The last log entry is not a SAVE_GAME event.');
+    expect(() => loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'))).toThrow(
+      'The last log entry is not a SAVE_GAME event.'
+    );
   });
 
   it('should handle the case where the last log entry is SAVE_GAME', () => {
@@ -216,18 +230,18 @@ describe('loadGameAddLog', () => {
           id: 'start',
           playerIndex: 0,
           action: GameLogAction.START_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:00:00Z'),
         } as ILogEntry,
         {
           id: 'save',
           playerIndex: NO_PLAYER,
           action: GameLogAction.SAVE_GAME,
-          timestamp: new Date(),
+          timestamp: new Date('2023-01-01T00:01:00Z'),
         } as ILogEntry,
       ],
     });
 
-    const result = loadGameAddLog(mockGame);
+    const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
 
     expect(result.log.length).toBe(3);
     expect(result.log[2].action).toBe(GameLogAction.LOAD_GAME);
@@ -245,6 +259,6 @@ describe('loadGameAddLog', () => {
       ],
     });
 
-    expect(() => loadGameAddLog(mockGame)).toThrow(EmptyLogError);
+    expect(() => loadGameAddLog(mockGame, new Date())).toThrow(EmptyLogError);
   });
 });
