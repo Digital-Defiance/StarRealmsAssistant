@@ -30,6 +30,7 @@ describe('reconstructGameState', () => {
         pauseStartTime: null,
         saveStartTime: null,
         totalPauseTime: 0,
+        turnPauseTime: 0,
       },
     ];
   });

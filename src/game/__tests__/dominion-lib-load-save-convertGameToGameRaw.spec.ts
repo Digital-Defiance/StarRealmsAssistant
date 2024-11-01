@@ -43,6 +43,7 @@ const mockGame = createMockGame(2, {
       saveStartTime: null,
       pauseStartTime: null,
       adjustedDuration: 0,
+      turnPauseTime: 0,
     },
     {
       eventId: '2',
@@ -52,6 +53,7 @@ const mockGame = createMockGame(2, {
       saveStartTime: null,
       pauseStartTime: null,
       adjustedDuration: 0,
+      turnPauseTime: 0,
     },
   ],
   players: [
@@ -98,6 +100,7 @@ describe('convertGameToGameRaw', () => {
           saveStartTime: null,
           pauseStartTime: null,
           adjustedDuration: 0,
+          turnPauseTime: 0,
         },
         {
           eventId: '2',
@@ -107,6 +110,7 @@ describe('convertGameToGameRaw', () => {
           saveStartTime: null,
           pauseStartTime: null,
           adjustedDuration: 0,
+          turnPauseTime: 0,
         },
       ],
       players: [

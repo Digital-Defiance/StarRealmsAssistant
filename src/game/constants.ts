@@ -8,8 +8,10 @@ import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { deepClone } from '@/game/utils';
 import { IGame } from '@/game/interfaces/game';
+import { ISupplyInfo } from '@/game/interfaces/supply-info';
 
-export const VERSION_NUMBER = '0.7.0';
+export const VERSION_NUMBER = '0.9.0';
+export const LAST_COMPATIBLE_SAVE_VERSION = '0.9.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -25,16 +27,15 @@ export const PROVINCE_VP = 6;
 export const CURSE_COST = 0;
 export const CURSE_VP = -1;
 export const COPPER_COST = 0;
-export const COPPER_COUNT = 60;
 export const COPPER_VALUE = 1;
 export const SILVER_COST = 3;
-export const SILVER_COUNT = 40;
 export const SILVER_VALUE = 2;
 export const GOLD_COST = 6;
-export const GOLD_COUNT = 30;
 export const GOLD_VALUE = 3;
 export const HAND_STARTING_ESTATES = 3;
+export const HAND_STARTING_ESTATES_FROM_SUPPLY = false;
 export const HAND_STARTING_COPPERS = 7;
+export const HAND_STARTING_COPPERS_FROM_SUPPLY = true;
 // Prosperity Kingdom
 export const PLATINUM_TOTAL_COUNT = 12;
 export const PLATINUM_COST = 9;
@@ -43,6 +44,12 @@ export const COLONY_TOTAL_COUNT_2P = 8;
 export const COLONY_TOTAL_COUNT = 12;
 export const COLONY_COST = 11;
 export const COLONY_VP = 10;
+
+// game defaults
+export const DEFAULT_TURN_ACTIONS = 1;
+export const DEFAULT_TURN_BUYS = 1;
+export const DEFAULT_TURN_COINS = 0;
+export const DEFAULT_TURN_CARDS = 5;
 
 /**
  * Default (zero) values for the mats enabled.
@@ -104,10 +111,10 @@ export function EmptyMatDetails(): IMatDetails {
  */
 export function DefaultTurnDetails(): IPlayerGameTurnDetails {
   return deepClone<IPlayerGameTurnDetails>({
-    actions: 1,
-    buys: 1,
-    coins: 0,
-    cards: 5,
+    actions: DEFAULT_TURN_ACTIONS,
+    buys: DEFAULT_TURN_BUYS,
+    coins: DEFAULT_TURN_COINS,
+    cards: DEFAULT_TURN_CARDS,
     gains: 0,
   });
 }
@@ -125,6 +132,142 @@ export function EmptyVictoryDetails(): IVictoryDetails {
     other: 0,
     curses: 0,
   });
+}
+
+// Base Supply calculations from https://wiki.dominionstrategy.com/index.php/Gameplay
+// Prosperity Supply calculations from https://wiki.dominionstrategy.com/index.php/Prosperity
+
+/**
+ * Calculate the supply for a two player game.
+ * @param prosperity Whether prosperity is enabled.
+ * @returns The supply information.
+ */
+export function TwoPlayerSupply(prosperity: boolean): ISupplyInfo {
+  return {
+    setsRequired: 1,
+    supply: deepClone<IGameSupply>({
+      estates: 8,
+      duchies: 8,
+      provinces: 8,
+      coppers: 46,
+      silvers: 40,
+      golds: 30,
+      curses: 10,
+      colonies: prosperity ? 8 : NOT_PRESENT,
+      platinums: prosperity ? 12 : NOT_PRESENT,
+    }),
+  };
+}
+
+/**
+ * Calculate the supply for a three player game.
+ * @param prosperity Whether prosperity is enabled.
+ * @returns The supply information.
+ */
+export function ThreePlayerSupply(prosperity: boolean): ISupplyInfo {
+  return {
+    setsRequired: 1,
+    supply: deepClone<IGameSupply>({
+      estates: 12,
+      duchies: 12,
+      provinces: 12,
+      coppers: 39,
+      silvers: 40,
+      golds: 30,
+      curses: 20,
+      colonies: prosperity ? 12 : NOT_PRESENT,
+      platinums: prosperity ? 12 : NOT_PRESENT,
+    }),
+  };
+}
+
+/**
+ * Calculate the supply for a four player game.
+ * @param prosperity Whether prosperity is enabled.
+ * @returns The supply information.
+ */
+export function FourPlayerSupply(prosperity: boolean): ISupplyInfo {
+  return {
+    setsRequired: 1,
+    supply: deepClone<IGameSupply>({
+      estates: 12,
+      duchies: 12,
+      provinces: 12,
+      coppers: 32,
+      silvers: 40,
+      golds: 30,
+      curses: 30,
+      colonies: prosperity ? 12 : NOT_PRESENT,
+      platinums: prosperity ? 12 : NOT_PRESENT,
+    }),
+  };
+}
+
+/**
+ * Calculate the supply for a five player game.
+ * @param prosperity Whether prosperity is enabled.
+ * @returns The supply information.
+ */
+export function FivePlayerSupply(prosperity: boolean): ISupplyInfo {
+  return {
+    setsRequired: 2,
+    supply: deepClone<IGameSupply>({
+      estates: 12,
+      duchies: 12,
+      provinces: 15,
+      coppers: 85, // Two sets
+      silvers: 80, // Two sets
+      golds: 60, // Two sets
+      curses: 40,
+      colonies: prosperity ? 12 : NOT_PRESENT,
+      platinums: prosperity ? 12 : NOT_PRESENT,
+    }),
+  };
+}
+
+/**
+ * Calculate the supply for a six player game.
+ * @param prosperity Whether prosperity is enabled.
+ * @returns The supply information.
+ */
+export function SixPlayerSupply(prosperity: boolean): ISupplyInfo {
+  return {
+    setsRequired: 2,
+    supply: deepClone<IGameSupply>({
+      estates: 12,
+      duchies: 12,
+      provinces: 18,
+      coppers: 78, // Two sets
+      silvers: 80, // Two sets
+      golds: 60, // Two sets
+      curses: 50,
+      colonies: prosperity ? 12 : NOT_PRESENT,
+      platinums: prosperity ? 12 : NOT_PRESENT,
+    }),
+  };
+}
+
+/**
+ * Calculate the supply for a given player count.
+ * @param playerCount The number of players.
+ * @param prosperity Whether prosperity is enabled.
+ * @returns The supply information.
+ */
+export function SupplyForPlayerCount(playerCount: number, prosperity: boolean): ISupplyInfo {
+  switch (playerCount) {
+    case 2:
+      return TwoPlayerSupply(prosperity);
+    case 3:
+      return ThreePlayerSupply(prosperity);
+    case 4:
+      return FourPlayerSupply(prosperity);
+    case 5:
+      return FivePlayerSupply(prosperity);
+    case 6:
+      return SixPlayerSupply(prosperity);
+    default:
+      throw new Error(`Invalid player count: ${playerCount}`);
+  }
 }
 
 /**
@@ -155,6 +298,8 @@ export function EmptyGameState(): IGame {
     selectedPlayerIndex: NO_PLAYER,
     log: [],
     timeCache: [],
+    turnStatisticsCache: [],
+    gameVersion: VERSION_NUMBER,
   });
 }
 
@@ -169,6 +314,9 @@ export const NoPlayerActions = [
   GameLogAction.UNPAUSE,
 ];
 
+/**
+ * A list of actions that require a count
+ */
 export const AdjustmentActions = [
   // turn actions
   GameLogAction.ADD_ACTIONS,
@@ -219,6 +367,9 @@ export const AdjustmentActions = [
   GameLogAction.REMOVE_NEXT_TURN_CARDS,
 ];
 
+/**
+ * A list of actions that have a negative adjustment.
+ */
 export const NegativeAdjustmentActions = [
   // turn actions
   GameLogAction.REMOVE_ACTIONS,
@@ -268,6 +419,9 @@ export const ActionsWithOnlyLastActionUndo = [GameLogAction.SELECT_PLAYER, GameL
  */
 export const NoUndoActions = [...NoPlayerActions, GameLogAction.START_GAME];
 
+/**
+ * State machine transitions for the game steps.
+ */
 export const StepTransitions: Record<CurrentStep, CurrentStep> = {
   [CurrentStep.AddPlayerNames]: CurrentStep.SelectFirstPlayer,
   [CurrentStep.SelectFirstPlayer]: CurrentStep.SetGameOptions,

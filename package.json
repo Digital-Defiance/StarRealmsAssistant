@@ -29,6 +29,7 @@
     "react-color": "^2.19.3",
     "react-dom": "18.3.1",
     "react-router-dom": "^6.27.0",
+    "semver": "^7.6.3",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
@@ -54,7 +55,10 @@
     "@swc/cli": "~0.3.12",
     "@swc/core": "~1.5.7",
     "@swc/helpers": "~0.5.11",
-    "@testing-library/react": "15.0.6",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/jest": "^29.5.12",
     "@types/node": "18.16.9",
     "@types/react": "^18.3.11",
@@ -79,6 +83,7 @@
     "react-refresh": "^0.10.0",
     "ts-jest": "^29.1.0",
     "ts-node": "10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "tslib": "^2.3.0",
     "typescript": "~5.5.2",
     "typescript-eslint": "^8.0.0",

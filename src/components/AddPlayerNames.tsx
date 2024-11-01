@@ -16,7 +16,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { ColorResult, SketchPicker } from 'react-color';
 import { useGameContext } from '@/components/GameContext';
 import { newPlayer } from '@/game/dominion-lib';
-import { MAX_PLAYERS, MIN_PLAYERS } from '@/game/constants';
+import { MAX_PLAYERS, MIN_PLAYERS, SupplyForPlayerCount } from '@/game/constants';
 import SuperCapsText from '@/components/SuperCapsText';
 import CenteredContainer from '@/components/CenteredContainer';
 import TabTitle from '@/components/TabTitle';
@@ -40,7 +40,8 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   useEffect(() => {
     setGameState((prevState: IGame) => {
       const newGame = deepClone<IGame>(prevState);
-      newGame.setsRequired = prevState.players.length > 4 ? 2 : 1;
+      const supplyInfo = SupplyForPlayerCount(newGame.players.length, false);
+      newGame.setsRequired = supplyInfo.setsRequired;
       return newGame;
     });
   }, [setGameState, gameState.players.length]);

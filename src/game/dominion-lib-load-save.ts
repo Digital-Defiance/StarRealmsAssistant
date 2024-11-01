@@ -6,7 +6,12 @@ import { ISavedGameMetadataRaw } from '@/game/interfaces/saved-game-metadata-raw
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
-import { NO_PLAYER, SaveGameStorageKey, SaveGameStorageKeyPrefix } from '@/game/constants';
+import {
+  LAST_COMPATIBLE_SAVE_VERSION,
+  NO_PLAYER,
+  SaveGameStorageKey,
+  SaveGameStorageKeyPrefix,
+} from '@/game/constants';
 import { addLogEntry } from '@/game/dominion-lib-log';
 import { IPlayer } from '@/game/interfaces/player';
 import { IGameSupply } from '@/game/interfaces/game-supply';
@@ -17,6 +22,8 @@ import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { deepClone } from '@/game/utils';
 import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
+import { gt } from 'semver';
+import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
 
 /**
  * Save the game data using the provided storage service.
@@ -137,6 +144,11 @@ export function convertGameRawToGame(gameRaw: IGameRaw): IGame {
       saveStartTime: cache.saveStartTime ? convertTimestamp(cache.saveStartTime) : null,
       pauseStartTime: cache.pauseStartTime ? convertTimestamp(cache.pauseStartTime) : null,
     })) as IEventTimeCache[],
+    turnStatisticsCache: gameRaw.turnStatisticsCache.map((cache) => ({
+      ...cache,
+      start: convertTimestamp(cache.start),
+      end: convertTimestamp(cache.end),
+    })),
     risingSun: {
       ...gameRaw.risingSun,
       prophecy: {
@@ -176,6 +188,15 @@ export function convertGameToGameRaw(game: IGame): IGameRaw {
           : new Date(timeCache.pauseStartTime).toISOString()
         : null,
     })) as IEventTimeCacheRaw[],
+    turnStatisticsCache: game.turnStatisticsCache.map((turnStatistics) => ({
+      ...turnStatistics,
+      start:
+        turnStatistics.start instanceof Date
+          ? turnStatistics.start.toISOString()
+          : turnStatistics.start,
+      end:
+        turnStatistics.end instanceof Date ? turnStatistics.end.toISOString() : turnStatistics.end,
+    })),
     risingSun: {
       ...game.risingSun,
       prophecy: {
@@ -195,6 +216,17 @@ export function convertGameToGameRaw(game: IGame): IGameRaw {
 export function restoreSavedGame(gameRaw: IGameRaw): IGame {
   if (!Array.isArray(gameRaw.log) || gameRaw.log.length === 0) {
     throw new EmptyLogError();
+  }
+
+  if (
+    gameRaw.gameVersion === undefined ||
+    gameRaw.gameVersion.length === 0 ||
+    gt(LAST_COMPATIBLE_SAVE_VERSION, gameRaw.gameVersion)
+  ) {
+    throw new IncompatibleSaveError(
+      gameRaw.gameVersion ?? 'undefined',
+      LAST_COMPATIBLE_SAVE_VERSION
+    );
   }
 
   try {

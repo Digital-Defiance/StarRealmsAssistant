@@ -6,6 +6,7 @@ import {
   getSavedGamesList,
   deleteSavedGame,
   loadGameJsonFromStorage,
+  restoreSavedGame,
 } from '@/game/dominion-lib-load-save';
 import { ISavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 import {
@@ -13,9 +14,6 @@ import {
   Typography,
   TextField,
   Button,
-  FormControl,
-  Input,
-  InputLabel,
   List,
   ListItem,
   ListItemText,
@@ -40,6 +38,8 @@ import { LocalStorageService } from '@/game/local-storage-service';
 import { AutoSaveGameSaveName } from '@/game/constants';
 import { deepClone } from '@/game/utils';
 import { IGame } from '@/game/interfaces/game';
+import { IGameRaw } from '@/game/interfaces/game-raw';
+import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
 
 const LoadSaveGame: React.FC = () => {
   const { showAlert } = useAlert();
@@ -222,7 +222,8 @@ const LoadSaveGame: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
-          const importedGame = JSON.parse(e.target?.result as string) as IGame;
+          const importedGame = JSON.parse(e.target?.result as string) as IGameRaw;
+          const restoredGame = restoreSavedGame(importedGame);
           const gameName = file.name.replace('.json', '');
 
           // Check if a game with this name already exists
@@ -232,11 +233,11 @@ const LoadSaveGame: React.FC = () => {
             // If the game exists, set the selected game and open the overwrite dialog
             setSelectedGameId(existingGame.id);
             setSaveName(gameName);
-            setImportedGameData(importedGame);
+            setImportedGameData(restoredGame);
             setOpenOverwriteDialog(true);
           } else {
             // If the game doesn't exist, save it directly
-            const result = saveGame(importedGame, gameName, storageService);
+            const result = saveGame(restoredGame, gameName, storageService);
             if (result) {
               showAlert('Game imported', 'The game has been successfully imported.');
               loadSavedGamesList();
@@ -246,7 +247,14 @@ const LoadSaveGame: React.FC = () => {
           }
         } catch (error) {
           console.error('Error importing game:', error);
-          showAlert('Import failed', 'The selected file is not a valid game save.');
+          if (error instanceof IncompatibleSaveError) {
+            showAlert(
+              'Import failed',
+              'The selected file is from an earlier incomaptible version.'
+            );
+          } else {
+            showAlert('Import failed', 'The selected file is not a valid game save.');
+          }
         }
       };
       reader.readAsText(file);

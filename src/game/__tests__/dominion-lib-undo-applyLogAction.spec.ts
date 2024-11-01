@@ -1,13 +1,19 @@
 import { applyLogAction } from '@/game/dominion-lib-undo';
+import { updateCache } from '@/game/dominion-lib-time';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { DefaultTurnDetails, NO_PLAYER } from '@/game/constants';
+import { DefaultTurnDetails } from '@/game/constants';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import { deepClone } from '@/game/utils';
 import { IPlayerGameTurnDetails } from '../interfaces/player-game-turn-details';
+
+jest.mock('@/game/dominion-lib-time', () => ({
+  ...jest.requireActual('@/game/dominion-lib-time'),
+  updateCache: jest.fn(),
+}));
 
 describe('applyLogAction', () => {
   let mockGame: IGame;
@@ -19,6 +25,7 @@ describe('applyLogAction', () => {
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
       /* do nothing */
     });
+    (updateCache as jest.Mock).mockClear();
   });
 
   it('should handle NEXT_TURN action without creating negative counters', () => {
@@ -56,6 +63,7 @@ describe('applyLogAction', () => {
 
     // Verify that the previous turn details are stored in the log entry
     expect(logEntry.playerTurnDetails).toEqual(initialPlayerStates);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should handle NEXT_TURN action', () => {
@@ -73,6 +81,7 @@ describe('applyLogAction', () => {
 
     expect(result.currentPlayerIndex).toBe(1);
     expect(result.currentTurn).toBe(2);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should wrap around player index on NEXT_TURN', () => {
@@ -91,6 +100,7 @@ describe('applyLogAction', () => {
 
     expect(result.currentPlayerIndex).toBe(0);
     expect(result.currentTurn).toBe(2);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should update player field for ADD_ACTIONS', () => {
@@ -107,6 +117,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result.players[0].turn.actions).toBe(3); // Default 1 + 2
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should update player field for REMOVE_ACTIONS', () => {
@@ -124,6 +135,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result.players[0].turn.actions).toBe(1);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should update game-wide counter for ADD_PROPHECY', () => {
@@ -142,6 +154,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result.risingSun.prophecy.suns).toBe(3);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should update game-wide counter for REMOVE_PROPHECY', () => {
@@ -160,6 +173,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result.risingSun.prophecy.suns).toBe(3);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should not allow negative player field/subfield counters', () => {
@@ -174,6 +188,7 @@ describe('applyLogAction', () => {
     };
 
     expect(() => applyLogAction(mockGame, logEntry)).toThrow(NotEnoughSubfieldError);
+    expect(updateCache).toHaveBeenCalledTimes(0);
   });
 
   it('should not allow negative game-wide counters', () => {
@@ -190,6 +205,7 @@ describe('applyLogAction', () => {
     };
 
     expect(() => applyLogAction(mockGame, logEntry)).toThrow(NotEnoughProphecyError);
+    expect(updateCache).toHaveBeenCalledTimes(0);
   });
 
   it('should use default count of 1 for ADD_PROPHECY when count is not provided', () => {
@@ -207,6 +223,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result.risingSun.prophecy.suns).toBe(1);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should use default count of 1 for REMOVE_PROPHECY when count is not provided', () => {
@@ -224,6 +241,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result.risingSun.prophecy.suns).toBe(2);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should handle actions with no count', () => {
@@ -240,6 +258,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result.players[0].turn.actions).toBe(startingActions + 1);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should ignore actions with invalid player index', () => {
@@ -256,6 +275,7 @@ describe('applyLogAction', () => {
     const result = applyLogAction(mockGame, logEntry);
 
     expect(result).toEqual(mockGame); // Game state should remain unchanged
+    expect(updateCache).toHaveBeenCalledTimes(0);
   });
 
   it('should handle unknown action types gracefully', () => {
@@ -273,6 +293,7 @@ describe('applyLogAction', () => {
 
     expect(result).toEqual(mockGame); // Game state should remain unchanged
     expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid log entry action:', logEntry.action);
+    expect(updateCache).toHaveBeenCalledTimes(0);
   });
 
   it('should update the selectedPlayerIndex correctly', () => {
@@ -291,6 +312,7 @@ describe('applyLogAction', () => {
 
     const updatedGame = applyLogAction(game, logEntry);
     expect(updatedGame.selectedPlayerIndex).toBe(2);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should change the selectedPlayerIndex for select_player', () => {
@@ -309,6 +331,7 @@ describe('applyLogAction', () => {
 
     const updatedGame = applyLogAction(game, logEntry);
     expect(updatedGame.selectedPlayerIndex).toBe(0);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 
   it('should not affect selectedPlayerIndex for other actions', () => {
@@ -328,5 +351,6 @@ describe('applyLogAction', () => {
 
     const updatedGame = applyLogAction(game, logEntry);
     expect(updatedGame.selectedPlayerIndex).toBe(0);
+    expect(updateCache).toHaveBeenCalledTimes(1);
   });
 });

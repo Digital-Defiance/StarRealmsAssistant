@@ -69,8 +69,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
   const [supplyDialogOpen, setSupplyDialogOpen] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const fabRef = useRef(null);
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));

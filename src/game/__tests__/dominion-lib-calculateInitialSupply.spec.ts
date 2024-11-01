@@ -2,13 +2,24 @@ import { IGameOptions } from '@/game/interfaces/game-options';
 import { calculateInitialSupply } from '@/game/dominion-lib';
 import { MinPlayersError } from '@/game/errors/min-players';
 import { MaxPlayersError } from '@/game/errors/max-players';
-import { NOT_PRESENT } from '@/game/constants';
+import {
+  FivePlayerSupply,
+  FourPlayerSupply,
+  SixPlayerSupply,
+  ThreePlayerSupply,
+  TwoPlayerSupply,
+} from '@/game/constants';
 
 describe('calculateInitialSupply', () => {
   const defaultOptions = (): IGameOptions => ({
     curses: true,
     expansions: { prosperity: false, renaissance: false, risingSun: false },
     mats: { coffersVillagers: false, debt: false, favors: false },
+  });
+
+  const prosperityOptions = (): IGameOptions => ({
+    ...defaultOptions(),
+    expansions: { ...defaultOptions().expansions, prosperity: true },
   });
 
   it('should throw MinPlayersError when players are less than minimum', () => {
@@ -21,51 +32,52 @@ describe('calculateInitialSupply', () => {
 
   it('should return correct supply for 2 players without Prosperity', () => {
     const supply = calculateInitialSupply(2, defaultOptions());
-    expect(supply).toEqual({
-      estates: 8,
-      duchies: 8,
-      provinces: 8,
-      coppers: 46,
-      silvers: 40,
-      golds: 30,
-      curses: 10,
-      colonies: NOT_PRESENT,
-      platinums: NOT_PRESENT,
-    });
+    expect(supply).toEqual(TwoPlayerSupply(false).supply);
+  });
+
+  it('should return correct supply for 2 players with Prosperity', () => {
+    const supply = calculateInitialSupply(2, prosperityOptions());
+    expect(supply).toEqual(TwoPlayerSupply(true).supply);
+  });
+
+  it('should return correct supply for 3 players without Prosperity', () => {
+    const supply = calculateInitialSupply(3, defaultOptions());
+    expect(supply).toEqual(ThreePlayerSupply(false).supply);
+  });
+
+  it('should return correct supply for 3 players with Prosperity', () => {
+    const supply = calculateInitialSupply(3, prosperityOptions());
+    expect(supply).toEqual(ThreePlayerSupply(true).supply);
   });
 
   it('should return correct supply for 4 players without Prosperity', () => {
     const supply = calculateInitialSupply(4, defaultOptions());
-    expect(supply).toEqual({
-      estates: 12,
-      duchies: 12,
-      provinces: 12,
-      coppers: 32,
-      silvers: 40,
-      golds: 30,
-      curses: 30,
-      colonies: NOT_PRESENT,
-      platinums: NOT_PRESENT,
-    });
+    expect(supply).toEqual(FourPlayerSupply(false).supply);
   });
 
   it('should return correct supply for 4 players with Prosperity', () => {
-    const prosperityOptions = {
-      ...defaultOptions(),
-      expansions: { ...defaultOptions().expansions, prosperity: true },
-    };
-    const supply = calculateInitialSupply(4, prosperityOptions);
-    expect(supply).toEqual({
-      estates: 12,
-      duchies: 12,
-      provinces: 12,
-      coppers: 32,
-      silvers: 40,
-      golds: 30,
-      curses: 30,
-      colonies: 12,
-      platinums: 12,
-    });
+    const supply = calculateInitialSupply(4, prosperityOptions());
+    expect(supply).toEqual(FourPlayerSupply(true).supply);
+  });
+
+  it('should return correct supply for 5 players without Prosperity', () => {
+    const supply = calculateInitialSupply(5, defaultOptions());
+    expect(supply).toEqual(FivePlayerSupply(false).supply);
+  });
+
+  it('should return correct supply for 5 players with Prosperity', () => {
+    const supply = calculateInitialSupply(5, prosperityOptions());
+    expect(supply).toEqual(FivePlayerSupply(true).supply);
+  });
+
+  it('should return correct supply for 6 players without Prosperity', () => {
+    const supply = calculateInitialSupply(6, defaultOptions());
+    expect(supply).toEqual(SixPlayerSupply(false).supply);
+  });
+
+  it('should return correct supply for 6 players with Prosperity', () => {
+    const supply = calculateInitialSupply(6, prosperityOptions());
+    expect(supply).toEqual(SixPlayerSupply(true).supply);
   });
 
   it('should return correct supply when curses are disabled', () => {

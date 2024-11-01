@@ -16,6 +16,8 @@ import {
   MAX_PLAYERS,
   MIN_PLAYERS,
   DefaultPlayerColors,
+  HAND_STARTING_COPPERS_FROM_SUPPLY,
+  HAND_STARTING_ESTATES_FROM_SUPPLY,
 } from '@/game/constants';
 import { computeStartingSupply as computeBaseStartingSupply } from '@/game/interfaces/set-kingdom/base';
 import {
@@ -102,11 +104,20 @@ export function distributeInitialSupply(game: IGame): IGame {
       estates: HAND_STARTING_ESTATES,
     },
   }));
-  // Subtract the distributed coppers from the supply
-  updatedGame.supply = {
-    ...updatedGame.supply,
-    coppers: updatedGame.supply.coppers - playerCount * HAND_STARTING_COPPERS,
-  };
+  if (HAND_STARTING_ESTATES_FROM_SUPPLY) {
+    // Subtract the distributed estates from the supply
+    updatedGame.supply = {
+      ...updatedGame.supply,
+      estates: updatedGame.supply.estates - playerCount * HAND_STARTING_ESTATES,
+    };
+  }
+  if (HAND_STARTING_COPPERS_FROM_SUPPLY) {
+    // Subtract the distributed coppers from the supply
+    updatedGame.supply = {
+      ...updatedGame.supply,
+      coppers: updatedGame.supply.coppers - playerCount * HAND_STARTING_COPPERS,
+    };
+  }
   return updatedGame;
 }
 

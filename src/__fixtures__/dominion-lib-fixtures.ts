@@ -6,6 +6,7 @@ import {
   EmptyMatDetails,
   DefaultTurnDetails,
   DefaultPlayerColors,
+  VERSION_NUMBER,
 } from '@/game/constants';
 import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
@@ -17,8 +18,6 @@ import { CurrentStep } from '@/game/enumerations/current-step';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { deepClone } from '@/game/utils';
 import { IGameRaw } from '@/game/interfaces/game-raw';
-import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
-import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 
 export function createMockGame(playerCount: number, overrides?: Partial<IGame>): IGame {
   const options: IGameOptions = {
@@ -58,8 +57,10 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
       },
     ],
     timeCache: [],
+    turnStatisticsCache: [],
     currentStep: CurrentStep.GameScreen,
     setsRequired: 1,
+    gameVersion: VERSION_NUMBER,
     ...(overrides ? deepClone<Partial<IGame>>(overrides) : {}),
   };
   return distributeInitialSupply(game);
@@ -111,6 +112,11 @@ export function createMockGameRaw(numPlayers: number, overrides?: Partial<IGameR
       ...timeCache,
       saveStartTime: timeCache.saveStartTime ? timeCache.saveStartTime.toISOString() : null,
       pauseStartTime: timeCache.pauseStartTime ? timeCache.pauseStartTime.toISOString() : null,
+    })),
+    turnStatisticsCache: mockGame.turnStatisticsCache.map((turnStatistics) => ({
+      ...turnStatistics,
+      start: turnStatistics.start.toISOString(),
+      end: turnStatistics.end.toISOString(),
     })),
   };
 

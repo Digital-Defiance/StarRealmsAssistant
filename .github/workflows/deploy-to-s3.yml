@@ -1,0 +1,85 @@
+name: Deploy to S3
+
+on:
+  push:
+    branches:
+      - staging # Triggers on pushes to the 'staging' branch
+    tags:
+      - 'v*' # Triggers on tags like v1.0, v2.0, etc.
+
+jobs:
+  deploy-production:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (Node 20)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build the project
+        run: yarn build # Ensure the 'dist/' directory is generated
+
+      - name: Inject Google Analytics tag
+        run: ./inject_ga_tag.sh
+        env:
+          GA_TAG_ID: ${{ vars.GA_TAG_ID }}
+
+      - name: Sync to S3 (Production)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET_NAME: ${{ vars.S3_BUCKET_NAME }}
+          S3_REGION: ${{ vars.S3_REGION }}
+          DEBUG: ${{ vars.S3_DEBUG }}
+        run: |
+          if [ "$DEBUG" = "true" ]; then
+            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
+          else
+            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
+          fi
+
+  deploy-staging:
+    if: github.ref == 'refs/heads/staging'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (Node 20)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build the project
+        run: yarn build # Ensure the 'dist/' directory is generated
+
+      - name: Inject Google Analytics tag
+        run: ./inject_ga_tag.sh
+        env:
+          GA_TAG_ID: ${{ vars.GA_TAG_ID }}
+
+      - name: Sync to S3 (Staging)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET_NAME: ${{ vars.S3_STAGING_BUCKET_NAME }}
+          S3_REGION: ${{ vars.S3_REGION }}
+          DEBUG: ${{ vars.S3_DEBUG }}
+        run: |
+          if [ "$DEBUG" = "true" ]; then
+            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
+          else
+            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
+          fi

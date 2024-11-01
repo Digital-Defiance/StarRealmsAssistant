@@ -4,7 +4,12 @@ import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
 import { IPlayer } from '@/game/interfaces/player';
-import { HAND_STARTING_COPPERS, HAND_STARTING_ESTATES, NOT_PRESENT } from '@/game/constants';
+import {
+  HAND_STARTING_COPPERS,
+  HAND_STARTING_ESTATES,
+  NOT_PRESENT,
+  VERSION_NUMBER,
+} from '@/game/constants';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { MinPlayersError } from '@/game/errors/min-players';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
@@ -48,8 +53,10 @@ describe('distributeInitialSupply', () => {
       selectedPlayerIndex: 0,
       log: [],
       timeCache: [],
+      turnStatisticsCache: [],
       currentStep: CurrentStep.GameScreen,
       setsRequired: 1,
+      gameVersion: VERSION_NUMBER,
     };
 
     const updatedGame = distributeInitialSupply(mockGame);

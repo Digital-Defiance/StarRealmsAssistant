@@ -130,6 +130,7 @@ describe('loadGame', () => {
           pauseStartTime: null,
           saveStartTime: null,
           totalPauseTime: 0,
+          turnPauseTime: 0,
         },
         {
           adjustedDuration: 60000,
@@ -139,6 +140,7 @@ describe('loadGame', () => {
           pauseStartTime: null,
           saveStartTime: new Date('2023-01-01T00:01:00.000Z'),
           totalPauseTime: 0,
+          turnPauseTime: 0,
         },
         {
           adjustedDuration: 60000,
@@ -148,6 +150,7 @@ describe('loadGame', () => {
           pauseStartTime: null,
           saveStartTime: null,
           totalPauseTime: 60000,
+          turnPauseTime: 60000,
         },
       ],
     });

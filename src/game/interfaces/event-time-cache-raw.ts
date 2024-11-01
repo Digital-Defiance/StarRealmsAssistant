@@ -12,6 +12,10 @@ export interface IEventTimeCacheRaw {
    */
   totalPauseTime: number;
   /**
+   * The total time paused during this turn
+   */
+  turnPauseTime: number;
+  /**
    * Whether the game is in a save state at this point
    */
   inSaveState: boolean;

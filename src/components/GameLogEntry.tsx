@@ -22,15 +22,11 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useGameContext } from '@/components/GameContext';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
-import {
-  calculateDurationUpToEvent,
-  formatTimeSpan,
-  logEntryToString,
-} from '@/game/dominion-lib-log';
+import { formatTimeSpan, logEntryToString } from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
-import { getAdjustedDurationFromCache } from '@/game/dominion-lib-time';
+import { getAdjustedDurationFromCacheByIndex } from '@/game/dominion-lib-time';
 
 interface GameLogEntryProps {
   logIndex: number;
@@ -111,7 +107,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedA
         </TableCell>
         <TableCell style={{ width: '15%' }}>
           <Typography variant="caption">
-            {formatTimeSpan(getAdjustedDurationFromCache(gameState, entry.id) ?? 0)}
+            {formatTimeSpan(getAdjustedDurationFromCacheByIndex(gameState, logIndex) ?? 0)}
           </Typography>
         </TableCell>
         <TableCell style={{ width: '60%' }}>

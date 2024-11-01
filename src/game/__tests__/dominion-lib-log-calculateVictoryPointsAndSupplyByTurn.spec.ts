@@ -41,7 +41,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
     expect(result).toHaveLength(1);
     expect(result).toEqual([
       {
-        scoreByPlayer: { 0: 4, 1: 3 },
+        playerScores: { 0: 4, 1: 3 },
         supply: {
           ...initialSupply,
           estates: initialSupply.estates - 1,
@@ -77,7 +77,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
     expect(result).toHaveLength(1);
     expect(result).toEqual([
       {
-        scoreByPlayer: { 0: 2, 1: 3 },
+        playerScores: { 0: 2, 1: 3 },
         supply: {
           ...initialSupply, // No reduction in estates due to trash
         },
@@ -130,14 +130,14 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
     expect(result).toHaveLength(2);
     expect(result).toEqual([
       {
-        scoreByPlayer: { 0: 4, 1: 3 },
+        playerScores: { 0: 4, 1: 3 },
         supply: {
           ...initialSupply,
           estates: initialSupply.estates - 1,
         },
       },
       {
-        scoreByPlayer: { 0: 4, 1: 6 },
+        playerScores: { 0: 4, 1: 6 },
         supply: {
           ...initialSupply,
           estates: initialSupply.estates - 1,
@@ -182,7 +182,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
     expect(result).toHaveLength(1);
     expect(result).toEqual([
       {
-        scoreByPlayer: { 0: 4, 1: 5 },
+        playerScores: { 0: 4, 1: 5 },
         supply: {
           ...initialSupply,
           estates: initialSupply.estates - 1,

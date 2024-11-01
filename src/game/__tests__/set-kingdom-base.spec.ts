@@ -56,9 +56,9 @@ describe('computeStartingSupply for base set', () => {
       estates: 12,
       duchies: 12,
       provinces: 15,
-      coppers: 25,
-      silvers: 40,
-      golds: 30,
+      coppers: 85,
+      silvers: 80,
+      golds: 60,
       curses: 40,
     });
   });

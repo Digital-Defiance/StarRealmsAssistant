@@ -10,11 +10,11 @@ import { AdjustmentActions, NegativeAdjustmentActions, NoPlayerActions } from '@
 import { ITurnDuration } from '@/game/interfaces/turn-duration';
 import { calculateVictoryPoints, getFieldAndSubfieldFromAction } from '@/game/dominion-lib';
 import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
-import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { GamePausedError } from '@/game/errors/game-paused';
 import { CountRequiredError } from '@/game/errors/count-required';
 import { updateCache } from '@/game/dominion-lib-time';
+import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -627,11 +627,99 @@ export function calculateVictoryPointsAndSupplyByTurn(game: IGame): IVictoryGrap
         calculateVictoryPoints(player)
       );
       result.push({
-        scoreByPlayer: { ...victoryPointsByPlayer },
+        playerScores: { ...victoryPointsByPlayer },
         supply: { ...reconstructedGame.supply },
       });
     }
   });
 
   return result;
+}
+
+/**
+ * Get the start time of the game.
+ * @param game - The game object
+ * @returns The start time of the game
+ */
+export function getGameStartTime(game: IGame): Date {
+  if (game.log.length === 0) {
+    throw new EmptyLogError();
+  }
+  if (game.log[0].action !== GameLogAction.START_GAME) {
+    throw new InvalidLogStartGameError();
+  }
+  return new Date(game.log[0].timestamp);
+}
+
+/**
+ * Get the end time of the game.
+ * @param game - The game object
+ * @returns The end time of the game
+ */
+export function getGameEndTime(game: IGame): Date {
+  if (game.log.length === 0) {
+    throw new EmptyLogError();
+  }
+  const lastLog = game.log[game.log.length - 1];
+  if (lastLog.action !== GameLogAction.END_GAME) {
+    throw new Error('Game has not ended');
+  }
+  return new Date(lastLog.timestamp);
+}
+
+/**
+ * Get the start time of a turn.
+ * @param game - The game object
+ * @param turn - The turn number
+ * @returns The start time of the turn
+ */
+export function getTurnStartTime(game: IGame, turn: number): Date {
+  if (turn === 1) {
+    return getGameStartTime(game);
+  }
+  const newTurnLog = game.log.find((entry) => entry.turn === turn);
+  if (newTurnLog === undefined) {
+    throw new Error(`Could not find turn ${turn} in log`);
+  }
+  return newTurnLog.timestamp;
+}
+
+/**
+ * Return the highest turn number in the game
+ * @param game - The game object
+ * @returns The highest turn number in the game
+ */
+export function getGameTurnCount(game: IGame): number {
+  if (game.log.length === 0) {
+    throw new EmptyLogError();
+  }
+  return game.log[game.log.length - 1].turn;
+}
+
+/**
+ * Get the end time of a turn.
+ * @param game - The game object
+ * @param turn - The turn number
+ * @returns The end time of the turn
+ */
+export function getTurnEndTime(game: IGame, turn: number): Date {
+  if (game.log.length === 0) {
+    throw new EmptyLogError();
+  }
+  // a turn ends with either a NEXT_TURN or END_GAME action
+  // a NEXT_TURN will have the next higher turn number than the current turn
+  // an END_GAME will have the same turn number as the current turn
+  const nextTurnLog = game.log.find(
+    (entry) => entry.action === GameLogAction.NEXT_TURN && entry.turn === turn + 1
+  );
+  if (nextTurnLog !== undefined) {
+    return nextTurnLog.timestamp;
+  }
+  const endGameLog = game.log.find(
+    (entry) => entry.action === GameLogAction.END_GAME && entry.turn === turn
+  );
+  if (endGameLog !== undefined) {
+    return endGameLog.timestamp;
+  }
+  throw new Error(`Could not find end time for turn ${turn}`);
 }

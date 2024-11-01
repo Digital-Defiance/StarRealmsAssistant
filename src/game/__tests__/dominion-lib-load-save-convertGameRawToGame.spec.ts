@@ -44,6 +44,7 @@ const mockGame: IGame = createMockGame(2, {
       saveStartTime: null,
       pauseStartTime: null,
       adjustedDuration: 0,
+      turnPauseTime: 0,
     },
     {
       eventId: '2',
@@ -53,6 +54,7 @@ const mockGame: IGame = createMockGame(2, {
       saveStartTime: null,
       pauseStartTime: null,
       adjustedDuration: 0,
+      turnPauseTime: 0,
     },
   ],
   risingSun: {
@@ -97,6 +99,7 @@ const mockGameRaw: IGameRaw = createMockGameRaw(2, {
       saveStartTime: null,
       pauseStartTime: null,
       adjustedDuration: 0,
+      turnPauseTime: 0,
     },
     {
       eventId: '2',
@@ -106,6 +109,7 @@ const mockGameRaw: IGameRaw = createMockGameRaw(2, {
       saveStartTime: null,
       pauseStartTime: null,
       adjustedDuration: 0,
+      turnPauseTime: 0,
     },
   ],
   risingSun: {

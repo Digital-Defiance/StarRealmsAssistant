@@ -2,17 +2,20 @@ import { IGame } from '@/game/interfaces/game';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
 import { ILogEntry } from '@/game/interfaces/log-entry';
+import { ITurnStatistics } from '@/game/interfaces/turn-statistics';
+import { calculateVictoryPoints, NewGameState } from '@/game/dominion-lib';
+import {
+  DefaultTurnDetails,
+  EmptyGameState,
+  EmptyMatDetails,
+  EmptyVictoryDetails,
+} from '@/game/constants';
+import { deepClone } from '@/game/utils';
+import { IGameOptions } from '@/game/interfaces/game-options';
+import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
+import { IPlayer } from '@/game/interfaces/player';
+import { applyLogAction } from '@/game/dominion-lib-undo';
 
-/**
- * Updates the time cache for a given game.
- * @param game - The game object containing log entries and existing time cache.
- * @returns An updated array of IEventTimeCache objects.
- */
-/**
- * Updates the time cache for a given game.
- * @param game - The game object containing log entries and existing time cache.
- * @returns An updated array of IEventTimeCache objects.
- */
 /**
  * Updates the time cache for a given game.
  * @param game - The game object containing log entries and existing time cache.
@@ -22,6 +25,7 @@ export function updateCache(game: IGame): Array<IEventTimeCache> {
   const { log, timeCache } = game;
   let startGameTime: Date | null = null;
   let totalPauseTime = 0;
+  let turnPauseTime = 0;
   let inSaveState = false;
   let inPauseState = false;
   let saveStartTime: Date | null = null;
@@ -44,6 +48,7 @@ export function updateCache(game: IGame): Array<IEventTimeCache> {
   if (lastValidCacheEntryIndex !== -1) {
     const lastValidCacheEntry = timeCache[lastValidCacheEntryIndex];
     totalPauseTime = lastValidCacheEntry.totalPauseTime;
+    turnPauseTime = lastValidCacheEntry.turnPauseTime;
     inSaveState = lastValidCacheEntry.inSaveState;
     inPauseState = lastValidCacheEntry.inPauseState;
     saveStartTime = lastValidCacheEntry.saveStartTime
@@ -76,6 +81,7 @@ export function updateCache(game: IGame): Array<IEventTimeCache> {
       if (inSaveState && saveStartTime !== null) {
         const saveDuration = entryTimestamp.getTime() - saveStartTime.getTime();
         totalPauseTime += saveDuration;
+        turnPauseTime += saveDuration;
         inSaveState = false;
         saveStartTime = null;
       }
@@ -88,9 +94,13 @@ export function updateCache(game: IGame): Array<IEventTimeCache> {
       if (inPauseState && pauseStartTime !== null) {
         const pauseDuration = entryTimestamp.getTime() - pauseStartTime.getTime();
         totalPauseTime += pauseDuration;
+        turnPauseTime += pauseDuration;
         inPauseState = false;
         pauseStartTime = null;
       }
+    } else if (action === GameLogAction.NEXT_TURN || action === GameLogAction.END_GAME) {
+      // Reset turnPauseTime at the start of a new turn or end of the game
+      turnPauseTime = 0;
     }
 
     const adjustedDuration = entryTimestamp.getTime() - startGameTime.getTime() - totalPauseTime;
@@ -99,12 +109,18 @@ export function updateCache(game: IGame): Array<IEventTimeCache> {
     newCache[i] = {
       eventId: entry.id,
       totalPauseTime,
+      turnPauseTime,
       inSaveState,
       inPauseState,
       saveStartTime,
       pauseStartTime,
       adjustedDuration,
     };
+  }
+
+  // Ensure the time cache has the same number of entries as the log
+  if (newCache.length !== log.length) {
+    throw new Error('Time cache length does not match log length');
   }
 
   return newCache;
@@ -151,6 +167,28 @@ export function getCacheEntryForLog(game: IGame, logEntryId: string): IEventTime
 }
 
 /**
+ * Retrieves the cache entry for a specific log entry.
+ * @param game - The game object containing log entries and time cache.
+ * @param logEntryIndex - The index of the log entry to find.
+ * @returns The corresponding IEventTimeCache object, or null if not found.
+ */
+export function getCacheEntryForLogByIndex(
+  game: IGame,
+  logEntryIndex: number
+): IEventTimeCache | null {
+  if (logEntryIndex < 0 || logEntryIndex >= game.log.length) {
+    return null;
+  }
+
+  const cacheEntry = game.timeCache[logEntryIndex];
+  if (cacheEntry) {
+    return cacheEntry;
+  }
+  const updatedCache = updateCache(game);
+  return updatedCache ? (updatedCache[logEntryIndex] ?? null) : null;
+}
+
+/**
  * Retrieves the adjusted duration for a specific log entry from the cache.
  * @param game - The game object containing log entries and time cache.
  * @param logEntryId - The ID of the log entry to find.
@@ -158,6 +196,20 @@ export function getCacheEntryForLog(game: IGame, logEntryId: string): IEventTime
  */
 export function getAdjustedDurationFromCache(game: IGame, logEntryId: string): number | null {
   const cacheEntry = getCacheEntryForLog(game, logEntryId);
+  return cacheEntry?.adjustedDuration ?? null;
+}
+
+/**
+ * Retrieves the adjusted duration for a specific log entry from the cache.
+ * @param game - The game object containing log entries and time cache.
+ * @param logEntryIndex - The index of the log entry.
+ * @returns The adjusted duration in milliseconds, or null if not found.
+ */
+export function getAdjustedDurationFromCacheByIndex(
+  game: IGame,
+  logEntryIndex: number
+): number | null {
+  const cacheEntry = getCacheEntryForLogByIndex(game, logEntryIndex);
   return cacheEntry?.adjustedDuration ?? null;
 }
 
@@ -273,4 +325,119 @@ export function calculateDurationUpToEventWithCache(game: IGame, eventTime: Date
   const adjustedDuration = totalDuration - totalPauseTime;
 
   return adjustedDuration;
+}
+
+/**
+ * Rebuild the time cache and the turn statistics cache for a given game.
+ * This function is expected to be computationally expensive and should be called only when necessary.
+ * The turn statistics should be maintained automatically throughout the game in normal conditions.
+ * @param game - The game object containing log entries, time cache, and turn statistics cache.
+ */
+export function rebuildCaches(game: IGame): {
+  timeCache: Array<IEventTimeCache>;
+  turnStatisticsCache: Array<ITurnStatistics>;
+} {
+  if (game.log.length === 0) {
+    return { timeCache: [], turnStatisticsCache: [] };
+  }
+
+  const newTurnStatisticsCache: Array<ITurnStatistics> = [];
+  let reconstructedGame = NewGameState({
+    ...EmptyGameState(),
+    players: game.players.map((player) => ({
+      ...deepClone<IPlayer>(player),
+      mats: EmptyMatDetails(),
+      turn: DefaultTurnDetails(),
+      newTurn: DefaultTurnDetails(),
+      victory: EmptyVictoryDetails(),
+    })),
+    options: deepClone<IGameOptions>(game.options),
+    firstPlayerIndex: game.firstPlayerIndex,
+    currentPlayerIndex: game.firstPlayerIndex,
+    selectedPlayerIndex: game.firstPlayerIndex,
+    ...(game.risingSun ? { risingSun: deepClone<IRisingSunFeatures>(game.risingSun) } : {}),
+  });
+  // clear the log
+  reconstructedGame.log = [];
+
+  let turnStart: Date = game.log[0].timestamp;
+  let turnEnd: Date | null = null;
+  let currentTurn = 0;
+  for (let i = 0; i < game.log.length; i++) {
+    const entry = game.log[i];
+
+    // also updates the time cache
+    reconstructedGame = applyLogAction(reconstructedGame, entry);
+
+    if (reconstructedGame.log.length !== i + 1) {
+      console.error('Log and time cache out of sync after applying', entry.action);
+      throw new Error(`Log and time cache out of sync after applying ${entry.action}`);
+    }
+
+    const timeCacheEntry = reconstructedGame.timeCache[i];
+    if (timeCacheEntry === undefined) {
+      throw new Error('Unexpected undefined time cache entry');
+    }
+
+    if (entry.action === GameLogAction.START_GAME) {
+      turnStart = entry.timestamp;
+      turnEnd = null;
+      currentTurn = 1;
+    } else if (entry.action === GameLogAction.NEXT_TURN) {
+      turnEnd = entry.timestamp;
+      newTurnStatisticsCache.push({
+        turn: currentTurn,
+        start: turnStart,
+        end: turnEnd,
+        supply: reconstructedGame.supply,
+        playerScores: game.players.map((player) => calculateVictoryPoints(player)),
+        playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex,
+        turnDuration: turnEnd.getTime() - turnStart.getTime() - timeCacheEntry.turnPauseTime,
+      });
+      turnStart = entry.timestamp;
+      currentTurn++;
+    } else if (entry.action === GameLogAction.END_GAME) {
+      turnEnd = entry.timestamp;
+      newTurnStatisticsCache.push({
+        turn: currentTurn,
+        start: turnStart,
+        end: turnEnd,
+        supply: reconstructedGame.supply,
+        playerScores: game.players.map((player) => calculateVictoryPoints(player)),
+        playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex,
+        turnDuration: turnEnd.getTime() - turnStart.getTime() - timeCacheEntry.turnPauseTime,
+      });
+    }
+  }
+
+  return { timeCache: reconstructedGame.timeCache, turnStatisticsCache: newTurnStatisticsCache };
+}
+
+/**
+ * Calculate the average turn duration for the entire game.
+ * @param game - The game object containing the turn statistics cache.
+ * @returns The average turn duration in milliseconds.
+ */
+export function calculateAverageTurnDuration(game: IGame): number {
+  const turnDurations = game.turnStatisticsCache.map((turn) => turn.turnDuration);
+  if (turnDurations.length === 0) {
+    return 0;
+  }
+  return turnDurations.reduce((a, b) => a + b) / turnDurations.length;
+}
+
+/**
+ * Calculate the average turn duration for a specific player.
+ * @param game - The game object containing the turn statistics cache.
+ * @param playerIndex - The index of the player whose turn duration is to be calculated.
+ * @returns The average turn duration for the specified player in milliseconds. If the player has no turns, returns 0.
+ */
+export function calculateAverageTurnDurationForPlayer(game: IGame, playerIndex: number): number {
+  const turnDurations = game.turnStatisticsCache
+    .filter((turn) => turn.playerIndex === playerIndex)
+    .map((turn) => turn.turnDuration);
+  if (turnDurations.length === 0) {
+    return 0;
+  }
+  return turnDurations.reduce((a, b) => a + b) / turnDurations.length;
 }

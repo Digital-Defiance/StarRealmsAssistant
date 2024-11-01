@@ -2,7 +2,7 @@ module.exports = {
   displayName: 'dominion-assistant',
   preset: 'ts-jest', // Use 'ts-jest' preset for TypeScript support
   testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   setupFiles: ['jest-localstorage-mock'],
   collectCoverage: true,
   collectCoverageFrom: [

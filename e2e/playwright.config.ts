@@ -17,7 +17,7 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:4200';
  */
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
-  testMatch: '**/*.spec.ts',
+  testMatch: ['**/*.spec.ts', '**/*.spec.tsx'],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
@@ -67,4 +67,5 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     } */
   ],
+  // globalSetup: join(__dirname, 'global-setup.ts'),
 });

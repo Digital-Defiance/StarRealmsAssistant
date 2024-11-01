@@ -1,10 +1,4 @@
-import {
-  COLONY_TOTAL_COUNT,
-  COLONY_TOTAL_COUNT_2P,
-  MIN_PLAYERS,
-  NOT_PRESENT,
-  PLATINUM_TOTAL_COUNT,
-} from '@/game/constants';
+import { MIN_PLAYERS, NOT_PRESENT, SupplyForPlayerCount } from '@/game/constants';
 import { MinPlayersError } from '@/game/errors/min-players';
 import { IBaseKingdomSet } from '@/game/interfaces/set-kingdom/_base_set';
 
@@ -17,9 +11,10 @@ export function computeStartingSupply(numPlayers: number): IProsperityKingdom {
   if (numPlayers < MIN_PLAYERS) {
     throw new MinPlayersError();
   }
+  const supplyInfo = SupplyForPlayerCount(numPlayers, true);
   return {
-    colonies: numPlayers === 2 ? COLONY_TOTAL_COUNT_2P : COLONY_TOTAL_COUNT,
-    platinums: PLATINUM_TOTAL_COUNT,
+    colonies: supplyInfo.supply.colonies,
+    platinums: supplyInfo.supply.platinums,
   };
 }
 

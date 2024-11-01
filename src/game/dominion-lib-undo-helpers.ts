@@ -50,7 +50,6 @@ export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGa
 /**
  * Reconstructs the game state using the game log
  * @param game - The current game state, used for options/settings
- * @param targetLogIndex - The index of the log entry to reconstruct up to
  * @returns The reconstructed game state
  */
 export function reconstructGameState(game: IGame): IGame {

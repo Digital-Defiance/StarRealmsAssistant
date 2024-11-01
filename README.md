@@ -200,6 +200,21 @@ Join our community of developers.
 
 ## Changelog
 
+### Fri Nov 01 11:45:00 2024
+
+- Version 0.9.0
+  - Breaks save game compatibility by changing some property names in the save game
+  - Adds version compatibility check when loading and importing save games
+  - Reworked cache system to try and improve the game log and statistics pages
+  - Added simulated game generator to test game log performance
+  - Added s3 deployment yaml to auto-deploy to s3 on version tag
+  - Fixed initial supply amounts to use table from BoardGameGeek
+
+### Thu Oct 31 11:45:00 2024
+
+- Version 0.8.0
+  - Extend caching functionality so that statistics page is rendered faster
+
 ### Mon Oct 28 20:00:00 2024
 
 - Version 0.7.0

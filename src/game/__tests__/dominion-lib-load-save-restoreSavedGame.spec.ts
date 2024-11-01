@@ -3,9 +3,10 @@ import { IGameRaw } from '@/game/interfaces/game-raw';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGameRaw } from '@/__fixtures__/dominion-lib-fixtures';
-import { NO_PLAYER } from '@/game/constants';
+import { LAST_COMPATIBLE_SAVE_VERSION, NO_PLAYER } from '@/game/constants';
 import { faker } from '@faker-js/faker';
 import { EmptyLogError } from '@/game/errors/empty-log';
+import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
 
 describe('restoreSavedGame', () => {
   const saveGameTime = new Date();
@@ -76,5 +77,35 @@ describe('restoreSavedGame', () => {
     delete game.log[0].timestamp;
 
     expect(() => restoreSavedGame(game)).toThrow('Invalid timestamp: undefined');
+  });
+
+  it('should throw an error if the game version is undefined', () => {
+    const game = { ...validGameRaw, gameVersion: undefined };
+
+    expect(() => restoreSavedGame(game as unknown as IGameRaw)).toThrow(IncompatibleSaveError);
+    expect(mockConsoleError).not.toHaveBeenCalled();
+  });
+  it('should throw an error if the game version is empty', () => {
+    const game = { ...validGameRaw, gameVersion: '' };
+
+    expect(() => restoreSavedGame(game as unknown as IGameRaw)).toThrow(IncompatibleSaveError);
+    expect(mockConsoleError).not.toHaveBeenCalled();
+  });
+
+  it('should throw an error if the game version is greater than the last compatible save version', () => {
+    const game = { ...validGameRaw, gameVersion: '0.8.0' };
+
+    expect(() => restoreSavedGame(game)).toThrow(IncompatibleSaveError);
+    expect(mockConsoleError).not.toHaveBeenCalled();
+  });
+
+  it('should not throw an error if the game version is compatible', () => {
+    const game = {
+      ...validGameRaw,
+      gameVersion: LAST_COMPATIBLE_SAVE_VERSION,
+    };
+
+    expect(() => restoreSavedGame(game)).not.toThrow();
+    expect(mockConsoleError).not.toHaveBeenCalled();
   });
 });

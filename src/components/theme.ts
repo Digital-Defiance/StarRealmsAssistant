@@ -8,6 +8,9 @@ const theme: Theme = createTheme({
     secondary: {
       main: '#f50057',
     },
+    text: {
+      primary: '#000000',
+    },
   },
   typography: {
     h6: {

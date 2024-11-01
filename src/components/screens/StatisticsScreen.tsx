@@ -22,14 +22,8 @@ import {
   Box,
 } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
-import {
-  calculateAverageTurnDuration,
-  calculateCurrentTurnDuration,
-  calculateGameDuration,
-  calculateTurnDurations,
-  calculateVictoryPointsAndSupplyByTurn,
-  formatTimeSpan,
-} from '@/game/dominion-lib-log';
+import { formatTimeSpan } from '@/game/dominion-lib-log';
+import { calculateAverageTurnDuration } from '@/game/dominion-lib-time';
 import TabTitle from '@/components/TabTitle';
 import { VictoryField } from '@/game/types';
 import { CurrentStep } from '@/game/enumerations/current-step';
@@ -39,20 +33,14 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 export default function StatisticsScreen() {
   const { gameState } = useGameContext();
-  const turnStats = calculateVictoryPointsAndSupplyByTurn(gameState);
-  const gameTimeResult = calculateGameDuration(
-    gameState.log,
-    calculateTurnDurations,
-    calculateCurrentTurnDuration
-  );
-  const averageTurnTime = calculateAverageTurnDuration(gameTimeResult.turnDurations);
+  const averageTurnTime = calculateAverageTurnDuration(gameState);
   const playerColors = gameState.players.map((player) => player.color);
 
   const scoreData = {
-    labels: turnStats.map((stat, index) => `${index + 1}`),
+    labels: gameState.turnStatisticsCache.map((stat) => `${stat.turn}`),
     datasets: gameState.players.map((player, index) => ({
       label: player.name,
-      data: turnStats.map((stat) => stat.scoreByPlayer[index]),
+      data: gameState.turnStatisticsCache.map((stat) => stat.playerScores[index]),
       borderColor: playerColors[index],
       backgroundColor: playerColors[index],
       fill: false,
@@ -63,10 +51,12 @@ export default function StatisticsScreen() {
   const victoryColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
 
   const supplyData = {
-    labels: turnStats.map((stat, index) => `${index + 1}`),
+    labels: gameState.turnStatisticsCache.map((stat, index) => `${index + 1}`),
     datasets: victoryFields.map((field, index) => ({
       label: field,
-      data: turnStats.map((stat) => stat.supply[field as keyof typeof stat.supply]),
+      data: gameState.turnStatisticsCache.map(
+        (stat) => stat.supply[field as keyof typeof stat.supply]
+      ),
       borderColor: victoryColors[index],
       backgroundColor: victoryColors[index],
       fill: false,
@@ -74,11 +64,11 @@ export default function StatisticsScreen() {
   };
 
   const turnTimeData = {
-    labels: gameTimeResult.turnDurations.map((_, index) => `${index + 1}`),
+    labels: gameState.turnStatisticsCache.map((stat) => `${stat.turn}`),
     datasets: [
       {
         label: 'Turn Time (seconds)',
-        data: gameTimeResult.turnDurations.map((duration) => duration.duration / 1000),
+        data: gameState.turnStatisticsCache.map((stat) => stat.turnDuration / 1000),
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         fill: false,
@@ -89,7 +79,7 @@ export default function StatisticsScreen() {
   const gameStarted =
     gameState.currentStep === CurrentStep.GameScreen ||
     gameState.currentStep === CurrentStep.EndGame;
-  const hasTurns = turnStats.length > 0;
+  const hasTurns = gameState.turnStatisticsCache.length > 0;
 
   const chartOptions = {
     responsive: true,
