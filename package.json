@@ -24,6 +24,7 @@
     "@mui/icons-material": "^6.1.3",
     "@mui/material": "^6.1.3",
     "chart.js": "^4.4.5",
+    "module-alias": "^2.2.3",
     "react": "18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-color": "^2.19.3",
@@ -91,5 +92,8 @@
   },
   "nx": {
     "includedScripts": []
+  },
+  "_moduleAliases": {
+    "@": "dist/out-tsc/src"
   }
 }

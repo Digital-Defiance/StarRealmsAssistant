@@ -6,5 +6,28 @@
   "projectType": "application",
   "tags": [],
   "// targets": "to see all targets run: nx show project dominion-assistant --web",
-  "targets": {}
+  "targets": {
+    "build-create-large-game": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "tsc -p tsconfig.createLargeGame.json"
+          }
+        ],
+        "parallel": false
+      }
+    },
+    "run-create-large-game": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "node dist/out-tsc/src/utils/createLargeGame.js"
+          }
+        ],
+        "parallel": false
+      }
+    }
+  }
 }

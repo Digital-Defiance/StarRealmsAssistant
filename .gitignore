@@ -2,6 +2,9 @@
 
 /.env
 
+# game storage
+/game-storage/
+
 # compiled output
 dist
 tmp
