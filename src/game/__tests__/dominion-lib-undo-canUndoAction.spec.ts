@@ -110,6 +110,7 @@ describe('canUndoAction', () => {
           timestamp: new Date(),
           action: GameLogAction.START_GAME,
           playerIndex: 0,
+          turn: 1,
         } as ILogEntry,
         createLogEntry(GameLogAction.ADD_ACTIONS, 1), // actions to 2
         createLogEntry(GameLogAction.REMOVE_ACTIONS, 1), // actions to 1
@@ -124,6 +125,7 @@ describe('canUndoAction', () => {
           timestamp: new Date(),
           action: GameLogAction.START_GAME,
           playerIndex: 0,
+          turn: 1,
         } as ILogEntry,
         createLogEntry(GameLogAction.REMOVE_ACTIONS, 1), // actions to 0
         createLogEntry(GameLogAction.REMOVE_ACTIONS, 1), // actions to -1

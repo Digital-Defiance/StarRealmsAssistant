@@ -8,7 +8,7 @@ import { IGameSupply } from '@/game/interfaces/game-supply';
 import { NegativeAdjustmentActions } from '@/game/constants';
 import { IMatDetails } from '@/game/interfaces/mat-details';
 
-export function generateLargeGame(): IGame {
+export function generateLargeGame(turns = 50): IGame {
   const game = createMockGame(3, {
     options: {
       curses: true,
@@ -38,7 +38,7 @@ export function generateLargeGame(): IGame {
   );
 
   let currentPlayerIndex = 0;
-  for (let turn = 1; turn <= 50; turn++) {
+  for (let turn = 1; turn <= turns; turn++) {
     elapsedTimeMS += Math.floor(Math.random() * 60000);
     const newTimestamp = new Date(gameStartTime.getTime() + elapsedTimeMS);
 

@@ -91,7 +91,7 @@ export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
     action: GameLogAction.ADD_ACTIONS,
     count: faker.number.int({ min: 1, max: 5 }),
     correction: false,
-    linkedActionId: faker.string.uuid(),
+    // linkedActionId: faker.string.uuid(),
     prevPlayerIndex: faker.number.int({ min: 0, max: 3 }),
     ...(log ? deepClone<Partial<ILogEntry>>(log) : {}),
   };

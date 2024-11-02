@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -23,7 +23,11 @@ import {
 } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import { formatTimeSpan } from '@/game/dominion-lib-log';
-import { calculateAverageTurnDuration } from '@/game/dominion-lib-time';
+import {
+  calculateAverageTurnDuration,
+  calculateDurationUpToEventWithCache,
+  rebuildCaches,
+} from '@/game/dominion-lib-time';
 import TabTitle from '@/components/TabTitle';
 import { VictoryField } from '@/game/types';
 import { CurrentStep } from '@/game/enumerations/current-step';
@@ -33,7 +37,20 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 export default function StatisticsScreen() {
   const { gameState } = useGameContext();
-  const averageTurnTime = calculateAverageTurnDuration(gameState);
+
+  let averageTurnTime = 0;
+  let totalGameTime = 0;
+  try {
+    if (gameState.turnStatisticsCache.length > 0 && gameState.log.length > 0) {
+      averageTurnTime = calculateAverageTurnDuration(gameState);
+      totalGameTime = calculateDurationUpToEventWithCache(
+        gameState,
+        gameState.log[gameState.log.length - 1].timestamp
+      );
+    }
+  } catch (error) {
+    console.error('Error calculating statistics:', error);
+  }
   const playerColors = gameState.players.map((player) => player.color);
 
   const scoreData = {
@@ -115,8 +132,15 @@ export default function StatisticsScreen() {
                 </TableHead>
                 <TableBody>
                   <TableRow>
+                    <TableCell>Total Game Time</TableCell>
+                    <TableCell>
+                      {formatTimeSpan(totalGameTime)}
+                      {gameState.currentStep !== CurrentStep.EndGame ? '*' : ''}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
                     <TableCell>Average Turn Time</TableCell>
-                    <TableCell>{formatTimeSpan(averageTurnTime / 1000)}</TableCell>
+                    <TableCell>{formatTimeSpan(averageTurnTime)}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

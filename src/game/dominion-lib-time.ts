@@ -15,6 +15,7 @@ import { IGameOptions } from '@/game/interfaces/game-options';
 import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { IPlayer } from '@/game/interfaces/player';
 import { applyLogAction } from '@/game/dominion-lib-undo';
+import { getTurnStartTime } from '@/game/dominion-lib-log';
 
 /**
  * Updates the time cache for a given game.
@@ -440,4 +441,40 @@ export function calculateAverageTurnDurationForPlayer(game: IGame, playerIndex: 
     return 0;
   }
   return turnDurations.reduce((a, b) => a + b) / turnDurations.length;
+}
+
+/**
+ * Update the time and turn statistics cache for a given (assumed new) log entry.
+ * It is assumed that the game log already contains the new entry.
+ * @param game - The game object containing the log entries, time cache, and turn statistics cache.
+ * @param entry - The new log entry to update the caches for.
+ * @returns An object containing the updated time cache and turn statistics cache.
+ */
+export function updateCachesForEntry(
+  game: IGame,
+  entry: ILogEntry
+): {
+  timeCache: Array<IEventTimeCache>;
+  turnStatisticsCache: Array<ITurnStatistics>;
+} {
+  if (game.log[game.log.length - 1].id !== entry.id) {
+    throw new Error('New log entry does not match the last entry in the log');
+  }
+  const timeCache = updateCache(game);
+  const turnStatisticsCache = deepClone<Array<ITurnStatistics>>(game.turnStatisticsCache);
+  if (entry.action === GameLogAction.NEXT_TURN || entry.action === GameLogAction.END_GAME) {
+    const turn = entry.action === GameLogAction.NEXT_TURN ? entry.turn - 1 : entry.turn;
+    const turnStart = getTurnStartTime(game, turn);
+    const timeCacheEntry = timeCache[game.log.length - 2]; // get the previous time cache entry
+    turnStatisticsCache.push({
+      turn: turn,
+      playerScores: game.players.map((player) => calculateVictoryPoints(player)),
+      supply: game.supply,
+      playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex,
+      start: turnStart,
+      end: entry.timestamp,
+      turnDuration: entry.timestamp.getTime() - turnStart.getTime() - timeCacheEntry.turnPauseTime,
+    });
+  }
+  return { timeCache, turnStatisticsCache };
 }

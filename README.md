@@ -206,8 +206,15 @@ Join our community of developers.
   - Breaks save game compatibility by changing some property names in the save game
   - Adds version compatibility check when loading and importing save games
   - Reworked cache system to try and improve the game log and statistics pages
-  - Added simulated game generator to test game log performance
-  - Added s3 deployment yaml to auto-deploy to s3 on version tag
+    - Implemented new functions for `rebuildCaches` and `updateCachesForEntry` to handle game log caching
+    - Adjusted `applyLogAction` and `addLogEntry` to work with new caching functions
+  - Improved `loadGame` to support reloading of cached data and updated error handling in `loadGameAddLog`
+  - Updated the `StatisticsScreen` to rely on the new updateCachesForEntry function via addLogEntry
+  - Updated tests to mock `updateCachesForEntry` and ensure accurate time cache and statistics calculations
+  - Added simulated game generator with customizable turn count for testing game log performance
+  - Refactored `dominion-lib-fixtures.ts` to simplify mocked log entries for tests
+  - Minor optimizations and bug fixes
+  - Added s3 deployment YAML to auto-deploy to S3 on version tag
   - Fixed initial supply amounts to use table from BoardGameGeek
 
 ### Thu Oct 31 11:45:00 2024

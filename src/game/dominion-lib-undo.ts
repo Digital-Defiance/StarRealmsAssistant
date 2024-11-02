@@ -20,7 +20,7 @@ import { CurrentStep } from '@/game/enumerations/current-step';
 import { getSignedCount } from '@/game/dominion-lib-log';
 import { GamePausedError } from '@/game/errors/game-paused';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
-import { updateCache } from '@/game/dominion-lib-time';
+import { updateCache, updateCachesForEntry } from '@/game/dominion-lib-time';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -212,7 +212,9 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   }
 
   updatedGame.log.push(deepClone<ILogEntry>(logEntry));
-  updatedGame.timeCache = updateCache(updatedGame);
+  const { timeCache, turnStatisticsCache } = updateCachesForEntry(updatedGame, logEntry);
+  updatedGame.timeCache = timeCache;
+  updatedGame.turnStatisticsCache = turnStatisticsCache;
 
   return updatedGame;
 }

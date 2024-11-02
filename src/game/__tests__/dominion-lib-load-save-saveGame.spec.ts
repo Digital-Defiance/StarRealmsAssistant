@@ -41,6 +41,29 @@ describe('saveGame', () => {
     });
   });
 
+  it('should save the game with the specified saveDate', () => {
+    const saveDate = new Date('2023-01-01T00:00:00Z');
+    const result = saveGame(mockGame, 'Test Save', mockStorageService, undefined, saveDate);
+
+    expect(result).toBe(true);
+    expect(mockStorageService.setItem).toHaveBeenCalled();
+    const savedGamesList = JSON.parse(mockStorageService.setItem.mock.calls[1][1]);
+    expect(savedGamesList[0].savedAt).toEqual(saveDate.toISOString());
+  });
+
+  it('should save the game with the current date if saveDate is not provided', () => {
+    const beforeSave = new Date();
+    const result = saveGame(mockGame, 'Test Save', mockStorageService);
+
+    expect(result).toBe(true);
+    expect(mockStorageService.setItem).toHaveBeenCalled();
+    const savedGamesList = JSON.parse(mockStorageService.setItem.mock.calls[1][1]);
+    const afterSave = new Date();
+    const savedAt = new Date(savedGamesList[0].savedAt);
+    expect(savedAt.getTime()).toBeGreaterThanOrEqual(beforeSave.getTime());
+    expect(savedAt.getTime()).toBeLessThanOrEqual(afterSave.getTime());
+  });
+
   it('should add the SAVE_GAME log entry normally if the last log entry is not PAUSE', () => {
     saveGame(mockGame, 'Test Save', mockStorageService);
 
@@ -50,6 +73,17 @@ describe('saveGame', () => {
   it('should save the game data and add to the saved games list', () => {
     saveGame(mockGame, 'Test Save', mockStorageService);
 
+    expect(mockStorageService.setItem).toHaveBeenCalled();
+  });
+
+  it('should not add a SAVE_GAME log entry if the game has ended', () => {
+    const endGameLog = createMockLog({ action: GameLogAction.END_GAME });
+    mockGame.log.push(endGameLog);
+
+    const result = saveGame(mockGame, 'Test Save', mockStorageService);
+
+    expect(result).toBe(true);
+    expect(addLogEntry).not.toHaveBeenCalledWith(mockGame, NO_PLAYER, GameLogAction.SAVE_GAME);
     expect(mockStorageService.setItem).toHaveBeenCalled();
   });
 

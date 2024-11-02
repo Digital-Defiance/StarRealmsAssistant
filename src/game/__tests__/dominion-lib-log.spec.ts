@@ -29,7 +29,7 @@ describe('getGameStartTime', () => {
   it('should return the timestamp of the first log entry if it is START_GAME', () => {
     const startTime = new Date();
     const game: IGame = createMockGame(2, {
-      log: [createMockLog({ action: GameLogAction.START_GAME, timestamp: startTime })],
+      log: [createMockLog({ action: GameLogAction.START_GAME, timestamp: startTime, turn: 1 })],
     });
     expect(getGameStartTime(game)).toEqual(startTime);
   });
@@ -45,7 +45,7 @@ describe('getGameEndTime', () => {
 
   it('should throw an error if the last log entry is not END_GAME', () => {
     const game: IGame = createMockGame(2, {
-      log: [createMockLog({ action: GameLogAction.START_GAME, timestamp: new Date() })],
+      log: [createMockLog({ action: GameLogAction.START_GAME, timestamp: new Date(), turn: 1 })],
     });
     expect(() => getGameEndTime(game)).toThrow('Game has not ended');
   });
@@ -54,8 +54,8 @@ describe('getGameEndTime', () => {
     const endTime = new Date();
     const game: IGame = createMockGame(2, {
       log: [
-        createMockLog({ action: GameLogAction.START_GAME, timestamp: new Date() }),
-        createMockLog({ action: GameLogAction.END_GAME, timestamp: endTime }),
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: new Date(), turn: 1 }),
+        createMockLog({ action: GameLogAction.END_GAME, timestamp: endTime, turn: 1 }),
       ],
     });
     expect(getGameEndTime(game)).toEqual(endTime);

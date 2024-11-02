@@ -143,7 +143,7 @@ describe('reconstructGameState', () => {
           ],
           prevPlayerIndex: baseGame.currentPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
-          turn: 1,
+          turn: 2,
         },
       ],
     };

@@ -13,7 +13,7 @@ import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { GamePausedError } from '@/game/errors/game-paused';
 import { CountRequiredError } from '@/game/errors/count-required';
-import { updateCache } from '@/game/dominion-lib-time';
+import { updateCache, updateCachesForEntry } from '@/game/dominion-lib-time';
 import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
 
 /**
@@ -594,7 +594,9 @@ export function addLogEntry(
     throw new InvalidTrashActionError();
   }
   game.log.push(newLog);
-  game.timeCache = updateCache(game);
+  const { timeCache, turnStatisticsCache } = updateCachesForEntry(game, newLog);
+  game.timeCache = timeCache;
+  game.turnStatisticsCache = turnStatisticsCache;
   return newLog;
 }
 

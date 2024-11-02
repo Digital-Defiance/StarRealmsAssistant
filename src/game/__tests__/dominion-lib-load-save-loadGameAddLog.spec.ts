@@ -3,10 +3,29 @@ import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
 import { NO_PLAYER } from '@/game/constants';
-import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
+import { createMockGame, createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 import { ILogEntry } from '@/game/interfaces/log-entry';
+import { addLogEntry } from '@/game/dominion-lib-log';
+import { faker } from '@faker-js/faker';
+
+jest.mock('@/game/dominion-lib-log', () => ({
+  addLogEntry: jest.fn((game, playerIndex, action, options) => {
+    const logEntry: ILogEntry = createMockLog({
+      id: faker.string.uuid(),
+      playerIndex,
+      action,
+      timestamp: options?.timestamp || new Date(),
+      linkedActionId: options?.linkedActionId,
+    });
+    game.log.push(logEntry);
+    return logEntry;
+  }),
+}));
 
 describe('loadGameAddLog', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
   it('should add a LOAD_GAME entry linked to the last SAVE_GAME entry', () => {
     const mockGame = createMockGame(2, {
       log: [
@@ -15,6 +34,7 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'save',
@@ -26,7 +46,10 @@ describe('loadGameAddLog', () => {
     });
 
     const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
-
+    expect(addLogEntry).toHaveBeenCalledWith(mockGame, NO_PLAYER, GameLogAction.LOAD_GAME, {
+      timestamp: new Date('2023-01-01T00:02:00Z'),
+      linkedActionId: 'save',
+    });
     expect(result.log).toHaveLength(3);
     expect(result.log[2]).toMatchObject({
       timestamp: new Date('2023-01-01T00:02:00Z'),
@@ -40,6 +63,7 @@ describe('loadGameAddLog', () => {
     const mockGame = createMockGame(2, { log: [] });
 
     expect(() => loadGameAddLog(mockGame, new Date())).toThrow(EmptyLogError);
+    expect(addLogEntry).not.toHaveBeenCalled();
   });
 
   it('should throw InvalidLogSaveGameError if the last entry is not SAVE_GAME', () => {
@@ -50,17 +74,20 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'turn',
           playerIndex: NO_PLAYER,
           action: GameLogAction.NEXT_TURN,
           timestamp: new Date('2023-01-01T00:01:00Z'),
+          turn: 2,
         } as ILogEntry,
       ],
     });
 
     expect(() => loadGameAddLog(mockGame, new Date())).toThrow(InvalidLogSaveGameError);
+    expect(addLogEntry).not.toHaveBeenCalled();
   });
 
   it('should handle multiple SAVE_GAME entries and link to the last one', () => {
@@ -71,6 +98,7 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'save1',
@@ -83,6 +111,7 @@ describe('loadGameAddLog', () => {
           playerIndex: NO_PLAYER,
           action: GameLogAction.NEXT_TURN,
           timestamp: new Date('2023-01-01T00:02:00Z'),
+          turn: 2,
         } as ILogEntry,
         {
           id: 'save2',
@@ -94,7 +123,10 @@ describe('loadGameAddLog', () => {
     });
 
     const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:04:00Z'));
-
+    expect(addLogEntry).toHaveBeenCalledWith(mockGame, NO_PLAYER, GameLogAction.LOAD_GAME, {
+      timestamp: new Date('2023-01-01T00:04:00Z'),
+      linkedActionId: 'save2',
+    });
     expect(result.log).toHaveLength(5);
     expect(result.log[4]).toMatchObject({
       timestamp: new Date('2023-01-01T00:04:00Z'),
@@ -102,6 +134,19 @@ describe('loadGameAddLog', () => {
       playerIndex: NO_PLAYER,
       linkedActionId: 'save2',
     });
+  });
+
+  it('should not add a LOAD_GAME log entry if the game has ended', () => {
+    const endGameLog = createMockLog({ action: GameLogAction.END_GAME });
+    const mockGame = createMockGame(2, { log: [endGameLog] });
+
+    const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
+
+    expect(result.log).toHaveLength(1);
+    expect(result.log[0]).toMatchObject({
+      action: GameLogAction.END_GAME,
+    });
+    expect(addLogEntry).not.toHaveBeenCalled();
   });
 
   it('should preserve existing game state and only add the new log entry', () => {
@@ -112,6 +157,7 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'save',
@@ -126,6 +172,10 @@ describe('loadGameAddLog', () => {
 
     const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
 
+    expect(addLogEntry).toHaveBeenCalledWith(mockGame, NO_PLAYER, GameLogAction.LOAD_GAME, {
+      timestamp: new Date('2023-01-01T00:02:00Z'),
+      linkedActionId: 'save',
+    });
     expect(result).toMatchObject({
       ...mockGame,
       log: expect.arrayContaining([
@@ -147,6 +197,7 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'save',
@@ -159,6 +210,10 @@ describe('loadGameAddLog', () => {
 
     const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
 
+    expect(addLogEntry).toHaveBeenCalledWith(mockGame, NO_PLAYER, GameLogAction.LOAD_GAME, {
+      timestamp: new Date('2023-01-01T00:02:00Z'),
+      linkedActionId: 'save',
+    });
     expect(result.log[2].id).toBeDefined();
     expect(result.log[2].id).not.toBe('start');
     expect(result.log[2].id).not.toBe('save');
@@ -172,6 +227,7 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'save',
@@ -190,6 +246,10 @@ describe('loadGameAddLog', () => {
 
     const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:03:00Z'));
 
+    expect(addLogEntry).toHaveBeenCalledWith(mockGame, NO_PLAYER, GameLogAction.LOAD_GAME, {
+      timestamp: new Date('2023-01-01T00:03:00Z'),
+      linkedActionId: 'save',
+    });
     expect(result.log.length).toBe(3);
     expect(result.log[2].action).toBe(GameLogAction.LOAD_GAME);
     expect(result.log).not.toContainEqual(
@@ -208,6 +268,7 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'pause',
@@ -221,6 +282,7 @@ describe('loadGameAddLog', () => {
     expect(() => loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'))).toThrow(
       'The last log entry is not a SAVE_GAME event.'
     );
+    expect(addLogEntry).not.toHaveBeenCalled();
   });
 
   it('should handle the case where the last log entry is SAVE_GAME', () => {
@@ -231,6 +293,7 @@ describe('loadGameAddLog', () => {
           playerIndex: 0,
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T00:00:00Z'),
+          turn: 1,
         } as ILogEntry,
         {
           id: 'save',
@@ -243,6 +306,10 @@ describe('loadGameAddLog', () => {
 
     const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));
 
+    expect(addLogEntry).toHaveBeenCalledWith(mockGame, NO_PLAYER, GameLogAction.LOAD_GAME, {
+      timestamp: new Date('2023-01-01T00:02:00Z'),
+      linkedActionId: 'save',
+    });
     expect(result.log.length).toBe(3);
     expect(result.log[2].action).toBe(GameLogAction.LOAD_GAME);
   });
@@ -260,5 +327,6 @@ describe('loadGameAddLog', () => {
     });
 
     expect(() => loadGameAddLog(mockGame, new Date())).toThrow(EmptyLogError);
+    expect(addLogEntry).not.toHaveBeenCalled();
   });
 });

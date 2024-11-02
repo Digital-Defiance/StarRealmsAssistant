@@ -24,6 +24,7 @@ import { deepClone } from '@/game/utils';
 import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 import { gt } from 'semver';
 import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
+import { rebuildCaches } from './dominion-lib-time';
 
 /**
  * Save the game data using the provided storage service.
@@ -60,13 +61,15 @@ export function saveGame(
   game: IGame,
   name: string,
   storageService: IStorageService,
-  existingId?: string
+  existingId?: string,
+  saveDate?: Date
 ): boolean {
   if (game.log.length === 0) {
     throw new EmptyLogError();
   }
   const lastLog = game.log[game.log.length - 1];
   const isPaused = lastLog.action === GameLogAction.PAUSE;
+  const isEnded = lastLog.action === GameLogAction.END_GAME;
   if (isPaused) {
     // remove the PAUSE log entry
     game.log.pop();
@@ -74,7 +77,7 @@ export function saveGame(
     addLogEntry(game, NO_PLAYER, GameLogAction.SAVE_GAME, { timestamp: lastLog.timestamp });
     // add the PAUSE log entry back after the new SAVE_GAME log entry
     game.log.push(lastLog);
-  } else {
+  } else if (!isEnded) {
     // add the SAVE_GAME log entry normally
     addLogEntry(game, NO_PLAYER, GameLogAction.SAVE_GAME);
   }
@@ -84,7 +87,7 @@ export function saveGame(
       {
         id: saveId,
         name,
-        savedAt: new Date(),
+        savedAt: saveDate ?? new Date(),
       },
       storageService
     );
@@ -291,6 +294,9 @@ export function loadGame(
     }
 
     game = loadGameAddLog(game, loadTime);
+    const { timeCache, turnStatisticsCache } = rebuildCaches(game);
+    game.timeCache = timeCache;
+    game.turnStatisticsCache = turnStatisticsCache;
 
     return game;
   } catch (error) {
@@ -386,23 +392,28 @@ export function loadGameAddLog(gameState: IGame, loadTime: Date): IGame {
   if (gameState.log.length === 0) {
     throw new EmptyLogError();
   }
-  let savedGameLog = gameState.log[gameState.log.length - 1];
+  let lastGameLog = gameState.log[gameState.log.length - 1];
   // special case, if the last log entry is a PAUSE, then we need to remove the PAUSE log entry
   // the save entry will have the time of the pause, so the game time calculations will still be correct
-  if (savedGameLog.action === GameLogAction.PAUSE) {
+  if (lastGameLog.action === GameLogAction.PAUSE) {
     gameState.log.pop();
     if (gameState.log.length === 0) {
       throw new EmptyLogError();
     }
-    savedGameLog = gameState.log[gameState.log.length - 1];
+    lastGameLog = gameState.log[gameState.log.length - 1];
   }
-  if (savedGameLog.action !== GameLogAction.SAVE_GAME) {
+  if (
+    lastGameLog.action !== GameLogAction.SAVE_GAME &&
+    lastGameLog.action !== GameLogAction.END_GAME
+  ) {
     throw new InvalidLogSaveGameError();
   }
-  addLogEntry(gameState, NO_PLAYER, GameLogAction.LOAD_GAME, {
-    timestamp: loadTime,
-    linkedActionId: savedGameLog.id,
-  });
+  if (lastGameLog.action !== GameLogAction.END_GAME) {
+    addLogEntry(gameState, NO_PLAYER, GameLogAction.LOAD_GAME, {
+      timestamp: loadTime,
+      linkedActionId: lastGameLog.id,
+    });
+  }
   return gameState;
 }
 

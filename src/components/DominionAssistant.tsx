@@ -73,20 +73,11 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
     setGameState((prevGame: IGame) => {
       const newGame = deepClone(prevGame);
       const nextPlayerIndex = getNextPlayerIndex(newGame);
-      const nextTurnLog = addLogEntry(newGame, nextPlayerIndex, GameLogAction.NEXT_TURN, {
+      addLogEntry(newGame, nextPlayerIndex, GameLogAction.NEXT_TURN, {
         currentPlayerIndex: nextPlayerIndex,
         playerTurnDetails: gameState.players.map((player) => player.turn),
         prevPlayerIndex: gameState.currentPlayerIndex,
         turn: prevGame.currentTurn + 1,
-      });
-      gameState.turnStatisticsCache.push({
-        turn: prevGame.currentTurn,
-        playerScores: gameState.players.map((player) => calculateVictoryPoints(player)),
-        supply: prevGame.supply,
-        playerIndex: gameState.currentPlayerIndex,
-        start: getTurnStartTime(prevGame, prevGame.currentTurn),
-        end: nextTurnLog.timestamp,
-        turnDuration: 0,
       });
       return resetPlayerTurnCounters(incrementTurnCountersAndPlayerIndices(newGame));
     });
@@ -95,17 +86,8 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
   const endGame = () => {
     setGameState((prevGame: IGame) => {
       const newGame = deepClone<IGame>(prevGame);
-      const endGameLog = addLogEntry(newGame, NO_PLAYER, GameLogAction.END_GAME, {
+      addLogEntry(newGame, NO_PLAYER, GameLogAction.END_GAME, {
         prevPlayerIndex: gameState.currentPlayerIndex,
-      });
-      gameState.turnStatisticsCache.push({
-        turn: prevGame.currentTurn,
-        playerScores: gameState.players.map((player) => calculateVictoryPoints(player)),
-        supply: prevGame.supply,
-        playerIndex: gameState.currentPlayerIndex,
-        start: getTurnStartTime(prevGame, prevGame.currentTurn),
-        end: endGameLog.timestamp,
-        turnDuration: 0,
       });
       newGame.currentStep = CurrentStep.EndGame;
       newGame.currentPlayerIndex = NO_PLAYER;
