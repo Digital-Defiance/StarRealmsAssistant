@@ -85,19 +85,25 @@ const IncrementDecrementControl: React.FC<IncrementDecrementControlProps> = ({
         labelContent
       )}
       {onTrash && (
-        <IconButton onClick={onTrash} size="small">
-          <DeleteIcon fontSize="small" />
-        </IconButton>
+        <Tooltip title="Trash this card and remove it from the supply">
+          <IconButton onClick={onTrash} size="small">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
       )}
-      <IconButton onClick={onDecrement} size="small">
-        <RemoveIcon fontSize="small" />
-      </IconButton>
+      <Tooltip title="Decrease quantity">
+        <IconButton onClick={onDecrement} size="small">
+          <RemoveIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
       <StyledLargeNumber variant="body1" sx={{ minWidth: 20, textAlign: 'center' }}>
         {value}
       </StyledLargeNumber>
-      <IconButton onClick={onIncrement} size="small">
-        <AddIcon fontSize="small" />
-      </IconButton>
+      <Tooltip title="Increase quantity">
+        <IconButton onClick={onIncrement} size="small">
+          <AddIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
     </Box>
   );
 };

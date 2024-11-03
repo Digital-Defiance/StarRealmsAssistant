@@ -54,7 +54,7 @@ describe('distributeInitialSupply', () => {
       log: [],
       timeCache: [],
       turnStatisticsCache: [],
-      currentStep: CurrentStep.GameScreen,
+      currentStep: CurrentStep.Game,
       setsRequired: 1,
       gameVersion: VERSION_NUMBER,
     };

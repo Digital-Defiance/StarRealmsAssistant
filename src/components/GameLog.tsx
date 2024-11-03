@@ -39,7 +39,7 @@ const GameLog: React.FC = () => {
       <Box display="flex" justifyContent="center" sx={{ paddingTop: 4 }}>
         <TabTitle>Game Log</TabTitle>
       </Box>
-      {gameState.currentStep === CurrentStep.GameScreen ||
+      {gameState.currentStep === CurrentStep.Game ||
       gameState.currentStep === CurrentStep.EndGame ? (
         <TableContainer component={Paper} style={{ width: '100%' }}>
           <Table stickyHeader size="small">

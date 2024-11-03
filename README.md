@@ -200,6 +200,14 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 03 14:10:00 2024
+
+- Version 0.9.4
+  - Subtle tweaks to increment/decrement tooltips
+  - Rename GameScreen to GameInterface
+  - Rename CurrentStep.GameScreen to CurrentStep.Game
+  - Show no adjustments instead of empty table in Turn Adjustments component
+
 ### Sun Nov 03 13:52:00 2024
 
 - Version 0.9.3
@@ -292,7 +300,7 @@ Join our community of developers.
   - Displayed the version number in the AboutScreen.
 - Changed
   - Modified the font size of the GameClock component to 1rem for better readability.
-  - Updated GameScreen to conditionally render the GameClock component only if the viewport width is greater than 1300 pixels.
+  - Updated GameInterface to conditionally render the GameClock component only if the viewport width is greater than 1300 pixels.
   - Enhanced the IncrementDecrementControl component to include a trash icon button for decrementing victory fields.
   - Updated the Player component to handle the trash action for victory fields.
 - Fixed
@@ -502,7 +510,7 @@ Join our community of developers.
   - Removed react-native 8081 port forward.
   - Fixed TabView/App to render only single tab.
   - Fixed duplicate about screen.
-  - Fixed canUndo error when not in CurrentStep.GameScreen.
+  - Fixed canUndo error when not in CurrentStep.Game.
   - Added sx property option for SuperCapsText.
   - Used MUI styled instead of emotion styled.
   - Improved About screen sub-panel titles to use SuperCapsText.

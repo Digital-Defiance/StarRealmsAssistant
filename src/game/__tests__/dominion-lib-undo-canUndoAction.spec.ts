@@ -57,7 +57,7 @@ describe('canUndoAction', () => {
     expect(result).toBe(false);
   });
 
-  it('should return false if the game is not in currentStep GameScreen', () => {
+  it('should return false if the game is not in currentStep Game', () => {
     const game = createMockGame(2, {
       log: [
         {

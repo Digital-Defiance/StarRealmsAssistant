@@ -164,7 +164,7 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
     gameStateWithOptions.players.length,
     gameStateWithOptions.options
   );
-  newGameState.currentStep = CurrentStep.GameScreen;
+  newGameState.currentStep = CurrentStep.Game;
   newGameState.currentTurn = 1;
   newGameState.log = [
     {

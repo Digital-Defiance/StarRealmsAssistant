@@ -94,8 +94,7 @@ export default function StatisticsScreen() {
   };
 
   const gameStarted =
-    gameState.currentStep === CurrentStep.GameScreen ||
-    gameState.currentStep === CurrentStep.EndGame;
+    gameState.currentStep === CurrentStep.Game || gameState.currentStep === CurrentStep.EndGame;
   const hasTurns = gameState.turnStatisticsCache.length > 0;
 
   const chartOptions = {

@@ -58,49 +58,58 @@ const TurnAdjustmentsSummary: React.FC<TurnAdjustmentProps> = ({ turn }) => {
           />
         </SecondarySubtitle>
       </Header>
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Field</TableCell>
-              <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Subfield</TableCell>
-              <TableCell align="right" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-                Increment
-              </TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {adjustments.map((adjustment, index) => {
-              if (adjustment.field === null || adjustment.subfield === null) {
-                return null;
-              }
-              const fieldName =
-                adjustment.field.charAt(0).toUpperCase() + adjustment.field.slice(1);
-              const subfieldName =
-                adjustment.subfield.charAt(0).toUpperCase() + adjustment.subfield.slice(1);
+      {adjustments.length === 0 && (
+        <Typography variant="h6" align="center">
+          No adjustments made this turn.
+        </Typography>
+      )}
+      {adjustments.length > 0 && (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Field</TableCell>
+                <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Subfield</TableCell>
+                <TableCell align="right" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  Increment
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {adjustments.map((adjustment, index) => {
+                if (adjustment.field === null || adjustment.subfield === null) {
+                  return null;
+                }
+                const fieldName =
+                  adjustment.field.charAt(0).toUpperCase() + adjustment.field.slice(1);
+                const subfieldName =
+                  adjustment.subfield.charAt(0).toUpperCase() + adjustment.subfield.slice(1);
 
-              return (
-                <TableRow key={index}>
-                  <TableCell sx={{ fontSize: '1.2rem' }}>
-                    <FieldName className="typography-title">{fieldName}</FieldName>
-                  </TableCell>
-                  <TableCell sx={{ fontSize: '1.2rem' }}>
-                    <FieldName className="typography-title">{subfieldName}</FieldName>
-                  </TableCell>
-                  <TableCell
-                    align="right"
-                    sx={{ color: adjustment.increment > 0 ? 'green' : 'red' }}
-                  >
-                    <Quantity>
-                      {adjustment.increment > 0 ? `+${adjustment.increment}` : adjustment.increment}
-                    </Quantity>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                return (
+                  <TableRow key={index}>
+                    <TableCell sx={{ fontSize: '1.2rem' }}>
+                      <FieldName className="typography-title">{fieldName}</FieldName>
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '1.2rem' }}>
+                      <FieldName className="typography-title">{subfieldName}</FieldName>
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{ color: adjustment.increment > 0 ? 'green' : 'red' }}
+                    >
+                      <Quantity>
+                        {adjustment.increment > 0
+                          ? `+${adjustment.increment}`
+                          : adjustment.increment}
+                      </Quantity>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </Container>
   );
 };

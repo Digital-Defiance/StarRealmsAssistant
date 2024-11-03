@@ -146,7 +146,7 @@ const LoadSaveGame: React.FC = () => {
 
   const handleLoadGame = () => {
     if (selectedGameId) {
-      if (gameState.currentStep === CurrentStep.GameScreen) {
+      if (gameState.currentStep === CurrentStep.Game) {
         setOpenDialog(true);
       } else {
         loadGameById(selectedGameId);
@@ -261,7 +261,7 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
-  const isGameActive = gameState.currentStep === CurrentStep.GameScreen;
+  const isGameActive = gameState.currentStep === CurrentStep.Game;
   const isGameOver = gameState.currentStep === CurrentStep.EndGame;
   const canSave = isGameActive || isGameOver;
 

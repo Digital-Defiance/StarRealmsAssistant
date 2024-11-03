@@ -2,20 +2,19 @@ import React, { useEffect, useState } from 'react';
 import AddPlayerNames from '@/components/AddPlayerNames';
 import SelectFirstPlayer from '@/components/SelectFirstPlayer';
 import SetGameOptions from '@/components/SetGameOptions';
-import GameScreen from '@/components/GameScreen';
+import GameInterface from '@/components/GameInterface';
 import EndGame from '@/components/EndGame';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { useGameContext } from '@/components/GameContext';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { NO_PLAYER, StepTransitions } from '@/game/constants';
 import {
-  calculateVictoryPoints,
   getNextPlayerIndex,
   incrementTurnCountersAndPlayerIndices,
   resetPlayerTurnCounters,
 } from '@/game/dominion-lib';
 import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
-import { addLogEntry, getTurnStartTime } from '@/game/dominion-lib-log';
+import { addLogEntry } from '@/game/dominion-lib-log';
 import { useAlert } from '@/components/AlertContext';
 import { Location, NavigateFunction } from 'react-router-dom';
 import { IGame } from '@/game/interfaces/game';
@@ -64,7 +63,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
     // The game initialization is now handled in SetGameOptions
     setGameState((prevState: IGame) => {
       const newGame = deepClone<IGame>(prevState);
-      newGame.currentStep = CurrentStep.GameScreen;
+      newGame.currentStep = CurrentStep.Game;
       return newGame;
     });
   };
@@ -110,8 +109,10 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
       return <SelectFirstPlayer nextStep={nextStep} />;
     case CurrentStep.SetGameOptions:
       return <SetGameOptions startGame={startGame} />;
-    case CurrentStep.GameScreen:
-      return <GameScreen nextTurn={nextTurn} endGame={endGame} undoLastAction={undoLastAction} />;
+    case CurrentStep.Game:
+      return (
+        <GameInterface nextTurn={nextTurn} endGame={endGame} undoLastAction={undoLastAction} />
+      );
     case CurrentStep.EndGame:
       return <EndGame game={gameState} onNewGame={resetGame} />;
     default:

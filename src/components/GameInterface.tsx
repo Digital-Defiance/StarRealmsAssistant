@@ -28,7 +28,7 @@ import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
 import TurnAdjustmentsSummary from './TurnAdjustments';
 
-interface GameScreenProps {
+interface GameInterfaceProps {
   nextTurn: () => void;
   endGame: () => void;
   undoLastAction: () => void;
@@ -61,7 +61,7 @@ const FabContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastAction }) => {
+const GameInterface: React.FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastAction }) => {
   const { gameState, setGameState } = useGameContext();
   const [canUndo, setCanUndo] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
@@ -186,7 +186,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
           </Fab>
         </Tooltip>
       </FabContainer>
-      {gameState.currentStep === CurrentStep.GameScreen && viewportWidth > 1300 && <GameClock />}
+      {gameState.currentStep === CurrentStep.Game && viewportWidth > 1300 && <GameClock />}
       <Dialog open={confirmEndGameDialogOpen} onClose={handleCloseConfirmEndGameDialog}>
         <DialogTitle>Confirm End Game</DialogTitle>
         <DialogContent>
@@ -205,4 +205,4 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
   );
 };
 
-export default GameScreen;
+export default GameInterface;

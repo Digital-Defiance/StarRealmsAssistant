@@ -58,7 +58,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
     ],
     timeCache: [],
     turnStatisticsCache: [],
-    currentStep: CurrentStep.GameScreen,
+    currentStep: CurrentStep.Game,
     setsRequired: 1,
     gameVersion: VERSION_NUMBER,
     ...(overrides ? deepClone<Partial<IGame>>(overrides) : {}),

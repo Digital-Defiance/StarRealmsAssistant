@@ -30,7 +30,7 @@ describe('NewGameState', () => {
 
     const result = NewGameState(initialGameState);
 
-    expect(result.currentStep).toBe(CurrentStep.GameScreen);
+    expect(result.currentStep).toBe(CurrentStep.Game);
     expect(result.players.length).toBe(2);
     expect(result.currentPlayerIndex).toBe(initialGameState.currentPlayerIndex);
     expect(result.firstPlayerIndex).toBe(initialGameState.firstPlayerIndex);
