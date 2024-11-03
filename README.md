@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 03 14:53:00 2024
+
+- Version 0.9.5
+  - Added average actions per turn statistic
+
 ### Sun Nov 03 14:10:00 2024
 
 - Version 0.9.4

@@ -8,6 +8,7 @@ import {
   getTurnAdjustments,
   groupTurnAdjustments,
   getPlayerForTurn,
+  getAverageActionsPerTurn,
 } from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { EmptyLogError } from '@/game/errors/empty-log';
@@ -360,5 +361,72 @@ describe('getPlayerForTurn', () => {
   it('should handle an empty gameState', () => {
     const emptyGameState: IGame = createMockGame(2, { players: [], log: [] });
     expect(() => getPlayerForTurn(emptyGameState, 1)).toThrow('Could not find turn 1 in log');
+  });
+});
+
+describe('getAverageActionsPerTurn', () => {
+  let game: IGame;
+
+  beforeEach(() => {
+    game = createMockGame(2);
+  });
+
+  it('should return the correct average actions per turn', () => {
+    game.log = [
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3 }),
+      createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2 }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5 }),
+      createMockLog({ action: GameLogAction.END_GAME, turn: 2 }),
+    ];
+
+    const averageActions = getAverageActionsPerTurn(game);
+    expect(averageActions).toBe(1);
+  });
+
+  it('should return 0 if there are no turns', () => {
+    game.log = [];
+    const averageActions = getAverageActionsPerTurn(game);
+    expect(averageActions).toBe(0);
+  });
+
+  it('should handle a single turn correctly', () => {
+    game.log = [
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 4 }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 4 }),
+      createMockLog({ action: GameLogAction.END_GAME, turn: 1 }),
+    ];
+
+    const averageActions = getAverageActionsPerTurn(game);
+    expect(averageActions).toBe(2);
+  });
+
+  it('should exclude non-action log entries', () => {
+    game.log = [
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
+      createMockLog({ action: GameLogAction.PAUSE, turn: 1 }),
+      createMockLog({ action: GameLogAction.UNPAUSE, turn: 1 }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3 }),
+      createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2 }),
+      createMockLog({ action: GameLogAction.SAVE_GAME, turn: 2 }),
+      createMockLog({ action: GameLogAction.LOAD_GAME, turn: 2 }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5 }),
+      createMockLog({ action: GameLogAction.END_GAME, turn: 2 }),
+    ];
+
+    const averageActions = getAverageActionsPerTurn(game);
+    expect(averageActions).toBe(1);
+  });
+
+  it('should handle turns with zero actions', () => {
+    game.log = [
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
+      createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2 }),
+      createMockLog({ action: GameLogAction.END_GAME, turn: 2 }),
+    ];
+
+    const averageActions = getAverageActionsPerTurn(game);
+    expect(averageActions).toBe(0);
   });
 });

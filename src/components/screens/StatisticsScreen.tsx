@@ -22,7 +22,7 @@ import {
   Box,
 } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
-import { formatTimeSpan } from '@/game/dominion-lib-log';
+import { formatTimeSpan, getAverageActionsPerTurn } from '@/game/dominion-lib-log';
 import {
   calculateAverageTurnDuration,
   calculateAverageTurnDurationForPlayer,
@@ -144,6 +144,10 @@ export default function StatisticsScreen() {
                   <TableRow>
                     <TableCell>Average Turn Time</TableCell>
                     <TableCell>{formatTimeSpan(averageTurnTime)}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Average Actions Per Turn</TableCell>
+                    <TableCell>{getAverageActionsPerTurn(gameState)}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

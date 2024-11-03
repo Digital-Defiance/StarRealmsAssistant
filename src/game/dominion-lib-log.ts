@@ -786,3 +786,37 @@ export function getPlayerForTurn(game: IGame, turn: number): IPlayer {
   }
   return game.players[turnEntry.playerIndex];
 }
+
+/**
+ * Get the average actions per turn in the game.
+ * @param game - The game object
+ * @returns The average actions per turn
+ */
+export function getAverageActionsPerTurn(game: IGame): number {
+  // turns start with START_GAME or NEXT_TURN and end with NEXT_TURN or END_GAME
+  // count everything between turns, not counting PAUSE, UNPAUSE, SAVE_GAME, LOAD_GAME, SELECT_PLAYER
+  let totalActions = 0;
+  let totalTurns = 0;
+  for (let i = 0; i < game.log.length - 1; i++) {
+    if (
+      game.log[i].action === GameLogAction.START_GAME ||
+      game.log[i].action === GameLogAction.NEXT_TURN
+    ) {
+      totalTurns++;
+      continue;
+    }
+    if (
+      game.log[i].action !== GameLogAction.PAUSE &&
+      game.log[i].action !== GameLogAction.UNPAUSE &&
+      game.log[i].action !== GameLogAction.SAVE_GAME &&
+      game.log[i].action !== GameLogAction.LOAD_GAME &&
+      game.log[i].action !== GameLogAction.SELECT_PLAYER
+    ) {
+      totalActions++;
+    }
+  }
+  if (totalTurns === 0) {
+    return 0;
+  }
+  return Math.floor(totalActions / totalTurns);
+}
