@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Nov 02 22:23:00 2024
+
+- Version 0.9.2
+  - Add link checkbox to link changes together
+
 ### Sat Nov 02 20:21:00 2024
 
 - Version 0.9.1

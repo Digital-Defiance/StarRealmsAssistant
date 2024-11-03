@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TableRow,
   TableCell,
@@ -13,6 +13,7 @@ import {
   DialogTitle,
   Button,
   Box,
+  Link,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit'; // Icon for corrections
 import LinkIcon from '@mui/icons-material/Link';
@@ -27,6 +28,7 @@ import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
 import { getAdjustedDurationFromCacheByIndex } from '@/game/dominion-lib-time';
+import '@/styles.scss';
 
 interface GameLogEntryProps {
   logIndex: number;
@@ -76,6 +78,43 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedA
     }
   };
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      const id = window.location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        // Remove highlight from all elements
+        document
+          .querySelectorAll('.highlighted')
+          .forEach((el) => el.classList.remove('highlighted'));
+        // Add highlight to the target element
+        element.classList.add('highlighted');
+        // Scroll the element into view
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Remove the highlight after 2 seconds
+        setTimeout(() => {
+          element.classList.remove('highlighted');
+        }, 2000);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    // Trigger the highlight on component mount if there's a hash in the URL
+    if (window.location.hash) {
+      handleHashChange();
+    }
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
+  const handleLinkClick = (event: React.MouseEvent, id: string) => {
+    event.preventDefault();
+    window.location.hash = `#log-entry-${id}`;
+    // Manually trigger the hashchange event
+    window.dispatchEvent(new HashChangeEvent('hashchange'));
+  };
+
   const actionText = logEntryToString(entry);
 
   const relevantPlayer = entry.playerIndex > -1 ? gameState.players[entry.playerIndex] : undefined;
@@ -97,6 +136,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedA
   return (
     <>
       <TableRow
+        id={`log-entry-${entry.id}`}
         style={{
           backgroundColor: isNewTurn ? '#e3f2fd' : 'inherit',
           transition: 'background-color 0.3s',
@@ -163,7 +203,14 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedA
         </TableCell>
         <TableCell style={{ width: '10%', textAlign: 'right' }}>
           {(hasLinkedAction || entry.linkedActionId) && (
-            <LinkIcon fontSize="small" color="action" />
+            <Link
+              href={`#log-entry-${entry.linkedActionId ?? entry.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => handleLinkClick(e, entry.linkedActionId ?? entry.id)}
+            >
+              <LinkIcon fontSize="small" color="action" />
+            </Link>
           )}
           {canUndoAction(gameState, logIndex) && (
             <IconButton onClick={handleUndoClick} size="small">

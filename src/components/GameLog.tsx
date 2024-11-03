@@ -17,6 +17,7 @@ import { CurrentStep } from '@/game/enumerations/current-step';
 
 const GameLog: React.FC = () => {
   const { gameState } = useGameContext();
+  console.log(gameState.log);
 
   return (
     <>

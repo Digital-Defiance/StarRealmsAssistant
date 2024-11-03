@@ -107,6 +107,11 @@ canvas {
   height: auto !important;
 }
 
+tr.highlighted {
+  background-color: yellow !important;
+  transition: background-color 0.3s ease;
+}
+
 @font-face {
   font-family: 'CharlemagneStdBold';
   src:
