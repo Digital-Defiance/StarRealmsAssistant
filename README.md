@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Nov 02 20:21:00 2024
+
+- Version 0.9.1
+  - Tiny hotfix to fix the add players page breaking due to recent changesl
+
 ### Fri Nov 01 11:45:00 2024
 
 - Version 0.9.0
