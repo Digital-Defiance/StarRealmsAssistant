@@ -391,7 +391,7 @@ export function rebuildCaches(game: IGame): {
         start: turnStart,
         end: turnEnd,
         supply: reconstructedGame.supply,
-        playerScores: game.players.map((player) => calculateVictoryPoints(player)),
+        playerScores: reconstructedGame.players.map((player) => calculateVictoryPoints(player)),
         playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex,
         turnDuration: turnEnd.getTime() - turnStart.getTime() - timeCacheEntry.turnPauseTime,
       });
@@ -404,7 +404,7 @@ export function rebuildCaches(game: IGame): {
         start: turnStart,
         end: turnEnd,
         supply: reconstructedGame.supply,
-        playerScores: game.players.map((player) => calculateVictoryPoints(player)),
+        playerScores: reconstructedGame.players.map((player) => calculateVictoryPoints(player)),
         playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex,
         turnDuration: turnEnd.getTime() - turnStart.getTime() - timeCacheEntry.turnPauseTime,
       });

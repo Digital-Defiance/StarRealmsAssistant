@@ -48,6 +48,10 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
   if (logIndex < 0 || logIndex >= game.log.length) {
     return false;
   }
+  if (game.log.length === 0) {
+    return false;
+  }
+
   const isMostRecent = logIndex === game.log.length - 1;
 
   if (game.currentStep !== CurrentStep.GameScreen) {
@@ -149,6 +153,10 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
     // set first player to the player who started the game
     updatedGame.firstPlayerIndex = logEntry.playerIndex;
     updatedGame.selectedPlayerIndex = logEntry.playerIndex;
+    updatedGame.currentStep = CurrentStep.GameScreen;
+    updatedGame.currentTurn = 1;
+  } else if (logEntry.action === GameLogAction.END_GAME) {
+    updatedGame.currentStep = CurrentStep.EndGame;
   } else if (logEntry.action === GameLogAction.NEXT_TURN) {
     // Move to next player
     updatedGame.currentTurn = game.currentTurn + 1;

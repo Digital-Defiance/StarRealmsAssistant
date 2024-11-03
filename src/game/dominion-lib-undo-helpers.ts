@@ -7,6 +7,7 @@ import { IPlayer } from '@/game/interfaces/player';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { EmptyGameState } from '@/game/constants';
+import { rebuildCaches } from '@/game/dominion-lib-time';
 
 /**
  * Remove the target action and its linked actions from the game log.

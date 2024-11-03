@@ -25,8 +25,8 @@ import { useGameContext } from '@/components/GameContext';
 import { formatTimeSpan } from '@/game/dominion-lib-log';
 import {
   calculateAverageTurnDuration,
+  calculateAverageTurnDurationForPlayer,
   calculateDurationUpToEventWithCache,
-  rebuildCaches,
 } from '@/game/dominion-lib-time';
 import TabTitle from '@/components/TabTitle';
 import { VictoryField } from '@/game/types';
@@ -121,7 +121,7 @@ export default function StatisticsScreen() {
             <Box className="graph-container">
               <Line data={turnTimeData} options={chartOptions} />
             </Box>
-            <Typography variant="h6">Statistics Table</Typography>
+            <Typography variant="h6">Game Statistics</Typography>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -131,6 +131,10 @@ export default function StatisticsScreen() {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  <TableRow>
+                    <TableCell>Total Turns</TableCell>
+                    <TableCell>{gameState.currentTurn}</TableCell>
+                  </TableRow>
                   <TableRow>
                     <TableCell>Total Game Time</TableCell>
                     <TableCell>
@@ -142,6 +146,28 @@ export default function StatisticsScreen() {
                     <TableCell>Average Turn Time</TableCell>
                     <TableCell>{formatTimeSpan(averageTurnTime)}</TableCell>
                   </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <br />
+            <Typography variant="h6">Average Player Turn Time</Typography>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Player</TableCell>
+                    <TableCell>Average Turn Time</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {gameState.players.map((player, index) => (
+                    <TableRow key={player.name}>
+                      <TableCell>{player.name}</TableCell>
+                      <TableCell>
+                        {formatTimeSpan(calculateAverageTurnDurationForPlayer(gameState, index))}
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </TableContainer>

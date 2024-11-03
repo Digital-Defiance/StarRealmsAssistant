@@ -4,14 +4,10 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { faker } from '@faker-js/faker';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
-import {
-  ActionsWithOnlyLastActionUndo,
-  DefaultTurnDetails,
-  NoPlayerActions,
-  NoUndoActions,
-} from '@/game/constants';
+import { ActionsWithOnlyLastActionUndo, DefaultTurnDetails, NoUndoActions } from '@/game/constants';
 import { NotEnoughSupplyError } from '../errors/not-enough-supply';
 import { NotEnoughProphecyError } from '../errors/not-enough-prophecy';
+import { CurrentStep } from '../enumerations/current-step';
 
 jest.mock('@/game/dominion-lib-undo-helpers', () => {
   return {
@@ -50,6 +46,40 @@ describe('canUndoAction', () => {
     });
     removeTargetAndLinkedActionsSpy = jest.spyOn(undoHelpers, 'removeTargetAndLinkedActions');
     reconstructGameStateSpy = jest.spyOn(undoHelpers, 'reconstructGameState');
+  });
+
+  it('should return false if the game log is empty', () => {
+    const game = createMockGame(2, {
+      log: [],
+    });
+
+    const result = undoModule.canUndoAction(game, 1);
+    expect(result).toBe(false);
+  });
+
+  it('should return false if the game is not in currentStep GameScreen', () => {
+    const game = createMockGame(2, {
+      log: [
+        {
+          id: faker.string.uuid(),
+          timestamp: new Date(),
+          action: GameLogAction.START_GAME,
+          playerIndex: 0,
+          turn: 1,
+        } as ILogEntry,
+        {
+          id: faker.string.uuid(),
+          timestamp: new Date(),
+          action: GameLogAction.END_GAME,
+          playerIndex: 0,
+          turn: 1,
+        } as ILogEntry,
+      ],
+      currentStep: CurrentStep.EndGame,
+    });
+
+    const result = undoModule.canUndoAction(game, 1);
+    expect(result).toBe(false);
   });
 
   it('should return false for negative log index', () => {
