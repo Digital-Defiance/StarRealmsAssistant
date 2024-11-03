@@ -40,7 +40,8 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
   useEffect(() => {
     setGameState((prevState: IGame) => {
       const newGame = deepClone<IGame>(prevState);
-      const supplyInfo = SupplyForPlayerCount(newGame.players.length, false);
+      const minPlayers = Math.max(MIN_PLAYERS, newGame.players.length);
+      const supplyInfo = SupplyForPlayerCount(minPlayers, newGame.options.expansions.prosperity);
       newGame.setsRequired = supplyInfo.setsRequired;
       return newGame;
     });

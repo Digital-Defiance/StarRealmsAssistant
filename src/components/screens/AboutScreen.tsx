@@ -168,7 +168,16 @@ export default function AboutScreen() {
         </Box>
       </Box>
       <Box mt={4} width="100%" textAlign="center" sx={{ paddingBottom: '56px' }}>
-        <Typography variant="body2">Version: {VERSION_NUMBER}</Typography>
+        <Typography variant="body2">
+          Version:{' '}
+          <Link
+            href="https://github.com/Digital-Defiance/DominionAssistant?tab=readme-ov-file#changelog"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {VERSION_NUMBER}
+          </Link>
+        </Typography>
       </Box>
     </CenteredContainer>
   );
