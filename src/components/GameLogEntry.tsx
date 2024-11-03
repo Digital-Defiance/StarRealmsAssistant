@@ -18,6 +18,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit'; // Icon for corrections
 import LinkIcon from '@mui/icons-material/Link';
 import UndoIcon from '@mui/icons-material/Undo';
+import AdjustmentsIcon from '@mui/icons-material/Tune';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useGameContext } from '@/components/GameContext';
@@ -33,10 +34,14 @@ import '@/styles.scss';
 interface GameLogEntryProps {
   logIndex: number;
   entry: ILogEntry;
-  hasLinkedAction: boolean;
+  onOpenTurnAdjustmentsDialog: (turn: number) => void;
 }
 
-const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedAction }) => {
+const GameLogEntry: React.FC<GameLogEntryProps> = ({
+  logIndex,
+  entry,
+  onOpenTurnAdjustmentsDialog,
+}) => {
   const { gameState, setGameState } = useGameContext();
   const [openUndoDialog, setOpenUndoDialog] = useState(false);
 
@@ -125,6 +130,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedA
   const isNotTriggeredByPlayer = [GameLogAction.SELECT_PLAYER, GameLogAction.NEXT_TURN].includes(
     entry.action
   );
+  const hasLinkedAction = gameState.log.some((logEntry) => logEntry.linkedActionId === entry.id);
 
   if (entry.playerIndex > -1 && !gameState.players[entry.playerIndex]) {
     console.warn(`Player not found for index ${entry.playerIndex}`, {
@@ -216,6 +222,14 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({ logIndex, entry, hasLinkedA
             <IconButton onClick={handleUndoClick} size="small">
               <Tooltip title="Undo this entry">
                 <UndoIcon fontSize="small" />
+              </Tooltip>
+            </IconButton>
+          )}
+          {(entry.action === GameLogAction.NEXT_TURN ||
+            entry.action === GameLogAction.START_GAME) && (
+            <IconButton onClick={() => onOpenTurnAdjustmentsDialog(entry.turn)} size="small">
+              <Tooltip title="View Turn Adjustments">
+                <AdjustmentsIcon fontSize="small" />
               </Tooltip>
             </IconButton>
           )}

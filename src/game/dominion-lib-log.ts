@@ -13,8 +13,10 @@ import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { GamePausedError } from '@/game/errors/game-paused';
 import { CountRequiredError } from '@/game/errors/count-required';
-import { updateCache, updateCachesForEntry } from '@/game/dominion-lib-time';
+import { updateCachesForEntry } from '@/game/dominion-lib-time';
 import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
+import { ITurnAdjustment } from '@/game/interfaces/turn-adjustment';
+import { IPlayer } from '@/game/interfaces/player';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -724,4 +726,63 @@ export function getTurnEndTime(game: IGame, turn: number): Date {
     return endGameLog.timestamp;
   }
   throw new Error(`Could not find end time for turn ${turn}`);
+}
+
+/**
+ * Get the adjustments made during the current turn
+ * @param game - The game object
+ * @returns An array of turn adjustments
+ */
+export function getTurnAdjustments(game: IGame, turn?: number): Array<ITurnAdjustment> {
+  return game.log
+    .filter(
+      (entry) =>
+        entry.turn === (turn ?? game.currentTurn) && AdjustmentActions.includes(entry.action)
+    )
+    .map((entry) => {
+      const { field, subfield } = getFieldAndSubfieldFromAction(entry.action);
+      return { field, subfield, increment: getSignedCount(entry) };
+    });
+}
+
+/**
+ * Group turn adjustments by field and subfield
+ * @param adjustments - An array of turn adjustments
+ * @returns An array of grouped turn adjustments
+ */
+export function groupTurnAdjustments(adjustments: Array<ITurnAdjustment>): Array<ITurnAdjustment> {
+  const groupedAdjustments: Array<ITurnAdjustment> = [];
+  adjustments.forEach((adjustment) => {
+    const existingAdjustment = groupedAdjustments.find(
+      (adj) => adj.field === adjustment.field && adj.subfield === adjustment.subfield
+    );
+    if (existingAdjustment) {
+      existingAdjustment.increment += adjustment.increment;
+    } else {
+      groupedAdjustments.push(adjustment);
+    }
+  });
+  return groupedAdjustments;
+}
+
+/**
+ * Get the player for a given turn
+ * @param game - The game object
+ * @param turn - The turn number
+ * @returns The player object for the turn
+ */
+export function getPlayerForTurn(game: IGame, turn: number): IPlayer {
+  const turnAction = turn === 1 ? GameLogAction.START_GAME : GameLogAction.NEXT_TURN;
+  const turnEntry = game.log.find((entry) => entry.action === turnAction && entry.turn === turn);
+  if (turnEntry === undefined) {
+    throw new Error(`Could not find turn ${turn} in log`);
+  }
+  if (
+    turnEntry.playerIndex === undefined ||
+    turnEntry.playerIndex < 0 ||
+    turnEntry.playerIndex >= game.players.length
+  ) {
+    throw new Error(`Invalid player index for turn ${turn} in log`);
+  }
+  return game.players[turnEntry.playerIndex];
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Paper,
   TableContainer,
@@ -9,15 +9,30 @@ import {
   TableCell,
   Typography,
   Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
 import TabTitle from '@/components/TabTitle';
 import { CurrentStep } from '@/game/enumerations/current-step';
+import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
 
 const GameLog: React.FC = () => {
   const { gameState } = useGameContext();
-  console.log(gameState.log);
+  const [openTurnAdjustmentsDialog, setOpenTurnAdjustmentsDialog] = useState(false);
+  const [selectedTurn, setSelectedTurn] = useState<number | null>(null);
+
+  const handleOpenTurnAdjustmentsDialog = (turn: number) => {
+    setSelectedTurn(turn);
+    setOpenTurnAdjustmentsDialog(true);
+  };
+
+  const handleCloseTurnAdjustmentsDialog = () => {
+    setOpenTurnAdjustmentsDialog(false);
+    setSelectedTurn(null);
+  };
 
   return (
     <>
@@ -38,15 +53,12 @@ const GameLog: React.FC = () => {
             </TableHead>
             <TableBody>
               {gameState.log.map((entry, index) => {
-                const hasLinkedAction = gameState.log.some(
-                  (logEntry) => logEntry.linkedActionId === entry.id
-                );
                 return (
                   <GameLogEntry
                     key={entry.id || index}
                     logIndex={index}
                     entry={entry}
-                    hasLinkedAction={hasLinkedAction}
+                    onOpenTurnAdjustmentsDialog={handleOpenTurnAdjustmentsDialog}
                   />
                 );
               })}
@@ -58,6 +70,15 @@ const GameLog: React.FC = () => {
           The game has not started yet.
         </Typography>
       )}
+      <Dialog
+        open={openTurnAdjustmentsDialog}
+        onClose={handleCloseTurnAdjustmentsDialog}
+        aria-labelledby="turn-adjustments-dialog-title"
+      >
+        <DialogContent>
+          {selectedTurn !== null && <TurnAdjustmentsSummary turn={selectedTurn} />}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

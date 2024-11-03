@@ -30,6 +30,7 @@ const CardName = styled(Typography)({
 });
 
 const Quantity = styled(Typography)({
+  fontFamily: 'TrajanProBold',
   fontWeight: 'bold',
 });
 

@@ -200,6 +200,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 03 13:52:00 2024
+
+- Version 0.9.3
+  - Rework game display, add Turn Adjustments feature which summarizes the changes in the current turn
+  - Rework game log, add Turn Adjustments feature which summarizes the changes in a given turn
+
 ### Sat Nov 02 22:23:00 2024
 
 - Version 0.9.2

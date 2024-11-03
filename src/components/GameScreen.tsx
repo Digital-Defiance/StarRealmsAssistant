@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -9,14 +9,11 @@ import {
   DialogTitle,
   Fab,
   styled,
+  Tab,
+  Tabs,
   Tooltip,
 } from '@mui/material';
-import {
-  Pause as PauseIcon,
-  PlayArrow as PlayIcon,
-  Undo as UndoIcon,
-  Inventory as InventoryIcon,
-} from '@mui/icons-material';
+import { Pause as PauseIcon, PlayArrow as PlayIcon, Undo as UndoIcon } from '@mui/icons-material';
 import Scoreboard from '@/components/Scoreboard';
 import Player from '@/components/Player';
 import { canUndoAction } from '@/game/dominion-lib-undo';
@@ -29,6 +26,7 @@ import { NO_PLAYER } from '@/game/constants';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
+import TurnAdjustmentsSummary from './TurnAdjustments';
 
 interface GameScreenProps {
   nextTurn: () => void;
@@ -66,9 +64,9 @@ const FabContainer = styled(Box)(({ theme }) => ({
 const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastAction }) => {
   const { gameState, setGameState } = useGameContext();
   const [canUndo, setCanUndo] = useState(false);
-  const [supplyDialogOpen, setSupplyDialogOpen] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const [tabValue, setTabValue] = useState(0);
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
@@ -79,14 +77,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const handleOpenSupplyDialog = () => {
-    setSupplyDialogOpen(true);
-  };
-
-  const handleCloseSupplyDialog = () => {
-    setSupplyDialogOpen(false);
-  };
 
   const handleOpenConfirmEndGameDialog = () => {
     setConfirmEndGameDialogOpen(true);
@@ -124,6 +114,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
     }
   };
 
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
   return (
     <>
       <Container
@@ -136,25 +130,40 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
         }}
       >
         <Scoreboard />
-        <Player />
-        <ButtonContainer>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={nextTurn}
-            disabled={!lastActionIsNotPause}
-          >
-            Next Turn
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleOpenConfirmEndGameDialog}
-            disabled={!lastActionIsNotPause}
-          >
-            End Game
-          </Button>
-        </ButtonContainer>
+        <Tabs value={tabValue} onChange={handleTabChange} sx={{ mt: 2 }}>
+          <Tab label="Player" />
+          <Tab label="Adjustments" />
+          <Tab label="Supply" />
+        </Tabs>
+        <Box sx={{ p: 2 }}>
+          {tabValue === 0 && (
+            <Box
+              sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}
+            >
+              <Player />
+              <ButtonContainer>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={nextTurn}
+                  disabled={!lastActionIsNotPause}
+                >
+                  Next Turn
+                </Button>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleOpenConfirmEndGameDialog}
+                  disabled={!lastActionIsNotPause}
+                >
+                  End Game
+                </Button>
+              </ButtonContainer>
+            </Box>
+          )}
+          {tabValue === 1 && <TurnAdjustmentsSummary />}
+          {tabValue === 2 && <SupplyCounts />}
+        </Box>
       </Container>
       <FabContainer>
         <Tooltip title="Undo the most recent update">
@@ -165,11 +174,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
             disabled={!canUndo && !lastActionIsNotPause}
           >
             <UndoIcon />
-          </Fab>
-        </Tooltip>
-        <Tooltip title="Show victory kingdom card supply counts">
-          <Fab color="primary" aria-label="supply" onClick={handleOpenSupplyDialog}>
-            <InventoryIcon />
           </Fab>
         </Tooltip>
         <Tooltip title={lastActionIsNotPause ? 'Pause the game' : 'Unpause the game'}>
@@ -183,11 +187,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ nextTurn, endGame, undoLastActi
         </Tooltip>
       </FabContainer>
       {gameState.currentStep === CurrentStep.GameScreen && viewportWidth > 1300 && <GameClock />}
-      <Dialog open={supplyDialogOpen} onClose={handleCloseSupplyDialog}>
-        <DialogContent>
-          <SupplyCounts />
-        </DialogContent>
-      </Dialog>
       <Dialog open={confirmEndGameDialogOpen} onClose={handleCloseConfirmEndGameDialog}>
         <DialogTitle>Confirm End Game</DialogTitle>
         <DialogContent>
