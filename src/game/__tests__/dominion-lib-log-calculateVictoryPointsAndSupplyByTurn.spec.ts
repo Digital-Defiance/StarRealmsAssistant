@@ -147,7 +147,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
     ]);
   });
 
-  it.only('should handle actions affecting multiple fields correctly', () => {
+  it('should handle actions affecting multiple fields correctly', () => {
     game.log.push(
       createMockLog({
         id: '2',

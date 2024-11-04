@@ -304,7 +304,7 @@ const LoadSaveGame: React.FC = () => {
           >
             <ListItemButton
               selected={selectedGameId === game.id}
-              onClick={() => handleSelectGame(game)}
+              onClick={() => { handleSelectGame(game); }}
             >
               <ListItemText
                 primary={game.name}
@@ -371,7 +371,7 @@ const LoadSaveGame: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openOverwriteDialog} onClose={() => setOpenOverwriteDialog(false)}>
+      <Dialog open={openOverwriteDialog} onClose={() => { setOpenOverwriteDialog(false); }}>
         <DialogTitle>Overwrite Game</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -379,7 +379,7 @@ const LoadSaveGame: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpenOverwriteDialog(false)}>Cancel</Button>
+          <Button onClick={() => { setOpenOverwriteDialog(false); }}>Cancel</Button>
           <Button
             onClick={importedGameData ? handleImportOverwrite : handleSaveOverwrite}
             autoFocus

@@ -91,7 +91,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
         // Remove highlight from all elements
         document
           .querySelectorAll('.highlighted')
-          .forEach((el) => el.classList.remove('highlighted'));
+          .forEach((el) => { el.classList.remove('highlighted'); });
         // Add highlight to the target element
         element.classList.add('highlighted');
         // Scroll the element into view
@@ -213,7 +213,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
               href={`#log-entry-${entry.linkedActionId ?? entry.id}`}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => handleLinkClick(e, entry.linkedActionId ?? entry.id)}
+              onClick={(e) => { handleLinkClick(e, entry.linkedActionId ?? entry.id); }}
             >
               <LinkIcon fontSize="small" color="action" />
             </Link>

@@ -22,7 +22,7 @@ import { getGameStartTime, getTurnStartTime } from '@/game/dominion-lib-log';
  * @param game - The game object containing log entries and existing time cache.
  * @returns An updated array of IEventTimeCache objects.
  */
-export function updateCache(game: IGame): Array<IEventTimeCache> {
+export function updateCache(game: IGame): IEventTimeCache[] {
   const { log, timeCache } = game;
   let startGameTime: Date | null = null;
   let totalPauseTime = 0;

@@ -21,7 +21,7 @@ export interface IGame {
   log: ILogEntry[];
   currentStep: CurrentStep;
   setsRequired: number;
-  timeCache: Array<IEventTimeCache>;
+  timeCache: IEventTimeCache[];
   turnStatisticsCache: Array<ITurnStatistics>;
   gameVersion: string;
 }

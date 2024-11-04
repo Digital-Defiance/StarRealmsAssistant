@@ -32,6 +32,6 @@ async function main() {
   console.log('Copied saved game to:', jsonFilePath);
 }
 
-main().catch((error) => {
+main().catch((error: unknown) => {
   console.error('Error:', error);
 });

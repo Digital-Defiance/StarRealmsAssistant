@@ -12,7 +12,7 @@ const StyledTypography = forwardRef<HTMLSpanElement, TypographyProps>((props, re
   <Typography
     ref={ref}
     {...props}
-    className={`typography-title ${props.className || ''}`}
+    className={`typography-title ${props.className ?? ''}`}
     sx={{
       fontFamily: 'Minion Pro Medium Cond Subhead',
       ...props.sx,

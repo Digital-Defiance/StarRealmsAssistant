@@ -13,7 +13,7 @@ export function deepClone<T>(obj: T): T {
 
   // Handle Arrays
   if (Array.isArray(obj)) {
-    const arrCopy = [] as any[];
+    const arrCopy = [] as unknown[];
     for (const item of obj) {
       arrCopy.push(deepClone(item));
     }
