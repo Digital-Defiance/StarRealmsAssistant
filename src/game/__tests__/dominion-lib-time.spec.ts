@@ -9,6 +9,7 @@ import {
   calculateAverageTurnDurationForPlayer,
   calculateAverageTurnDuration,
   updateCachesForEntry,
+  calculateCurrentTurnDuration,
 } from '@/game/dominion-lib-time';
 import { IGame } from '@/game/interfaces/game';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
@@ -16,7 +17,8 @@ import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
 import { createMockGame, createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 import { ITurnStatistics } from '@/game/interfaces/turn-statistics';
 import { EmptyGameSupply } from '@/game/constants';
-import { calculateInitialSupply } from '../dominion-lib';
+import { calculateInitialSupply } from '@/game/dominion-lib';
+import { EmptyLogError } from '../errors/empty-log';
 
 describe('dominion-lib-time', () => {
   let consoleErrorMock: jest.SpyInstance;
@@ -854,11 +856,13 @@ describe('dominion-lib-time', () => {
           id: '2',
           action: GameLogAction.PAUSE,
           timestamp: new Date(mockStartDate.getTime() + 1000),
+          turn: 1,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.UNPAUSE,
           timestamp: new Date(mockStartDate.getTime() + 2000),
+          turn: 1,
         }),
         createMockLog({
           id: '4',
@@ -874,6 +878,7 @@ describe('dominion-lib-time', () => {
           timestamp: new Date(mockStartDate.getTime() + 4000),
           playerIndex: 0,
           prevPlayerIndex: 1,
+          turn: 2,
         }),
       ];
       const game = createMockGame(2, { log, timeCache: [], turnStatisticsCache: [] });
@@ -1109,11 +1114,13 @@ describe('dominion-lib-time', () => {
           id: '2',
           action: GameLogAction.PAUSE,
           timestamp: new Date(mockStartDate.getTime() + 1000),
+          turn: 1,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.UNPAUSE,
           timestamp: new Date(mockStartDate.getTime() + 2000),
+          turn: 1,
         }),
         createMockLog({
           id: '4',
@@ -1129,6 +1136,7 @@ describe('dominion-lib-time', () => {
           timestamp: new Date(mockStartDate.getTime() + 4000),
           playerIndex: 0,
           prevPlayerIndex: 1,
+          turn: 2,
         }),
       ];
       const game = createMockGame(2, { log, timeCache: [], turnStatisticsCache: [] });
@@ -1193,11 +1201,13 @@ describe('dominion-lib-time', () => {
           id: '2',
           action: GameLogAction.PAUSE,
           timestamp: new Date(mockStartDate.getTime() + 1000),
+          turn: 1,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.UNPAUSE,
           timestamp: new Date(mockStartDate.getTime() + 2000),
+          turn: 1,
         }),
         createMockLog({
           id: '4',
@@ -1211,11 +1221,13 @@ describe('dominion-lib-time', () => {
           id: '5',
           action: GameLogAction.SAVE_GAME,
           timestamp: new Date(mockStartDate.getTime() + 4000),
+          turn: 2,
         }),
         createMockLog({
           id: '6',
           action: GameLogAction.LOAD_GAME,
           timestamp: new Date(mockStartDate.getTime() + 5000),
+          turn: 2,
         }),
         createMockLog({
           id: '7',
@@ -1223,6 +1235,7 @@ describe('dominion-lib-time', () => {
           timestamp: new Date(mockStartDate.getTime() + 6000),
           playerIndex: 0,
           prevPlayerIndex: 1,
+          turn: 2,
         }),
       ];
       const game = createMockGame(2, { log, timeCache: [], turnStatisticsCache: [] });
@@ -1562,5 +1575,105 @@ describe('dominion-lib-time', () => {
         },
       ]);
     });
+  });
+});
+
+describe('calculateCurrentTurnDuration', () => {
+  let mockGame: IGame;
+  let currentTime: Date;
+
+  beforeEach(() => {
+    currentTime = new Date('2023-01-01T12:00:00Z');
+    mockGame = createMockGame(2, {
+      log: [
+        createMockLog({
+          action: GameLogAction.START_GAME,
+          timestamp: new Date('2023-01-01T10:00:00Z'),
+          turn: 1,
+        }),
+        createMockLog({
+          action: GameLogAction.NEXT_TURN,
+          timestamp: new Date('2023-01-01T11:00:00Z'),
+          turn: 2,
+        }),
+      ],
+      currentTurn: 2,
+    });
+  });
+
+  it('should calculate the duration of the current turn', () => {
+    const duration = calculateCurrentTurnDuration(mockGame, currentTime);
+    expect(duration).toBe(3600000); // 1 hour in milliseconds
+  });
+
+  it('should return 0 if there are no log entries', () => {
+    mockGame.log = [];
+    expect(() => calculateCurrentTurnDuration(mockGame, currentTime)).toThrow(EmptyLogError);
+  });
+
+  it('should handle a single log entry correctly', () => {
+    mockGame.log = [
+      createMockLog({
+        action: GameLogAction.START_GAME,
+        timestamp: new Date('2023-01-01T10:00:00Z'),
+        turn: 1,
+      }),
+    ];
+    mockGame.currentTurn = 1;
+    const duration = calculateCurrentTurnDuration(mockGame, currentTime);
+    expect(duration).toBe(7200000); // 2 hours in milliseconds
+  });
+
+  it('should handle log entries with the same timestamp', () => {
+    mockGame.log = [
+      createMockLog({
+        action: GameLogAction.START_GAME,
+        timestamp: new Date('2023-01-01T10:00:00Z'),
+        turn: 1,
+      }),
+      createMockLog({
+        action: GameLogAction.NEXT_TURN,
+        timestamp: new Date('2023-01-01T10:00:00Z'),
+        turn: 2,
+      }),
+    ];
+    const duration = calculateCurrentTurnDuration(mockGame, currentTime);
+    expect(duration).toBe(7200000); // 2 hours in milliseconds
+  });
+
+  it('should handle log entries with future timestamps', () => {
+    mockGame.log = [
+      createMockLog({
+        action: GameLogAction.START_GAME,
+        timestamp: new Date('2023-01-01T13:00:00Z'),
+        turn: 1,
+      }),
+    ];
+    mockGame.currentTurn = 1;
+    const duration = calculateCurrentTurnDuration(mockGame, currentTime);
+    expect(duration).toBe(0);
+  });
+
+  it('should handle multiple NEXT_TURN entries correctly', () => {
+    mockGame.log = [
+      createMockLog({
+        action: GameLogAction.START_GAME,
+        timestamp: new Date('2023-01-01T10:00:00Z'),
+        turn: 1,
+      }),
+      createMockLog({
+        action: GameLogAction.NEXT_TURN,
+        timestamp: new Date('2023-01-01T11:00:00Z'),
+        turn: 2,
+      }),
+      createMockLog({
+        action: GameLogAction.NEXT_TURN,
+        timestamp: new Date('2023-01-01T11:30:00Z'),
+        turn: 3,
+      }),
+    ];
+    mockGame.currentTurn = 3;
+    const duration = calculateCurrentTurnDuration(mockGame, currentTime);
+    expect(duration).toBe(1800000); // 30 minutes in milliseconds
   });
 });

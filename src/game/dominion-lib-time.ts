@@ -15,7 +15,7 @@ import { IGameOptions } from '@/game/interfaces/game-options';
 import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { IPlayer } from '@/game/interfaces/player';
 import { applyLogAction } from '@/game/dominion-lib-undo';
-import { getTurnStartTime } from '@/game/dominion-lib-log';
+import { getGameStartTime, getTurnStartTime } from '@/game/dominion-lib-log';
 
 /**
  * Updates the time cache for a given game.
@@ -477,4 +477,26 @@ export function updateCachesForEntry(
     });
   }
   return { timeCache, turnStatisticsCache };
+}
+
+/**
+ * Calculate the current turn duration for the game in milliseconds
+ */
+export function calculateCurrentTurnDuration(game: IGame, currentTime: Date): number {
+  const gameStart = getGameStartTime(game);
+  if (!gameStart) {
+    return 0;
+  }
+
+  const lastTurnStart = getTurnStartTime(game, game.currentTurn);
+  if (!lastTurnStart) {
+    return 0;
+  }
+
+  const currentGameTime = calculateDurationUpToEventWithCache(game, currentTime);
+
+  const beginningDuration = lastTurnStart.getTime() - gameStart.getTime();
+  const adjustedDuration = Math.max(0, currentGameTime - beginningDuration);
+
+  return adjustedDuration;
 }

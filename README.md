@@ -200,6 +200,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 03 16:24:00 2024
+
+- Version 0.9.6
+  - GameClock to use caching functions
+  - New overlay with quick reference counters
+
 ### Sun Nov 03 14:53:00 2024
 
 - Version 0.9.5

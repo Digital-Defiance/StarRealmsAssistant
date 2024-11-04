@@ -681,7 +681,9 @@ export function getTurnStartTime(game: IGame, turn: number): Date {
   if (turn === 1) {
     return getGameStartTime(game);
   }
-  const newTurnLog = game.log.find((entry) => entry.turn === turn);
+  const newTurnLog = game.log.find(
+    (entry) => entry.action === GameLogAction.NEXT_TURN && entry.turn === turn
+  );
   if (newTurnLog === undefined) {
     throw new Error(`Could not find turn ${turn} in log`);
   }

@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { formatTimeSpan } from '@/game/dominion-lib-log';
 import {
-  formatTimeSpan,
-  calculateGameDuration,
   calculateAverageTurnDurationForPlayer,
   calculateCurrentTurnDuration,
-  calculateTurnDurations,
   calculateAverageTurnDuration,
-} from '@/game/dominion-lib-log';
+  calculateDurationUpToEventWithCache,
+} from '@/game/dominion-lib-time';
 import { useGameContext } from '@/components/GameContext';
 import { Typography, Box } from '@mui/material';
 
@@ -22,17 +21,13 @@ const GameClock = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const gameTimeResult = calculateGameDuration(
-    gameState.log,
-    calculateTurnDurations,
-    calculateCurrentTurnDuration
-  );
-  const averageTurnTime = calculateAverageTurnDuration(gameTimeResult.turnDurations);
+  const gameTime = calculateDurationUpToEventWithCache(gameState, currentTime);
+  const averageTurnTime = calculateAverageTurnDuration(gameState);
   const averageTurnCurrentPlayer = calculateAverageTurnDurationForPlayer(
-    gameTimeResult.turnDurations,
+    gameState,
     gameState.selectedPlayerIndex
   );
-  const currentTurnTime = calculateCurrentTurnDuration(gameState.log, currentTime);
+  const currentTurnTime = calculateCurrentTurnDuration(gameState, currentTime);
 
   return (
     <Box
@@ -46,7 +41,7 @@ const GameClock = () => {
       }}
     >
       <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1rem', color: 'white' }}>
-        Game Time: {formatTimeSpan(gameTimeResult.duration)}
+        Game Time: {formatTimeSpan(gameTime)}
       </Typography>
       <Typography sx={{ fontFamily: 'CharlemagneStdBold', fontSize: '1rem', color: 'white' }}>
         Current Turn: {formatTimeSpan(currentTurnTime)}

@@ -26,7 +26,8 @@ import { NO_PLAYER } from '@/game/constants';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
-import TurnAdjustmentsSummary from './TurnAdjustments';
+import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
+import FloatingCounter from '@/components/FloatingCounter';
 
 interface GameInterfaceProps {
   nextTurn: () => void;
@@ -186,7 +187,12 @@ const GameInterface: React.FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLa
           </Fab>
         </Tooltip>
       </FabContainer>
-      {gameState.currentStep === CurrentStep.Game && viewportWidth > 1300 && <GameClock />}
+      {gameState.currentStep === CurrentStep.Game && viewportWidth > 1300 && (
+        <>
+          <GameClock />
+          <FloatingCounter />
+        </>
+      )}
       <Dialog open={confirmEndGameDialogOpen} onClose={handleCloseConfirmEndGameDialog}>
         <DialogTitle>Confirm End Game</DialogTitle>
         <DialogContent>
