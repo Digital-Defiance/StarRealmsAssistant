@@ -228,6 +228,8 @@ describe('reconstructGameState', () => {
           renaissance: false,
           prosperity: false,
         },
+        trackCardCounts: true,
+        trackCardGains: true,
       },
       log: [
         ...baseGame.log,

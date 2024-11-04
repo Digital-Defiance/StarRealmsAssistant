@@ -120,6 +120,8 @@ describe('undoAction', () => {
         curses: false,
         mats: { coffersVillagers: false, debt: false, favors: false },
         expansions: { risingSun: true, prosperity: false, renaissance: false },
+        trackCardCounts: true,
+        trackCardGains: true,
       },
       log: [createLogEntry(GameLogAction.REMOVE_PROPHECY)],
     });

@@ -5,4 +5,6 @@ export interface IGameOptions {
   curses: boolean;
   expansions: IExpansionsEnabled;
   mats: IMatsEnabled;
+  trackCardCounts: boolean;
+  trackCardGains: boolean;
 }

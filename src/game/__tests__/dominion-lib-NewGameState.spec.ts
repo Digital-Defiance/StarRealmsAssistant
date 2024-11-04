@@ -98,6 +98,8 @@ describe('NewGameState', () => {
       curses: false,
       expansions: { prosperity: true, renaissance: true, risingSun: false },
       mats: { coffersVillagers: true, debt: true, favors: false },
+      trackCardCounts: true,
+      trackCardGains: true,
     };
     const initialGameState: IGame = {
       ...EmptyGameState(),

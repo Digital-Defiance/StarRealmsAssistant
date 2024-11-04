@@ -35,6 +35,8 @@ describe('distributeInitialSupply', () => {
         debt: false,
         favors: false,
       } as IMatsEnabled,
+      trackCardCounts: true,
+      trackCardGains: true,
     };
     const initialSupply = calculateInitialSupply(2, options);
     const mockGame: IGame = {
@@ -81,6 +83,8 @@ describe('distributeInitialSupply', () => {
           debt: false,
           favors: false,
         } as IMatsEnabled,
+        trackCardCounts: true,
+        trackCardGains: true,
       })
     ).toThrow(MinPlayersError);
   });

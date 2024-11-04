@@ -367,20 +367,24 @@ const Player: React.FC = () => {
                   onIncrement={() => handleFieldChange('turn', 'coins', 1, linkChangeId)}
                   onDecrement={() => handleFieldChange('turn', 'coins', -1, linkChangeId)}
                 />
-                <IncrementDecrementControl
-                  label="Cards"
-                  value={player.turn.cards}
-                  tooltip="Tracks the number of cards drawn this turn"
-                  onIncrement={() => handleFieldChange('turn', 'cards', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('turn', 'cards', -1, linkChangeId)}
-                />
-                <IncrementDecrementControl
-                  label="Gains"
-                  value={player.turn.gains}
-                  tooltip="Tracks the number of cards gained this turn"
-                  onIncrement={() => handleFieldChange('turn', 'gains', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('turn', 'gains', -1, linkChangeId)}
-                />
+                {gameState.options.trackCardCounts && (
+                  <IncrementDecrementControl
+                    label="Cards"
+                    value={player.turn.cards}
+                    tooltip="Tracks the number of cards drawn this turn"
+                    onIncrement={() => handleFieldChange('turn', 'cards', 1, linkChangeId)}
+                    onDecrement={() => handleFieldChange('turn', 'cards', -1, linkChangeId)}
+                  />
+                )}
+                {gameState.options.trackCardGains && (
+                  <IncrementDecrementControl
+                    label="Gains"
+                    value={player.turn.gains}
+                    tooltip="Tracks the number of cards gained this turn"
+                    onIncrement={() => handleFieldChange('turn', 'gains', 1, linkChangeId)}
+                    onDecrement={() => handleFieldChange('turn', 'gains', -1, linkChangeId)}
+                  />
+                )}
               </ColumnBox>
               {(showMats || showGlobalMats) && (
                 <ColumnBox>
@@ -586,13 +590,15 @@ const Player: React.FC = () => {
                 onIncrement={() => handleFieldChange('newTurn', 'coins', 1, linkChangeId)}
                 onDecrement={() => handleFieldChange('newTurn', 'coins', -1, linkChangeId)}
               />
-              <IncrementDecrementControl
-                label="Cards"
-                value={player.newTurn.cards}
-                tooltip="Number of cards available for new turns"
-                onIncrement={() => handleFieldChange('newTurn', 'cards', 1, linkChangeId)}
-                onDecrement={() => handleFieldChange('newTurn', 'cards', -1, linkChangeId)}
-              />
+              {gameState.options.trackCardCounts && (
+                <IncrementDecrementControl
+                  label="Cards"
+                  value={player.newTurn.cards}
+                  tooltip="Number of cards available for new turns"
+                  onIncrement={() => handleFieldChange('newTurn', 'cards', 1, linkChangeId)}
+                  onDecrement={() => handleFieldChange('newTurn', 'cards', -1, linkChangeId)}
+                />
+              )}
             </Box>
           </Popover>
         </Box>

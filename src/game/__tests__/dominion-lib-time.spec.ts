@@ -1154,6 +1154,8 @@ describe('dominion-lib-time', () => {
               curses: true,
               mats: { coffersVillagers: false, favors: false, debt: false },
               expansions: { prosperity: false, renaissance: false, risingSun: false },
+              trackCardCounts: true,
+              trackCardGains: true,
             }),
             coppers: 32, // 46 - 14 (2 player game)
           },
@@ -1170,6 +1172,8 @@ describe('dominion-lib-time', () => {
               curses: true,
               mats: { coffersVillagers: false, favors: false, debt: false },
               expansions: { prosperity: false, renaissance: false, risingSun: false },
+              trackCardCounts: true,
+              trackCardGains: true,
             }),
             coppers: 32, // 46 - 14 (2 player game)
           },
@@ -1253,6 +1257,8 @@ describe('dominion-lib-time', () => {
               curses: true,
               mats: { coffersVillagers: false, favors: false, debt: false },
               expansions: { prosperity: false, renaissance: false, risingSun: false },
+              trackCardCounts: true,
+              trackCardGains: true,
             }),
             coppers: 32, // 46 - 14 (2 players)
           },
@@ -1269,6 +1275,8 @@ describe('dominion-lib-time', () => {
               curses: true,
               mats: { coffersVillagers: false, favors: false, debt: false },
               expansions: { prosperity: false, renaissance: false, risingSun: false },
+              trackCardCounts: true,
+              trackCardGains: true,
             }),
             coppers: 32, // 46 - 14 (2 players)
           },
@@ -1518,6 +1526,8 @@ describe('dominion-lib-time', () => {
             curses: true,
             mats: { coffersVillagers: false, favors: false, debt: false },
             expansions: { prosperity: false, renaissance: false, risingSun: false },
+            trackCardCounts: true,
+            trackCardGains: true,
           }),
           coppers: 32, // 46 - 14 (2 players)
         },
@@ -1567,6 +1577,8 @@ describe('dominion-lib-time', () => {
               curses: true,
               mats: { coffersVillagers: false, favors: false, debt: false },
               expansions: { prosperity: false, renaissance: false, risingSun: false },
+              trackCardCounts: true,
+              trackCardGains: true,
             }),
             coppers: 32, // 46 - 14 (2 players)
           },

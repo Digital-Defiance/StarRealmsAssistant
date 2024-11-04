@@ -28,6 +28,8 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
       debt: false,
       favors: false,
     } as IMatsEnabled,
+    trackCardCounts: true,
+    trackCardGains: true,
   };
   const supply = calculateInitialSupply(playerCount, options);
   const game: IGame = {

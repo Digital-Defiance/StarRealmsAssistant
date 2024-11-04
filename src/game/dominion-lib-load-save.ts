@@ -7,6 +7,7 @@ import { EmptyLogError } from '@/game/errors/empty-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
 import {
+  DefaultGameOptions,
   LAST_COMPATIBLE_SAVE_VERSION,
   NO_PLAYER,
   SaveGameStorageKey,
@@ -450,7 +451,8 @@ export function safeParseSavedGame(jsonString: string): IGame {
   }
 
   try {
-    return restoreSavedGame(JSON.parse(jsonString) as IGameRaw);
+    const parsed = JSON.parse(jsonString) as IGameRaw;
+    return restoreSavedGame({ ...{ options: DefaultGameOptions() }, ...parsed });
   } catch (error) {
     console.error('Error parsing game JSON:', error);
     throw error;

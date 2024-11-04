@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 03 21:51:00 2024
+
+- Version 0.9.8
+  - Add options to show/hide track cards and track gains
+
 ### Sun Nov 03 21:01:00 2024
 
 - Version 0.9.7

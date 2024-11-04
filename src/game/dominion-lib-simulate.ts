@@ -19,6 +19,8 @@ export function generateLargeGame(turns = 50): IGame {
         debt: true,
         favors: true,
       },
+      trackCardCounts: true,
+      trackCardGains: true,
     },
     risingSun: {
       greatLeaderProphecy: true,

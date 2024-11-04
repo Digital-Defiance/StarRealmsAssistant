@@ -15,6 +15,8 @@ describe('calculateInitialSupply', () => {
     curses: true,
     expansions: { prosperity: false, renaissance: false, risingSun: false },
     mats: { coffersVillagers: false, debt: false, favors: false },
+    trackCardCounts: true,
+    trackCardGains: true,
   });
 
   const prosperityOptions = (): IGameOptions => ({

@@ -290,6 +290,8 @@ describe('canUndoAction', () => {
         curses: false,
         mats: { coffersVillagers: false, debt: false, favors: false },
         expansions: { risingSun: true, renaissance: false, prosperity: false },
+        trackCardCounts: true,
+        trackCardGains: true,
       },
       log: [
         createLogEntry(GameLogAction.ADD_PROPHECY, 1), // Prophecy suns to 1

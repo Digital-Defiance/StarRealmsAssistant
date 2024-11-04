@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Typography } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import { OptionField, OptionSubField } from '@/game/types';
 import { IGame } from '@/game/interfaces/game';
@@ -8,7 +8,6 @@ import CenteredContainer from '@/components/CenteredContainer';
 import OptionItem from '@/components/OptionItem';
 import TabTitle from '@/components/TabTitle';
 import { deepClone } from '@/game/utils';
-import { IGameOptions } from '@/game/interfaces/game-options';
 
 interface SetGameOptionsProps {
   startGame: () => void;
@@ -125,6 +124,39 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
           />
         </Box>
       )}
+
+      <hr />
+      <Typography variant="h6" gutterBottom>
+        Features
+      </Typography>
+
+      <OptionItem
+        checked={gameState.options.trackCardCounts}
+        onChange={(e) => {
+          setGameState((prevState: IGame) => {
+            return {
+              ...prevState,
+              options: { ...prevState.options, trackCardCounts: e.target.checked },
+            };
+          });
+        }}
+        title="Track Card Counts"
+        tooltip="Whether to track the number of cards in each player's hand"
+      />
+
+      <OptionItem
+        checked={gameState.options.trackCardGains}
+        onChange={(e) => {
+          setGameState((prevState: IGame) => {
+            return {
+              ...prevState,
+              options: { ...prevState.options, trackCardGains: e.target.checked },
+            };
+          });
+        }}
+        title="Track Card Gains"
+        tooltip="Whether to track the cards gained by each player"
+      />
 
       <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
         <Button variant="contained" onClick={handleStartGame}>

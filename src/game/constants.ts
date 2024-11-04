@@ -10,7 +10,7 @@ import { deepClone } from '@/game/utils';
 import { IGame } from '@/game/interfaces/game';
 import { ISupplyInfo } from '@/game/interfaces/supply-info';
 
-export const VERSION_NUMBER = '0.9.7';
+export const VERSION_NUMBER = '0.9.8';
 export const LAST_COMPATIBLE_SAVE_VERSION = '0.9.0';
 
 export const MIN_PLAYERS = 2;
@@ -74,6 +74,8 @@ export function DefaultGameOptions(): IGameOptions {
       risingSun: false,
     },
     mats: DefaultMatsEnabled(),
+    trackCardCounts: true,
+    trackCardGains: true,
   });
 }
 
@@ -287,6 +289,8 @@ export function EmptyGameState(): IGame {
         debt: false,
         favors: false,
       },
+      trackCardCounts: true,
+      trackCardGains: true,
     },
     currentTurn: 1,
     risingSun: {
