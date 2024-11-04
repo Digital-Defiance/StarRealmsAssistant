@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Mon Nov 04 12:44:00 2024
+
+- Version 0.9.10
+  - Remove curses/colonies from statistics graphing when disabled
+
 ### Mon Nov 04 12:34:00 2024
 
 - Version 0.9.9

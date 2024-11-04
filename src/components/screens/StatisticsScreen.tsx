@@ -64,8 +64,20 @@ export default function StatisticsScreen() {
     })),
   };
 
-  const victoryFields: VictoryField[] = ['curses', 'estates', 'duchies', 'provinces', 'colonies'];
-  const victoryColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+  const victoryFields: VictoryField[] = [
+    ...(gameState.options.curses ? ['curses' as VictoryField] : []),
+    'estates',
+    'duchies',
+    'provinces',
+    ...(gameState.options.expansions.prosperity ? ['colonies' as VictoryField] : []),
+  ];
+  const victoryColors = [
+    ...(gameState.options.curses ? ['#FF6384'] : []),
+    '#36A2EB',
+    '#FFCE56',
+    '#4BC0C0',
+    ...(gameState.options.expansions.prosperity ? ['#9966FF'] : []),
+  ];
 
   const supplyData = {
     labels: gameState.turnStatisticsCache.map((stat, index) => `${index + 1}`),
