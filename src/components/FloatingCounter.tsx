@@ -8,6 +8,7 @@ import { useGameContext } from '@/components/GameContext';
 import { calculateVictoryPoints } from '@/game/dominion-lib';
 import DominionVictoryIcon from '@/assets/images/Dominion-Victory.png';
 import { styled } from '@mui/material';
+import { CurrentStep } from '@/game/enumerations/current-step';
 
 const Quantity = styled(Typography)({
   fontFamily: 'TrajanProBold',
@@ -17,6 +18,10 @@ const Quantity = styled(Typography)({
 const FloatingCounter = () => {
   const { gameState } = useGameContext();
 
+  if (gameState.currentStep !== CurrentStep.Game) {
+    return null;
+  }
+
   return (
     <Box
       sx={{
@@ -24,9 +29,12 @@ const FloatingCounter = () => {
         bottom: 250,
         left: 20,
         padding: 2,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: gameState.players[gameState.currentPlayerIndex].color,
         borderRadius: 2,
         boxShadow: 3,
+        color: 'white',
+        textShadow: '2px 2px 4px black',
+        filter: 'drop-shadow(0 0 0.75rem black)',
       }}
     >
       {/* Top row with icons and counters */}

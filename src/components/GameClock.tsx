@@ -8,6 +8,7 @@ import {
 } from '@/game/dominion-lib-time';
 import { useGameContext } from '@/components/GameContext';
 import { Typography, Box } from '@mui/material';
+import { CurrentStep } from '@/game/enumerations/current-step';
 
 const GameClock = () => {
   const { gameState } = useGameContext();
@@ -28,6 +29,10 @@ const GameClock = () => {
     gameState.selectedPlayerIndex
   );
   const currentTurnTime = calculateCurrentTurnDuration(gameState, currentTime);
+
+  if (gameState.currentStep !== CurrentStep.Game) {
+    return null;
+  }
 
   return (
     <Box

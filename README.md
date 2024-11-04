@@ -200,6 +200,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 03 21:01:00 2024
+
+- Version 0.9.7
+  - FloatingCounter background color to match player
+  - Fix player checkboxes positioning
+
 ### Sun Nov 03 16:24:00 2024
 
 - Version 0.9.6
