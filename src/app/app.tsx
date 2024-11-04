@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 import AboutScreen from '@/components/screens/AboutScreen';
@@ -8,7 +8,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DominionVictoryIcon from '@/assets/images/Dominion-Victory.png';
 import TabBarIcon from '@/components/TabBarIcon';
-import TabView from '@/components/TabView';
+import TabView, { TabViewHandle } from '@/components/TabView';
 import DominionAssistantScreen from '@/components/screens/DominionAssistantScreen';
 import GameLogScreen from '@/components/screens/GameLogScreen';
 import LoadSaveGameScreen from '@/components/screens/LoadSaveScreen';
@@ -26,45 +26,47 @@ interface ITab {
   index?: boolean;
 }
 
-const tabs: ITab[] = [
-  {
-    label: 'Home',
-    icon: <TabBarIcon name="home" icon={HomeIcon} focused={true} />,
-    content: <AboutScreen />,
-    path: '/',
-    index: true,
-  },
-  {
-    label: 'Dominion Assistant',
-    icon: <TabBarIcon icon={DominionVictoryIcon} focused={false} />,
-    content: <DominionAssistantScreen />,
-    path: '/assistant',
-  },
-  {
-    label: 'Game Log',
-    icon: <TabBarIcon name="log" icon={BookIcon} focused={false} />,
-    content: <GameLogScreen />,
-    path: '/log',
-  },
-  {
-    label: 'Load/Save Game',
-    icon: <TabBarIcon name="save" icon={SaveIcon} focused={false} />,
-    content: <LoadSaveGameScreen />,
-    path: '/load-save',
-  },
-  {
-    label: 'Statistics',
-    icon: <TabBarIcon name="statistics" icon={BarChartIcon} focused={false} />,
-    content: <StatisticsScreen />,
-    path: '/statistics',
-  },
-];
-
 function AppRoutes() {
+  const tabViewRef = useRef<TabViewHandle>(null);
+
+  const tabs: ITab[] = [
+    {
+      label: 'Home',
+      icon: <TabBarIcon name="home" icon={HomeIcon} focused={true} />,
+      content: <AboutScreen />,
+      path: '/',
+      index: true,
+    },
+    {
+      label: 'Dominion Assistant',
+      icon: <TabBarIcon icon={DominionVictoryIcon} focused={false} />,
+      content: <DominionAssistantScreen />,
+      path: '/assistant',
+    },
+    {
+      label: 'Game Log',
+      icon: <TabBarIcon name="log" icon={BookIcon} focused={false} />,
+      content: <GameLogScreen tabViewRef={tabViewRef} />,
+      path: '/log',
+    },
+    {
+      label: 'Load/Save Game',
+      icon: <TabBarIcon name="save" icon={SaveIcon} focused={false} />,
+      content: <LoadSaveGameScreen />,
+      path: '/load-save',
+    },
+    {
+      label: 'Statistics',
+      icon: <TabBarIcon name="statistics" icon={BarChartIcon} focused={false} />,
+      content: <StatisticsScreen />,
+      path: '/statistics',
+    },
+  ];
+
   const routes = useRoutes([
     {
       path: '/',
-      element: <TabView tabs={tabs} />,
+      element: <TabView ref={tabViewRef} tabs={tabs} />,
       children: tabs.map((tab) => ({
         index: tab.index,
         path: tab.index ? undefined : tab.path,

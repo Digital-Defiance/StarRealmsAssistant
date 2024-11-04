@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-  TableRow,
-  TableCell,
+  Box,
   Typography,
   Chip,
   Tooltip,
@@ -12,7 +11,6 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  Box,
   Link,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit'; // Icon for corrections
@@ -86,19 +84,27 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
   useEffect(() => {
     const handleHashChange = () => {
       const id = window.location.hash.replace('#', '');
-      const element = document.getElementById(id);
+      const element = document.getElementById(`log-entry-${id}`);
+      const escapedId = CSS.escape(id);
+      const elements = document.querySelectorAll(`[data-action-id="${escapedId}"]`);
       if (element) {
         // Remove highlight from all elements
-        document
-          .querySelectorAll('.highlighted')
-          .forEach((el) => { el.classList.remove('highlighted'); });
-        // Add highlight to the target element
+        document.querySelectorAll('.highlighted').forEach((el) => {
+          el.classList.remove('highlighted');
+        });
+        // Add highlight to the target element and its children
         element.classList.add('highlighted');
-        // Scroll the element into view
+        elements.forEach((el) => {
+          el.classList.add('highlighted');
+        });
+        // Scroll the main element into view
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         // Remove the highlight after 2 seconds
         setTimeout(() => {
           element.classList.remove('highlighted');
+          elements.forEach((el) => {
+            el.classList.remove('highlighted');
+          });
         }, 2000);
       }
     };
@@ -115,7 +121,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
 
   const handleLinkClick = (event: React.MouseEvent, id: string) => {
     event.preventDefault();
-    window.location.hash = `#log-entry-${id}`;
+    window.location.hash = `#${id}`;
     // Manually trigger the hashchange event
     window.dispatchEvent(new HashChangeEvent('hashchange'));
   };
@@ -139,24 +145,33 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
     });
   }
 
+  const dataActionId = {
+    'data-action-id': entry.linkedActionId ?? entry.id,
+  };
+
   return (
     <>
-      <TableRow
+      <Box
         id={`log-entry-${entry.id}`}
-        style={{
+        {...dataActionId}
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: '15% 15% 70%',
+          alignItems: 'center',
           backgroundColor: isNewTurn ? '#e3f2fd' : 'inherit',
           transition: 'background-color 0.3s',
+          boxSizing: 'border-box',
         }}
       >
-        <TableCell style={{ width: '15%' }}>
+        <Box>
           <Typography variant="caption">{formatDate(entry.timestamp)}</Typography>
-        </TableCell>
-        <TableCell style={{ width: '15%' }}>
+        </Box>
+        <Box>
           <Typography variant="caption">
             {formatTimeSpan(getAdjustedDurationFromCacheByIndex(gameState, logIndex) ?? 0)}
           </Typography>
-        </TableCell>
-        <TableCell style={{ width: '60%' }}>
+        </Box>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box display="flex" alignItems="center">
             {relevantPlayer && (
               <Chip
@@ -206,35 +221,38 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
               )}
             </Box>
           </Box>
-        </TableCell>
-        <TableCell style={{ width: '10%', textAlign: 'right' }}>
-          {(hasLinkedAction || entry.linkedActionId) && (
-            <Link
-              href={`#log-entry-${entry.linkedActionId ?? entry.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => { handleLinkClick(e, entry.linkedActionId ?? entry.id); }}
-            >
-              <LinkIcon fontSize="small" color="action" />
-            </Link>
-          )}
-          {canUndoAction(gameState, logIndex) && (
-            <IconButton onClick={handleUndoClick} size="small">
-              <Tooltip title="Undo this entry">
-                <UndoIcon fontSize="small" />
-              </Tooltip>
-            </IconButton>
-          )}
-          {(entry.action === GameLogAction.NEXT_TURN ||
-            entry.action === GameLogAction.START_GAME) && (
-            <IconButton onClick={() => onOpenTurnAdjustmentsDialog(entry.turn)} size="small">
-              <Tooltip title="View Turn Adjustments">
-                <AdjustmentsIcon fontSize="small" />
-              </Tooltip>
-            </IconButton>
-          )}
-        </TableCell>
-      </TableRow>
+          <Box display="flex" alignItems="center" justifyContent="flex-end">
+            {(hasLinkedAction || entry.linkedActionId) && (
+              <Link
+                href={`#${entry.linkedActionId ?? entry.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  handleLinkClick(e, entry.linkedActionId ?? entry.id);
+                }}
+                sx={{ marginRight: 1 }}
+              >
+                <LinkIcon fontSize="small" color="action" />
+              </Link>
+            )}
+            {canUndoAction(gameState, logIndex) && (
+              <IconButton onClick={handleUndoClick} size="small">
+                <Tooltip title="Undo this entry">
+                  <UndoIcon fontSize="small" />
+                </Tooltip>
+              </IconButton>
+            )}
+            {(entry.action === GameLogAction.NEXT_TURN ||
+              entry.action === GameLogAction.START_GAME) && (
+              <IconButton onClick={() => onOpenTurnAdjustmentsDialog(entry.turn)} size="small">
+                <Tooltip title="View Turn Adjustments">
+                  <AdjustmentsIcon fontSize="small" />
+                </Tooltip>
+              </IconButton>
+            )}
+          </Box>
+        </Box>
+      </Box>
       <Dialog
         open={openUndoDialog}
         onClose={handleUndoCancel}

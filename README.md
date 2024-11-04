@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Mon Nov 04 12:34:00 2024
+
+- Version 0.9.9
+  - Reworked Game Log screen completely to improve performance
+
 ### Sun Nov 03 21:51:00 2024
 
 - Version 0.9.8

@@ -1,4 +1,4 @@
-import React, { SyntheticEvent } from 'react';
+import React, { SyntheticEvent, forwardRef, useImperativeHandle, useRef } from 'react';
 import { Box, Paper, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -20,9 +20,18 @@ interface TabViewProps {
   }[];
 }
 
-const TabView: React.FC<TabViewProps> = ({ tabs }) => {
+export interface TabViewHandle {
+  tabBar: HTMLDivElement | null;
+}
+
+const TabView = forwardRef<TabViewHandle, TabViewProps>(({ tabs }, ref) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const tabBarRef = useRef<HTMLDivElement>(null);
+
+  useImperativeHandle(ref, () => ({
+    tabBar: tabBarRef.current,
+  }));
 
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     navigate(tabs[newValue].path);
@@ -35,12 +44,14 @@ const TabView: React.FC<TabViewProps> = ({ tabs }) => {
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden', // Prevent scrollbar on main container
+        boxSizing: 'border-box',
       }}
     >
       <Box
         sx={{
           flex: 1,
           overflow: 'auto',
+          boxSizing: 'border-box',
         }}
       >
         <Outlet />
@@ -53,9 +64,11 @@ const TabView: React.FC<TabViewProps> = ({ tabs }) => {
           left: 0,
           right: 0,
           zIndex: 1100,
+          boxSizing: 'border-box',
         }}
       >
         <StyledBottomNavigation
+          ref={tabBarRef}
           value={tabs.findIndex((tab) => tab.path === location.pathname)}
           onChange={handleChange}
           showLabels
@@ -67,6 +80,8 @@ const TabView: React.FC<TabViewProps> = ({ tabs }) => {
       </Paper>
     </Box>
   );
-};
+});
+
+TabView.displayName = 'TabView';
 
 export default TabView;

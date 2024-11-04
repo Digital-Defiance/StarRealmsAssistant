@@ -1,28 +1,52 @@
-import React, { useState } from 'react';
-import {
-  Paper,
-  TableContainer,
-  Table,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-  Typography,
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-} from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Paper, TableContainer, Typography, Box, Dialog, DialogContent } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
 import TabTitle from '@/components/TabTitle';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
+import { FixedSizeList } from 'react-window';
+import { TabViewHandle } from '@/components/TabView';
 
-const GameLog: React.FC = () => {
+interface GameLogProps {
+  tabViewRef: React.RefObject<TabViewHandle>;
+}
+
+const MemoizedGameLogEntry = React.memo(GameLogEntry);
+
+const GameLog: React.FC<GameLogProps> = ({ tabViewRef }) => {
   const { gameState } = useGameContext();
   const [openTurnAdjustmentsDialog, setOpenTurnAdjustmentsDialog] = useState(false);
   const [selectedTurn, setSelectedTurn] = useState<number | null>(null);
+  const [listHeight, setListHeight] = useState<number>(window.innerHeight);
+  const [listWidth, setListWidth] = useState<number>(window.innerWidth);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const headerHeight = headerRef.current?.getBoundingClientRect().height || 0;
+      const tabBarHeight = tabViewRef.current?.tabBar?.getBoundingClientRect().height || 0;
+      const headerStyles = window.getComputedStyle(
+        headerRef.current || document.createElement('div')
+      );
+      const headerMargin =
+        parseFloat(headerStyles.marginTop) + parseFloat(headerStyles.marginBottom);
+      const headerPadding =
+        parseFloat(headerStyles.paddingTop) + parseFloat(headerStyles.paddingBottom);
+      const headerBorder =
+        parseFloat(headerStyles.borderTopWidth) + parseFloat(headerStyles.borderBottomWidth);
+      const totalHeaderHeight = headerHeight + headerMargin + headerPadding + headerBorder;
+      setListHeight(window.innerHeight - totalHeaderHeight - tabBarHeight - 16);
+      setListWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Set initial height
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleOpenTurnAdjustmentsDialog = (turn: number) => {
     setSelectedTurn(turn);
@@ -34,36 +58,44 @@ const GameLog: React.FC = () => {
     setSelectedTurn(null);
   };
 
+  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
+    <div style={style}>
+      <MemoizedGameLogEntry
+        key={gameState.log[index].id}
+        logIndex={index}
+        entry={gameState.log[index]}
+        onOpenTurnAdjustmentsDialog={handleOpenTurnAdjustmentsDialog}
+      />
+    </div>
+  );
+
   return (
     <>
-      <Box display="flex" justifyContent="center" sx={{ paddingTop: 4 }}>
+      <Box
+        ref={headerRef}
+        display="flex"
+        justifyContent="center"
+        sx={{ paddingTop: 4, boxSizing: 'border-box' }}
+      >
         <TabTitle>Game Log</TabTitle>
       </Box>
       {gameState.currentStep === CurrentStep.Game ||
       gameState.currentStep === CurrentStep.EndGame ? (
-        <TableContainer component={Paper} style={{ width: '100%' }}>
-          <Table stickyHeader size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Date</TableCell>
-                <TableCell style={{ width: '15%', fontWeight: 'bold' }}>Game Time</TableCell>
-                <TableCell style={{ width: '60%', fontWeight: 'bold' }}>Action</TableCell>
-                <TableCell style={{ width: '10%', fontWeight: 'bold' }}>Undo</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {gameState.log.map((entry, index) => {
-                return (
-                  <GameLogEntry
-                    key={entry.id || index}
-                    logIndex={index}
-                    entry={entry}
-                    onOpenTurnAdjustmentsDialog={handleOpenTurnAdjustmentsDialog}
-                  />
-                );
-              })}
-            </TableBody>
-          </Table>
+        <TableContainer component={Paper} sx={{ width: '100%', height: '100%' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '15% 15% 60%', fontWeight: 'bold' }}>
+            <Box>Date</Box>
+            <Box>Game Time</Box>
+            <Box>Action</Box>
+          </Box>
+          <FixedSizeList
+            height={listHeight}
+            width={listWidth}
+            itemCount={gameState.log.length}
+            itemSize={35}
+            style={{ width: '100%' }}
+          >
+            {Row}
+          </FixedSizeList>
         </TableContainer>
       ) : (
         <Typography variant="body1" color="textSecondary" align="center" style={{ marginTop: 20 }}>
