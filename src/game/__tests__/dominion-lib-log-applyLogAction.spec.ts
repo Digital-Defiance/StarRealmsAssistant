@@ -1,4 +1,4 @@
-import { applyLogAction } from '@/game/dominion-lib-undo';
+import { applyLogAction } from '@/game/dominion-lib-log';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
@@ -139,7 +139,7 @@ describe('applyLogAction', () => {
 
   it('should update game-wide counter for ADD_PROPHECY', () => {
     mockGame.options.expansions.risingSun = true;
-    mockGame.risingSun.prophecy.suns = 0;
+    mockGame.expansions.risingSun.prophecy.suns = 0;
     const logEntry: ILogEntry = {
       action: GameLogAction.ADD_PROPHECY,
       playerIndex: 0,
@@ -152,13 +152,13 @@ describe('applyLogAction', () => {
 
     const result = applyLogAction(mockGame, logEntry);
 
-    expect(result.risingSun.prophecy.suns).toBe(3);
+    expect(result.expansions.risingSun.prophecy.suns).toBe(3);
     expect(updateCachesForEntrySpy).toHaveBeenCalledTimes(1);
   });
 
   it('should update game-wide counter for REMOVE_PROPHECY', () => {
     mockGame.options.expansions.risingSun = true;
-    mockGame.risingSun.prophecy.suns = 5;
+    mockGame.expansions.risingSun.prophecy.suns = 5;
     const logEntry: ILogEntry = {
       action: GameLogAction.REMOVE_PROPHECY,
       playerIndex: 0,
@@ -171,7 +171,7 @@ describe('applyLogAction', () => {
 
     const result = applyLogAction(mockGame, logEntry);
 
-    expect(result.risingSun.prophecy.suns).toBe(3);
+    expect(result.expansions.risingSun.prophecy.suns).toBe(3);
     expect(updateCachesForEntrySpy).toHaveBeenCalledTimes(1);
   });
 
@@ -192,7 +192,7 @@ describe('applyLogAction', () => {
 
   it('should not allow negative game-wide counters', () => {
     mockGame.options.expansions.risingSun = true;
-    mockGame.risingSun = { prophecy: { suns: 1 }, greatLeaderProphecy: true };
+    mockGame.expansions.risingSun = { prophecy: { suns: 1 }, greatLeaderProphecy: true };
     const logEntry: ILogEntry = {
       action: GameLogAction.REMOVE_PROPHECY,
       playerIndex: 0,
@@ -209,7 +209,7 @@ describe('applyLogAction', () => {
 
   it('should use default count of 1 for ADD_PROPHECY when count is not provided', () => {
     mockGame.options.expansions.risingSun = true;
-    mockGame.risingSun.prophecy.suns = 0;
+    mockGame.expansions.risingSun.prophecy.suns = 0;
     const logEntry: ILogEntry = {
       action: GameLogAction.ADD_PROPHECY,
       playerIndex: 0,
@@ -221,13 +221,13 @@ describe('applyLogAction', () => {
 
     const result = applyLogAction(mockGame, logEntry);
 
-    expect(result.risingSun.prophecy.suns).toBe(1);
+    expect(result.expansions.risingSun.prophecy.suns).toBe(1);
     expect(updateCachesForEntrySpy).toHaveBeenCalledTimes(1);
   });
 
   it('should use default count of 1 for REMOVE_PROPHECY when count is not provided', () => {
     mockGame.options.expansions.risingSun = true;
-    mockGame.risingSun.prophecy.suns = 3;
+    mockGame.expansions.risingSun.prophecy.suns = 3;
     const logEntry: ILogEntry = {
       action: GameLogAction.REMOVE_PROPHECY,
       playerIndex: 0,
@@ -239,7 +239,7 @@ describe('applyLogAction', () => {
 
     const result = applyLogAction(mockGame, logEntry);
 
-    expect(result.risingSun.prophecy.suns).toBe(2);
+    expect(result.expansions.risingSun.prophecy.suns).toBe(2);
     expect(updateCachesForEntrySpy).toHaveBeenCalledTimes(1);
   });
 
@@ -260,7 +260,7 @@ describe('applyLogAction', () => {
     expect(updateCachesForEntrySpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should ignore actions with invalid player index', () => {
+  it('should throw for actions with invalid player index', () => {
     const logEntry: ILogEntry = {
       action: GameLogAction.ADD_ACTIONS,
       playerIndex: 99, // Invalid player index
@@ -271,13 +271,11 @@ describe('applyLogAction', () => {
       turn: 1,
     };
 
-    const result = applyLogAction(mockGame, logEntry);
-
-    expect(result).toEqual(mockGame); // Game state should remain unchanged
+    expect(() => applyLogAction(mockGame, logEntry)).toThrow(Error('Invalid player index: 99'));
     expect(updateCachesForEntrySpy).toHaveBeenCalledTimes(0);
   });
 
-  it('should handle unknown action types gracefully', () => {
+  it('should throw for unknown action types', () => {
     const logEntry: ILogEntry = {
       action: 'UNKNOWN_ACTION' as GameLogAction,
       playerIndex: 0,
@@ -288,11 +286,11 @@ describe('applyLogAction', () => {
       turn: 1,
     };
 
-    const result = applyLogAction(mockGame, logEntry);
-
-    expect(result).toEqual(mockGame); // Game state should remain unchanged
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Invalid log entry action:', logEntry.action);
-    expect(updateCachesForEntrySpy).toHaveBeenCalledTimes(0);
+    expect(() => applyLogAction(mockGame, logEntry)).toThrow(
+      Error('Invalid log entry action: UNKNOWN_ACTION')
+    );
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should update the selectedPlayerIndex correctly', () => {

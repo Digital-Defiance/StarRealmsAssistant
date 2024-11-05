@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, MouseEvent, useEffect, useState } from 'react';
 import {
   Box,
   TextField,
@@ -31,7 +31,7 @@ const StyledPlayerNumber = styled(Typography)(() => ({
   fontFamily: 'TrajanProBold',
 }));
 
-const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
+const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
   const { gameState, setGameState } = useGameContext();
   const [playerName, setPlayerName] = useState('');
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -67,7 +67,7 @@ const AddPlayerNames: React.FC<AddPlayerNamesProps> = ({ nextStep }) => {
     });
   };
 
-  const handleColorClick = (event: React.MouseEvent<HTMLElement>, playerIndex: number) => {
+  const handleColorClick = (event: MouseEvent<HTMLElement>, playerIndex: number) => {
     setCurrentPlayerIndex(playerIndex);
     setAnchorEl(event.currentTarget);
   };

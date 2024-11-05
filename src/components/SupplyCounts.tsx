@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { Box, Typography, List, ListItem, styled } from '@mui/material';
 import SuperCapsText from '@/components/SuperCapsText';
 import { useGameContext } from '@/components/GameContext';
@@ -40,7 +40,7 @@ const Note = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-const SupplyCounts: React.FC = () => {
+const SupplyCounts: FC = () => {
   const { gameState } = useGameContext();
 
   const supplyCards: (keyof IBaseKingdom | keyof IProsperityKingdom)[] = [

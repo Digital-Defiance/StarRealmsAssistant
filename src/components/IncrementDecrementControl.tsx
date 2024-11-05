@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { FC, forwardRef } from 'react';
 import { Box, Typography, IconButton, Tooltip, TooltipProps, TypographyProps } from '@mui/material';
 import { SxProps } from '@mui/system';
 import { Theme } from '@mui/material/styles';
@@ -49,7 +49,7 @@ interface IncrementDecrementControlProps {
   tooltipProps?: Omit<TooltipProps, 'children' | 'title'>;
 }
 
-const IncrementDecrementControl: React.FC<IncrementDecrementControlProps> = ({
+const IncrementDecrementControl: FC<IncrementDecrementControlProps> = ({
   label,
   value,
   tooltip,

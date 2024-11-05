@@ -7,6 +7,7 @@ import {
   DefaultTurnDetails,
   DefaultPlayerColors,
   VERSION_NUMBER,
+  DefaultRenaissanceFeatures,
 } from '@/game/constants';
 import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
@@ -20,6 +21,8 @@ import { deepClone } from '@/game/utils';
 import { IGameRaw } from '@/game/interfaces/game-raw';
 
 export function createMockGame(playerCount: number, overrides?: Partial<IGame>): IGame {
+  const firstPlayerIndex =
+    overrides?.firstPlayerIndex ?? faker.number.int({ min: 0, max: playerCount - 1 });
   const options: IGameOptions = {
     curses: true,
     expansions: { prosperity: false, renaissance: false, risingSun: false } as IExpansionsEnabled,
@@ -38,22 +41,25 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
       .map((value, index) => createMockPlayer(index, overrides?.players?.[index])),
     supply,
     options,
-    risingSun: {
-      prophecy: {
-        suns: NOT_PRESENT,
+    expansions: {
+      renaissance: DefaultRenaissanceFeatures(),
+      risingSun: {
+        prophecy: {
+          suns: NOT_PRESENT,
+        },
+        greatLeaderProphecy: false,
       },
-      greatLeaderProphecy: false,
     },
     currentTurn: 1,
-    currentPlayerIndex: 0,
-    firstPlayerIndex: 0,
-    selectedPlayerIndex: 0,
+    currentPlayerIndex: firstPlayerIndex,
+    firstPlayerIndex: firstPlayerIndex,
+    selectedPlayerIndex: firstPlayerIndex,
     log: [
       {
         id: faker.string.uuid(),
         timestamp: new Date(),
-        playerIndex: 0,
-        currentPlayerIndex: 0,
+        playerIndex: firstPlayerIndex,
+        currentPlayerIndex: firstPlayerIndex,
         turn: 1,
         action: GameLogAction.START_GAME,
       },
@@ -63,6 +69,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
     currentStep: CurrentStep.Game,
     setsRequired: 1,
     gameVersion: VERSION_NUMBER,
+    pendingGroupedActions: [],
     ...(overrides ? deepClone<Partial<IGame>>(overrides) : {}),
   };
   return distributeInitialSupply(game);
@@ -94,7 +101,10 @@ export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
     count: faker.number.int({ min: 1, max: 5 }),
     correction: false,
     // linkedActionId: faker.string.uuid(),
-    prevPlayerIndex: faker.number.int({ min: 0, max: 3 }),
+    prevPlayerIndex:
+      log?.action && log.action === GameLogAction.START_GAME
+        ? -1
+        : faker.number.int({ min: 0, max: 3 }),
     ...(log ? deepClone<Partial<ILogEntry>>(log) : {}),
   };
 }
@@ -119,6 +129,10 @@ export function createMockGameRaw(numPlayers: number, overrides?: Partial<IGameR
       ...turnStatistics,
       start: turnStatistics.start.toISOString(),
       end: turnStatistics.end.toISOString(),
+    })),
+    pendingGroupedActions: mockGame.pendingGroupedActions.map((logEntry) => ({
+      ...logEntry,
+      timestamp: logEntry.timestamp?.toISOString(),
     })),
   };
 

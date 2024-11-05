@@ -1,26 +1,12 @@
-import {
-  ActionsWithOnlyLastActionUndo,
-  ActionsWithPlayer,
-  DefaultTurnDetails,
-  NO_PLAYER,
-  NoPlayerActions,
-  NoUndoActions,
-} from '@/game/constants';
-import { getFieldAndSubfieldFromAction, updatePlayerField } from '@/game/dominion-lib';
-import { deepClone } from '@/game/utils';
-import { GameLogAction } from '@/game/enumerations/game-log-action';
+import { ActionsWithOnlyLastActionUndo, NoUndoActions } from '@/game/constants';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { PlayerFieldMap } from '@/game/types';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
 import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { getSignedCount } from '@/game/dominion-lib-log';
-import { GamePausedError } from '@/game/errors/game-paused';
-import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
-import { updateCache, updateCachesForEntry } from '@/game/dominion-lib-time';
+import { updateCache } from '@/game/dominion-lib-time';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -46,9 +32,6 @@ export function getLinkedActions(log: ILogEntry[], index: number): ILogEntry[] {
  */
 export function canUndoAction(game: IGame, logIndex: number): boolean {
   if (logIndex < 0 || logIndex >= game.log.length) {
-    return false;
-  }
-  if (game.log.length === 0) {
     return false;
   }
 
@@ -124,105 +107,4 @@ export function undoAction(game: IGame, logIndex: number): { game: IGame; succes
     }
     return { game, success: false };
   }
-}
-
-/**
- * Applies a single log action to the game state.
- * @param game - The current game state
- * @param logEntry - The log entry to apply
- * @returns The updated game state after applying the action
- */
-export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
-  // validate that logEntry.action is a valid GameLogAction
-  if (!Object.values(GameLogAction).includes(logEntry.action)) {
-    console.error('Invalid log entry action:', logEntry.action);
-    return game;
-  }
-
-  // Validate player index for actions that require a valid player index
-  if (
-    ActionsWithPlayer.includes(logEntry.action) &&
-    (logEntry.playerIndex >= game.players.length || logEntry.playerIndex < 0)
-  ) {
-    return game; // Return the original game state if the player index is invalid
-  }
-
-  let updatedGame = deepClone<IGame>(game);
-
-  if (logEntry.action === GameLogAction.START_GAME) {
-    // set first player to the player who started the game
-    updatedGame.firstPlayerIndex = logEntry.playerIndex;
-    updatedGame.selectedPlayerIndex = logEntry.playerIndex;
-    updatedGame.currentStep = CurrentStep.Game;
-    updatedGame.currentTurn = 1;
-  } else if (logEntry.action === GameLogAction.END_GAME) {
-    updatedGame.currentStep = CurrentStep.EndGame;
-  } else if (logEntry.action === GameLogAction.NEXT_TURN) {
-    // Move to next player
-    updatedGame.currentTurn = game.currentTurn + 1;
-    updatedGame.currentPlayerIndex = logEntry.playerIndex;
-    updatedGame.selectedPlayerIndex = logEntry.playerIndex;
-
-    // Reset all players' turn counters to their newTurn values
-    updatedGame.players = updatedGame.players.map((player) => ({
-      ...player,
-      turn: deepClone<IPlayerGameTurnDetails>(player.newTurn ?? DefaultTurnDetails()),
-    }));
-  } else if (logEntry.action === GameLogAction.SELECT_PLAYER) {
-    updatedGame.selectedPlayerIndex = logEntry.playerIndex ?? updatedGame.selectedPlayerIndex;
-  } else if (
-    logEntry.playerIndex !== NO_PLAYER &&
-    logEntry.playerIndex < updatedGame.players.length &&
-    !NoPlayerActions.includes(logEntry.action)
-  ) {
-    const { field, subfield } = getFieldAndSubfieldFromAction(logEntry.action);
-    if (field && subfield) {
-      const increment = getSignedCount(logEntry, 1);
-      updatedGame = updatePlayerField(
-        updatedGame,
-        logEntry.playerIndex,
-        field as keyof PlayerFieldMap,
-        subfield,
-        increment,
-        logEntry.trash === true ? true : undefined
-      );
-    }
-  }
-
-  // Handle game-wide counters
-  if (
-    game.options.expansions.risingSun &&
-    (logEntry.action === GameLogAction.ADD_PROPHECY ||
-      logEntry.action === GameLogAction.REMOVE_PROPHECY)
-  ) {
-    const increment =
-      logEntry.action === GameLogAction.ADD_PROPHECY
-        ? (logEntry.count ?? 1)
-        : -(logEntry.count ?? 1);
-
-    const newSuns = updatedGame.risingSun.prophecy.suns + increment;
-
-    if (newSuns < 0) {
-      throw new NotEnoughProphecyError();
-    }
-
-    updatedGame.risingSun.prophecy.suns = newSuns;
-  }
-
-  // If the game is paused, do not allow any other actions except UNPAUSE
-  const lastLog = game.log.length > 0 ? game.log[game.log.length - 1] : null;
-  if (
-    lastLog &&
-    lastLog.action === GameLogAction.PAUSE &&
-    logEntry.action !== GameLogAction.UNPAUSE
-  ) {
-    throw new GamePausedError();
-  }
-
-  updatedGame.log.push(deepClone<ILogEntry>(logEntry));
-  const { timeCache, turnStatisticsCache } = updateCachesForEntry(updatedGame, logEntry);
-  updatedGame.timeCache = timeCache;
-  updatedGame.turnStatisticsCache = turnStatisticsCache;
-
-  return updatedGame;
 }

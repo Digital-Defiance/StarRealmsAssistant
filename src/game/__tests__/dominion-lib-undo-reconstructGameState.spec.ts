@@ -2,15 +2,29 @@ import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { getNextPlayerIndex, newPlayer, NewGameState } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { DefaultTurnDetails, EmptyGameState } from '@/game/constants';
+import {
+  DefaultRenaissanceFeatures,
+  DefaultTurnDetails,
+  EmptyGameState,
+  EnabledRisingSunFeatures,
+} from '@/game/constants';
 import { faker } from '@faker-js/faker';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
+import {
+  applyGroupedAction,
+  applyGroupedActionSubAction,
+  getGameStartTime,
+  prepareGroupedActionTriggers,
+} from '@/game/dominion-lib-log';
+import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
+import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
 
 describe('reconstructGameState', () => {
   let baseGame: IGame;
+  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     baseGame = NewGameState({
@@ -33,11 +47,15 @@ describe('reconstructGameState', () => {
         turnPauseTime: 0,
       },
     ];
+    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+      // do nothing
+    });
   });
 
-  it('should return an identical game state whhen given an existing game', () => {
+  it('should return an identical game state when given an existing game', () => {
     const result = reconstructGameState(baseGame);
     expect(result).toEqual(baseGame);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should correctly apply a single action', () => {
@@ -59,6 +77,7 @@ describe('reconstructGameState', () => {
 
     const result = reconstructGameState(gameWithAction);
     expect(result.players[0].turn.coins).toBe(1);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should handle multiple actions for different players', () => {
@@ -90,6 +109,7 @@ describe('reconstructGameState', () => {
     const result = reconstructGameState(gameWithActions);
     expect(result.players[0].turn.coins).toBe(2);
     expect(result.players[1].turn.actions).toBe(2);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should handle NEXT_TURN action correctly', () => {
@@ -115,6 +135,7 @@ describe('reconstructGameState', () => {
     expect(nextPlayerIndex).toBe(0); // should wrap back to 0
     expect(result.currentPlayerIndex).toBe(nextPlayerIndex); // should wrap back to 0
     expect(result.currentTurn).toBe(2); // should increment
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should reset player turn details after NEXT_TURN', () => {
@@ -151,6 +172,7 @@ describe('reconstructGameState', () => {
     const result = reconstructGameState(gameWithActionsAndNextTurn);
     expect(result.players[0].turn).toEqual(DefaultTurnDetails());
     expect(result.currentPlayerIndex).toEqual(nextPlayerIndex);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should handle game-wide counters (e.g., prophecy tokens)', () => {
@@ -169,11 +191,9 @@ describe('reconstructGameState', () => {
           prosperity: false,
         },
       },
-      risingSun: {
-        prophecy: {
-          suns: 5,
-        },
-        greatLeaderProphecy: true,
+      expansions: {
+        renaissance: DefaultRenaissanceFeatures(),
+        risingSun: EnabledRisingSunFeatures(2),
       },
       log: [
         ...baseGame.log,
@@ -190,7 +210,8 @@ describe('reconstructGameState', () => {
     } as IGame;
 
     const result = reconstructGameState(gameWithProphecy);
-    expect(result.risingSun?.prophecy.suns).toBe(3);
+    expect(result.expansions.risingSun.prophecy.suns).toBe(3);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should throw an error when encountering negative counters', () => {
@@ -211,6 +232,7 @@ describe('reconstructGameState', () => {
     };
 
     expect(() => reconstructGameState(gameWithNegativeAction)).toThrow(NotEnoughSubfieldError);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should throw an error when encountering negative prophecy counters', () => {
@@ -246,6 +268,7 @@ describe('reconstructGameState', () => {
     };
 
     expect(() => reconstructGameState(gameWithNegativeAction)).toThrow(NotEnoughProphecyError);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should handle linked actions correctly', () => {
@@ -279,6 +302,7 @@ describe('reconstructGameState', () => {
     const result = reconstructGameState(gameWithLinkedActions);
     expect(result.players[0].turn.coins).toBe(2);
     expect(result.players[0].turn.actions).toBe(2); // 1 default + 1 added
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should reconstruct the game state correctly after multiple rounds', () => {
@@ -370,5 +394,49 @@ describe('reconstructGameState', () => {
       cards: 5,
       gains: 0,
     });
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+  });
+
+  it('should handle grouped actions correctly', () => {
+    const mockGame = createMockGame(4);
+    const actionDate = new Date(getGameStartTime(mockGame).getTime() + 10000);
+    const updatedGame = applyGroupedAction(
+      mockGame,
+      {
+        name: 'One Card, Two Actions',
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 2,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+      actionDate,
+      applyGroupedActionSubAction,
+      prepareGroupedActionTriggers
+    );
+    expect(mockGame.currentPlayerIndex).toBe(updatedGame.currentPlayerIndex);
+    expect(mockGame.selectedPlayerIndex).toBe(updatedGame.selectedPlayerIndex);
+    expect(mockGame.firstPlayerIndex).toBe(updatedGame.firstPlayerIndex);
+    const reconstructedGame = reconstructGameState(updatedGame);
+    expect(reconstructedGame.currentPlayerIndex).toBe(updatedGame.currentPlayerIndex);
+    expect(reconstructedGame.selectedPlayerIndex).toBe(updatedGame.selectedPlayerIndex);
+    expect(reconstructedGame.firstPlayerIndex).toBe(updatedGame.firstPlayerIndex);
+    expect(reconstructedGame).toStrictEqual(updatedGame);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 });

@@ -1,4 +1,4 @@
-import { DiskStorageService } from './disk-storage-service';
+import { DiskStorageService } from '@/game/disk-storage-service';
 import * as fs from 'fs';
 import * as path from 'path';
 

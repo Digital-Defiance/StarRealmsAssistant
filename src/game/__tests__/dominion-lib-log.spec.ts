@@ -9,6 +9,8 @@ import {
   groupTurnAdjustments,
   getPlayerForTurn,
   getAverageActionsPerTurn,
+  getPlayerNextTurnCount,
+  getMasterActionId,
 } from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { EmptyLogError } from '@/game/errors/empty-log';
@@ -16,6 +18,7 @@ import { InvalidLogStartGameError } from '@/game/errors/invalid-log-start-game';
 import { IGame } from '@/game/interfaces/game';
 import { ITurnAdjustment } from '@/game/interfaces/turn-adjustment';
 import { ILogEntry } from '@/game/interfaces/log-entry';
+import { InvalidPlayerIndexError } from '@/game/errors/invalid-player-index';
 
 describe('getGameStartTime', () => {
   it('should throw EmptyLogError if the log is empty', () => {
@@ -76,7 +79,7 @@ describe('getTurnStartTime', () => {
         createMockLog({ action: GameLogAction.NEXT_TURN, timestamp: new Date(), turn: 2 }),
       ],
     });
-    expect(() => getTurnStartTime(game, 3)).toThrow('Could not find turn 3 in log');
+    expect(() => getTurnStartTime(game, 3)).toThrow('Could not find turn 3 in the log');
   });
 
   it('should return the game start time for turn 1', () => {
@@ -332,13 +335,18 @@ describe('getPlayerForTurn', () => {
   let gameState: IGame;
 
   beforeEach(() => {
-    gameState = createMockGame(2);
+    gameState = createMockGame(2, {
+      firstPlayerIndex: 0,
+      currentPlayerIndex: 0,
+      selectedPlayerIndex: 0,
+      log: [createMockLog({ action: GameLogAction.START_GAME, turn: 1, playerIndex: 0 })],
+    });
   });
 
   it('should return the correct player for the first turn', () => {
     gameState.log.push(createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2, playerIndex: 1 }));
     const player = getPlayerForTurn(gameState, 1);
-    expect(player).toStrictEqual(gameState.players[0]);
+    expect(player).toBe(gameState.players[0]);
   });
 
   it('should return the correct player for successive turns', () => {
@@ -348,19 +356,21 @@ describe('getPlayerForTurn', () => {
   });
 
   it('should throw if the turn does not exist', () => {
-    expect(() => getPlayerForTurn(gameState, 99)).toThrow('Could not find turn 99 in log');
+    expect(() => getPlayerForTurn(gameState, 99)).toThrow('Could not find turn 99 in the log');
   });
 
   it('should throw if the player does not exist', () => {
     gameState.log.push(
       createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2, playerIndex: 99 })
     );
-    expect(() => getPlayerForTurn(gameState, 2)).toThrow('Invalid player index for turn 2');
+    expect(() => getPlayerForTurn(gameState, 2)).toThrow(
+      'Invalid player index 99 for turn 2 in the log'
+    );
   });
 
   it('should handle an empty gameState', () => {
     const emptyGameState: IGame = createMockGame(2, { players: [], log: [] });
-    expect(() => getPlayerForTurn(emptyGameState, 1)).toThrow('Could not find turn 1 in log');
+    expect(() => getPlayerForTurn(emptyGameState, 1)).toThrow('Could not find turn 1 in the log');
   });
 });
 
@@ -373,11 +383,21 @@ describe('getAverageActionsPerTurn', () => {
 
   it('should return the correct average actions per turn', () => {
     game.log = [
-      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3 }),
-      createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2 }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5 }),
-      createMockLog({ action: GameLogAction.END_GAME, turn: 2 }),
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1, playerIndex: 0 }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3, playerIndex: 0 }),
+      createMockLog({
+        action: GameLogAction.NEXT_TURN,
+        turn: 2,
+        playerIndex: 1,
+        prevPlayerIndex: 0,
+      }),
+      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5, playerIndex: 1 }),
+      createMockLog({
+        action: GameLogAction.END_GAME,
+        turn: 2,
+        playerIndex: -1,
+        prevPlayerIndex: 1,
+      }),
     ];
 
     const averageActions = getAverageActionsPerTurn(game);
@@ -428,5 +448,117 @@ describe('getAverageActionsPerTurn', () => {
 
     const averageActions = getAverageActionsPerTurn(game);
     expect(averageActions).toBe(0);
+  });
+});
+
+describe('getPlayerNextTurnCount', () => {
+  let mockGame: IGame;
+
+  beforeEach(() => {
+    mockGame = createMockGame(3, {
+      currentTurn: 5,
+      currentPlayerIndex: 1,
+      firstPlayerIndex: 0,
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, turn: 1, playerIndex: 0 }),
+        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3, playerIndex: 0 }),
+        createMockLog({
+          action: GameLogAction.NEXT_TURN,
+          turn: 2,
+          playerIndex: 1,
+          prevPlayerIndex: 0,
+        }),
+        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5, playerIndex: 1 }),
+        createMockLog({
+          action: GameLogAction.NEXT_TURN,
+          turn: 3,
+          playerIndex: 2,
+          prevPlayerIndex: 1,
+        }),
+        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 3, count: 7, playerIndex: 2 }),
+        createMockLog({
+          action: GameLogAction.NEXT_TURN,
+          turn: 4,
+          playerIndex: 0,
+          prevPlayerIndex: 2,
+        }),
+        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 4, count: 9, playerIndex: 0 }),
+        createMockLog({
+          action: GameLogAction.NEXT_TURN,
+          turn: 5,
+          playerIndex: 1,
+          prevPlayerIndex: 0,
+        }),
+      ],
+    });
+  });
+
+  it('should return the current turn if the player is the current player', () => {
+    const result = getPlayerNextTurnCount(mockGame, 1);
+    expect(result).toBe(5);
+  });
+
+  it('should return the next turn number for the given player', () => {
+    const result = getPlayerNextTurnCount(mockGame, 2);
+    expect(result).toBe(6);
+  });
+
+  it('should return the correct turn number when the player index wraps around', () => {
+    const result = getPlayerNextTurnCount(mockGame, 0);
+    expect(result).toBe(7);
+  });
+
+  it('should throw an error if the player index is negative', () => {
+    expect(() => getPlayerNextTurnCount(mockGame, -1)).toThrow(InvalidPlayerIndexError);
+  });
+
+  it('should throw an error if the player index is out of bounds', () => {
+    expect(() => getPlayerNextTurnCount(mockGame, 3)).toThrow(InvalidPlayerIndexError);
+  });
+
+  it('should return the next turn number for the current player when skipCurrentTurn is true', () => {
+    const result = getPlayerNextTurnCount(mockGame, 1, true);
+    expect(result).toBe(8);
+  });
+
+  it('should return the next turn number for a different player when skipCurrentTurn is true', () => {
+    const result = getPlayerNextTurnCount(mockGame, 2, true);
+    expect(result).toBe(6);
+  });
+
+  it('should return the correct turn number when the player index wraps around and skipCurrentTurn is true', () => {
+    const result = getPlayerNextTurnCount(mockGame, 0, true);
+    expect(result).toBe(7);
+  });
+
+  it('should handle the case where skipCurrentTurn is true and the player is the last in the list', () => {
+    mockGame.currentPlayerIndex = 2;
+    const result = getPlayerNextTurnCount(mockGame, 2, true);
+    expect(result).toBe(8);
+  });
+});
+
+describe('getMasterActionId', () => {
+  it('should return the linked action ID for a valid log entry', () => {
+    const logEntry: ILogEntry = createMockLog({
+      id: '1',
+      action: GameLogAction.ADD_ACTIONS,
+      linkedActionId: 'master-123',
+      timestamp: new Date(),
+      // other properties
+    });
+    const result = getMasterActionId(logEntry);
+    expect(result).toBe('master-123');
+  });
+
+  it('should return id for a log entry without linked action ID', () => {
+    const logEntry: ILogEntry = createMockLog({
+      id: '2',
+      action: GameLogAction.ADD_ACTIONS,
+      timestamp: new Date(),
+      // other properties
+    });
+    const result = getMasterActionId(logEntry);
+    expect(result).toBe('2');
   });
 });

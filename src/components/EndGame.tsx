@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import {
   Typography,
   Table,
@@ -23,7 +23,7 @@ interface EndGameProps {
   onNewGame: () => void;
 }
 
-const EndGame: React.FC<EndGameProps> = ({ game, onNewGame }) => {
+const EndGame: FC<EndGameProps> = ({ game, onNewGame }) => {
   const playerScores: RankedPlayer[] = rankPlayers(game.players, calculateVictoryPoints);
 
   return (

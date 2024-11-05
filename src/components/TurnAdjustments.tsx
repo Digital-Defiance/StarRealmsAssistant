@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import {
   Box,
   Typography,
@@ -41,7 +41,7 @@ const Quantity = styled(Typography)({
   fontSize: '1.5rem',
 });
 
-const TurnAdjustmentsSummary: React.FC<TurnAdjustmentProps> = ({ turn }) => {
+const TurnAdjustmentsSummary: FC<TurnAdjustmentProps> = ({ turn }) => {
   const { gameState } = useGameContext();
   const adjustments = groupTurnAdjustments(getTurnAdjustments(gameState, turn));
   const gameTurn = turn ?? gameState.currentTurn;

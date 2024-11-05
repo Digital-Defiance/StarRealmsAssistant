@@ -200,6 +200,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Wed Nev 06 17:05:00 2024
+
+- Version 0.10.0
+  - Add common actions with support for cards like council room which add cards now for other players and remove them on their turns
+
 ### Mon Nov 04 12:44:00 2024
 
 - Version 0.9.10

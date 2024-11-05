@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useAlert } from '@/components/AlertContext';
 
-const AlertDialog: React.FC = () => {
+const AlertDialog: FC = () => {
   const { alert, hideAlert } = useAlert();
 
   if (!alert) return null;

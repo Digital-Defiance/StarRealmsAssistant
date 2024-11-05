@@ -1,53 +1,36 @@
-import { IGameOptions } from '@/game/interfaces/game-options';
-import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
-import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
 import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
 import { IGame } from '@/game/interfaces/game';
 import { IPlayer } from '@/game/interfaces/player';
 import {
+  DefaultGameOptions,
+  DefaultRenaissanceFeatures,
+  DefaultRisingSunFeatures,
   HAND_STARTING_COPPERS,
   HAND_STARTING_ESTATES,
-  NOT_PRESENT,
+  TwoPlayerSupply,
   VERSION_NUMBER,
 } from '@/game/constants';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { MinPlayersError } from '@/game/errors/min-players';
-import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
+import { createMockGame, createMockPlayer } from '@/__fixtures__/dominion-lib-fixtures';
 
 describe('distributeInitialSupply', () => {
   it('should return the original supply when there are no players', () => {
-    const game = { ...createMockGame(2), players: [] };
+    const game = createMockGame(2, { players: [], supply: TwoPlayerSupply(false).supply });
     const updatedGame = distributeInitialSupply(game);
 
     expect(updatedGame.supply).toStrictEqual(game.supply);
   });
 
   it('should distribute initial supply correctly for 2 players', () => {
-    const options: IGameOptions = {
-      curses: true,
-      expansions: {
-        prosperity: false,
-        renaissance: false,
-        risingSun: false,
-      } as IExpansionsEnabled,
-      mats: {
-        coffersVillagers: false,
-        debt: false,
-        favors: false,
-      } as IMatsEnabled,
-      trackCardCounts: true,
-      trackCardGains: true,
-    };
-    const initialSupply = calculateInitialSupply(2, options);
+    const initialSupply = calculateInitialSupply(2, DefaultGameOptions());
     const mockGame: IGame = {
-      players: [{}, {}] as IPlayer[],
+      players: [createMockPlayer(), createMockPlayer()] as IPlayer[],
       supply: initialSupply,
-      options: options,
-      risingSun: {
-        prophecy: {
-          suns: NOT_PRESENT,
-        },
-        greatLeaderProphecy: false,
+      options: DefaultGameOptions(),
+      expansions: {
+        renaissance: DefaultRenaissanceFeatures(),
+        risingSun: DefaultRisingSunFeatures(),
       },
       currentTurn: 1,
       currentPlayerIndex: 0,
@@ -59,6 +42,7 @@ describe('distributeInitialSupply', () => {
       currentStep: CurrentStep.Game,
       setsRequired: 1,
       gameVersion: VERSION_NUMBER,
+      pendingGroupedActions: [],
     };
 
     const updatedGame = distributeInitialSupply(mockGame);
@@ -70,23 +54,7 @@ describe('distributeInitialSupply', () => {
   });
 
   it('should throw MinPlayersError when calculating initial supply for less than 2 players', () => {
-    expect(() =>
-      calculateInitialSupply(1, {
-        curses: true,
-        expansions: {
-          prosperity: false,
-          renaissance: false,
-          risingSun: false,
-        } as IExpansionsEnabled,
-        mats: {
-          coffersVillagers: false,
-          debt: false,
-          favors: false,
-        } as IMatsEnabled,
-        trackCardCounts: true,
-        trackCardGains: true,
-      })
-    ).toThrow(MinPlayersError);
+    expect(() => calculateInitialSupply(1, DefaultGameOptions())).toThrow(MinPlayersError);
   });
 
   it('should distribute the correct number of estates to each player', () => {

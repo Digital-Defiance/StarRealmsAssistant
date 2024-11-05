@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { FC, useCallback, useEffect } from 'react';
 import {
   Button,
   List,
@@ -23,7 +23,7 @@ interface SelectFirstPlayerProps {
   nextStep: () => void;
 }
 
-const SelectFirstPlayer: React.FC<SelectFirstPlayerProps> = ({ nextStep }) => {
+const SelectFirstPlayer: FC<SelectFirstPlayerProps> = ({ nextStep }) => {
   const { gameState, setGameState } = useGameContext();
 
   const selectRandomFirstPlayer = useCallback(() => {

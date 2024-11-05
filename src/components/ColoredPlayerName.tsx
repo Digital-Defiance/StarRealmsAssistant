@@ -1,16 +1,13 @@
 import { IPlayer } from '@/game/interfaces/player';
 import { Typography } from '@mui/material';
-import React from 'react';
+import React, { FC } from 'react';
 
 interface ColoredPlayerNameProps {
   player: IPlayer;
   marginDirection?: 'left' | 'right';
 }
 
-const ColoredPlayerName: React.FC<ColoredPlayerNameProps> = ({
-  player,
-  marginDirection = 'right',
-}) => {
+const ColoredPlayerName: FC<ColoredPlayerNameProps> = ({ player, marginDirection = 'right' }) => {
   return (
     <Typography
       component="span"

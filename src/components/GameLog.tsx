@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, memo, CSSProperties, RefObject, FC } from 'react';
 import { Paper, TableContainer, Typography, Box, Dialog, DialogContent } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
@@ -9,12 +9,12 @@ import { FixedSizeList } from 'react-window';
 import { TabViewHandle } from '@/components/TabView';
 
 interface GameLogProps {
-  tabViewRef: React.RefObject<TabViewHandle>;
+  tabViewRef: RefObject<TabViewHandle>;
 }
 
-const MemoizedGameLogEntry = React.memo(GameLogEntry);
+const MemoizedGameLogEntry = memo(GameLogEntry);
 
-const GameLog: React.FC<GameLogProps> = ({ tabViewRef }) => {
+const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
   const { gameState } = useGameContext();
   const [openTurnAdjustmentsDialog, setOpenTurnAdjustmentsDialog] = useState(false);
   const [selectedTurn, setSelectedTurn] = useState<number | null>(null);
@@ -24,8 +24,8 @@ const GameLog: React.FC<GameLogProps> = ({ tabViewRef }) => {
 
   useEffect(() => {
     const handleResize = () => {
-      const headerHeight = headerRef.current?.getBoundingClientRect().height || 0;
-      const tabBarHeight = tabViewRef.current?.tabBar?.getBoundingClientRect().height || 0;
+      const headerHeight = headerRef.current?.getBoundingClientRect().height ?? 0;
+      const tabBarHeight = tabViewRef.current?.tabBar?.getBoundingClientRect().height ?? 0;
       const headerStyles = window.getComputedStyle(
         headerRef.current || document.createElement('div')
       );
@@ -46,7 +46,7 @@ const GameLog: React.FC<GameLogProps> = ({ tabViewRef }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [tabViewRef]);
 
   const handleOpenTurnAdjustmentsDialog = (turn: number) => {
     setSelectedTurn(turn);
@@ -58,7 +58,7 @@ const GameLog: React.FC<GameLogProps> = ({ tabViewRef }) => {
     setSelectedTurn(null);
   };
 
-  const Row = ({ index, style }: { index: number; style: React.CSSProperties }) => (
+  const Row = ({ index, style }: { index: number; style: CSSProperties }) => (
     <div style={style}>
       <MemoizedGameLogEntry
         key={gameState.log[index].id}

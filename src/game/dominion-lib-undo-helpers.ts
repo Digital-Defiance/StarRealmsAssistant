@@ -1,13 +1,7 @@
 import { IGame } from '@/game/interfaces/game';
 import { NewGameState } from '@/game/dominion-lib';
 import { deepClone } from '@/game/utils';
-import { DefaultTurnDetails, EmptyMatDetails, EmptyVictoryDetails } from '@/game/constants';
-import { applyLogAction } from '@/game/dominion-lib-undo';
-import { IPlayer } from '@/game/interfaces/player';
-import { IGameOptions } from '@/game/interfaces/game-options';
-import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
-import { EmptyGameState } from '@/game/constants';
-import { rebuildCaches } from '@/game/dominion-lib-time';
+import { applyLogAction } from '@/game/dominion-lib-log';
 
 /**
  * Remove the target action and its linked actions from the game log.
@@ -54,21 +48,7 @@ export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGa
  * @returns The reconstructed game state
  */
 export function reconstructGameState(game: IGame): IGame {
-  let reconstructedGame = NewGameState({
-    ...EmptyGameState(),
-    players: game.players.map((player) => ({
-      ...deepClone<IPlayer>(player),
-      mats: EmptyMatDetails(),
-      turn: DefaultTurnDetails(),
-      newTurn: DefaultTurnDetails(),
-      victory: EmptyVictoryDetails(),
-    })),
-    options: deepClone<IGameOptions>(game.options),
-    firstPlayerIndex: game.firstPlayerIndex,
-    currentPlayerIndex: game.firstPlayerIndex,
-    selectedPlayerIndex: game.firstPlayerIndex,
-    ...(game.risingSun ? { risingSun: deepClone<IRisingSunFeatures>(game.risingSun) } : {}),
-  });
+  let reconstructedGame = NewGameState(game);
   // clear the log
   reconstructedGame.log = [];
 

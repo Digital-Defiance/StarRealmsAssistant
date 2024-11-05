@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, FC, MouseEvent, useState } from 'react';
 import {
   Checkbox,
   Chip,
@@ -17,7 +17,11 @@ import { useGameContext } from '@/components/GameContext';
 import SuperCapsText from '@/components/SuperCapsText';
 import IncrementDecrementControl from '@/components/IncrementDecrementControl';
 import { updatePlayerField } from '@/game/dominion-lib';
-import { addLogEntry, fieldSubfieldToGameLogAction } from '@/game/dominion-lib-log';
+import {
+  addLogEntry,
+  fieldSubfieldToGameLogAction,
+  getMasterActionId,
+} from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
@@ -70,7 +74,7 @@ const LinkCheckboxContainer = styled(Box)({
   alignItems: 'center',
 });
 
-const Player: React.FC = () => {
+const Player: FC = () => {
   const { gameState, setGameState } = useGameContext();
   const { showAlert } = useAlert();
   const [showNewTurnSettings, setShowNewTurnSettings] = useState(false);
@@ -204,15 +208,17 @@ const Player: React.FC = () => {
     }
   };
 
-  const handleCorrectionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCorrectionChange = (event: ChangeEvent<HTMLInputElement>) => {
     setIsCorrection(event.target.checked);
   };
 
-  const handleLinkChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLinkChange = (event: ChangeEvent<HTMLInputElement>) => {
     setLinkChanges(event.target.checked);
     if (event.target.checked) {
       setLinkChangeId(
-        gameState.log.length > 0 ? gameState.log[gameState.log.length - 1].id : undefined
+        gameState.log.length > 0
+          ? getMasterActionId(gameState.log[gameState.log.length - 1])
+          : undefined
       );
     } else {
       setLinkChangeId(undefined);
@@ -224,18 +230,18 @@ const Player: React.FC = () => {
     gameState.options.mats.debt ||
     gameState.options.mats.favors;
 
-  const showGlobalMats = gameState.options.expansions.risingSun && gameState.risingSun;
+  const showGlobalMats = gameState.options.expansions.risingSun;
 
   const handleProphecyIncrease = () => {
     setGameState((prevState: IGame) => {
-      if (prevState.risingSun && prevState.options.expansions.risingSun) {
+      if (prevState.expansions.risingSun && prevState.options.expansions.risingSun) {
         const newGameState = deepClone<IGame>(prevState);
         // prophecy is always triggered by the selected player, not the current player in case there is an off-turn action triggered by a defense, etc
         addLogEntry(newGameState, newGameState.selectedPlayerIndex, GameLogAction.ADD_PROPHECY, {
           count: 1,
           linkedActionId: linkChangeId,
         });
-        newGameState.risingSun.prophecy.suns += 1;
+        newGameState.expansions.risingSun.prophecy.suns += 1;
         return newGameState;
       }
       return prevState;
@@ -244,8 +250,8 @@ const Player: React.FC = () => {
 
   const handleProphecyDecrease = () => {
     setGameState((prevState: IGame) => {
-      if (prevState.risingSun && prevState.options.expansions.risingSun) {
-        if (prevState.risingSun.prophecy.suns - 1 < 0) {
+      if (prevState.options.expansions.risingSun) {
+        if (prevState.expansions.risingSun.prophecy.suns - 1 < 0) {
           return prevState;
         }
         const newGameState = deepClone<IGame>(prevState);
@@ -254,9 +260,9 @@ const Player: React.FC = () => {
           linkedActionId: linkChangeId,
         });
 
-        newGameState.risingSun.prophecy.suns = Math.max(
+        newGameState.expansions.risingSun.prophecy.suns = Math.max(
           0,
-          newGameState.risingSun.prophecy.suns - 1
+          newGameState.expansions.risingSun.prophecy.suns - 1
         );
         return newGameState;
       }
@@ -264,7 +270,7 @@ const Player: React.FC = () => {
     });
   };
 
-  const handleNewTurnClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNewTurnClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     setShowNewTurnSettings(true);
   };
@@ -336,8 +342,8 @@ const Player: React.FC = () => {
                     // greatLeaderProphecy gives unlimited actions when the prophecy is empty
                     if (
                       !isCorrection &&
-                      gameState.risingSun.greatLeaderProphecy &&
-                      gameState.risingSun.prophecy.suns === 0
+                      gameState.expansions.risingSun.greatLeaderProphecy &&
+                      gameState.expansions.risingSun.prophecy.suns === 0
                     ) {
                       handleCombinedFieldChange(
                         'turn',
@@ -472,10 +478,10 @@ const Player: React.FC = () => {
                           </Tooltip>
                         </CenteredTitle>
                       </Box>
-                      {gameState.options.expansions.risingSun && gameState.risingSun && (
+                      {gameState.options.expansions.risingSun && (
                         <IncrementDecrementControl
                           label="Prophecy"
-                          value={gameState.risingSun.prophecy.suns}
+                          value={gameState.expansions.risingSun.prophecy.suns}
                           tooltip="Rising Sun Prophecy affects all players and persists between turns"
                           onIncrement={handleProphecyIncrease}
                           onDecrement={handleProphecyDecrease}

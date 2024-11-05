@@ -17,7 +17,7 @@ const mockGame = createMockGame(2, {
       count: 2,
       currentPlayerIndex: 2,
       playerIndex: 3,
-      prevPlayerIndex: 3,
+      prevPlayerIndex: -1,
     }),
     createMockLog({
       id: '2',
@@ -74,7 +74,7 @@ describe('convertGameToGameRaw', () => {
             count: 2,
             currentPlayerIndex: 2,
             playerIndex: 3,
-            prevPlayerIndex: 3,
+            prevPlayerIndex: -1,
           }),
           timestamp: '2023-01-01T00:00:00.000Z',
         },

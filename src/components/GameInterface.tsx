@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, SyntheticEvent, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -28,6 +28,7 @@ import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
 import FloatingCounter from '@/components/FloatingCounter';
+import { RecipesComponent } from '@/components/Recipes';
 
 interface GameInterfaceProps {
   nextTurn: () => void;
@@ -62,7 +63,7 @@ const FabContainer = styled(Box)(({ theme }) => ({
   gap: theme.spacing(2),
 }));
 
-const GameInterface: React.FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastAction }) => {
+const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastAction }) => {
   const { gameState, setGameState } = useGameContext();
   const [canUndo, setCanUndo] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
@@ -115,7 +116,7 @@ const GameInterface: React.FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLa
     }
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -135,6 +136,7 @@ const GameInterface: React.FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLa
           <Tab label="Player" />
           <Tab label="Adjustments" />
           <Tab label="Supply" />
+          <Tab label="Common Actions" />
         </Tabs>
         <Box sx={{ p: 2 }}>
           {tabValue === 0 && (
@@ -164,6 +166,7 @@ const GameInterface: React.FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLa
           )}
           {tabValue === 1 && <TurnAdjustmentsSummary />}
           {tabValue === 2 && <SupplyCounts />}
+          {tabValue === 3 && <RecipesComponent />}
         </Box>
       </Container>
       <FabContainer>

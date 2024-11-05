@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, FC } from 'react';
 
 interface AlertContextProps {
   showAlert: (title: string, message: string) => void;
@@ -8,7 +8,7 @@ interface AlertContextProps {
 
 const AlertContext = createContext<AlertContextProps | undefined>(undefined);
 
-export const AlertProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AlertProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [alert, setAlert] = useState<{ title: string; message: string } | null>(null);
 
   const showAlert = (title: string, message: string) => {

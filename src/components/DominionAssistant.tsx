@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import AddPlayerNames from '@/components/AddPlayerNames';
 import SelectFirstPlayer from '@/components/SelectFirstPlayer';
 import SetGameOptions from '@/components/SetGameOptions';
@@ -14,7 +14,7 @@ import {
   resetPlayerTurnCounters,
 } from '@/game/dominion-lib';
 import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
-import { addLogEntry } from '@/game/dominion-lib-log';
+import { addLogEntry, applyLogAction, applyPendingGroupedActions } from '@/game/dominion-lib-log';
 import { useAlert } from '@/components/AlertContext';
 import { Location, NavigateFunction } from 'react-router-dom';
 import { IGame } from '@/game/interfaces/game';
@@ -27,7 +27,7 @@ interface DominionAssistantProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation }) => {
+const DominionAssistant: FC<DominionAssistantProps> = ({ route, navigation }) => {
   const { gameState, setGameState } = useGameContext();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [canUndo, setCanUndo] = useState(false);
@@ -70,7 +70,7 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
 
   const nextTurn = () => {
     setGameState((prevGame: IGame) => {
-      const newGame = deepClone(prevGame);
+      let newGame = deepClone(prevGame);
       const nextPlayerIndex = getNextPlayerIndex(newGame);
       addLogEntry(newGame, nextPlayerIndex, GameLogAction.NEXT_TURN, {
         currentPlayerIndex: nextPlayerIndex,
@@ -78,7 +78,9 @@ const DominionAssistant: React.FC<DominionAssistantProps> = ({ route, navigation
         prevPlayerIndex: gameState.currentPlayerIndex,
         turn: prevGame.currentTurn + 1,
       });
-      return resetPlayerTurnCounters(incrementTurnCountersAndPlayerIndices(newGame));
+      newGame = resetPlayerTurnCounters(incrementTurnCountersAndPlayerIndices(newGame));
+      newGame = applyPendingGroupedActions(newGame, new Date(), applyLogAction);
+      return newGame;
     });
   };
 

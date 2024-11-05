@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { ElementType, FC } from 'react';
 import { SvgIcon, SvgIconProps } from '@mui/material';
 
 interface TabBarIconProps extends Omit<SvgIconProps, 'component'> {
   focused: boolean;
-  icon: React.ElementType | string;
+  icon: ElementType | string;
 }
 
-const TabBarIcon: React.FC<TabBarIconProps> = ({ focused, icon, ...props }) => {
+const TabBarIcon: FC<TabBarIconProps> = ({ focused, icon, ...props }) => {
   if (typeof icon === 'string' && icon.endsWith('.png')) {
     return (
       <img
@@ -24,7 +24,7 @@ const TabBarIcon: React.FC<TabBarIconProps> = ({ focused, icon, ...props }) => {
 
   return (
     <SvgIcon
-      component={icon as React.ElementType}
+      component={icon as ElementType}
       {...props}
       sx={{
         width: 28,

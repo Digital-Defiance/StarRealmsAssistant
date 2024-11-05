@@ -6,9 +6,20 @@ import { InvalidLogStartGameError } from '@/game/errors/invalid-log-start-game';
 import { IGame } from '@/game/interfaces/game';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { PlayerFieldMap } from '@/game/types';
-import { AdjustmentActions, NegativeAdjustmentActions, NoPlayerActions } from '@/game/constants';
+import {
+  ActionsWithPlayer,
+  AdjustmentActions,
+  DefaultTurnDetails,
+  NegativeAdjustmentActions,
+  NO_PLAYER,
+  NoPlayerActions,
+} from '@/game/constants';
 import { ITurnDuration } from '@/game/interfaces/turn-duration';
-import { calculateVictoryPoints, getFieldAndSubfieldFromAction } from '@/game/dominion-lib';
+import {
+  calculateVictoryPoints,
+  getFieldAndSubfieldFromAction,
+  updatePlayerField,
+} from '@/game/dominion-lib';
 import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { GamePausedError } from '@/game/errors/game-paused';
@@ -17,6 +28,15 @@ import { updateCachesForEntry } from '@/game/dominion-lib-time';
 import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
 import { ITurnAdjustment } from '@/game/interfaces/turn-adjustment';
 import { IPlayer } from '@/game/interfaces/player';
+import { IGroupedAction } from '@/game/interfaces/grouped-action';
+import { deepClone } from '@/game/utils';
+import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
+import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
+import { CurrentStep } from '@/game/enumerations/current-step';
+import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
+import { InvalidPlayerIndexError } from '@/game/errors/invalid-player-index';
+import { InvalidActionError } from '@/game/errors/invalid-action';
+import { GroupedActionTrigger } from '@/game/enumerations/grouped-action-trigger';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -112,7 +132,9 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
 export function logEntryToString(entry: ILogEntry): string {
   let actionString = entry.action as string;
 
-  if (entry.count !== undefined) {
+  if (entry.action === GameLogAction.GROUPED_ACTION && entry.actionName !== undefined) {
+    actionString = entry.actionName;
+  } else if (entry.count !== undefined) {
     actionString = actionString.replace('{COUNT}', entry.count.toString());
   } else {
     // Remove {COUNT} if no count is provided
@@ -602,6 +624,360 @@ export function addLogEntry(
   return newLog;
 }
 
+export function validateLogAction(game: IGame, logEntry: ILogEntry): Error | null {
+  if (logEntry.action === undefined) {
+    return new Error('Log entry action is required');
+  }
+
+  // validate that logEntry.action is a valid GameLogAction
+  if (!Object.values(GameLogAction).includes(logEntry.action)) {
+    return new Error(`Invalid log entry action: ${logEntry.action}`);
+  }
+
+  // Validate player index for actions that require a valid player index
+  if (
+    ActionsWithPlayer.includes(logEntry.action) &&
+    (logEntry.playerIndex >= game.players.length || logEntry.playerIndex < 0)
+  ) {
+    return new Error(`Invalid player index: ${logEntry.playerIndex}`);
+  }
+
+  if (logEntry.count !== undefined && logEntry.count <= 0) {
+    return new Error(`Invalid log entry count: ${logEntry.count}`);
+  }
+
+  if (
+    logEntry.playerIndex !== undefined &&
+    logEntry.playerIndex !== NO_PLAYER &&
+    NoPlayerActions.includes(logEntry.action)
+  ) {
+    return new Error(`Player index is not relevant for this action: ${logEntry.action}`);
+  } else if (
+    (ActionsWithPlayer.includes(logEntry.action) && logEntry.playerIndex < 0) ||
+    logEntry.playerIndex >= game.players.length
+  ) {
+    return new Error(`Invalid player index: ${logEntry.playerIndex}`);
+  }
+
+  return null;
+}
+
+/**
+ * Applies a single log action to the game state.
+ * @param game - The current game state
+ * @param logEntry - The log entry to apply
+ * @returns The updated game state after applying the action
+ */
+export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
+  // validate that logEntry.action is a valid GameLogAction
+  const validationError = validateLogAction(game, logEntry);
+  if (validationError) {
+    throw validationError;
+  }
+
+  let updatedGame = deepClone<IGame>(game);
+
+  if (logEntry.action === GameLogAction.START_GAME) {
+    // set first player to the player who started the game
+    updatedGame.firstPlayerIndex = logEntry.playerIndex;
+    updatedGame.selectedPlayerIndex = logEntry.playerIndex;
+    updatedGame.currentStep = CurrentStep.Game;
+    updatedGame.currentTurn = 1;
+  } else if (logEntry.action === GameLogAction.END_GAME) {
+    updatedGame.currentStep = CurrentStep.EndGame;
+  } else if (logEntry.action === GameLogAction.NEXT_TURN) {
+    // Move to next player
+    updatedGame.currentTurn = game.currentTurn + 1;
+    updatedGame.currentPlayerIndex = logEntry.playerIndex;
+    updatedGame.selectedPlayerIndex = logEntry.playerIndex;
+
+    // Reset all players' turn counters to their newTurn values
+    updatedGame.players = updatedGame.players.map((player) => ({
+      ...player,
+      turn: deepClone<IPlayerGameTurnDetails>(player.newTurn ?? DefaultTurnDetails()),
+    }));
+  } else if (logEntry.action === GameLogAction.SELECT_PLAYER) {
+    updatedGame.selectedPlayerIndex = logEntry.playerIndex ?? updatedGame.selectedPlayerIndex;
+  } else if (
+    logEntry.playerIndex !== NO_PLAYER &&
+    logEntry.playerIndex < updatedGame.players.length &&
+    !NoPlayerActions.includes(logEntry.action)
+  ) {
+    const { field, subfield } = getFieldAndSubfieldFromAction(logEntry.action);
+    if (field && subfield) {
+      const increment = getSignedCount(logEntry, 1);
+      updatedGame = updatePlayerField(
+        updatedGame,
+        logEntry.playerIndex,
+        field as keyof PlayerFieldMap,
+        subfield,
+        increment,
+        logEntry.trash === true ? true : undefined
+      );
+    }
+  }
+
+  // Handle game-wide counters
+  if (
+    game.options.expansions.risingSun &&
+    (logEntry.action === GameLogAction.ADD_PROPHECY ||
+      logEntry.action === GameLogAction.REMOVE_PROPHECY)
+  ) {
+    const increment =
+      logEntry.action === GameLogAction.ADD_PROPHECY
+        ? (logEntry.count ?? 1)
+        : -(logEntry.count ?? 1);
+
+    const newSuns = updatedGame.expansions.risingSun.prophecy.suns + increment;
+
+    if (newSuns < 0) {
+      throw new NotEnoughProphecyError();
+    }
+
+    updatedGame.expansions.risingSun.prophecy.suns = newSuns;
+  }
+
+  // If the game is paused, do not allow any other actions except UNPAUSE
+  const lastLog = game.log.length > 0 ? game.log[game.log.length - 1] : null;
+  if (
+    lastLog &&
+    lastLog.action === GameLogAction.PAUSE &&
+    logEntry.action !== GameLogAction.UNPAUSE
+  ) {
+    throw new GamePausedError();
+  }
+
+  updatedGame.log.push(deepClone<ILogEntry>(logEntry));
+  const { timeCache, turnStatisticsCache } = updateCachesForEntry(updatedGame, logEntry);
+  updatedGame.timeCache = timeCache;
+  updatedGame.turnStatisticsCache = turnStatisticsCache;
+
+  return updatedGame;
+}
+
+/**
+ * Applies an action from a grouped action to the game state.
+ * @param game - The current game state
+ * @param subAction - The sub-action to apply
+ * @param playerIndex - The index of the player performing the action
+ * @param groupedActionId - The ID of the grouped action
+ * @param actionDate - The date of the action
+ * @returns The updated game state after applying the action
+ */
+export function applyGroupedActionSubAction(
+  game: IGame,
+  subAction: Partial<ILogEntry>,
+  playerIndex: number,
+  groupedActionId: string,
+  actionDate: Date
+): IGame {
+  if (subAction.action === undefined) {
+    throw new Error('Action is required for group action sub-actions');
+  }
+  if (!Object.values(GameLogAction).includes(subAction.action)) {
+    throw new InvalidActionError(subAction.action);
+  }
+  const subActionLog: ILogEntry = {
+    ...subAction,
+    action: subAction.action,
+    id: uuidv4(),
+    timestamp: actionDate,
+    ...(NoPlayerActions.includes(subAction.action)
+      ? { playerIndex: NO_PLAYER }
+      : { playerIndex: playerIndex }),
+    currentPlayerIndex: game.currentPlayerIndex,
+    turn: game.currentTurn,
+    linkedActionId: groupedActionId,
+  };
+  const error = validateLogAction(game, subActionLog);
+  if (error) {
+    throw error;
+  }
+  return applyLogAction(game, subActionLog);
+}
+
+/**
+ * Get the target players for a grouped action based on the destination.
+ * @param game - The current game state
+ * @param dest - The destination for the grouped action
+ * @returns The array of player indices that are the target of the grouped action
+ */
+export function getGroupedActionTargetPlayers(game: IGame, dest: GroupedActionDest): number[] {
+  switch (dest) {
+    case GroupedActionDest.CurrentPlayerIndex:
+      return [game.currentPlayerIndex];
+    case GroupedActionDest.SelectedPlayerIndex:
+      return [game.selectedPlayerIndex];
+    case GroupedActionDest.AllPlayers:
+      return game.players.map((_, index) => index);
+    case GroupedActionDest.AllPlayersExceptCurrent:
+      return game.players
+        .map((_, index) => index)
+        .filter((index) => index !== game.currentPlayerIndex);
+    case GroupedActionDest.AllPlayersExceptSelected:
+      return game.players
+        .map((_, index) => index)
+        .filter((index) => index !== game.selectedPlayerIndex);
+    default:
+      throw new Error(`Invalid GroupedActionDest: ${dest}`);
+  }
+}
+
+/**
+ * Apply a grouped action to the game.
+ * @param game - The game state
+ * @param playerIndex - The index of the player performing the action
+ * @param groupedAction - The grouped action to apply
+ * @returns The updated game state
+ */
+export function applyGroupedAction(
+  game: IGame,
+  groupedAction: IGroupedAction,
+  actionDate: Date,
+  applyGroupedActionSubAction: (
+    game: IGame,
+    subAction: Partial<ILogEntry>,
+    playerIndex: number,
+    groupedActionId: string,
+    actionDate: Date
+  ) => IGame,
+  prepareGroupedActionTriggers: (
+    game: IGame,
+    groupedAction: IGroupedAction,
+    groupedActionId: string
+  ) => IGame
+): IGame {
+  try {
+    let updatedGame = deepClone<IGame>(game);
+    const groupedActionId = uuidv4();
+    // Create a log entry for the grouped action
+    const groupedActionLog: ILogEntry = {
+      id: groupedActionId,
+      timestamp: actionDate,
+      action: GameLogAction.GROUPED_ACTION,
+      playerIndex: updatedGame.selectedPlayerIndex,
+      currentPlayerIndex: updatedGame.currentPlayerIndex,
+      turn: updatedGame.currentTurn,
+      actionName: groupedAction.name,
+    };
+    updatedGame.log.push(groupedActionLog);
+    const { timeCache, turnStatisticsCache } = updateCachesForEntry(updatedGame, groupedActionLog);
+    updatedGame.timeCache = timeCache;
+    updatedGame.turnStatisticsCache = turnStatisticsCache;
+    // Apply each sub-action
+    for (const [dest, actions] of Object.entries(groupedAction.actions)) {
+      const targetPlayers = getGroupedActionTargetPlayers(updatedGame, dest as GroupedActionDest);
+      for (const playerIndex of targetPlayers) {
+        for (const action of actions) {
+          const error = validateLogAction(updatedGame, action as ILogEntry);
+          if (error) {
+            throw error;
+          }
+          updatedGame = applyGroupedActionSubAction(
+            updatedGame,
+            action,
+            playerIndex,
+            groupedActionId,
+            actionDate
+          );
+        }
+      }
+    }
+    // Prepare and place triggers in the pendingGroupedActions array
+    updatedGame = prepareGroupedActionTriggers(updatedGame, groupedAction, groupedActionId);
+    return updatedGame;
+  } catch (error) {
+    console.error('Error applying grouped action:', error);
+    throw error;
+  }
+}
+
+/**
+ * Prepare and place triggers in the pendingGroupedActions array.
+ * @param game - The current game state
+ * @param groupedAction - The grouped action
+ * @param groupedActionId - The ID of the grouped action
+ * @returns The updated game state
+ */
+export function prepareGroupedActionTriggers(
+  game: IGame,
+  groupedAction: IGroupedAction,
+  groupedActionId: string
+): IGame {
+  if (groupedAction.triggers) {
+    const updatedGame = deepClone<IGame>(game);
+    const afterNextTurnActions = groupedAction.triggers[GroupedActionTrigger.AfterNextTurnBegins];
+    if (afterNextTurnActions) {
+      for (const [dest, actions] of Object.entries(afterNextTurnActions)) {
+        if (!Object.values(GroupedActionDest).includes(dest as GroupedActionDest)) {
+          throw new Error(`Invalid GroupedActionDest: ${dest}`);
+        }
+        if (actions.length === 0) {
+          continue;
+        }
+        const targetPlayers = getGroupedActionTargetPlayers(updatedGame, dest as GroupedActionDest);
+        for (const playerIndex of targetPlayers) {
+          const activationTurn = getPlayerNextTurnCount(updatedGame, playerIndex, true);
+          actions.forEach((action) => {
+            if (!action.action) {
+              throw new Error('Action is required for trigger sub-actions');
+            }
+            updatedGame.pendingGroupedActions.push({
+              ...action,
+              id: uuidv4(),
+              action: action.action,
+              linkedActionId: groupedActionId,
+              playerIndex: playerIndex,
+              currentPlayerIndex: playerIndex,
+              turn: activationTurn,
+            });
+          });
+        }
+      }
+    }
+    return updatedGame;
+  }
+  return game;
+}
+
+/**
+ * Apply a log action to the game.
+ * @param game - The current game state
+ * @param actionDate - The date of the log action
+ * @returns The updated game state
+ */
+export function applyPendingGroupedActions(
+  game: IGame,
+  actionDate: Date,
+  applyLogAction: (game: IGame, logEntry: ILogEntry) => IGame
+): IGame {
+  let updatedGame = deepClone<IGame>(game);
+  // extract actions to apply from the pendingGroupedActions array
+  const actionsToApply = updatedGame.pendingGroupedActions.filter(
+    (action) => action.turn === updatedGame.currentTurn
+  );
+  if (actionsToApply.length === 0) {
+    return game;
+  }
+  // put back an array without the current turn actions
+  updatedGame.pendingGroupedActions = updatedGame.pendingGroupedActions.filter(
+    (action) => action.turn !== updatedGame.currentTurn
+  );
+  for (const action of actionsToApply) {
+    const actionToApply: ILogEntry = {
+      ...action,
+      id: uuidv4(),
+      timestamp: actionDate,
+    } as ILogEntry;
+    const error = validateLogAction(updatedGame, actionToApply);
+    if (error) {
+      throw error;
+    }
+    updatedGame = applyLogAction(updatedGame, actionToApply);
+  }
+  return updatedGame;
+}
+
 /**
  * Get the signed count for a log entry.
  * @param log - The log entry
@@ -685,7 +1061,7 @@ export function getTurnStartTime(game: IGame, turn: number): Date {
     (entry) => entry.action === GameLogAction.NEXT_TURN && entry.turn === turn
   );
   if (newTurnLog === undefined) {
-    throw new Error(`Could not find turn ${turn} in log`);
+    throw new Error(`Could not find turn ${turn} in the log`);
   }
   return newTurnLog.timestamp;
 }
@@ -777,14 +1153,17 @@ export function getPlayerForTurn(game: IGame, turn: number): IPlayer {
   const turnAction = turn === 1 ? GameLogAction.START_GAME : GameLogAction.NEXT_TURN;
   const turnEntry = game.log.find((entry) => entry.action === turnAction && entry.turn === turn);
   if (turnEntry === undefined) {
-    throw new Error(`Could not find turn ${turn} in log`);
+    throw new Error(`Could not find turn ${turn} in the log`);
   }
   if (
     turnEntry.playerIndex === undefined ||
     turnEntry.playerIndex < 0 ||
     turnEntry.playerIndex >= game.players.length
   ) {
-    throw new Error(`Invalid player index for turn ${turn} in log`);
+    throw new InvalidPlayerIndexError(
+      turnEntry.playerIndex,
+      `Invalid player index ${turnEntry.playerIndex} for turn ${turn} in the log`
+    );
   }
   return game.players[turnEntry.playerIndex];
 }
@@ -821,4 +1200,43 @@ export function getAverageActionsPerTurn(game: IGame): number {
     return 0;
   }
   return Math.floor(totalActions / totalTurns);
+}
+
+/**
+ * Get the next turn number for a given player (when it will be their turn)
+ * @param game
+ * @param playerIndex
+ */
+export function getPlayerNextTurnCount(
+  game: IGame,
+  playerIndex: number,
+  skipCurrentTurn = false
+): number {
+  if (playerIndex < 0 || playerIndex >= game.players.length) {
+    throw new InvalidPlayerIndexError(playerIndex);
+  }
+  if (!skipCurrentTurn && game.currentPlayerIndex === playerIndex) {
+    return game.currentTurn;
+  }
+  // given the current turn and player, find the next turn where the player will be the current player
+  // turns increment by 1 each time and player index wraps around back to zero when it reaches the last player index
+  const totalPlayers = game.players.length;
+  let nextTurn = game.currentTurn + 1;
+  let nextPlayerIndex = (game.currentPlayerIndex + 1) % totalPlayers;
+
+  while (nextPlayerIndex !== playerIndex) {
+    nextTurn++;
+    nextPlayerIndex = (nextPlayerIndex + 1) % totalPlayers;
+  }
+
+  return nextTurn;
+}
+
+/**
+ * Get the master action ID for a given log entry.
+ * @param logEntry - The log entry
+ * @returns The master action ID
+ */
+export function getMasterActionId(logEntry: ILogEntry): string {
+  return logEntry.linkedActionId ?? logEntry.id;
 }

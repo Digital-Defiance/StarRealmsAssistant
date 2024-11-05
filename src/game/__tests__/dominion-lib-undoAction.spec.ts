@@ -7,7 +7,7 @@ import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { DefaultTurnDetails } from '@/game/constants';
 import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
-import { NotEnoughSubfieldError } from '../errors/not-enough-subfield';
+import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 
 jest.mock('@/game/dominion-lib-undo-helpers', () => ({
   removeTargetAndLinkedActions: jest.fn(),
@@ -39,6 +39,10 @@ describe('undoAction', () => {
 
     removeTargetAndLinkedActionsSpy = undoHelpers.removeTargetAndLinkedActions as jest.Mock;
     reconstructGameStateSpy = undoHelpers.reconstructGameState as jest.Mock;
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it('should return success false if canUndoAction returns false', () => {
@@ -281,9 +285,5 @@ describe('undoAction', () => {
       'Cannot undo action: it would result in negative counters'
     );
     expect(reconstructGameStateSpy).toHaveBeenCalledTimes(2);
-  });
-
-  afterEach(() => {
-    jest.resetAllMocks();
   });
 });

@@ -48,6 +48,7 @@ describe('calculateTurnDurations', () => {
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
+        prevPlayerIndex: -1,
         turn: 1,
       },
       {
@@ -313,6 +314,7 @@ describe('calculateTurnDurations', () => {
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
+        prevPlayerIndex: -1,
         turn: 1,
       },
       // Next turn

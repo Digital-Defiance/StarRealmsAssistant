@@ -25,7 +25,11 @@ import { deepClone } from '@/game/utils';
 import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 import { gt } from 'semver';
 import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
-import { rebuildCaches } from './dominion-lib-time';
+import { rebuildCaches } from '@/game/dominion-lib-time';
+import { IRenaissanceFeatures } from '@/game/interfaces/set-features/renaissance';
+import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
+import { ITurnStatisticsRaw } from '@/game/interfaces/turn-statistics-raw';
+import { ITurnStatistics } from '@/game/interfaces/turn-statistics';
 
 /**
  * Save the game data using the provided storage service.
@@ -140,26 +144,27 @@ export function convertGameRawToGame(gameRaw: IGameRaw): IGame {
   const game: IGame = {
     ...gameRaw,
     log: gameRaw.log.map((entry) => ({
-      ...entry,
+      ...deepClone<ILogEntryRaw>(entry),
       timestamp: convertTimestamp(entry.timestamp),
     })) as ILogEntry[],
     timeCache: gameRaw.timeCache.map((cache) => ({
-      ...cache,
+      ...deepClone<IEventTimeCacheRaw>(cache),
       saveStartTime: cache.saveStartTime ? convertTimestamp(cache.saveStartTime) : null,
       pauseStartTime: cache.pauseStartTime ? convertTimestamp(cache.pauseStartTime) : null,
     })) as IEventTimeCache[],
     turnStatisticsCache: gameRaw.turnStatisticsCache.map((cache) => ({
-      ...cache,
+      ...deepClone<ITurnStatisticsRaw>(cache),
       start: convertTimestamp(cache.start),
       end: convertTimestamp(cache.end),
     })),
-    risingSun: {
-      ...gameRaw.risingSun,
-      prophecy: {
-        ...gameRaw.risingSun.prophecy,
-        suns: gameRaw.risingSun.prophecy.suns || 0,
-      },
+    expansions: {
+      renaissance: deepClone<IRenaissanceFeatures>(gameRaw.expansions.renaissance),
+      risingSun: deepClone<IRisingSunFeatures>(gameRaw.expansions.risingSun),
     },
+    pendingGroupedActions: gameRaw.pendingGroupedActions.map((entry) => ({
+      ...deepClone<Partial<ILogEntryRaw>>(entry),
+      ...(entry.timestamp ? { timestamp: convertTimestamp(entry.timestamp) } : {}),
+    })) as ILogEntry[],
   };
   return game;
 }
@@ -173,14 +178,14 @@ export function convertGameToGameRaw(game: IGame): IGameRaw {
   return {
     ...deepClone<IGame>(game),
     log: game.log.map((logEntry) => ({
-      ...logEntry,
+      ...deepClone<ILogEntry>(logEntry),
       timestamp:
         logEntry.timestamp instanceof Date
           ? logEntry.timestamp.toISOString()
           : new Date(logEntry.timestamp).toISOString(), // Ensure timestamp is a Date object
     })) as ILogEntryRaw[],
     timeCache: game.timeCache.map((timeCache) => ({
-      ...timeCache,
+      ...deepClone<IEventTimeCache>(timeCache),
       saveStartTime: timeCache.saveStartTime
         ? timeCache.saveStartTime instanceof Date
           ? timeCache.saveStartTime.toISOString()
@@ -193,7 +198,7 @@ export function convertGameToGameRaw(game: IGame): IGameRaw {
         : null,
     })) as IEventTimeCacheRaw[],
     turnStatisticsCache: game.turnStatisticsCache.map((turnStatistics) => ({
-      ...turnStatistics,
+      ...deepClone<ITurnStatistics>(turnStatistics),
       start:
         turnStatistics.start instanceof Date
           ? turnStatistics.start.toISOString()
@@ -201,13 +206,21 @@ export function convertGameToGameRaw(game: IGame): IGameRaw {
       end:
         turnStatistics.end instanceof Date ? turnStatistics.end.toISOString() : turnStatistics.end,
     })),
-    risingSun: {
-      ...game.risingSun,
-      prophecy: {
-        ...game.risingSun.prophecy,
-        suns: game.risingSun.prophecy.suns || 0,
-      },
+    expansions: {
+      renaissance: deepClone<IRenaissanceFeatures>(game.expansions.renaissance),
+      risingSun: deepClone<IRisingSunFeatures>(game.expansions.risingSun),
     },
+    pendingGroupedActions: game.pendingGroupedActions.map((logEntry) => ({
+      ...deepClone<Partial<ILogEntry>>(logEntry),
+      ...(logEntry.timestamp
+        ? {
+            timestamp:
+              logEntry.timestamp instanceof Date
+                ? logEntry.timestamp.toISOString()
+                : new Date(logEntry.timestamp).toISOString(), // Ensure timestamp is a Date object
+          }
+        : {}),
+    })) as ILogEntryRaw[],
   };
 }
 

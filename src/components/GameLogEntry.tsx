@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, MouseEvent, useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -35,11 +35,7 @@ interface GameLogEntryProps {
   onOpenTurnAdjustmentsDialog: (turn: number) => void;
 }
 
-const GameLogEntry: React.FC<GameLogEntryProps> = ({
-  logIndex,
-  entry,
-  onOpenTurnAdjustmentsDialog,
-}) => {
+const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjustmentsDialog }) => {
   const { gameState, setGameState } = useGameContext();
   const [openUndoDialog, setOpenUndoDialog] = useState(false);
 
@@ -119,7 +115,7 @@ const GameLogEntry: React.FC<GameLogEntryProps> = ({
     };
   }, []);
 
-  const handleLinkClick = (event: React.MouseEvent, id: string) => {
+  const handleLinkClick = (event: MouseEvent, id: string) => {
     event.preventDefault();
     window.location.hash = `#${id}`;
     // Manually trigger the hashchange event

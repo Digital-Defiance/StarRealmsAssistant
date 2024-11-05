@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import {
   Chip,
   Table,
@@ -34,7 +34,7 @@ const StyledButton = styled(Button)(() => ({
   fontFamily: 'TrajanProBold',
 }));
 
-const Scoreboard: React.FC = () => {
+const Scoreboard: FC = () => {
   const { gameState, setGameState } = useGameContext();
 
   if (!gameState) {

@@ -9,9 +9,13 @@ import { IGameOptions } from '@/game/interfaces/game-options';
 import { deepClone } from '@/game/utils';
 import { IGame } from '@/game/interfaces/game';
 import { ISupplyInfo } from '@/game/interfaces/supply-info';
+import { IRenaissanceFeatures } from '@/game/interfaces/set-features/renaissance';
+import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
+import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
+import { calculateInitialSunTokens } from '@/game/interfaces/set-mats/prophecy';
 
-export const VERSION_NUMBER = '0.9.10';
-export const LAST_COMPATIBLE_SAVE_VERSION = '0.9.0';
+export const VERSION_NUMBER = '0.10.0';
+export const LAST_COMPATIBLE_SAVE_VERSION = '0.10.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -52,6 +56,18 @@ export const DEFAULT_TURN_COINS = 0;
 export const DEFAULT_TURN_CARDS = 5;
 
 /**
+ * Default values for the expansions enabled.
+ * @returns The default expansions enabled.
+ */
+export function DefaultExpansionsEnabled(): IExpansionsEnabled {
+  return deepClone<IExpansionsEnabled>({
+    prosperity: false,
+    renaissance: false,
+    risingSun: false,
+  });
+}
+
+/**
  * Default (zero) values for the mats enabled.
  */
 export function DefaultMatsEnabled(): IMatsEnabled {
@@ -67,12 +83,8 @@ export function DefaultMatsEnabled(): IMatsEnabled {
  */
 export function DefaultGameOptions(): IGameOptions {
   return deepClone<IGameOptions>({
-    curses: false,
-    expansions: {
-      renaissance: false,
-      prosperity: false,
-      risingSun: false,
-    },
+    curses: true,
+    expansions: DefaultExpansionsEnabled(),
     mats: DefaultMatsEnabled(),
     trackCardCounts: true,
     trackCardGains: true,
@@ -133,6 +145,34 @@ export function EmptyVictoryDetails(): IVictoryDetails {
     colonies: 0,
     other: 0,
     curses: 0,
+  });
+}
+
+/**
+ * Default values for the renaissance set
+ * @returns The default renaissance features.
+ */
+export function DefaultRenaissanceFeatures(): IRenaissanceFeatures {
+  return deepClone<IRenaissanceFeatures>({
+    flagBearerEnabled: false,
+    flagBearer: null,
+  });
+}
+
+export function DefaultRisingSunFeatures(): IRisingSunFeatures {
+  return deepClone<IRisingSunFeatures>({
+    prophecy: { suns: NOT_PRESENT },
+    greatLeaderProphecy: false,
+  });
+}
+
+export function EnabledRisingSunFeatures(
+  numPlayers: number,
+  greatLeaderProphecy = true
+): IRisingSunFeatures {
+  return deepClone<IRisingSunFeatures>({
+    prophecy: calculateInitialSunTokens(numPlayers),
+    greatLeaderProphecy,
   });
 }
 
@@ -283,19 +323,15 @@ export function EmptyGameState(): IGame {
     supply: EmptyGameSupply(),
     options: {
       curses: true,
-      expansions: { prosperity: false, renaissance: false, risingSun: false },
-      mats: {
-        coffersVillagers: false,
-        debt: false,
-        favors: false,
-      },
+      expansions: DefaultExpansionsEnabled(),
+      mats: DefaultMatsEnabled(),
       trackCardCounts: true,
       trackCardGains: true,
     },
     currentTurn: 1,
-    risingSun: {
-      prophecy: { suns: NOT_PRESENT },
-      greatLeaderProphecy: false,
+    expansions: {
+      renaissance: DefaultRenaissanceFeatures(),
+      risingSun: DefaultRisingSunFeatures(),
     },
     currentPlayerIndex: NO_PLAYER,
     firstPlayerIndex: NO_PLAYER,
@@ -304,6 +340,7 @@ export function EmptyGameState(): IGame {
     timeCache: [],
     turnStatisticsCache: [],
     gameVersion: VERSION_NUMBER,
+    pendingGroupedActions: [],
   });
 }
 
@@ -411,6 +448,7 @@ export const ActionsWithPlayer = [
   GameLogAction.START_GAME,
   GameLogAction.NEXT_TURN,
   GameLogAction.SELECT_PLAYER,
+  GameLogAction.GROUPED_ACTION,
 ];
 
 /**

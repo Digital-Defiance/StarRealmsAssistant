@@ -56,18 +56,24 @@ describe('NewGameState', () => {
         ...EmptyGameState().options,
         expansions: { ...EmptyGameState().options.expansions, risingSun: true },
       },
-      risingSun: {
-        prophecy: {
-          suns: -1,
+      expansions: {
+        renaissance: {
+          flagBearer: null,
+          flagBearerEnabled: false,
         },
-        greatLeaderProphecy: true,
+        risingSun: {
+          prophecy: {
+            suns: -1,
+          },
+          greatLeaderProphecy: true,
+        },
       },
     };
 
     const result = NewGameState(initialGameState);
 
-    expect(result.risingSun.prophecy.suns).toBe(5);
-    expect(result.risingSun.greatLeaderProphecy).toBe(true);
+    expect(result.expansions.risingSun.prophecy.suns).toBe(5);
+    expect(result.expansions.risingSun.greatLeaderProphecy).toBe(true);
     expect(calculateInitialSunTokens).toHaveBeenCalledWith(2);
   });
 
@@ -79,8 +85,8 @@ describe('NewGameState', () => {
 
     const result = NewGameState(initialGameState);
 
-    expect(result.risingSun.prophecy.suns).toBe(NOT_PRESENT);
-    expect(result.risingSun.greatLeaderProphecy).toBe(false);
+    expect(result.expansions.risingSun.prophecy.suns).toBe(NOT_PRESENT);
+    expect(result.expansions.risingSun.greatLeaderProphecy).toBe(false);
     expect(calculateInitialSunTokens).not.toHaveBeenCalled();
   });
 

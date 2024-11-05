@@ -4,18 +4,8 @@ import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { ITurnStatistics } from '@/game/interfaces/turn-statistics';
 import { calculateVictoryPoints, NewGameState } from '@/game/dominion-lib';
-import {
-  DefaultTurnDetails,
-  EmptyGameState,
-  EmptyMatDetails,
-  EmptyVictoryDetails,
-} from '@/game/constants';
 import { deepClone } from '@/game/utils';
-import { IGameOptions } from '@/game/interfaces/game-options';
-import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
-import { IPlayer } from '@/game/interfaces/player';
-import { applyLogAction } from '@/game/dominion-lib-undo';
-import { getGameStartTime, getTurnStartTime } from '@/game/dominion-lib-log';
+import { applyLogAction, getGameStartTime, getTurnStartTime } from '@/game/dominion-lib-log';
 
 /**
  * Updates the time cache for a given game.
@@ -343,21 +333,7 @@ export function rebuildCaches(game: IGame): {
   }
 
   const newTurnStatisticsCache: Array<ITurnStatistics> = [];
-  let reconstructedGame = NewGameState({
-    ...EmptyGameState(),
-    players: game.players.map((player) => ({
-      ...deepClone<IPlayer>(player),
-      mats: EmptyMatDetails(),
-      turn: DefaultTurnDetails(),
-      newTurn: DefaultTurnDetails(),
-      victory: EmptyVictoryDetails(),
-    })),
-    options: deepClone<IGameOptions>(game.options),
-    firstPlayerIndex: game.firstPlayerIndex,
-    currentPlayerIndex: game.firstPlayerIndex,
-    selectedPlayerIndex: game.firstPlayerIndex,
-    ...(game.risingSun ? { risingSun: deepClone<IRisingSunFeatures>(game.risingSun) } : {}),
-  });
+  let reconstructedGame = NewGameState(game);
   // clear the log
   reconstructedGame.log = [];
 

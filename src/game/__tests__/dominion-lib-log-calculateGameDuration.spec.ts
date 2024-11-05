@@ -25,6 +25,7 @@ describe('calculateGameDuration', () => {
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
+        prevPlayerIndex: -1,
         turn: 1,
       }),
       createMockLog({
@@ -88,6 +89,7 @@ describe('calculateGameDuration', () => {
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
+        prevPlayerIndex: -1,
         turn: 1,
       }),
       createMockLog({

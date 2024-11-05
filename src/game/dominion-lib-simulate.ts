@@ -4,9 +4,13 @@ import { IGame } from '@/game/interfaces/game';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { getFieldAndSubfieldFromAction, getNextPlayerIndex } from '@/game/dominion-lib';
 import { IGameSupply } from '@/game/interfaces/game-supply';
-import { NegativeAdjustmentActions } from '@/game/constants';
+import {
+  DefaultRenaissanceFeatures,
+  DefaultRisingSunFeatures,
+  NegativeAdjustmentActions,
+} from '@/game/constants';
 import { IMatDetails } from '@/game/interfaces/mat-details';
-import { applyLogAction } from '@/game/dominion-lib-undo';
+import { applyLogAction } from '@/game/dominion-lib-log';
 
 export function generateLargeGame(turns = 50): IGame {
   console.log('Generating large game with', turns, 'turns');
@@ -22,9 +26,9 @@ export function generateLargeGame(turns = 50): IGame {
       trackCardCounts: true,
       trackCardGains: true,
     },
-    risingSun: {
-      greatLeaderProphecy: true,
-      prophecy: { suns: 0 },
+    expansions: {
+      renaissance: DefaultRenaissanceFeatures(),
+      risingSun: DefaultRisingSunFeatures(),
     },
     log: [],
   });
@@ -72,7 +76,7 @@ export function generateLargeGame(turns = 50): IGame {
     game,
     createMockLog({
       action: GameLogAction.END_GAME,
-      playerIndex: game.currentPlayerIndex,
+      playerIndex: -1,
       turn: turns,
       timestamp: endTimestamp,
     })

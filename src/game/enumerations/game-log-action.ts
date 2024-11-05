@@ -7,6 +7,7 @@ export enum GameLogAction {
   PAUSE = 'Paused Game',
   UNPAUSE = 'Unpaused Game',
   SELECT_PLAYER = 'Selected Player',
+  GROUPED_ACTION = 'Grouped Action',
   ADD_ACTIONS = 'Added {COUNT} Actions',
   REMOVE_ACTIONS = 'Removed {COUNT} Actions',
   ADD_BUYS = 'Added {COUNT} Buys',

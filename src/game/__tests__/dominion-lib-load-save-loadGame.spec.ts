@@ -83,7 +83,10 @@ describe('loadGame', () => {
 
   it('should return the loaded game when the game is loaded successfully', () => {
     const saveGameLogId = faker.string.uuid();
-    const game: IGame = createMockGame(2, {
+    const game: IGame = createMockGame(3, {
+      firstPlayerIndex: 0,
+      currentPlayerIndex: 0,
+      selectedPlayerIndex: 0,
       log: [
         createMockLog({
           id: faker.string.uuid(),
@@ -107,7 +110,7 @@ describe('loadGame', () => {
 
     const result = loadGame('valid-id', mockStorageService, new Date('2023-01-01T00:02:00Z'));
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       ...game,
       log: [
         ...game.log,
@@ -115,7 +118,7 @@ describe('loadGame', () => {
           id: expect.any(String),
           timestamp: expect.any(Date),
           playerIndex: NO_PLAYER,
-          currentPlayerIndex: 0,
+          currentPlayerIndex: game.currentPlayerIndex,
           turn: 1,
           action: GameLogAction.LOAD_GAME,
           linkedActionId: saveGameLogId,

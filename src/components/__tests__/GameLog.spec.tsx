@@ -6,6 +6,7 @@ import { generateLargeGame } from '@/game/dominion-lib-simulate';
 import { useGameContext } from '@/components/GameContext';
 import theme from '@/components/theme';
 import { ThemeProvider } from '@mui/material';
+import { TabViewHandle } from '@/components/TabView';
 
 // Mock the game state with a large game
 const largeGameState = generateLargeGame();
@@ -15,6 +16,19 @@ jest.mock('@/components/GameContext', () => ({
   useGameContext: jest.fn(),
 }));
 
+// Mock window.getComputedStyle to return valid values
+jest.spyOn(window, 'getComputedStyle').mockImplementation(() => {
+  return {
+    marginTop: '10px',
+    marginBottom: '10px',
+    paddingTop: '5px',
+    paddingBottom: '5px',
+    borderTopWidth: '1px',
+    borderBottomWidth: '1px',
+    // Add other properties as needed
+  } as CSSStyleDeclaration;
+});
+
 describe('GameLog Performance Test', () => {
   it('renders GameLog with a large game state', () => {
     // Mock the return value of useGameContext
@@ -23,11 +37,22 @@ describe('GameLog Performance Test', () => {
       setGameState: jest.fn(),
     });
 
+    // Mock the tabViewRef to provide valid dimensions
+    const tabViewRef = {
+      current: {
+        tabBar: {
+          getBoundingClientRect: () => ({
+            height: 56, // Provide a valid height for the tabBar
+          }),
+        },
+      },
+    } as React.RefObject<TabViewHandle>;
+
     const start = performance.now();
     const { getByText } = render(
       <ThemeProvider theme={theme}>
         {' '}
-        <GameLog />
+        <GameLog tabViewRef={tabViewRef} />
       </ThemeProvider>
     );
     const end = performance.now();

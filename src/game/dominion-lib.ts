@@ -18,6 +18,8 @@ import {
   DefaultPlayerColors,
   HAND_STARTING_COPPERS_FROM_SUPPLY,
   HAND_STARTING_ESTATES_FROM_SUPPLY,
+  NOT_PRESENT,
+  NO_PLAYER,
 } from '@/game/constants';
 import { computeStartingSupply as computeBaseStartingSupply } from '@/game/interfaces/set-kingdom/base';
 import {
@@ -38,6 +40,7 @@ import { RankedPlayer } from '@/game/interfaces/ranked-player';
 import { deepClone } from '@/game/utils';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 import { ILogEntry } from '@/game/interfaces/log-entry';
+import { InvalidPlayerIndexError } from '@/game/errors/invalid-player-index';
 
 /**
  * Calculate the victory points for a player.
@@ -139,7 +142,7 @@ export function newPlayer(playerName: string, index: number): IPlayer {
 }
 
 /**
- * Initialize the game state with the given number of players and options.
+ * Re-Initialize the game state with the given number of players and options.
  * @param gameStateWithOptions - The game state with players and selected options
  * @returns The updated game state
  */
@@ -183,12 +186,20 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
   newGameState = distributeInitialSupply(newGameState);
 
   // Initialize Rising Sun tokens if the expansion is enabled
+  newGameState.expansions.risingSun.prophecy.suns = NOT_PRESENT;
   if (newGameState.options.expansions.risingSun) {
-    newGameState.risingSun = {
-      greatLeaderProphecy: newGameState.risingSun?.greatLeaderProphecy ?? false,
+    newGameState.expansions.risingSun = {
+      greatLeaderProphecy: newGameState.expansions.risingSun.greatLeaderProphecy,
       prophecy: calculateInitialSunTokens(newGameState.players.length),
     };
+  } else {
+    newGameState.expansions.risingSun = {
+      greatLeaderProphecy: false,
+      prophecy: { suns: NOT_PRESENT },
+    };
   }
+  // reset flag bearer
+  newGameState.expansions.renaissance.flagBearer = null;
 
   return newGameState;
 };
@@ -212,7 +223,7 @@ export function updatePlayerField<T extends keyof PlayerFieldMap>(
 ): IGame {
   const updatedGame = deepClone<IGame>(game);
   if (playerIndex < 0 || playerIndex >= updatedGame.players.length) {
-    throw new Error('Invalid player index');
+    throw new InvalidPlayerIndexError(playerIndex);
   }
   const player = updatedGame.players[playerIndex];
 
@@ -333,12 +344,23 @@ export function getFieldAndSubfieldFromAction(action: GameLogAction): {
  * @returns The index of the previous player
  */
 export function getPreviousPlayerIndex(prevGame: IGame): number {
-  const currentPlayerIndex = prevGame.currentPlayerIndex;
-  const previousPlayerIndex =
-    prevGame.players.length === 0
-      ? -1
-      : (currentPlayerIndex - 1 + prevGame.players.length) % prevGame.players.length;
-  return previousPlayerIndex;
+  if (prevGame.currentTurn <= 1) {
+    return NO_PLAYER;
+  }
+  return getPreviousPlayerIndexByIndex(prevGame.currentPlayerIndex, prevGame.players.length);
+}
+
+/**
+ * Gets the index of the previous player in the game.
+ * @param currentPlayerIndex - The index of the current player in the game
+ * @param playerCount - The number of players in the game
+ * @returns The index of the previous player in the game
+ */
+export function getPreviousPlayerIndexByIndex(
+  currentPlayerIndex: number,
+  playerCount: number
+): number {
+  return playerCount === 0 ? NO_PLAYER : (currentPlayerIndex - 1 + playerCount) % playerCount;
 }
 
 /**
@@ -347,10 +369,16 @@ export function getPreviousPlayerIndex(prevGame: IGame): number {
  * @returns The index of the next player in the game
  */
 export function getNextPlayerIndex(prevGame: IGame): number {
-  const currentPlayerIndex = prevGame.currentPlayerIndex;
-  const nextPlayerIndex =
-    prevGame.players.length === 0 ? -1 : (currentPlayerIndex + 1) % prevGame.players.length;
-  return nextPlayerIndex;
+  return getNextPlayerIndexByIndex(prevGame.currentPlayerIndex, prevGame.players.length);
+}
+
+/**
+ * Gets the index of the next player in the game.
+ * @param prevGame
+ * @returns The index of the next player in the game
+ */
+export function getNextPlayerIndexByIndex(currentPlayerIndex: number, playerCount: number): number {
+  return playerCount === 0 ? NO_PLAYER : (currentPlayerIndex + 1) % playerCount;
 }
 
 /**

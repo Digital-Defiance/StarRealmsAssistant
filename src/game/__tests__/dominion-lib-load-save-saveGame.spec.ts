@@ -77,7 +77,7 @@ describe('saveGame', () => {
   });
 
   it('should not add a SAVE_GAME log entry if the game has ended', () => {
-    const endGameLog = createMockLog({ action: GameLogAction.END_GAME });
+    const endGameLog = createMockLog({ action: GameLogAction.END_GAME, playerIndex: -1 });
     mockGame.log.push(endGameLog);
 
     const result = saveGame(mockGame, 'Test Save', mockStorageService);

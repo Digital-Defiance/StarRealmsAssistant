@@ -1,6 +1,16 @@
 import { saveGame } from '@/game/dominion-lib-load-save';
 import { IGame } from '@/game/interfaces/game';
-import React, { createContext, useContext, useState, ReactNode, useMemo, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useMemo,
+  useEffect,
+  SetStateAction,
+  Dispatch,
+  FC,
+} from 'react';
 import { LocalStorageService } from '@/game/local-storage-service';
 import { deepClone } from '@/game/utils';
 import { AutoSaveGameSaveId, AutoSaveGameSaveName, EmptyGameState } from '@/game/constants';
@@ -8,7 +18,7 @@ import { AutoSaveGameSaveId, AutoSaveGameSaveName, EmptyGameState } from '@/game
 // Define the shape of the context
 interface GameContextProps {
   gameState: IGame;
-  setGameState: React.Dispatch<React.SetStateAction<IGame>>;
+  setGameState: Dispatch<SetStateAction<IGame>>;
 }
 
 // Create the context
@@ -24,7 +34,7 @@ export const useGameContext = (): GameContextProps => {
 };
 
 // Custom provider component
-export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const GameProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [gameState, setGameState] = useState<IGame>(EmptyGameState);
 
   useEffect(() => {

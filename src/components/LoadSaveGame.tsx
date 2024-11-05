@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, FC, ChangeEvent } from 'react';
 import { useGameContext } from '@/components/GameContext';
 import {
   saveGame,
@@ -41,7 +41,7 @@ import { IGame } from '@/game/interfaces/game';
 import { IGameRaw } from '@/game/interfaces/game-raw';
 import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
 
-const LoadSaveGame: React.FC = () => {
+const LoadSaveGame: FC = () => {
   const { showAlert } = useAlert();
   const [openDialog, setOpenDialog] = useState(false);
   const [openOverwriteDialog, setOpenOverwriteDialog] = useState(false);
@@ -216,7 +216,7 @@ const LoadSaveGame: React.FC = () => {
     }
   };
 
-  const handleImportGame = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportGame = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -304,7 +304,9 @@ const LoadSaveGame: React.FC = () => {
           >
             <ListItemButton
               selected={selectedGameId === game.id}
-              onClick={() => { handleSelectGame(game); }}
+              onClick={() => {
+                handleSelectGame(game);
+              }}
             >
               <ListItemText
                 primary={game.name}
@@ -371,7 +373,12 @@ const LoadSaveGame: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={openOverwriteDialog} onClose={() => { setOpenOverwriteDialog(false); }}>
+      <Dialog
+        open={openOverwriteDialog}
+        onClose={() => {
+          setOpenOverwriteDialog(false);
+        }}
+      >
         <DialogTitle>Overwrite Game</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -379,7 +386,13 @@ const LoadSaveGame: React.FC = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => { setOpenOverwriteDialog(false); }}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setOpenOverwriteDialog(false);
+            }}
+          >
+            Cancel
+          </Button>
           <Button
             onClick={importedGameData ? handleImportOverwrite : handleSaveOverwrite}
             autoFocus

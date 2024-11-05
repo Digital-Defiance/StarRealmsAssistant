@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import GameLog from '@/components/GameLog';
 import ScrollableContainer from '@/components/ScrollableContainer';
 import { TabViewHandle } from '@/components/TabView';
 
 interface GameLogScreenProps {
-  tabViewRef: React.RefObject<TabViewHandle>;
+  tabViewRef: RefObject<TabViewHandle>;
 }
 export default function GameLogScreen({ tabViewRef }: GameLogScreenProps) {
   return (

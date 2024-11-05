@@ -1,4 +1,11 @@
-import React, { SyntheticEvent, forwardRef, useImperativeHandle, useRef } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  SyntheticEvent,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import { Box, Paper, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -14,8 +21,8 @@ const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
 interface TabViewProps {
   tabs: {
     label: string;
-    icon: React.ReactElement;
-    content: React.ReactNode;
+    icon: ReactElement;
+    content: ReactNode;
     path: string;
   }[];
 }

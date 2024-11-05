@@ -52,4 +52,8 @@ export interface ILogEntryRaw {
    * Used when undoing a "next turn" action
    */
   playerTurnDetails?: IPlayerGameTurnDetails[];
+  /**
+   * Name of the action taken, for grouped actions
+   */
+  actionName?: string;
 }

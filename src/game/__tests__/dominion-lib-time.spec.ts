@@ -17,7 +17,7 @@ import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
 import { createMockGame, createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 import { ITurnStatistics } from '@/game/interfaces/turn-statistics';
 import { EmptyGameSupply } from '@/game/constants';
-import { calculateInitialSupply } from '@/game/dominion-lib';
+import { calculateInitialSupply, getNextPlayerIndexByIndex } from '@/game/dominion-lib';
 import { EmptyLogError } from '../errors/empty-log';
 
 describe('dominion-lib-time', () => {
@@ -48,6 +48,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -116,6 +117,7 @@ describe('dominion-lib-time', () => {
             action: GameLogAction.START_GAME,
             timestamp: new Date('2023-01-01T00:00:00Z'),
             playerIndex: 0,
+            prevPlayerIndex: -1,
             turn: 1,
           },
           { id: '2', action: GameLogAction.PAUSE, timestamp: new Date('2023-01-01T00:01:00Z') },
@@ -138,6 +140,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -181,6 +184,7 @@ describe('dominion-lib-time', () => {
             action: GameLogAction.START_GAME,
             timestamp: new Date('2023-01-01T00:01:00Z'),
             playerIndex: 0,
+            prevPlayerIndex: -1,
             turn: 1,
           }),
           createMockLog({
@@ -206,6 +210,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
         }),
         createMockLog({
           id: '2',
@@ -276,6 +281,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -332,12 +338,14 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
           id: '2',
           action: GameLogAction.END_GAME,
           timestamp: new Date(mockStartDate.getTime() + 1000),
+          playerIndex: -1,
         }),
       ];
       const game = createMockGame(2, { log, timeCache: [] });
@@ -379,6 +387,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -401,6 +410,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -428,6 +438,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -457,6 +468,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
       ];
@@ -472,6 +484,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -500,6 +513,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
       ];
@@ -524,6 +538,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
       ];
@@ -541,6 +556,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -562,6 +578,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -593,6 +610,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
       ];
@@ -609,6 +627,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
       ];
@@ -622,6 +641,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -642,6 +662,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -662,6 +683,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -685,7 +707,13 @@ describe('dominion-lib-time', () => {
           timestamp: new Date(mockStartDate.getTime() + 4000),
         }),
       ];
-      const game = createMockGame(2, { log, timeCache: [] });
+      const game = createMockGame(2, {
+        log,
+        timeCache: [],
+        currentPlayerIndex: 0,
+        firstPlayerIndex: 0,
+        selectedPlayerIndex: 0,
+      });
       const eventTime = new Date(mockStartDate.getTime() + 5000);
       expect(calculateDurationUpToEventWithCache(game, eventTime)).toBe(3000);
     });
@@ -697,6 +725,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -720,7 +749,13 @@ describe('dominion-lib-time', () => {
           timestamp: new Date(mockStartDate.getTime() + 4000),
         }),
       ];
-      const game = createMockGame(2, { log, timeCache: [] });
+      const game = createMockGame(2, {
+        log,
+        timeCache: [],
+        firstPlayerIndex: 0,
+        selectedPlayerIndex: 0,
+        currentPlayerIndex: 0,
+      });
       const eventTime = new Date(mockStartDate.getTime() + 5000);
       expect(calculateDurationUpToEventWithCache(game, eventTime)).toBe(3000);
     });
@@ -732,6 +767,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -755,7 +791,13 @@ describe('dominion-lib-time', () => {
           timestamp: new Date(mockStartDate.getTime() + 4000),
         }),
       ];
-      const game = createMockGame(2, { log, timeCache: [] });
+      const game = createMockGame(2, {
+        log,
+        timeCache: [],
+        firstPlayerIndex: 0,
+        selectedPlayerIndex: 0,
+        currentPlayerIndex: 0,
+      });
       const eventTime = new Date(mockStartDate.getTime() + 5000);
       expect(calculateDurationUpToEventWithCache(game, eventTime)).toBe(3000);
     });
@@ -767,6 +809,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -802,9 +845,57 @@ describe('dominion-lib-time', () => {
           adjustedDuration: 1000,
         },
       ];
-      const game = createMockGame(2, { log, timeCache: cache });
+      const game = createMockGame(2, {
+        log,
+        timeCache: cache,
+        firstPlayerIndex: 0,
+        selectedPlayerIndex: 0,
+        currentPlayerIndex: 0,
+      });
       const eventTime = new Date(mockStartDate.getTime() + 3000);
       expect(calculateDurationUpToEventWithCache(game, eventTime)).toBe(2000);
+    });
+
+    it('should calculate the correct duration', () => {
+      const game: IGame = createMockGame(2, {
+        currentPlayerIndex: 0,
+        firstPlayerIndex: 0,
+        selectedPlayerIndex: 0,
+        currentTurn: 2,
+        log: [
+          createMockLog({
+            id: '1',
+            action: GameLogAction.START_GAME,
+            timestamp: new Date('2023-01-01T00:00:00Z'),
+            playerIndex: 0,
+          }),
+          createMockLog({
+            id: '2',
+            action: GameLogAction.PAUSE,
+            timestamp: new Date('2023-01-01T00:10:00Z'),
+            playerIndex: undefined,
+          }),
+          createMockLog({
+            id: '3',
+            action: GameLogAction.UNPAUSE,
+            timestamp: new Date('2023-01-01T00:20:00Z'),
+            playerIndex: undefined,
+          }),
+          createMockLog({
+            id: '4',
+            action: GameLogAction.NEXT_TURN,
+            timestamp: new Date('2023-01-01T00:30:00Z'),
+            turn: 2,
+            playerIndex: 1,
+            prevPlayerIndex: 0,
+          }),
+        ],
+        timeCache: [],
+        // other game properties
+      });
+      const eventTime = new Date('2023-01-01T00:40:00Z');
+      const duration = calculateDurationUpToEventWithCache(game, eventTime);
+      expect(duration).toBe(1800000); // 30 minutes in milliseconds
     });
   });
 
@@ -823,10 +914,18 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
       ];
-      const game = createMockGame(2, { log, timeCache: [], turnStatisticsCache: [] });
+      const game = createMockGame(2, {
+        log,
+        timeCache: [],
+        turnStatisticsCache: [],
+        firstPlayerIndex: 0,
+        selectedPlayerIndex: 0,
+        currentPlayerIndex: 0,
+      });
       const result = rebuildCaches(game);
       expect(result.timeCache).toEqual([
         {
@@ -850,18 +949,21 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
           id: '2',
           action: GameLogAction.PAUSE,
           timestamp: new Date(mockStartDate.getTime() + 1000),
+          playerIndex: undefined,
           turn: 1,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.UNPAUSE,
           timestamp: new Date(mockStartDate.getTime() + 2000),
+          playerIndex: undefined,
           turn: 1,
         }),
         createMockLog({
@@ -876,7 +978,7 @@ describe('dominion-lib-time', () => {
           id: '5',
           action: GameLogAction.END_GAME,
           timestamp: new Date(mockStartDate.getTime() + 4000),
-          playerIndex: 0,
+          playerIndex: -1,
           prevPlayerIndex: 1,
           turn: 2,
         }),
@@ -912,17 +1014,20 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
           id: '2',
           action: GameLogAction.SAVE_GAME,
           timestamp: new Date(mockStartDate.getTime() + 1000),
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.LOAD_GAME,
           timestamp: new Date(mockStartDate.getTime() + 2000),
+          playerIndex: undefined,
         }),
       ];
       const game = createMockGame(2, { log, timeCache: [], turnStatisticsCache: [] });
@@ -969,6 +1074,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -1051,17 +1157,20 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
           id: '2',
           action: GameLogAction.PAUSE,
           timestamp: new Date(mockStartDate.getTime() + 1000),
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.UNPAUSE,
           timestamp: new Date(mockStartDate.getTime() + 2000),
+          playerIndex: undefined,
         }),
       ];
       const game = createMockGame(2, { log, timeCache: [], turnStatisticsCache: [] });
@@ -1108,6 +1217,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -1115,12 +1225,14 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.PAUSE,
           timestamp: new Date(mockStartDate.getTime() + 1000),
           turn: 1,
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.UNPAUSE,
           timestamp: new Date(mockStartDate.getTime() + 2000),
           turn: 1,
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '4',
@@ -1134,7 +1246,7 @@ describe('dominion-lib-time', () => {
           id: '5',
           action: GameLogAction.END_GAME,
           timestamp: new Date(mockStartDate.getTime() + 4000),
-          playerIndex: 0,
+          playerIndex: -1,
           prevPlayerIndex: 1,
           turn: 2,
         }),
@@ -1199,6 +1311,7 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.START_GAME,
           timestamp: mockStartDate,
           playerIndex: 0,
+          prevPlayerIndex: -1,
           turn: 1,
         }),
         createMockLog({
@@ -1206,12 +1319,14 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.PAUSE,
           timestamp: new Date(mockStartDate.getTime() + 1000),
           turn: 1,
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '3',
           action: GameLogAction.UNPAUSE,
           timestamp: new Date(mockStartDate.getTime() + 2000),
           turn: 1,
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '4',
@@ -1226,18 +1341,20 @@ describe('dominion-lib-time', () => {
           action: GameLogAction.SAVE_GAME,
           timestamp: new Date(mockStartDate.getTime() + 4000),
           turn: 2,
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '6',
           action: GameLogAction.LOAD_GAME,
           timestamp: new Date(mockStartDate.getTime() + 5000),
           turn: 2,
+          playerIndex: undefined,
         }),
         createMockLog({
           id: '7',
           action: GameLogAction.END_GAME,
           timestamp: new Date(mockStartDate.getTime() + 6000),
-          playerIndex: 0,
+          playerIndex: -1,
           prevPlayerIndex: 1,
           turn: 2,
         }),
@@ -1379,6 +1496,8 @@ describe('dominion-lib-time', () => {
       const logEntry = createMockLog({
         action: GameLogAction.START_GAME,
         timestamp: mockStartDate,
+        playerIndex: game.firstPlayerIndex,
+        prevPlayerIndex: -1,
         turn: 1,
       });
       game.log = [logEntry];
@@ -1404,6 +1523,8 @@ describe('dominion-lib-time', () => {
       const game = createMockGame(2);
       const startLog = createMockLog({
         action: GameLogAction.START_GAME,
+        playerIndex: game.firstPlayerIndex,
+        prevPlayerIndex: -1,
         timestamp: mockStartDate,
         turn: 1,
       });
@@ -1435,6 +1556,8 @@ describe('dominion-lib-time', () => {
       const game = createMockGame(2);
       const startLog = createMockLog({
         action: GameLogAction.START_GAME,
+        playerIndex: game.firstPlayerIndex,
+        prevPlayerIndex: -1,
         timestamp: mockStartDate,
         turn: 1,
       });
@@ -1468,8 +1591,11 @@ describe('dominion-lib-time', () => {
 
     it('should update caches for NEXT_TURN entry', () => {
       const game = createMockGame(2);
+      const nextPlayerIndex = getNextPlayerIndexByIndex(game.firstPlayerIndex, game.players.length);
       const startLog = createMockLog({
         action: GameLogAction.START_GAME,
+        playerIndex: game.firstPlayerIndex,
+        prevPlayerIndex: -1,
         timestamp: mockStartDate,
         turn: 1,
       });
@@ -1477,8 +1603,8 @@ describe('dominion-lib-time', () => {
       const nextTurnLog = createMockLog({
         action: GameLogAction.NEXT_TURN,
         timestamp: new Date(mockStartDate.getTime() + 3000),
-        playerIndex: 1,
-        prevPlayerIndex: 0,
+        playerIndex: nextPlayerIndex,
+        prevPlayerIndex: game.firstPlayerIndex,
         turn: 2,
       });
       game.log = [startLog, nextTurnLog];
@@ -1517,7 +1643,7 @@ describe('dominion-lib-time', () => {
       expect(game.turnStatisticsCache).toHaveLength(1);
       expect(game.turnStatisticsCache[0]).toStrictEqual({
         turn: 1,
-        playerIndex: 0,
+        playerIndex: game.firstPlayerIndex,
         end: nextTurnLog.timestamp,
         playerScores: [3, 3],
         start: mockStartDate,
@@ -1540,14 +1666,16 @@ describe('dominion-lib-time', () => {
       const startLog = createMockLog({
         action: GameLogAction.START_GAME,
         timestamp: mockStartDate,
+        playerIndex: game.firstPlayerIndex,
+        prevPlayerIndex: -1,
         turn: 1,
       });
 
       const endGameLog = createMockLog({
         action: GameLogAction.END_GAME,
         timestamp: new Date(mockStartDate.getTime() + 4000),
-        playerIndex: 0,
-        prevPlayerIndex: 1,
+        playerIndex: -1,
+        prevPlayerIndex: game.firstPlayerIndex,
         turn: 1,
       });
       game.log = [startLog, endGameLog];
@@ -1569,7 +1697,7 @@ describe('dominion-lib-time', () => {
       expect(updatedTurnStatisticsCache).toStrictEqual([
         {
           end: endGameLog.timestamp,
-          playerIndex: 1,
+          playerIndex: game.firstPlayerIndex,
           playerScores: [3, 3],
           start: mockStartDate,
           supply: {
@@ -1597,16 +1725,25 @@ describe('calculateCurrentTurnDuration', () => {
   beforeEach(() => {
     currentTime = new Date('2023-01-01T12:00:00Z');
     mockGame = createMockGame(2, {
+      currentPlayerIndex: 0,
+      firstPlayerIndex: 0,
+      selectedPlayerIndex: 0,
       log: [
         createMockLog({
           action: GameLogAction.START_GAME,
           timestamp: new Date('2023-01-01T10:00:00Z'),
           turn: 1,
+          prevPlayerIndex: -1,
+          playerIndex: 0,
+          currentPlayerIndex: 0,
         }),
         createMockLog({
           action: GameLogAction.NEXT_TURN,
           timestamp: new Date('2023-01-01T11:00:00Z'),
           turn: 2,
+          playerIndex: 1,
+          prevPlayerIndex: 0,
+          currentPlayerIndex: 1,
         }),
       ],
       currentTurn: 2,
@@ -1629,6 +1766,9 @@ describe('calculateCurrentTurnDuration', () => {
         action: GameLogAction.START_GAME,
         timestamp: new Date('2023-01-01T10:00:00Z'),
         turn: 1,
+        prevPlayerIndex: -1,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
       }),
     ];
     mockGame.currentTurn = 1;
@@ -1642,11 +1782,17 @@ describe('calculateCurrentTurnDuration', () => {
         action: GameLogAction.START_GAME,
         timestamp: new Date('2023-01-01T10:00:00Z'),
         turn: 1,
+        prevPlayerIndex: -1,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
       }),
       createMockLog({
         action: GameLogAction.NEXT_TURN,
         timestamp: new Date('2023-01-01T10:00:00Z'),
         turn: 2,
+        playerIndex: 1,
+        prevPlayerIndex: 0,
+        currentPlayerIndex: 1,
       }),
     ];
     const duration = calculateCurrentTurnDuration(mockGame, currentTime);
@@ -1659,6 +1805,9 @@ describe('calculateCurrentTurnDuration', () => {
         action: GameLogAction.START_GAME,
         timestamp: new Date('2023-01-01T13:00:00Z'),
         turn: 1,
+        prevPlayerIndex: -1,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
       }),
     ];
     mockGame.currentTurn = 1;
@@ -1667,21 +1816,32 @@ describe('calculateCurrentTurnDuration', () => {
   });
 
   it('should handle multiple NEXT_TURN entries correctly', () => {
+    const secondPlayerIndex = getNextPlayerIndexByIndex(
+      mockGame.firstPlayerIndex,
+      mockGame.players.length
+    );
+    const thirdPlayerIndex = getNextPlayerIndexByIndex(secondPlayerIndex, mockGame.players.length);
     mockGame.log = [
       createMockLog({
         action: GameLogAction.START_GAME,
         timestamp: new Date('2023-01-01T10:00:00Z'),
         turn: 1,
+        prevPlayerIndex: -1,
+        playerIndex: mockGame.firstPlayerIndex,
       }),
       createMockLog({
         action: GameLogAction.NEXT_TURN,
         timestamp: new Date('2023-01-01T11:00:00Z'),
         turn: 2,
+        playerIndex: secondPlayerIndex,
+        prevPlayerIndex: mockGame.firstPlayerIndex,
       }),
       createMockLog({
         action: GameLogAction.NEXT_TURN,
         timestamp: new Date('2023-01-01T11:30:00Z'),
         turn: 3,
+        playerIndex: thirdPlayerIndex,
+        prevPlayerIndex: secondPlayerIndex,
       }),
     ];
     mockGame.currentTurn = 3;

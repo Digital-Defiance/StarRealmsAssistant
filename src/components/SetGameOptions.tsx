@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import { OptionField, OptionSubField } from '@/game/types';
@@ -13,7 +13,7 @@ interface SetGameOptionsProps {
   startGame: () => void;
 }
 
-const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
+const SetGameOptions: FC<SetGameOptionsProps> = ({ startGame }) => {
   const { gameState, setGameState } = useGameContext();
 
   const updateOption = <T extends OptionField>(
@@ -106,13 +106,13 @@ const SetGameOptions: React.FC<SetGameOptionsProps> = ({ startGame }) => {
       {gameState.options.expansions.risingSun && (
         <Box>
           <OptionItem
-            checked={gameState.risingSun?.greatLeaderProphecy || false}
+            checked={gameState.expansions.risingSun.greatLeaderProphecy || false}
             onChange={(e) => {
               setGameState((prevState: IGame) => {
                 const newGame = deepClone<IGame>(prevState);
-                newGame.risingSun = {
+                newGame.expansions.risingSun = {
                   prophecy: {
-                    suns: prevState.risingSun?.prophecy.suns || 0,
+                    suns: prevState.expansions.risingSun.prophecy.suns,
                   },
                   greatLeaderProphecy: e.target.checked,
                 };

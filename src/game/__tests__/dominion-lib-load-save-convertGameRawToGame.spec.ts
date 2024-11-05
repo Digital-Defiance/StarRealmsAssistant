@@ -7,17 +7,29 @@ import { convertGameRawToGame } from '@/game/dominion-lib-load-save';
 import { IGame } from '@/game/interfaces/game';
 import { IGameRaw } from '@/game/interfaces/game-raw';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
+import { DefaultRenaissanceFeatures, EnabledRisingSunFeatures } from '@/game/constants';
+import { getNextPlayerIndexByIndex } from '../dominion-lib';
 
-const mockGame: IGame = createMockGame(2, {
+const firstPlayerIndex = 0;
+const numPlayers = 2;
+const nextPlayerIndex = getNextPlayerIndexByIndex(
+  firstPlayerIndex,
+  numPlayers,
+);
+
+const mockGame: IGame = createMockGame(numPlayers, {
+  firstPlayerIndex: firstPlayerIndex,
+  currentPlayerIndex: firstPlayerIndex,
+  selectedPlayerIndex: firstPlayerIndex,
   log: [
     createMockLog({
       id: '1',
       action: GameLogAction.START_GAME,
       timestamp: new Date('2023-01-01T00:00:00Z'),
       count: 3,
-      currentPlayerIndex: 0,
-      playerIndex: 3,
-      prevPlayerIndex: 1,
+      currentPlayerIndex: firstPlayerIndex,
+      playerIndex: firstPlayerIndex,
+      prevPlayerIndex: -1,
       turn: 1,
       correction: false,
       linkedActionId: '1ab917db-9d17-419f-8b16-3e068d58b85e',
@@ -27,9 +39,9 @@ const mockGame: IGame = createMockGame(2, {
       action: GameLogAction.NEXT_TURN,
       timestamp: new Date('2023-01-01T01:00:00Z'),
       count: 3,
-      currentPlayerIndex: 0,
-      playerIndex: 2,
-      prevPlayerIndex: 3,
+      currentPlayerIndex: nextPlayerIndex,
+      playerIndex: nextPlayerIndex,
+      prevPlayerIndex: firstPlayerIndex,
       turn: 3,
       correction: false,
       linkedActionId: 'ea926061-1113-4760-abc5-56fbe7f3a5ce',
@@ -57,16 +69,17 @@ const mockGame: IGame = createMockGame(2, {
       turnPauseTime: 0,
     },
   ],
-  risingSun: {
-    greatLeaderProphecy: false,
-    prophecy: {
-      suns: 5,
-    },
+  expansions: {
+    renaissance: DefaultRenaissanceFeatures(),
+    risingSun: EnabledRisingSunFeatures(2),
   },
 });
 
 // Mock data
-const mockGameRaw: IGameRaw = createMockGameRaw(2, {
+const mockGameRaw: IGameRaw = createMockGameRaw(numPlayers, {
+  currentPlayerIndex: mockGame.currentPlayerIndex,
+  selectedPlayerIndex: mockGame.selectedPlayerIndex,
+  firstPlayerIndex: mockGame.firstPlayerIndex,
   log: [
     {
       ...createMockLog({
@@ -74,9 +87,8 @@ const mockGameRaw: IGameRaw = createMockGameRaw(2, {
         action: GameLogAction.START_GAME,
         turn: 1,
         count: 3,
-        currentPlayerIndex: 0,
-        playerIndex: 3,
-        prevPlayerIndex: 1,
+        currentPlayerIndex: firstPlayerIndex,
+        playerIndex: firstPlayerIndex,
         correction: false,
         linkedActionId: '1ab917db-9d17-419f-8b16-3e068d58b85e',
       }),
@@ -88,9 +100,9 @@ const mockGameRaw: IGameRaw = createMockGameRaw(2, {
         action: GameLogAction.NEXT_TURN,
         turn: 3,
         count: 3,
-        currentPlayerIndex: 0,
-        playerIndex: 2,
-        prevPlayerIndex: 3,
+        currentPlayerIndex: nextPlayerIndex,
+        playerIndex: nextPlayerIndex,
+        prevPlayerIndex: firstPlayerIndex,
         correction: false,
         linkedActionId: 'ea926061-1113-4760-abc5-56fbe7f3a5ce',
       }),
@@ -119,11 +131,9 @@ const mockGameRaw: IGameRaw = createMockGameRaw(2, {
       turnPauseTime: 0,
     },
   ],
-  risingSun: {
-    greatLeaderProphecy: false,
-    prophecy: {
-      suns: 5,
-    },
+  expansions: {
+    renaissance: DefaultRenaissanceFeatures(),
+    risingSun: EnabledRisingSunFeatures(2),
   },
   players: mockGame.players,
 });

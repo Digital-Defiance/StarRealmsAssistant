@@ -137,7 +137,7 @@ describe('loadGameAddLog', () => {
   });
 
   it('should not add a LOAD_GAME log entry if the game has ended', () => {
-    const endGameLog = createMockLog({ action: GameLogAction.END_GAME });
+    const endGameLog = createMockLog({ action: GameLogAction.END_GAME, playerIndex: -1 });
     const mockGame = createMockGame(2, { log: [endGameLog] });
 
     const result = loadGameAddLog(mockGame, new Date('2023-01-01T00:02:00Z'));

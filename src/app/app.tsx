@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, ReactElement, ReactNode } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
 import AboutScreen from '@/components/screens/AboutScreen';
@@ -20,8 +20,8 @@ import StatisticsScreen from '@/components/screens/StatisticsScreen';
 
 interface ITab {
   label: string;
-  icon: React.ReactElement;
-  content: React.ReactNode;
+  icon: ReactElement;
+  content: ReactNode;
   path: string;
   index?: boolean;
 }
