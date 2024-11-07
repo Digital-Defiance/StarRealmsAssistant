@@ -1,59 +1,451 @@
-import React, { CSSProperties, FC, memo, RefObject, useEffect, useState } from 'react';
-import TabTitle from '@/components/TabTitle';
-import { Recipes } from '@/game/recipes';
-import { FixedSizeList } from 'react-window';
-import { RecipeCard } from '@/components/RecipeCard';
+import React from 'react';
+import { GameLogAction } from '@/game/enumerations/game-log-action';
+import { IGroupedAction } from '@/game/interfaces/grouped-action';
+import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
+import { GroupedActionTrigger } from '@/game/enumerations/grouped-action-trigger';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faStore,
+  faFlask,
+  faHome,
+  faHammer,
+  faGlassCheers,
+  faShoppingCart,
+  faMonument,
+  faCoins,
+  faUserFriends,
+  faShoppingBag,
+  faTasks,
+  faCrown,
+  faHandshake,
+  faLandmark,
+  faChessBishop,
+} from '@fortawesome/pro-solid-svg-icons';
 
-interface RecipesProps {
-  viewBoxRef: RefObject<HTMLDivElement>;
-}
+export type RecipeKey = keyof typeof Recipes;
 
-export const RecipesComponent: FC<RecipesProps> = ({ viewBoxRef }) => {
-  const [listHeight, setListHeight] = useState<number>(
-    viewBoxRef.current?.getBoundingClientRect().height ?? 0
-  );
-  const [listWidth, setListWidth] = useState<number>(
-    viewBoxRef.current?.getBoundingClientRect().width ?? 0
-  );
-  const MemoizedRecipeCard = memo(RecipeCard);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const viewBoxBound = viewBoxRef.current?.getBoundingClientRect();
-      const viewBoxHeight = viewBoxBound?.height ?? 0;
-      const viewBoxWidth = viewBoxBound?.width ?? 0;
-      setListHeight(viewBoxHeight);
-      setListWidth(viewBoxWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Set initial height
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [viewBoxRef]);
-
-  const recipesArray = Object.entries(Recipes);
-
-  const Row = ({ index, style }: { index: number; style: CSSProperties }) => (
-    <div style={style}>
-      <MemoizedRecipeCard recipeKey={recipesArray[index][0]} recipe={recipesArray[index][1]} />
-    </div>
-  );
-
-  return (
-    <>
-      <TabTitle>Common Actions</TabTitle>
-      <FixedSizeList
-        height={listHeight}
-        width={listWidth}
-        itemCount={recipesArray.length}
-        itemSize={20}
-        style={{ width: '100%' }}
-      >
-        {Row}
-      </FixedSizeList>
-    </>
-  );
+export const Recipes: Record<string, IGroupedAction> = {
+  OneCardOneAction: {
+    name: 'One Card, One Action',
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  OneCardTwoActions: {
+    name: 'One Card, Two Actions',
+    icon: <FontAwesomeIcon icon={faHome} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 2,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  OneCardTwoActionsOneBuy: {
+    name: 'One Card, Two Actions, One Buy',
+    icon: <FontAwesomeIcon icon={faShoppingBag} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 2,
+        },
+        {
+          action: GameLogAction.ADD_BUYS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  OneCardThreeActions: {
+    name: 'One Card, Three Actions',
+    icon: <FontAwesomeIcon icon={faTasks} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 3,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Festival: {
+    name: 'Festival',
+    icon: <FontAwesomeIcon icon={faGlassCheers} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 2,
+        },
+        {
+          action: GameLogAction.ADD_BUYS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_COINS,
+          count: 2,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Laboratory: {
+    name: 'Laboratory',
+    icon: <FontAwesomeIcon icon={faFlask} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 2,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Smithy: {
+    name: 'Smithy',
+    icon: <FontAwesomeIcon icon={faHammer} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 3,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  CouncilRoom: {
+    name: 'Council Room',
+    icon: <FontAwesomeIcon icon={faUserFriends} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 4,
+        },
+        {
+          action: GameLogAction.ADD_BUYS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [
+        {
+          action: GameLogAction.ADD_NEXT_TURN_CARDS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+    triggers: {
+      [GroupedActionTrigger.AfterNextTurnBegins]: {
+        [GroupedActionDest.AllPlayersExceptCurrent]: [
+          {
+            action: GameLogAction.REMOVE_NEXT_TURN_CARDS,
+            count: 1,
+          },
+        ],
+        [GroupedActionDest.AllPlayersExceptSelected]: [],
+        [GroupedActionDest.CurrentPlayerIndex]: [],
+        [GroupedActionDest.SelectedPlayerIndex]: [],
+        [GroupedActionDest.AllPlayers]: [],
+      },
+    },
+  },
+  Market: {
+    name: 'Market',
+    icon: <FontAwesomeIcon icon={faShoppingCart} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_BUYS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_COINS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  GrandMarket: {
+    name: 'Grand Market',
+    icon: <FontAwesomeIcon icon={faStore} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_CARDS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_BUYS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_COINS,
+          count: 2,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Dominate: {
+    name: 'Dominate',
+    icon: <FontAwesomeIcon icon={faCrown} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_BUYS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_PROVINCES,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_VP_TOKENS,
+          count: 9,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Alliance: {
+    name: 'Alliance',
+    icon: <FontAwesomeIcon icon={faHandshake} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_BUYS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_PROVINCES,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_DUCHIES,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ESTATES,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Demesne: {
+    name: 'Demesne',
+    icon: <FontAwesomeIcon icon={faLandmark} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_ACTIONS,
+          count: 2,
+        },
+        {
+          action: GameLogAction.ADD_BUYS,
+          count: 2,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  BishopEstate: {
+    name: 'Bishop an Estate',
+    icon: <FontAwesomeIcon icon={faChessBishop} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.REMOVE_ESTATES,
+          count: 1,
+          trash: true,
+        },
+        {
+          action: GameLogAction.ADD_VP_TOKENS,
+          count: 2,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Monument: {
+    name: 'Monument',
+    icon: <FontAwesomeIcon icon={faMonument} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.REMOVE_ACTIONS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_COINS,
+          count: 2,
+        },
+        {
+          action: GameLogAction.ADD_VP_TOKENS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
+  Ducat: {
+    name: 'Ducat',
+    icon: <FontAwesomeIcon icon={faCoins} />,
+    actions: {
+      [GroupedActionDest.CurrentPlayerIndex]: [
+        {
+          action: GameLogAction.ADD_COFFERS,
+          count: 1,
+        },
+        {
+          action: GameLogAction.ADD_BUYS,
+          count: 1,
+        },
+      ],
+      [GroupedActionDest.SelectedPlayerIndex]: [],
+      [GroupedActionDest.AllPlayers]: [],
+      [GroupedActionDest.AllPlayersExceptCurrent]: [],
+      [GroupedActionDest.AllPlayersExceptSelected]: [],
+    },
+  },
 };

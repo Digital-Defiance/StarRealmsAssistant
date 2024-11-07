@@ -28,7 +28,7 @@ import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
 import FloatingCounter from '@/components/FloatingCounter';
-import { RecipesComponent } from '@/components/Recipes';
+import { RecipesList } from '@/components/RecipeList';
 import ForwardRefBox from './ForwardRefBox';
 
 interface GameInterfaceProps {
@@ -168,7 +168,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           )}
           {tabValue === 1 && <TurnAdjustmentsSummary />}
           {tabValue === 2 && <SupplyCounts />}
-          {tabValue === 3 && <RecipesComponent viewBoxRef={viewBoxRef} />}
+          {tabValue === 3 && <RecipesList viewBoxRef={viewBoxRef} />}
         </ForwardRefBox>
       </Container>
       <FabContainer>

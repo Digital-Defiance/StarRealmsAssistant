@@ -5,13 +5,15 @@ import {
   prepareGroupedActionTriggers,
 } from '@/game/dominion-lib-log';
 import { IGroupedAction } from '@/game/interfaces/grouped-action';
-import { Recipes } from '@/game/recipes';
-import { Box, Link } from '@mui/material';
+import { RecipeKey, Recipes } from '@/components/Recipes';
+import { Box, Link, Typography } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import { useAlert } from '@/components/AlertContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay } from '@fortawesome/pro-solid-svg-icons';
 
 interface RecipeCardProps {
-  recipeKey: string;
+  recipeKey: RecipeKey;
   recipe: IGroupedAction;
 }
 
@@ -30,7 +32,8 @@ export const RecipeCard: FC<RecipeCardProps> = ({ recipeKey, recipe }) => {
         groupedAction,
         new Date(),
         applyGroupedActionSubAction,
-        prepareGroupedActionTriggers
+        prepareGroupedActionTriggers,
+        recipeKey
       );
       setGameState(newGame);
     } catch (error) {
@@ -43,9 +46,21 @@ export const RecipeCard: FC<RecipeCardProps> = ({ recipeKey, recipe }) => {
   };
 
   return (
-    <Box key={recipeKey}>
-      <Link href="#" onClick={(event) => handleRecipe(event, recipeKey)}>
-        {recipe.name}
+    <Box key={recipeKey} display="flex" alignItems="center" height="28px">
+      <Link
+        href="#"
+        onClick={(event) => handleRecipe(event, recipeKey)}
+        sx={{ display: 'flex', alignItems: 'center' }}
+      >
+        <Box
+          component="span"
+          sx={{ fontSize: '26px', display: 'flex', alignItems: 'center', width: '30px' }}
+        >
+          {recipe.icon ?? <FontAwesomeIcon icon={faPlay} />}
+        </Box>
+        <Typography className="recipe-name" sx={{ ml: 1 }}>
+          {recipe.name}
+        </Typography>
       </Link>
     </Box>
   );

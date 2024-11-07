@@ -106,6 +106,7 @@ A popup should offer to open the application in a browser.
 
 - Copy the .env.example in the project root to .env
 - Fill in the CODACY_PROJECT_TOKEN from https://app.codacy.com/gh/Digital-Defiance/DominionAssistant/settings/coverage
+- Fill in the FONTAWESOME_KEY from https://fontawesome.com/kits/1111eb8cf6/package
 - Save the .env file
 
 4. When prompted, click "Reopen in Container" or use the command palette (F1) and select "Remote-Containers: Reopen in Container".
@@ -199,6 +200,19 @@ Join our community of developers.
 - [Digital Defiance](https://digitaldefiance.org): 501c3 Non Profit Open Source Engineering Guild, with our own Discord.
 
 ## Changelog
+
+### Thu Nov 07 02:06:00 2024
+
+- Version 0.10.3
+  - Improve FontAwesome icons for goruped actions
+  - Add icon to the log for grouped actions
+
+### Thu Nov 07 00:40:00 2024
+
+- Version 0.10.2
+  - Add FontAwesome
+  - Add custom icon support to recipes/common actions
+  - Add icons to Common Actions/recipes tab
 
 ### Wed Nov 06 23:09:00 2024
 

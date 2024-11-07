@@ -10,6 +10,7 @@ import {
   getGameStartTime,
   prepareGroupedActionTriggers,
 } from '@/game/dominion-lib-log';
+import { RecipeKey } from '@/components/Recipes';
 
 function createGroupedActionBase(): IGroupedAction {
   return {
@@ -607,6 +608,37 @@ describe('applyGroupedAction', () => {
     expect(consoleErrorSpy).not.toHaveBeenCalled();
     expect(prepareGroupedActionTriggersMock).toHaveBeenCalledTimes(1);
     expect(updatedGame.pendingGroupedActions).toStrictEqual([]);
+  });
+
+  it('should throw an error for an invalid grouped action key', () => {
+    const invalidGroupedActionKey = 'InvalidKey' as RecipeKey;
+    expect(() => {
+      applyGroupedAction(
+        mockGame,
+        groupedAction,
+        actionDate,
+        applyGroupedActionSubActionMock,
+        prepareGroupedActionTriggersMock,
+        invalidGroupedActionKey
+      );
+    }).toThrow(`Invalid recipe key: ${invalidGroupedActionKey}`);
+  });
+
+  it('should create a log with the actionKey if provided and valid', () => {
+    groupedAction.actions[GroupedActionDest.CurrentPlayerIndex] = [
+      { action: GameLogAction.ADD_ACTIONS, count: 1 },
+    ];
+    const updatedGame = applyGroupedAction(
+      mockGame,
+      groupedAction,
+      actionDate,
+      applyGroupedActionSubActionMock,
+      prepareGroupedActionTriggersMock,
+      'OneCardOneAction' as RecipeKey
+    );
+    expect(updatedGame.log.length).toBe(3);
+    expect(updatedGame.log[1].action).toBe(GameLogAction.GROUPED_ACTION);
+    expect(updatedGame.log[1].actionKey).toBe('OneCardOneAction');
   });
 });
 

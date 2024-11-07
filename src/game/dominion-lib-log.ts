@@ -37,6 +37,7 @@ import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
 import { InvalidPlayerIndexError } from '@/game/errors/invalid-player-index';
 import { InvalidActionError } from '@/game/errors/invalid-action';
 import { GroupedActionTrigger } from '@/game/enumerations/grouped-action-trigger';
+import { RecipeKey, Recipes } from '@/components/Recipes';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -826,8 +827,11 @@ export function getGroupedActionTargetPlayers(game: IGame, dest: GroupedActionDe
 /**
  * Apply a grouped action to the game.
  * @param game - The game state
- * @param playerIndex - The index of the player performing the action
+ * @param groupedActionKey - The key of the grouped action to apply
  * @param groupedAction - The grouped action to apply
+ * @param actionDate - The date of the action
+ * @param applyGroupedActionSubAction - A function to apply sub-actions to the game
+ * @param prepareGroupedActionTriggers - A function to prepare triggers for the grouped action
  * @returns The updated game state
  */
 export function applyGroupedAction(
@@ -845,9 +849,13 @@ export function applyGroupedAction(
     game: IGame,
     groupedAction: IGroupedAction,
     groupedActionId: string
-  ) => IGame
+  ) => IGame,
+  groupedActionKey?: RecipeKey
 ): IGame {
   try {
+    if (groupedActionKey && Recipes[groupedActionKey] === undefined) {
+      throw new Error(`Invalid recipe key: ${groupedActionKey}`);
+    }
     let updatedGame = deepClone<IGame>(game);
     const groupedActionId = uuidv4();
     // Create a log entry for the grouped action
@@ -859,6 +867,7 @@ export function applyGroupedAction(
       currentPlayerIndex: updatedGame.currentPlayerIndex,
       turn: updatedGame.currentTurn,
       actionName: groupedAction.name,
+      actionKey: groupedActionKey,
     };
     updatedGame.log.push(groupedActionLog);
     const { timeCache, turnStatisticsCache } = updateCachesForEntry(updatedGame, groupedActionLog);

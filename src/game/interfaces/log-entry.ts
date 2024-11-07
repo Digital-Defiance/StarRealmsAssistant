@@ -1,3 +1,4 @@
+import { RecipeKey } from '@/components/Recipes';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 
@@ -53,7 +54,9 @@ export interface ILogEntry {
    */
   playerTurnDetails?: IPlayerGameTurnDetails[];
   /**
-   * Name of the action taken, for grouped actions
+   * Name of the grouped action taken, for grouped actions
    */
   actionName?: string;
+  /** Key for the grouped action */
+  actionKey?: RecipeKey;
 }

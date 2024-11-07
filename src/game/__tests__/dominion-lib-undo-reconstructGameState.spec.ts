@@ -21,6 +21,7 @@ import {
 } from '@/game/dominion-lib-log';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
+import { RecipeKey } from '@/components/Recipes';
 
 describe('reconstructGameState', () => {
   let baseGame: IGame;

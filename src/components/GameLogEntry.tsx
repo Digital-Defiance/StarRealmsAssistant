@@ -28,6 +28,9 @@ import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
 import { getAdjustedDurationFromCacheByIndex } from '@/game/dominion-lib-time';
 import '@/styles.scss';
+import { Recipes } from './Recipes';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay } from '@fortawesome/pro-solid-svg-icons';
 
 interface GameLogEntryProps {
   logIndex: number;
@@ -186,6 +189,16 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
               {relevantPlayer !== undefined && !isNotTriggeredByPlayer && (
                 <ColoredPlayerName player={relevantPlayer} marginDirection="right" />
               )}
+              {entry.action === GameLogAction.GROUPED_ACTION &&
+                entry.actionKey &&
+                Recipes[entry.actionKey] && (
+                  <Box
+                    component="span"
+                    sx={{ fontSize: '16px', display: 'inline-flex', alignItems: 'center', mr: 1 }}
+                  >
+                    {Recipes[entry.actionKey].icon ?? <FontAwesomeIcon icon={faPlay} />}
+                  </Box>
+                )}
               <Typography variant="body2" component="span">
                 {actionText}
               </Typography>
