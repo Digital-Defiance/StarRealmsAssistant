@@ -1,3 +1,9 @@
+[![CI](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/ci.yml)
+
+[![Deploy to S3](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/deploy-to-s3.yml/badge.svg)](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/deploy-to-s3.yml)
+
+[![Test and Upload to Codacy](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/test-and-upload-codacy.yml/badge.svg)](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/test-and-upload-codacy.yml)
+
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/6875e251bae24f99bab9d7b53ad8d2eb)](https://app.codacy.com/gh/Digital-Defiance/DominionAssistant/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 # Unofficial Dominion Assistant
