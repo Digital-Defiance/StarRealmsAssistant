@@ -323,7 +323,6 @@ describe('groupTurnAdjustments', () => {
 
     const expectedGroupedAdjustments: ITurnAdjustment[] = [
       { field: 'turn', subfield: 'actions', increment: 2 },
-      { field: 'turn', subfield: 'buys', increment: 0 },
     ];
 
     const result = groupTurnAdjustments(adjustments);

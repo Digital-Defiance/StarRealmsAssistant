@@ -37,7 +37,8 @@ import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
 import { InvalidPlayerIndexError } from '@/game/errors/invalid-player-index';
 import { InvalidActionError } from '@/game/errors/invalid-action';
 import { GroupedActionTrigger } from '@/game/enumerations/grouped-action-trigger';
-import { RecipeKey, Recipes } from '@/components/Recipes';
+import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
+import { futureActionMap } from '@/game/enumerations/future-action';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -130,13 +131,38 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
  * @param entry - The log entry
  * @returns The string representation of the log entry
  */
-export function logEntryToString(entry: ILogEntry): string {
+export function logEntryToString(entry: ILogEntry, useFutureTense = false): string {
   let actionString = entry.action as string;
+
+  if (useFutureTense && futureActionMap[entry.action]) {
+    actionString = futureActionMap[entry.action];
+  }
 
   if (entry.action === GameLogAction.GROUPED_ACTION && entry.actionName !== undefined) {
     actionString = entry.actionName;
   } else if (entry.count !== undefined) {
     actionString = actionString.replace('{COUNT}', entry.count.toString());
+  } else {
+    // Remove {COUNT} if no count is provided
+    actionString = actionString.replace(' {COUNT}', '');
+  }
+
+  return actionString;
+}
+
+export function actionToString(
+  action: GameLogAction,
+  count?: number,
+  useFutureTense = false
+): string {
+  let actionString = action as string;
+
+  if (useFutureTense && futureActionMap[action]) {
+    actionString = futureActionMap[action];
+  }
+
+  if (count !== undefined) {
+    actionString = actionString.replace('{COUNT}', count.toString());
   } else {
     // Remove {COUNT} if no count is provided
     actionString = actionString.replace(' {COUNT}', '');
@@ -826,12 +852,15 @@ export function getGroupedActionTargetPlayers(game: IGame, dest: GroupedActionDe
 
 /**
  * Apply a grouped action to the game.
+ * applyGroupedAction can take a one-off grouped action, but then should not be supplied with a groupedActionKey
+ * the groupedActionKey will allow the game log to show the correct action icon, etc when a recipe action is applied
  * @param game - The game state
  * @param groupedActionKey - The key of the grouped action to apply
  * @param groupedAction - The grouped action to apply
  * @param actionDate - The date of the action
  * @param applyGroupedActionSubAction - A function to apply sub-actions to the game
  * @param prepareGroupedActionTriggers - A function to prepare triggers for the grouped action
+ * @param groupedActionKey - The key of the grouped action (optional)
  * @returns The updated game state
  */
 export function applyGroupedAction(
@@ -853,8 +882,27 @@ export function applyGroupedAction(
   groupedActionKey?: RecipeKey
 ): IGame {
   try {
-    if (groupedActionKey && Recipes[groupedActionKey] === undefined) {
-      throw new Error(`Invalid recipe key: ${groupedActionKey}`);
+    if (groupedActionKey) {
+      let foundGroupAction = false;
+      for (const sectionKey in Recipes) {
+        if (Object.prototype.hasOwnProperty.call(Recipes, sectionKey)) {
+          const section = Recipes[sectionKey as RecipeSections];
+          if (Object.prototype.hasOwnProperty.call(section.recipes, groupedActionKey)) {
+            // if the passed in groupAction does not match the recipe, throw an error
+            if (section.recipes[groupedActionKey].name !== groupedAction.name) {
+              throw new Error(
+                `Invalid grouped action. The passed in grouped action does not match the recipe for key '${groupedActionKey}'.`
+              );
+            }
+            foundGroupAction = true;
+            break;
+          }
+        }
+      }
+
+      if (!foundGroupAction) {
+        throw new Error(`Invalid recipe key: ${groupedActionKey}`);
+      }
     }
     let updatedGame = deepClone<IGame>(game);
     const groupedActionId = uuidv4();

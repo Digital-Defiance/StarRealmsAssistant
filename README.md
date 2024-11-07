@@ -207,6 +207,22 @@ Join our community of developers.
 
 ## Changelog
 
+### Fri Nov 08 13:07:00 2024
+
+- Version 0.10.6
+  - Added:
+    - Introduced RecipeSummaryPopover component to display recipe information in a pop-up when a recipe is hovered over in RecipeList.
+    - Created RecipeSummary component for detailed display of recipe actions and future actions.
+    - Added futureActionMap enumeration for standardized future-tense action names.
+    - Implemented GroupedActionDestStrings and GroupedActionTriggerStrings for enhanced readability in grouped action destination and trigger displays.
+  - Updated:
+    - GameInterface now supports new grouped action recipes with onHover, onLeave, and onClick handlers.
+    - Enhanced TurnAdjustmentsSummary for responsive height adjustments based on container size.
+    - Modified RecipeList component with VariableSizeList to allow different item sizes for headers, spacers, and recipes, improving layout consistency.
+    - applyGroupedAction now validates grouped action names against defined recipes to ensure accuracy.
+  - Tests:
+    - Updated unit tests in dominion-lib-log-applyGroupedAction to include validation for grouped actions and future action handling.
+
 ### Fri Nov 08 13:04:00 2024
 
 - Version 0.10.5

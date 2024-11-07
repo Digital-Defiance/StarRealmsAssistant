@@ -10,7 +10,7 @@ import {
   getGameStartTime,
   prepareGroupedActionTriggers,
 } from '@/game/dominion-lib-log';
-import { RecipeKey } from '@/components/Recipes';
+import { RecipeKey, Recipes } from '@/components/Recipes';
 
 function createGroupedActionBase(): IGroupedAction {
   return {
@@ -625,9 +625,7 @@ describe('applyGroupedAction', () => {
   });
 
   it('should create a log with the actionKey if provided and valid', () => {
-    groupedAction.actions[GroupedActionDest.CurrentPlayerIndex] = [
-      { action: GameLogAction.ADD_ACTIONS, count: 1 },
-    ];
+    groupedAction = Recipes.General.recipes.OneCardOneAction;
     const updatedGame = applyGroupedAction(
       mockGame,
       groupedAction,
@@ -636,9 +634,41 @@ describe('applyGroupedAction', () => {
       prepareGroupedActionTriggersMock,
       'OneCardOneAction' as RecipeKey
     );
-    expect(updatedGame.log.length).toBe(3);
+    expect(updatedGame.log.length).toBe(5);
     expect(updatedGame.log[1].action).toBe(GameLogAction.GROUPED_ACTION);
     expect(updatedGame.log[1].actionKey).toBe('OneCardOneAction');
+  });
+
+  it('should throw an error if the grouped action name does not match the recipe for the key', () => {
+    const invalidGroupedAction: IGroupedAction = {
+      ...groupedAction,
+      name: 'Invalid Grouped Action Name',
+    };
+
+    const validRecipeKey: RecipeKey = 'OneCardOneAction' as RecipeKey;
+
+    // Ensure the valid recipe key exists in the Recipes
+    Recipes.General.recipes[validRecipeKey] = groupedAction;
+
+    expect(() =>
+      applyGroupedAction(
+        mockGame,
+        invalidGroupedAction,
+        actionDate,
+        applyGroupedActionSubActionMock,
+        prepareGroupedActionTriggersMock,
+        validRecipeKey
+      )
+    ).toThrow(
+      `Invalid grouped action. The passed in grouped action does not match the recipe for key '${validRecipeKey}'.`
+    );
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Error applying grouped action:',
+      new Error(
+        `Invalid grouped action. The passed in grouped action does not match the recipe for key '${validRecipeKey}'.`
+      )
+    );
   });
 });
 

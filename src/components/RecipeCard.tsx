@@ -1,67 +1,50 @@
-import React, { FC } from 'react';
-import {
-  applyGroupedAction,
-  applyGroupedActionSubAction,
-  prepareGroupedActionTriggers,
-} from '@/game/dominion-lib-log';
+import React, { FC, MouseEvent } from 'react';
 import { IGroupedAction } from '@/game/interfaces/grouped-action';
-import { RecipeKey, Recipes } from '@/components/Recipes';
-import { Box, Link, Typography } from '@mui/material';
-import { useGameContext } from '@/components/GameContext';
-import { useAlert } from '@/components/AlertContext';
+import { RecipeKey, RecipeSections } from '@/components/Recipes';
+import { Box, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/pro-solid-svg-icons';
 
 interface RecipeCardProps {
+  section: RecipeSections;
   recipeKey: RecipeKey;
   recipe: IGroupedAction;
+  onHover: (section: RecipeSections, recipeKey: RecipeKey) => void;
+  onLeave: () => void;
+  onClick: (
+    event: React.MouseEvent<HTMLDivElement>,
+    section: RecipeSections,
+    recipeKey: RecipeKey
+  ) => void;
 }
 
-export const RecipeCard: FC<RecipeCardProps> = ({ recipeKey, recipe }) => {
-  const { gameState, setGameState } = useGameContext();
-  const { showAlert } = useAlert();
-  const handleRecipe = (event: React.MouseEvent<HTMLAnchorElement>, recipeName: string) => {
-    event.preventDefault();
-    const groupedAction = Recipes[recipeName];
-    if (!groupedAction) {
-      return;
-    }
-    try {
-      const newGame = applyGroupedAction(
-        gameState,
-        groupedAction,
-        new Date(),
-        applyGroupedActionSubAction,
-        prepareGroupedActionTriggers,
-        recipeKey
-      );
-      setGameState(newGame);
-    } catch (error) {
-      if (error instanceof Error) {
-        showAlert(`${groupedAction.name} Failed`, error.message);
-      } else {
-        showAlert(`${groupedAction.name} Failed`, 'Unknown error');
-      }
-    }
-  };
-
+export const RecipeCard: FC<RecipeCardProps> = ({
+  section,
+  recipeKey,
+  recipe,
+  onHover,
+  onLeave,
+  onClick,
+}) => {
   return (
-    <Box key={recipeKey} display="flex" alignItems="center" height="28px">
-      <Link
-        href="#"
-        onClick={(event) => handleRecipe(event, recipeKey)}
-        sx={{ display: 'flex', alignItems: 'center' }}
-      >
-        <Box
-          component="span"
-          sx={{ fontSize: '26px', display: 'flex', alignItems: 'center', width: '30px' }}
-        >
-          {recipe.icon ?? <FontAwesomeIcon icon={faPlay} />}
-        </Box>
-        <Typography className="recipe-name" sx={{ ml: 1 }}>
-          {recipe.name}
-        </Typography>
-      </Link>
+    <Box
+      key={recipeKey}
+      onClick={(event) => onClick(event, section, recipeKey)}
+      onMouseEnter={() => onHover(section, recipeKey)}
+      onMouseLeave={onLeave}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        cursor: 'pointer',
+        '&:hover': {
+          backgroundColor: 'action.hover',
+        },
+      }}
+    >
+      {recipe.icon ?? <FontAwesomeIcon icon={faPlay} />}
+      <Typography variant="body2" sx={{ ml: 1 }}>
+        {recipe.name}
+      </Typography>
     </Box>
   );
 };

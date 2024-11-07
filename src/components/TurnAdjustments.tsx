@@ -25,6 +25,7 @@ import theme from '@/components/theme';
 
 interface TurnAdjustmentProps {
   turn?: number;
+  containerHeight: number | string;
 }
 
 const FieldName = styled(Typography)({
@@ -41,76 +42,84 @@ const Quantity = styled(Typography)({
   fontSize: '1.5rem',
 });
 
-const TurnAdjustmentsSummary: FC<TurnAdjustmentProps> = ({ turn }) => {
+const ScrollableContainer = styled(Box)({
+  overflowY: 'auto',
+});
+
+const TurnAdjustmentsSummary: FC<TurnAdjustmentProps> = ({ turn, containerHeight }) => {
   const { gameState } = useGameContext();
-  const adjustments = groupTurnAdjustments(getTurnAdjustments(gameState, turn));
   const gameTurn = turn ?? gameState.currentTurn;
+  const adjustments = getTurnAdjustments(gameState, gameTurn);
+  const groupedAdjustments = groupTurnAdjustments(adjustments);
+  const player = getPlayerForTurn(gameState, gameTurn);
 
   return (
-    <Container>
-      <Header>
-        <SuperCapsText className={`typography-large-title`}>Turn Adjustments</SuperCapsText>
-        <SecondarySubtitle sx={{ marginTop: theme.spacing(1) }}>
-          Turn: {gameTurn}{' '}
-          <ColoredPlayerName
-            marginDirection="left"
-            player={getPlayerForTurn(gameState, gameTurn)}
-          />
-        </SecondarySubtitle>
-      </Header>
-      {adjustments.length === 0 && (
-        <Typography variant="h6" align="center">
-          No adjustments made this turn.
-        </Typography>
-      )}
-      {adjustments.length > 0 && (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Field</TableCell>
-                <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Subfield</TableCell>
-                <TableCell align="right" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-                  Increment
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {adjustments.map((adjustment, index) => {
-                if (adjustment.field === null || adjustment.subfield === null) {
-                  return null;
-                }
-                const fieldName =
-                  adjustment.field.charAt(0).toUpperCase() + adjustment.field.slice(1);
-                const subfieldName =
-                  adjustment.subfield.charAt(0).toUpperCase() + adjustment.subfield.slice(1);
+    <ScrollableContainer
+      style={{
+        maxHeight: typeof containerHeight === 'number' ? `${containerHeight}px` : containerHeight,
+      }}
+    >
+      <Container>
+        <Header>
+          <SuperCapsText className={`typography-large-title`}>Turn Adjustments</SuperCapsText>
+          <SecondarySubtitle sx={{ marginTop: theme.spacing(1) }}>
+            Turn: {gameTurn} <ColoredPlayerName marginDirection="left" player={player} />
+          </SecondarySubtitle>
+        </Header>
+        {groupedAdjustments.length === 0 && (
+          <Typography variant="h6" align="center">
+            No adjustments made this turn.
+          </Typography>
+        )}
+        {groupedAdjustments.length > 0 && (
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Field</TableCell>
+                  <TableCell sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Subfield</TableCell>
+                  <TableCell align="right" sx={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
+                    Increment
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {groupedAdjustments.map((adjustment, index) => {
+                  if (adjustment.field === null || adjustment.subfield === null) {
+                    return null;
+                  }
+                  const fieldName =
+                    adjustment.field.charAt(0).toUpperCase() + adjustment.field.slice(1);
+                  const subfieldName =
+                    adjustment.subfield.charAt(0).toUpperCase() + adjustment.subfield.slice(1);
 
-                return (
-                  <TableRow key={index}>
-                    <TableCell sx={{ fontSize: '1.2rem' }}>
-                      <FieldName className="typography-title">{fieldName}</FieldName>
-                    </TableCell>
-                    <TableCell sx={{ fontSize: '1.2rem' }}>
-                      <FieldName className="typography-title">{subfieldName}</FieldName>
-                    </TableCell>
-                    <TableCell
-                      align="right"
-                      sx={{ color: adjustment.increment > 0 ? 'green' : 'red' }}
-                    >
-                      <Quantity>
-                        {adjustment.increment > 0
-                          ? `+${adjustment.increment}`
-                          : adjustment.increment}
-                      </Quantity>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-    </Container>
+                  return (
+                    <TableRow key={index}>
+                      <TableCell sx={{ fontSize: '1.2rem' }}>
+                        <FieldName className="typography-title">{fieldName}</FieldName>
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '1.2rem' }}>
+                        <FieldName className="typography-title">{subfieldName}</FieldName>
+                      </TableCell>
+                      <TableCell
+                        align="right"
+                        sx={{ color: adjustment.increment > 0 ? 'green' : 'red' }}
+                      >
+                        <Quantity>
+                          {adjustment.increment > 0
+                            ? `+${adjustment.increment}`
+                            : adjustment.increment}
+                        </Quantity>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Container>
+    </ScrollableContainer>
   );
 };
 

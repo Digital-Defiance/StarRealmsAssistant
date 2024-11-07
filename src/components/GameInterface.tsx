@@ -21,7 +21,12 @@ import { useGameContext } from '@/components/GameContext';
 import SupplyCounts from '@/components/SupplyCounts';
 import GameClock from '@/components/GameClock';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { addLogEntry } from '@/game/dominion-lib-log';
+import {
+  addLogEntry,
+  applyGroupedAction,
+  applyGroupedActionSubAction,
+  prepareGroupedActionTriggers,
+} from '@/game/dominion-lib-log';
 import { NO_PLAYER } from '@/game/constants';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
@@ -29,7 +34,11 @@ import { deepClone } from '@/game/utils';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
 import FloatingCounter from '@/components/FloatingCounter';
 import { RecipesList } from '@/components/RecipeList';
-import ForwardRefBox from './ForwardRefBox';
+import ForwardRefBox from '@/components/ForwardRefBox';
+import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
+import { IGroupedAction } from '@/game/interfaces/grouped-action';
+import { RecipeSummaryPopover } from '@/components/RecipeSummaryPopover';
+import { useAlert } from '@/components/AlertContext';
 
 interface GameInterfaceProps {
   nextTurn: () => void;
@@ -71,15 +80,43 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const [tabValue, setTabValue] = useState(0);
   const viewBoxRef = useRef<HTMLDivElement>(null);
+  const [hoveredRecipe, setHoveredRecipe] = useState<IGroupedAction | null>(null);
+  const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number } | null>(
+    null
+  );
+  const [recipeListPosition, setRecipeListPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+  const [containerHeight, setContainerHeight] = useState(0);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
   }, [gameState]);
 
   useEffect(() => {
-    const handleResize = () => setViewportWidth(window.innerWidth);
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+      if (viewBoxRef.current) {
+        setContainerHeight(viewBoxRef.current.clientHeight);
+      }
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (viewBoxRef.current) {
+      const rect = viewBoxRef.current.getBoundingClientRect();
+      setRecipeListPosition({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+      });
+      setContainerHeight(rect.height);
+    }
   }, []);
 
   const handleOpenConfirmEndGameDialog = () => {
@@ -93,6 +130,54 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const handleConfirmEndGame = () => {
     setConfirmEndGameDialogOpen(false);
     endGame();
+  };
+
+  const handleRecipeHover = (section: RecipeSections, recipeKey: RecipeKey) => {
+    const recipe = Recipes[section].recipes[recipeKey];
+    if (recipeListPosition) {
+      setPopoverPosition({
+        top: recipeListPosition.top,
+        left: recipeListPosition.left + recipeListPosition.width / 2,
+      });
+    }
+    setHoveredRecipe(recipe);
+  };
+
+  const handleRecipeLeave = () => {
+    setHoveredRecipe(null);
+    setPopoverPosition(null);
+  };
+
+  const handleRecipeClick = (
+    event: React.MouseEvent<HTMLDivElement>,
+    section: RecipeSections,
+    recipeKey: RecipeKey
+  ) => {
+    event.preventDefault();
+    const recipeSection = Recipes[section];
+    const groupedAction = recipeSection.recipes[recipeKey] as IGroupedAction;
+
+    if (!groupedAction) {
+      return;
+    }
+
+    try {
+      const newGame = applyGroupedAction(
+        gameState,
+        groupedAction,
+        new Date(),
+        applyGroupedActionSubAction,
+        prepareGroupedActionTriggers,
+        recipeKey
+      );
+      setGameState(newGame);
+    } catch (error) {
+      if (error instanceof Error) {
+        showAlert(`${groupedAction.name} Failed`, error.message);
+      } else {
+        showAlert(`${groupedAction.name} Failed`, 'Unknown error');
+      }
+    }
   };
 
   const lastAction =
@@ -166,9 +251,26 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
               </ButtonContainer>
             </Box>
           )}
-          {tabValue === 1 && <TurnAdjustmentsSummary />}
+          {tabValue === 1 && <TurnAdjustmentsSummary containerHeight={containerHeight} />}
           {tabValue === 2 && <SupplyCounts />}
-          {tabValue === 3 && <RecipesList viewBoxRef={viewBoxRef} />}
+          {tabValue === 3 && (
+            <Box sx={{ display: 'flex', height: '100%' }}>
+              <Box ref={viewBoxRef} sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                <RecipesList
+                  viewBoxRef={viewBoxRef}
+                  onHover={handleRecipeHover}
+                  onLeave={handleRecipeLeave}
+                  onClick={handleRecipeClick}
+                />
+              </Box>
+              <RecipeSummaryPopover
+                open={Boolean(hoveredRecipe)}
+                position={popoverPosition}
+                recipe={hoveredRecipe}
+                listWidth={recipeListPosition?.width || 0}
+              />
+            </Box>
+          )}
         </ForwardRefBox>
       </Container>
       <FabContainer>

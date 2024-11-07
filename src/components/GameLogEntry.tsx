@@ -148,6 +148,18 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
     'data-action-id': entry.linkedActionId ?? entry.id,
   };
 
+  const groupedAction =
+    entry.action === GameLogAction.GROUPED_ACTION && entry.actionKey
+      ? (() => {
+          for (const section of Object.values(Recipes)) {
+            if (section.recipes[entry.actionKey]) {
+              return section.recipes[entry.actionKey];
+            }
+          }
+          return null;
+        })()
+      : null;
+
   return (
     <>
       <Box
@@ -189,16 +201,14 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
               {relevantPlayer !== undefined && !isNotTriggeredByPlayer && (
                 <ColoredPlayerName player={relevantPlayer} marginDirection="right" />
               )}
-              {entry.action === GameLogAction.GROUPED_ACTION &&
-                entry.actionKey &&
-                Recipes[entry.actionKey] && (
-                  <Box
-                    component="span"
-                    sx={{ fontSize: '16px', display: 'inline-flex', alignItems: 'center', mr: 1 }}
-                  >
-                    {Recipes[entry.actionKey].icon ?? <FontAwesomeIcon icon={faPlay} />}
-                  </Box>
-                )}
+              {entry.action === GameLogAction.GROUPED_ACTION && (
+                <Box
+                  component="span"
+                  sx={{ fontSize: '16px', display: 'inline-flex', alignItems: 'center', mr: 1 }}
+                >
+                  {groupedAction?.icon ?? <FontAwesomeIcon icon={faPlay} />}
+                </Box>
+              )}
               <Typography variant="body2" component="span">
                 {actionText}
               </Typography>
