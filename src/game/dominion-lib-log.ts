@@ -1149,7 +1149,8 @@ export function groupTurnAdjustments(adjustments: Array<ITurnAdjustment>): Array
       groupedAdjustments.push(adjustment);
     }
   });
-  return groupedAdjustments;
+  // filter out net-zero adjustments
+  return groupedAdjustments.filter((adjustment) => adjustment.increment !== 0);
 }
 
 /**

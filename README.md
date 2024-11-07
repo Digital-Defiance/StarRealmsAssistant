@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Thu Nov 07 03:07:00 2024
+
+- Version 0.10.4
+  - Filter out net-zero adjustments from Turn Adjustments
+
 ### Thu Nov 07 02:06:00 2024
 
 - Version 0.10.3
