@@ -200,6 +200,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Wed Nov 06 23:09:00 2024
+
+- Version 0.10.1
+  - Add more common actions (Smithy, Library, Market, Festival, etc)
+  - Recipes are in a FixedSizeList
+
 ### Wed Nev 06 17:05:00 2024
 
 - Version 0.10.0

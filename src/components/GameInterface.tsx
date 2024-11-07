@@ -1,4 +1,4 @@
-import React, { FC, SyntheticEvent, useEffect, useState } from 'react';
+import React, { FC, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -29,6 +29,7 @@ import { deepClone } from '@/game/utils';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
 import FloatingCounter from '@/components/FloatingCounter';
 import { RecipesComponent } from '@/components/Recipes';
+import ForwardRefBox from './ForwardRefBox';
 
 interface GameInterfaceProps {
   nextTurn: () => void;
@@ -69,6 +70,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
   const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const [tabValue, setTabValue] = useState(0);
+  const viewBoxRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
@@ -138,7 +140,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           <Tab label="Supply" />
           <Tab label="Common Actions" />
         </Tabs>
-        <Box sx={{ p: 2 }}>
+        <ForwardRefBox ref={viewBoxRef} sx={{ p: 2, flex: 1, overflow: 'hidden' }}>
           {tabValue === 0 && (
             <Box
               sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}
@@ -166,8 +168,8 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           )}
           {tabValue === 1 && <TurnAdjustmentsSummary />}
           {tabValue === 2 && <SupplyCounts />}
-          {tabValue === 3 && <RecipesComponent />}
-        </Box>
+          {tabValue === 3 && <RecipesComponent viewBoxRef={viewBoxRef} />}
+        </ForwardRefBox>
       </Container>
       <FabContainer>
         <Tooltip title="Undo the most recent update">

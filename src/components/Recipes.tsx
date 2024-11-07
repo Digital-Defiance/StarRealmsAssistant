@@ -1,53 +1,59 @@
-import React, { FC } from 'react';
+import React, { CSSProperties, FC, memo, RefObject, useEffect, useState } from 'react';
 import TabTitle from '@/components/TabTitle';
 import { Recipes } from '@/game/recipes';
-import { Box, Link } from '@mui/material';
-import {
-  applyGroupedAction,
-  applyGroupedActionSubAction,
-  prepareGroupedActionTriggers,
-} from '@/game/dominion-lib-log';
-import { useGameContext } from '@/components/GameContext';
-import { useAlert } from '@/components/AlertContext';
+import { FixedSizeList } from 'react-window';
+import { RecipeCard } from '@/components/RecipeCard';
 
-export const RecipesComponent: FC = () => {
-  const { gameState, setGameState } = useGameContext();
-  const { showAlert } = useAlert();
+interface RecipesProps {
+  viewBoxRef: RefObject<HTMLDivElement>;
+}
 
-  const handleRecipe = (event: React.MouseEvent<HTMLAnchorElement>, recipeName: string) => {
-    event.preventDefault();
-    const groupedAction = Recipes[recipeName];
-    if (!groupedAction) {
-      return;
-    }
-    try {
-      const newGame = applyGroupedAction(
-        gameState,
-        groupedAction,
-        new Date(),
-        applyGroupedActionSubAction,
-        prepareGroupedActionTriggers
-      );
-      setGameState(newGame);
-    } catch (error) {
-      if (error instanceof Error) {
-        showAlert(`${groupedAction.name} Failed`, error.message);
-      } else {
-        showAlert(`${groupedAction.name} Failed`, 'Unknown error');
-      }
-    }
-  };
+export const RecipesComponent: FC<RecipesProps> = ({ viewBoxRef }) => {
+  const [listHeight, setListHeight] = useState<number>(
+    viewBoxRef.current?.getBoundingClientRect().height ?? 0
+  );
+  const [listWidth, setListWidth] = useState<number>(
+    viewBoxRef.current?.getBoundingClientRect().width ?? 0
+  );
+  const MemoizedRecipeCard = memo(RecipeCard);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const viewBoxBound = viewBoxRef.current?.getBoundingClientRect();
+      const viewBoxHeight = viewBoxBound?.height ?? 0;
+      const viewBoxWidth = viewBoxBound?.width ?? 0;
+      setListHeight(viewBoxHeight);
+      setListWidth(viewBoxWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Set initial height
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [viewBoxRef]);
+
+  const recipesArray = Object.entries(Recipes);
+
+  const Row = ({ index, style }: { index: number; style: CSSProperties }) => (
+    <div style={style}>
+      <MemoizedRecipeCard recipeKey={recipesArray[index][0]} recipe={recipesArray[index][1]} />
+    </div>
+  );
 
   return (
     <>
       <TabTitle>Common Actions</TabTitle>
-      {Object.entries(Recipes).map(([key, recipe]) => (
-        <Box key={key}>
-          <Link href="#" onClick={(event) => handleRecipe(event, key)}>
-            {recipe.name}
-          </Link>
-        </Box>
-      ))}
+      <FixedSizeList
+        height={listHeight}
+        width={listWidth}
+        itemCount={recipesArray.length}
+        itemSize={20}
+        style={{ width: '100%' }}
+      >
+        {Row}
+      </FixedSizeList>
     </>
   );
 };
