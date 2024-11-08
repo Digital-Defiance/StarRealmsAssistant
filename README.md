@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Fri Nov 08 13:04:00 2024
+
+- Version 0.10.5
+  - Add messages box for displaying messages
+
 ### Thu Nov 07 03:07:00 2024
 
 - Version 0.10.4

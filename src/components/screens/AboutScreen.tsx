@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Link, Paper, List, ListItem, ListItemText } from '@mui/material';
 import DominionTransparentLogo from '@/assets/images/Dominion-tx.png';
 import SuperCapsText from '@/components/SuperCapsText';
@@ -6,6 +6,27 @@ import { VERSION_NUMBER } from '@/game/constants';
 import CenteredContainer from '../CenteredContainer';
 
 export default function AboutScreen() {
+  const [messages, setMessages] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await fetch('/assets/messages.json');
+        if (!response.ok) {
+          return;
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          console.log(data);
+          return;
+        }
+        setMessages(data);
+      } catch (err) {}
+    };
+
+    fetchMessages();
+  }, []);
+
   return (
     <CenteredContainer
       sx={{
@@ -60,12 +81,29 @@ export default function AboutScreen() {
               >
                 Unofficial Dominion Assistant
               </Typography>
-              <Typography variant="body1" paragraph align="center">
+              <Typography variant="body1" component="p" align="center">
                 This React application enhances your Dominion gameplay experience with comprehensive
                 features for game management, scoring, and player interaction.
               </Typography>
             </Paper>
           </Box>
+
+          {messages.length > 0 && (
+            <Box>
+              <Paper elevation={3} sx={{ p: 2 }}>
+                <SuperCapsText className={`typography-title`}>Messages</SuperCapsText>
+                <List dense>
+                  {messages.map((message, index) => (
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={<span dangerouslySetInnerHTML={{ __html: message }} />}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Paper>
+            </Box>
+          )}
 
           <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
             <Box sx={{ flex: 1 }}>
@@ -97,7 +135,7 @@ export default function AboutScreen() {
                 <SuperCapsText className={`typography-title`} sx={{ paddingBottom: '10px' }}>
                   About
                 </SuperCapsText>
-                <Typography variant="body1" paragraph>
+                <Typography variant="body1" component="p">
                   This application is created by{' '}
                   <Link
                     href="https://digitaldefiance.org"
@@ -120,7 +158,7 @@ export default function AboutScreen() {
                   Digital Defiance to promote open source and help us to serve the open source
                   community.
                 </Typography>
-                <Typography variant="body1" paragraph>
+                <Typography variant="body1" component="p">
                   For more information, contributions, or to report{' '}
                   <Link
                     href="https://github.com/Digital-Defiance/DominionAssistant/issues"
@@ -139,10 +177,10 @@ export default function AboutScreen() {
                   </Link>
                   .
                 </Typography>
-                <Typography variant="body1" paragraph>
+                <Typography variant="body1" component="p">
                   Please note that this tool requires the physical game of Dominion to play.
                 </Typography>
-                <Typography variant="body1" paragraph>
+                <Typography variant="body1" component="p">
                   See our{' '}
                   <Link
                     href="https://github.com/Digital-Defiance/DominionAssistant?tab=readme-ov-file#disclaimer-for-end-users"
@@ -153,7 +191,7 @@ export default function AboutScreen() {
                   </Link>{' '}
                   for important information.
                 </Typography>
-                <Typography variant="body1" paragraph align="center">
+                <Typography variant="body1" component="p" align="center">
                   <Link
                     href="https://github.com/Digital-Defiance/DominionAssistant/blob/main/USER_MANUAL.md"
                     target="_blank"
