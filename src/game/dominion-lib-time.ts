@@ -459,20 +459,47 @@ export function updateCachesForEntry(
  * Calculate the current turn duration for the game in milliseconds
  */
 export function calculateCurrentTurnDuration(game: IGame, currentTime: Date): number {
-  const gameStart = getGameStartTime(game);
-  if (!gameStart) {
-    return 0;
+  if (game.log.length === 0) {
+    return 0; // Return 0 if the log is empty
   }
 
-  const lastTurnStart = getTurnStartTime(game, game.currentTurn);
-  if (!lastTurnStart) {
-    return 0;
+  let startTime: Date | undefined;
+  let lastNextTurnIndex = -1;
+
+  // Find the last NEXT_TURN or START_GAME event
+  for (let i = game.log.length - 1; i >= 0; i--) {
+    if (
+      game.log[i].action === GameLogAction.NEXT_TURN ||
+      game.log[i].action === GameLogAction.START_GAME
+    ) {
+      startTime = game.log[i].timestamp;
+      lastNextTurnIndex = i;
+      break;
+    }
   }
 
-  const currentGameTime = calculateDurationUpToEventWithCache(game, currentTime);
+  if (!startTime) {
+    return 0; // Return 0 if no START_GAME or NEXT_TURN event found
+  }
 
-  const beginningDuration = lastTurnStart.getTime() - gameStart.getTime();
-  const adjustedDuration = Math.max(0, currentGameTime - beginningDuration);
+  let totalDuration = currentTime.getTime() - startTime.getTime();
+  let pauseStartTime: Date | null = null;
 
-  return adjustedDuration;
+  // Calculate pause durations
+  for (let i = lastNextTurnIndex + 1; i < game.log.length; i++) {
+    const entry = game.log[i];
+    if (entry.action === GameLogAction.PAUSE) {
+      pauseStartTime = entry.timestamp;
+    } else if (entry.action === GameLogAction.UNPAUSE && pauseStartTime) {
+      totalDuration -= entry.timestamp.getTime() - pauseStartTime.getTime();
+      pauseStartTime = null;
+    }
+  }
+
+  // Handle case where game is still paused
+  if (pauseStartTime) {
+    totalDuration -= currentTime.getTime() - pauseStartTime.getTime();
+  }
+
+  return Math.max(0, totalDuration);
 }
