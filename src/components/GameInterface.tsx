@@ -231,6 +231,10 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    if (newValue !== 3) {
+      setHoveredRecipe(null);
+      setPopoverPosition(null);
+    }
   };
 
   return (

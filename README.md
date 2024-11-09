@@ -207,6 +207,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Nov 09 13:58:00 2024
+
+- Version 0.10.10
+  - Added support in common actions/recipes to make count by a function in order to implement Huge Turnip or other dynamic actions
+  - Fixed bug when switching off recipe list tab hovered recipe stayed active
+
 ### Sat Nov 09 12:22:00 2024
 
 - Version 0.10.9

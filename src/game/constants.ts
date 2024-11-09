@@ -14,7 +14,7 @@ import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 import { calculateInitialSunTokens } from '@/game/interfaces/set-mats/prophecy';
 
-export const VERSION_NUMBER = '0.10.9';
+export const VERSION_NUMBER = '0.10.10';
 export const LAST_COMPATIBLE_SAVE_VERSION = '0.10.0';
 
 export const MIN_PLAYERS = 2;

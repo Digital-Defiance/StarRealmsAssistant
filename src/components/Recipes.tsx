@@ -30,8 +30,10 @@ import {
   faWreathLaurel,
   faPaw,
   faPaintBrush,
+  faOnion,
 } from '@fortawesome/pro-solid-svg-icons';
 import { RecipeSection } from '@/game/interfaces/recipe-section';
+import { IGame } from '@/game/interfaces/game';
 
 export type RecipeSections =
   | 'General'
@@ -605,6 +607,28 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
             {
               action: GameLogAction.ADD_BUYS,
               count: 2,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+      HugeTurnip: {
+        name: 'Huge Turnip',
+        icon: <FontAwesomeIcon icon={faOnion} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.ADD_COFFERS,
+              count: 2,
+            },
+            {
+              action: GameLogAction.ADD_COINS,
+              count: (game: IGame, playerIndex: number) => {
+                return game.players[playerIndex].mats.coffers;
+              },
             },
           ],
           [GroupedActionDest.SelectedPlayerIndex]: [],

@@ -11,6 +11,7 @@ import {
   prepareGroupedActionTriggers,
 } from '@/game/dominion-lib-log';
 import { RecipeKey, Recipes } from '@/components/Recipes';
+import { GroupedActionTrigger } from '../enumerations/grouped-action-trigger';
 
 function createGroupedActionBase(): IGroupedAction {
   return {
@@ -546,6 +547,8 @@ describe('applyGroupedAction', () => {
       {
         action: GameLogAction.ADD_ACTIONS,
         count: undefined,
+        playerIndex: mockGame.currentPlayerIndex,
+        turn: mockGame.currentTurn,
       },
       mockGame.currentPlayerIndex,
       expect.any(String),
@@ -669,6 +672,85 @@ describe('applyGroupedAction', () => {
         `Invalid grouped action. The passed in grouped action does not match the recipe for key '${validRecipeKey}'.`
       )
     );
+  });
+
+  it('should handle actions with count as a callback function', () => {
+    mockGame.players[mockGame.currentPlayerIndex].mats.coffers = 2;
+    groupedAction.actions[GroupedActionDest.CurrentPlayerIndex] = [
+      {
+        action: GameLogAction.ADD_COINS,
+        count: (game: IGame, playerIndex: number) => game.players[playerIndex].mats.coffers + 1,
+      },
+    ];
+
+    const updatedGame = applyGroupedAction(
+      mockGame,
+      groupedAction,
+      actionDate,
+      applyGroupedActionSubActionMock,
+      prepareGroupedActionTriggersMock
+    );
+
+    const currentPlayer = updatedGame.players[updatedGame.currentPlayerIndex];
+    expect(currentPlayer.turn.coins).toBe(3);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(applyGroupedActionSubActionMock).toHaveBeenCalledTimes(1);
+    expect(updatedGame.log.length).toBe(3);
+    expect(updatedGame.log[1].action).toBe(GameLogAction.GROUPED_ACTION);
+    expect(updatedGame.log[2].action).toBe(GameLogAction.ADD_COINS);
+    expect(updatedGame.log[2].count).toBe(3);
+    expect(prepareGroupedActionTriggersMock).toHaveBeenCalledTimes(1);
+    expect(updatedGame.pendingGroupedActions).toStrictEqual([]);
+  });
+
+  it('should handle actions with trigger action having count as a callback function', () => {
+    mockGame.players[mockGame.currentPlayerIndex].mats.coffers = 2;
+    groupedAction.actions[GroupedActionDest.CurrentPlayerIndex] = [
+      {
+        action: GameLogAction.ADD_COFFERS,
+        count: 1,
+      },
+    ];
+    groupedAction.triggers = {
+      [GroupedActionTrigger.AfterNextTurnBegins]: {
+        [GroupedActionDest.CurrentPlayerIndex]: [
+          {
+            action: GameLogAction.ADD_COINS,
+            count: (game: IGame, playerIndex: number) => game.players[playerIndex].mats.coffers + 1,
+          },
+        ],
+        [GroupedActionDest.SelectedPlayerIndex]: [],
+        [GroupedActionDest.AllPlayers]: [],
+        [GroupedActionDest.AllPlayersExceptCurrent]: [],
+        [GroupedActionDest.AllPlayersExceptSelected]: [],
+      },
+    };
+
+    const updatedGame = applyGroupedAction(
+      mockGame,
+      groupedAction,
+      actionDate,
+      applyGroupedActionSubActionMock,
+      prepareGroupedActionTriggersMock
+    );
+
+    const currentPlayer = updatedGame.players[updatedGame.currentPlayerIndex];
+    expect(currentPlayer.mats.coffers).toBe(3);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+    expect(applyGroupedActionSubActionMock).toHaveBeenCalledTimes(1);
+    expect(updatedGame.log.length).toBe(3);
+    expect(updatedGame.log[1].action).toBe(GameLogAction.GROUPED_ACTION);
+    expect(updatedGame.log[2].action).toBe(GameLogAction.ADD_COFFERS);
+    expect(updatedGame.log[2].count).toBe(1);
+    expect(prepareGroupedActionTriggersMock).toHaveBeenCalledTimes(1);
+    expect(updatedGame.pendingGroupedActions).toStrictEqual([
+      expect.objectContaining({
+        action: GameLogAction.ADD_COINS,
+        count: expect.any(Function),
+        playerIndex: updatedGame.currentPlayerIndex,
+        turn: 5,
+      }),
+    ]);
   });
 });
 

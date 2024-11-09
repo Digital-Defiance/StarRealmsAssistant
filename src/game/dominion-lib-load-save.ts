@@ -161,10 +161,6 @@ export function convertGameRawToGame(gameRaw: IGameRaw): IGame {
       renaissance: deepClone<IRenaissanceFeatures>(gameRaw.expansions.renaissance),
       risingSun: deepClone<IRisingSunFeatures>(gameRaw.expansions.risingSun),
     },
-    pendingGroupedActions: gameRaw.pendingGroupedActions.map((entry) => ({
-      ...deepClone<Partial<ILogEntryRaw>>(entry),
-      ...(entry.timestamp ? { timestamp: convertTimestamp(entry.timestamp) } : {}),
-    })) as ILogEntry[],
   };
   return game;
 }
@@ -210,17 +206,6 @@ export function convertGameToGameRaw(game: IGame): IGameRaw {
       renaissance: deepClone<IRenaissanceFeatures>(game.expansions.renaissance),
       risingSun: deepClone<IRisingSunFeatures>(game.expansions.risingSun),
     },
-    pendingGroupedActions: game.pendingGroupedActions.map((logEntry) => ({
-      ...deepClone<Partial<ILogEntry>>(logEntry),
-      ...(logEntry.timestamp
-        ? {
-            timestamp:
-              logEntry.timestamp instanceof Date
-                ? logEntry.timestamp.toISOString()
-                : new Date(logEntry.timestamp).toISOString(), // Ensure timestamp is a Date object
-          }
-        : {}),
-    })) as ILogEntryRaw[],
   };
 }
 

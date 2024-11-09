@@ -7,6 +7,7 @@ import {
   getGameStartTime,
 } from '@/game/dominion-lib-log';
 import { getNextPlayerIndexByIndex } from '../dominion-lib';
+import { IRecipeAction } from '../interfaces/recipe-action';
 
 describe('applyPendingGroupedActions', () => {
   let mockGame: IGame;
@@ -178,5 +179,37 @@ describe('applyPendingGroupedActions', () => {
     const result = applyPendingGroupedActions(mockGame, actionDate, applyLogActionMock);
     expect(result.pendingGroupedActions.length).toBe(1);
     expect(result.log.length).toBe(3);
+  });
+
+  it('should apply actions with count as a callback function', () => {
+    mockGame.pendingGroupedActions.push({
+      action: GameLogAction.ADD_ACTIONS,
+      playerIndex: playerIndices[0],
+      turn: 3,
+      count: (game: IGame, playerIndex: number) => {
+        return game.players[playerIndex].turn.cards;
+      },
+    } as IRecipeAction);
+
+    const result = applyPendingGroupedActions(mockGame, actionDate, applyLogActionMock);
+    expect(result.pendingGroupedActions.length).toBe(0);
+    expect(result.log.length).toBe(4);
+    expect(result.log[3].action).toBe(GameLogAction.ADD_ACTIONS);
+    expect(result.log[3].count).toBe(5);
+    expect(applyLogActionMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        currentTurn: 3,
+        currentPlayerIndex: playerIndices[2],
+        pendingGroupedActions: [],
+      }),
+      expect.objectContaining({
+        id: expect.any(String),
+        action: GameLogAction.ADD_ACTIONS,
+        playerIndex: playerIndices[0],
+        turn: 3,
+        count: 5,
+        timestamp: actionDate,
+      })
+    );
   });
 });

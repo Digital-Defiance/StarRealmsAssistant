@@ -130,10 +130,6 @@ export function createMockGameRaw(numPlayers: number, overrides?: Partial<IGameR
       start: turnStatistics.start.toISOString(),
       end: turnStatistics.end.toISOString(),
     })),
-    pendingGroupedActions: mockGame.pendingGroupedActions.map((logEntry) => ({
-      ...logEntry,
-      timestamp: logEntry.timestamp?.toISOString(),
-    })),
   };
 
   // Apply overrides if provided

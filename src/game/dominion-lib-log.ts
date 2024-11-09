@@ -152,7 +152,7 @@ export function logEntryToString(entry: ILogEntry, useFutureTense = false): stri
 
 export function actionToString(
   action: GameLogAction,
-  count?: number,
+  count?: number | ((game: IGame, playerIndex: number) => number),
   useFutureTense = false
 ): string {
   let actionString = action as string;
@@ -161,7 +161,9 @@ export function actionToString(
     actionString = futureActionMap[action];
   }
 
-  if (count !== undefined) {
+  if (count !== undefined && typeof count === 'function') {
+    actionString = actionString.replace('{COUNT}', 'computed');
+  } else if (count !== undefined) {
     actionString = actionString.replace('{COUNT}', count.toString());
   } else {
     // Remove {COUNT} if no count is provided
@@ -651,7 +653,10 @@ export function addLogEntry(
   return newLog;
 }
 
-export function validateLogAction(game: IGame, logEntry: ILogEntry): Error | null {
+export function validateLogAction(
+  game: IGame,
+  logEntry: ILogEntry | Partial<ILogEntry>
+): Error | null {
   if (logEntry.action === undefined) {
     return new Error('Log entry action is required');
   }
@@ -662,8 +667,11 @@ export function validateLogAction(game: IGame, logEntry: ILogEntry): Error | nul
   }
 
   // Validate player index for actions that require a valid player index
-  if (
+  if (ActionsWithPlayer.includes(logEntry.action) && logEntry.playerIndex === undefined) {
+    return new Error('Player index is required for this action');
+  } else if (
     ActionsWithPlayer.includes(logEntry.action) &&
+    logEntry.playerIndex !== undefined &&
     (logEntry.playerIndex >= game.players.length || logEntry.playerIndex < 0)
   ) {
     return new Error(`Invalid player index: ${logEntry.playerIndex}`);
@@ -679,11 +687,6 @@ export function validateLogAction(game: IGame, logEntry: ILogEntry): Error | nul
     NoPlayerActions.includes(logEntry.action)
   ) {
     return new Error(`Player index is not relevant for this action: ${logEntry.action}`);
-  } else if (
-    (ActionsWithPlayer.includes(logEntry.action) && logEntry.playerIndex < 0) ||
-    logEntry.playerIndex >= game.players.length
-  ) {
-    return new Error(`Invalid player index: ${logEntry.playerIndex}`);
   }
 
   return null;
@@ -815,7 +818,7 @@ export function applyGroupedActionSubAction(
     currentPlayerIndex: game.currentPlayerIndex,
     turn: game.currentTurn,
     linkedActionId: groupedActionId,
-  };
+  } as ILogEntry;
   const error = validateLogAction(game, subActionLog);
   if (error) {
     throw error;
@@ -945,13 +948,22 @@ export function applyGroupedAction(
       const targetPlayers = getGroupedActionTargetPlayers(updatedGame, dest as GroupedActionDest);
       for (const playerIndex of targetPlayers) {
         for (const action of actions) {
-          const error = validateLogAction(updatedGame, action as ILogEntry);
+          // if count is a callback function, extract the count from the callback function
+          const actionToApply: Partial<ILogEntry> = {
+            ...deepClone(action as Partial<ILogEntry>),
+            ...(typeof action.count === 'function'
+              ? { count: action.count(updatedGame, playerIndex) }
+              : {}),
+            playerIndex,
+            turn: updatedGame.currentTurn,
+          } as Partial<ILogEntry>;
+          const error = validateLogAction(updatedGame, actionToApply);
           if (error) {
             throw error;
           }
           updatedGame = applyGroupedActionSubAction(
             updatedGame,
-            action,
+            actionToApply,
             playerIndex,
             groupedActionId,
             actionDate
@@ -1000,7 +1012,6 @@ export function prepareGroupedActionTriggers(
             }
             updatedGame.pendingGroupedActions.push({
               ...action,
-              id: uuidv4(),
               action: action.action,
               linkedActionId: groupedActionId,
               playerIndex: playerIndex,
@@ -1044,6 +1055,9 @@ export function applyPendingGroupedActions(
       ...action,
       id: uuidv4(),
       timestamp: actionDate,
+      ...(typeof action.count === 'function'
+        ? { count: action.count(updatedGame, action.playerIndex ?? updatedGame.currentPlayerIndex) }
+        : {}),
     } as ILogEntry;
     const error = validateLogAction(updatedGame, actionToApply);
     if (error) {

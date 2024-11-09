@@ -7,6 +7,7 @@ import { IGameOptions } from '@/game/interfaces/game-options';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 import { ITurnStatisticsRaw } from '@/game/interfaces/turn-statistics-raw';
+import { IRecipeAction } from './recipe-action';
 
 export interface IGameRaw {
   /**
@@ -77,5 +78,5 @@ export interface IGameRaw {
   /**
    * The pending grouped actions that will be applied in the future.
    */
-  pendingGroupedActions: Array<Partial<ILogEntryRaw>>;
+  pendingGroupedActions: Array<Partial<IRecipeAction>>;
 }

@@ -60,7 +60,6 @@ describe('prepareGroupedActionTriggers', () => {
     expect(result.pendingGroupedActions).toHaveLength(1);
     expect(result.pendingGroupedActions[0]).toEqual(
       expect.objectContaining({
-        id: 'mocked-uuid',
         action: GameLogAction.ADD_CARDS,
         count: 1,
         linkedActionId: 'test-id',
@@ -88,7 +87,6 @@ describe('prepareGroupedActionTriggers', () => {
     // actions are added in player index order, not turn order
     expect(result.pendingGroupedActions).toEqual([
       expect.objectContaining({
-        id: expect.any(String),
         action: GameLogAction.ADD_CARDS,
         count: 1,
         linkedActionId: 'test-id',
@@ -97,7 +95,6 @@ describe('prepareGroupedActionTriggers', () => {
         turn: getPlayerNextTurnCount(mockGame, 0, true),
       }),
       expect.objectContaining({
-        id: expect.any(String),
         action: GameLogAction.ADD_CARDS,
         count: 1,
         linkedActionId: 'test-id',
@@ -106,7 +103,6 @@ describe('prepareGroupedActionTriggers', () => {
         turn: getPlayerNextTurnCount(mockGame, 1, true),
       }),
       expect.objectContaining({
-        id: expect.any(String),
         action: GameLogAction.ADD_CARDS,
         count: 1,
         linkedActionId: 'test-id',
@@ -115,7 +111,6 @@ describe('prepareGroupedActionTriggers', () => {
         turn: getPlayerNextTurnCount(mockGame, 2, true),
       }),
       expect.objectContaining({
-        id: expect.any(String),
         action: GameLogAction.ADD_CARDS,
         count: 1,
         linkedActionId: 'test-id',

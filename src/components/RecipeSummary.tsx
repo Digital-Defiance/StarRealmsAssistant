@@ -18,16 +18,16 @@ import {
   GroupedActionTrigger,
   GroupedActionTriggerStrings,
 } from '@/game/enumerations/grouped-action-trigger';
-import { ILogEntry } from '@/game/interfaces/log-entry';
 import { actionToString } from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
+import { IRecipeAction } from '@/game/interfaces/recipe-action';
 
 interface RecipeSummaryProps {
   recipe: IGroupedAction;
 }
 
 export const RecipeSummary: FC<RecipeSummaryProps> = ({ recipe }) => {
-  const renderActionTable = (actions: Record<GroupedActionDest, Array<Partial<ILogEntry>>>) => (
+  const renderActionTable = (actions: Record<GroupedActionDest, Array<Partial<IRecipeAction>>>) => (
     <TableContainer>
       <Table size="small">
         <TableHead>
