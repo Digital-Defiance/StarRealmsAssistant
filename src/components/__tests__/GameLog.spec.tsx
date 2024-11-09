@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import GameLog from '@/components/GameLog';
@@ -46,7 +46,7 @@ describe('GameLog Performance Test', () => {
           }),
         },
       },
-    } as React.RefObject<TabViewHandle>;
+    } as RefObject<TabViewHandle>;
 
     const start = performance.now();
     const { getByText } = render(

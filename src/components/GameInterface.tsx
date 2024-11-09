@@ -1,4 +1,12 @@
-import React, { FC, SyntheticEvent, useEffect, useRef, useState } from 'react';
+import React, {
+  FC,
+  MouseEvent,
+  SyntheticEvent,
+  TouchEvent,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import {
   Box,
   Button,
@@ -132,14 +140,28 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
     endGame();
   };
 
-  const handleRecipeHover = (section: RecipeSections, recipeKey: RecipeKey) => {
-    const recipe = Recipes[section].recipes[recipeKey];
-    if (recipeListPosition) {
-      setPopoverPosition({
-        top: recipeListPosition.top,
-        left: recipeListPosition.left + recipeListPosition.width / 2,
-      });
+  const handleRecipeHover = (
+    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
+    section: RecipeSections,
+    recipeKey: RecipeKey
+  ) => {
+    const target = event.currentTarget.getBoundingClientRect();
+    const viewBoxBound = viewBoxRef.current?.getBoundingClientRect();
+    const viewBoxWidth = viewBoxBound?.width ?? 0;
+
+    // Adjust the left position to ensure the popover does not cover the list
+    const popoverLeft = target.left + viewBoxWidth / 2;
+    const adjustedLeft = Math.min(popoverLeft, window.innerWidth - 400); // Ensure it doesn't go off-screen
+
+    let top = target.top;
+    if (viewBoxRef.current) {
+      const rect = viewBoxRef.current.getBoundingClientRect();
+      top = rect.top;
     }
+    if (recipeListPosition) {
+      setPopoverPosition({ top: top, left: adjustedLeft });
+    }
+    const recipe = Recipes[section].recipes[recipeKey];
     setHoveredRecipe(recipe);
   };
 
@@ -149,7 +171,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   };
 
   const handleRecipeClick = (
-    event: React.MouseEvent<HTMLDivElement>,
+    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
     section: RecipeSections,
     recipeKey: RecipeKey
   ) => {
@@ -255,7 +277,11 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           {tabValue === 2 && <SupplyCounts />}
           {tabValue === 3 && (
             <Box sx={{ display: 'flex', height: '100%' }}>
-              <Box ref={viewBoxRef} sx={{ flexGrow: 1, overflow: 'hidden' }}>
+              <Box
+                ref={viewBoxRef}
+                onMouseLeave={handleRecipeLeave}
+                sx={{ flexGrow: 1, overflow: 'hidden' }}
+              >
                 <RecipesList
                   viewBoxRef={viewBoxRef}
                   onHover={handleRecipeHover}
@@ -267,7 +293,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
                 open={Boolean(hoveredRecipe)}
                 position={popoverPosition}
                 recipe={hoveredRecipe}
-                listWidth={recipeListPosition?.width || 0}
+                listWidth={viewBoxRef.current?.getBoundingClientRect().width ?? 0}
               />
             </Box>
           )}

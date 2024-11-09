@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import {
   Table,
   TableBody,
@@ -26,7 +26,7 @@ interface RecipeSummaryProps {
   recipe: IGroupedAction;
 }
 
-export const RecipeSummary: React.FC<RecipeSummaryProps> = ({ recipe }) => {
+export const RecipeSummary: FC<RecipeSummaryProps> = ({ recipe }) => {
   const renderActionTable = (actions: Record<GroupedActionDest, Array<Partial<ILogEntry>>>) => (
     <TableContainer>
       <Table size="small">

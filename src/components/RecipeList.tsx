@@ -1,4 +1,13 @@
-import React, { FC, memo, MouseEvent, RefObject, useEffect, useState } from 'react';
+import React, {
+  FC,
+  memo,
+  MouseEvent,
+  RefObject,
+  TouchEvent,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
 import { Box, styled, Typography } from '@mui/material';
 import { VariableSizeList, ListChildComponentProps } from 'react-window';
 import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
@@ -9,10 +18,14 @@ import { RecipeCard } from '@/components/RecipeCard';
 
 interface RecipesProps {
   viewBoxRef: RefObject<HTMLDivElement>;
-  onHover: (section: RecipeSections, recipeKey: RecipeKey) => void;
+  onHover: (
+    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
+    section: RecipeSections,
+    recipeKey: RecipeKey
+  ) => void;
   onLeave: () => void;
   onClick: (
-    event: MouseEvent<HTMLDivElement>,
+    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
     section: RecipeSections,
     recipeKey: RecipeKey
   ) => void;
@@ -49,13 +62,43 @@ export const RecipesList: FC<RecipesProps> = ({ viewBoxRef, onHover, onLeave, on
   const [listWidth, setListWidth] = useState<number>(
     viewBoxRef.current?.getBoundingClientRect().width ?? 0
   );
+  const [activeRecipeKey, setActiveRecipeKey] = useState<RecipeKey | null>(null);
+
+  const handleClick = useCallback(
+    (
+      event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
+      section: RecipeSections,
+      recipeKey: RecipeKey
+    ) => {
+      onClick(event, section, recipeKey);
+      setActiveRecipeKey(recipeKey);
+
+      // Clear the active state after a short delay
+      setTimeout(() => {
+        setActiveRecipeKey(null);
+      }, 300); // Adjust this delay as needed
+    },
+    [onClick]
+  );
+
+  const handleOutsideClick = useCallback(() => {
+    setActiveRecipeKey(null);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('click', handleOutsideClick);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+    };
+  }, [handleOutsideClick]);
 
   useEffect(() => {
     const handleResize = () => {
       const viewBoxBound = viewBoxRef.current?.getBoundingClientRect();
       const viewBoxHeight = viewBoxBound?.height ?? 0;
       const viewBoxWidth = viewBoxBound?.width ?? 0;
-      setListHeight(viewBoxHeight);
+      const paddingBottom = 16;
+      setListHeight(viewBoxHeight - paddingBottom);
       setListWidth(viewBoxWidth);
     };
 
@@ -137,11 +180,13 @@ export const RecipesList: FC<RecipesProps> = ({ viewBoxRef, onHover, onLeave, on
               ...style,
               padding: '4px 8px',
             }}
+            onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
           >
             <MemoizedRecipeCard
-              onHover={(section, recipeKey) => onHover(section, recipeKey)}
+              onHover={onHover}
               onLeave={onLeave}
-              onClick={onClick}
+              onClick={handleClick}
+              isActive={actionKey === activeRecipeKey}
               section={entry.key}
               key={actionKey}
               recipeKey={actionKey}

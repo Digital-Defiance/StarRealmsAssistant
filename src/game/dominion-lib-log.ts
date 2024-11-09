@@ -820,7 +820,26 @@ export function applyGroupedActionSubAction(
   if (error) {
     throw error;
   }
-  return applyLogAction(game, subActionLog);
+  let updatedGame = applyLogAction(game, subActionLog);
+  if (
+    subAction.action === GameLogAction.REMOVE_ACTIONS &&
+    game.options.expansions.risingSun &&
+    game.expansions.risingSun.greatLeaderProphecy &&
+    game.expansions.risingSun.prophecy.suns === 0
+  ) {
+    const prophecyActionLog: ILogEntry = {
+      id: uuidv4(),
+      action: GameLogAction.ADD_ACTIONS,
+      count: subAction.count ?? 1,
+      timestamp: actionDate,
+      playerIndex: playerIndex,
+      currentPlayerIndex: game.currentPlayerIndex,
+      turn: game.currentTurn,
+      linkedActionId: groupedActionId,
+    };
+    updatedGame = applyLogAction(updatedGame, prophecyActionLog);
+  }
+  return updatedGame;
 }
 
 /**

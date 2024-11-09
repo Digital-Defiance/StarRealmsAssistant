@@ -207,6 +207,13 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Nov 09 11:03:00 2024
+
+- Version 0.10.8
+
+  - Resolve [#55](https://github.com/Digital-Defiance/DominionAssistant/issues/55)
+  - Resolve [#54](https://github.com/Digital-Defiance/DominionAssistant/issues/54)
+
 ### Fri Nov 08 12:46:00 2024
 
 - Version 0.10.7

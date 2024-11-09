@@ -342,6 +342,7 @@ const Player: FC = () => {
                     // greatLeaderProphecy gives unlimited actions when the prophecy is empty
                     if (
                       !isCorrection &&
+                      gameState.options.expansions.risingSun &&
                       gameState.expansions.risingSun.greatLeaderProphecy &&
                       gameState.expansions.risingSun.prophecy.suns === 0
                     ) {

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Popper, Paper, Box } from '@mui/material';
+import React, { FC } from 'react';
+import { Paper, Box } from '@mui/material';
 import { IGroupedAction } from '@/game/interfaces/grouped-action';
 import { RecipeSummary } from '@/components/RecipeSummary';
 
@@ -10,7 +10,7 @@ interface RecipeSummaryPopoverProps {
   listWidth: number;
 }
 
-export const RecipeSummaryPopover: React.FC<RecipeSummaryPopoverProps> = ({
+export const RecipeSummaryPopover: FC<RecipeSummaryPopoverProps> = ({
   open,
   position,
   recipe,
