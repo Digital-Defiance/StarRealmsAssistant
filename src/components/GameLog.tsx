@@ -22,18 +22,14 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
   const [listWidth, setListWidth] = useState<number>(window.innerWidth);
   const [dialogHeight, setDialogHeight] = useState<number>(0);
   const headerRef = useRef<HTMLDivElement>(null);
-  const dialogRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (openTurnAdjustmentsDialog && dialogRef.current) {
-      // Add a small delay to ensure the dialog content has rendered
-      const timer = setTimeout(() => {
-        setDialogHeight(dialogRef.current?.clientHeight || 0);
-      }, 100);
+  const calculateDialogHeight = () => {
+    return window.innerHeight * 0.8; // 80% of the window height
+  };
 
-      return () => clearTimeout(timer);
-    }
-  }, [openTurnAdjustmentsDialog]);
+  const updateDialogHeight = () => {
+    setDialogHeight(calculateDialogHeight());
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -51,9 +47,7 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
       const totalHeaderHeight = headerHeight + headerMargin + headerPadding + headerBorder;
       setListHeight(window.innerHeight - totalHeaderHeight - tabBarHeight - 16);
       setListWidth(window.innerWidth);
-      if (dialogRef.current) {
-        setDialogHeight(dialogRef.current.clientHeight);
-      }
+      updateDialogHeight();
     };
 
     window.addEventListener('resize', handleResize);
@@ -67,12 +61,12 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
   const handleOpenTurnAdjustmentsDialog = (turn: number) => {
     setSelectedTurn(turn);
     setOpenTurnAdjustmentsDialog(true);
+    updateDialogHeight();
   };
 
   const handleCloseTurnAdjustmentsDialog = () => {
     setOpenTurnAdjustmentsDialog(false);
     setSelectedTurn(null);
-    setDialogHeight(0);
   };
 
   const Row = ({ index, style }: { index: number; style: CSSProperties }) => (
@@ -126,9 +120,9 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
         maxWidth="md" // Adjust this as needed
         fullWidth
       >
-        <DialogContent sx={{ height: '80vh', overflow: 'auto' }}>
+        <DialogContent sx={{ height: dialogHeight, overflow: 'auto' }}>
           {selectedTurn !== null && (
-            <TurnAdjustmentsSummary turn={selectedTurn} containerHeight="100%" />
+            <TurnAdjustmentsSummary turn={selectedTurn} containerHeight={dialogHeight} />
           )}
         </DialogContent>
       </Dialog>

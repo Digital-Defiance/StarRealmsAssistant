@@ -85,9 +85,9 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const { gameState, setGameState } = useGameContext();
   const [canUndo, setCanUndo] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
-  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
   const [tabValue, setTabValue] = useState(0);
   const viewBoxRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [hoveredRecipe, setHoveredRecipe] = useState<IGroupedAction | null>(null);
   const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number } | null>(
     null
@@ -98,6 +98,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
     width: number;
   } | null>(null);
   const [containerHeight, setContainerHeight] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
   const { showAlert } = useAlert();
 
   useEffect(() => {
@@ -106,9 +107,10 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
 
   useEffect(() => {
     const handleResize = () => {
-      setViewportWidth(window.innerWidth);
       if (viewBoxRef.current) {
-        setContainerHeight(viewBoxRef.current.clientHeight);
+        const containerPaddingBottom = 16;
+        setContainerHeight(viewBoxRef.current.clientHeight - containerPaddingBottom);
+        setContainerWidth(viewBoxRef.current.clientWidth);
       }
     };
     window.addEventListener('resize', handleResize);
@@ -123,7 +125,9 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
         left: rect.left,
         width: rect.width,
       });
-      setContainerHeight(rect.height);
+      const paddingBottom = 16;
+      setContainerHeight(rect.height - paddingBottom);
+      setContainerWidth(rect.width);
     }
   }, []);
 
@@ -232,12 +236,14 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   return (
     <>
       <Container
+        ref={viewportRef}
         sx={{
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           padding: 1,
           overflow: 'auto',
+          maxWidth: '100%',
         }}
       >
         <Scoreboard />
@@ -247,57 +253,47 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           <Tab label="Supply" />
           <Tab label="Common Actions" />
         </Tabs>
-        <ForwardRefBox ref={viewBoxRef} sx={{ p: 2, flex: 1, overflow: 'hidden' }}>
-          {tabValue === 0 && (
-            <Box
-              sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}
-            >
-              <Player />
-              <ButtonContainer>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={nextTurn}
-                  disabled={!lastActionIsNotPause}
-                >
-                  Next Turn
-                </Button>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={handleOpenConfirmEndGameDialog}
-                  disabled={!lastActionIsNotPause}
-                >
-                  End Game
-                </Button>
-              </ButtonContainer>
-            </Box>
-          )}
+        <ForwardRefBox
+          ref={viewBoxRef}
+          sx={{ p: 2, flex: 1, overflow: 'hidden', maxWidth: '100%' }}
+        >
+          {tabValue === 0 && <Player containerHeight={containerHeight} />}
           {tabValue === 1 && <TurnAdjustmentsSummary containerHeight={containerHeight} />}
-          {tabValue === 2 && <SupplyCounts />}
+          {tabValue === 2 && <SupplyCounts containerHeight={containerHeight} />}
           {tabValue === 3 && (
-            <Box sx={{ display: 'flex', height: '100%' }}>
-              <Box
-                ref={viewBoxRef}
-                onMouseLeave={handleRecipeLeave}
-                sx={{ flexGrow: 1, overflow: 'hidden' }}
-              >
-                <RecipesList
-                  viewBoxRef={viewBoxRef}
-                  onHover={handleRecipeHover}
-                  onLeave={handleRecipeLeave}
-                  onClick={handleRecipeClick}
-                />
-              </Box>
-              <RecipeSummaryPopover
-                open={Boolean(hoveredRecipe)}
-                position={popoverPosition}
-                recipe={hoveredRecipe}
-                listWidth={viewBoxRef.current?.getBoundingClientRect().width ?? 0}
-              />
-            </Box>
+            <RecipesList
+              containerHeight={containerHeight}
+              containerWidth={containerWidth}
+              onHover={handleRecipeHover}
+              onLeave={handleRecipeLeave}
+              onClick={handleRecipeClick}
+            />
           )}
         </ForwardRefBox>
+        <RecipeSummaryPopover
+          open={Boolean(hoveredRecipe)}
+          position={popoverPosition}
+          recipe={hoveredRecipe}
+          listWidth={viewBoxRef.current?.getBoundingClientRect().width ?? 0}
+        />
+        <ButtonContainer>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={nextTurn}
+            disabled={!lastActionIsNotPause}
+          >
+            Next Turn
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleOpenConfirmEndGameDialog}
+            disabled={!lastActionIsNotPause}
+          >
+            End Game
+          </Button>
+        </ButtonContainer>
       </Container>
       <FabContainer>
         <Tooltip title="Undo the most recent update">
@@ -320,7 +316,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           </Fab>
         </Tooltip>
       </FabContainer>
-      {gameState.currentStep === CurrentStep.Game && viewportWidth > 1300 && (
+      {gameState.currentStep === CurrentStep.Game && containerWidth > 1300 && (
         <>
           <GameClock />
           <FloatingCounter />

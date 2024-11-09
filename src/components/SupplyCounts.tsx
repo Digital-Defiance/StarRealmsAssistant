@@ -12,6 +12,7 @@ const Container = styled(Box)(({ theme }) => ({
   padding: theme.spacing(2),
   maxWidth: 600,
   margin: '0 auto',
+  overflowY: 'auto', // Make it scrollable
 }));
 
 const Header = styled(Box)(({ theme }) => ({
@@ -40,7 +41,11 @@ const Note = styled(Typography)(({ theme }) => ({
   marginTop: theme.spacing(2),
 }));
 
-const SupplyCounts: FC = () => {
+interface SupplyCountsProps {
+  containerHeight: number;
+}
+
+const SupplyCounts: FC<SupplyCountsProps> = ({ containerHeight }) => {
   const { gameState } = useGameContext();
 
   const supplyCards: (keyof IBaseKingdom | keyof IProsperityKingdom)[] = [
@@ -63,7 +68,11 @@ const SupplyCounts: FC = () => {
   };
 
   return (
-    <Container>
+    <Container
+      style={{
+        maxHeight: `${containerHeight}px`,
+      }}
+    >
       <Header>
         <SuperCapsText className={`typography-large-title`}>Kingdom Supply</SuperCapsText>
         <SecondarySubtitle sx={{ marginTop: theme.spacing(1) }}>{getSetInfo()}</SecondarySubtitle>

@@ -32,6 +32,7 @@ import { deepClone } from '@/game/utils';
 const OuterContainer = styled(Box)(({ theme }) => ({
   paddingBottom: theme.spacing(8), // Ensure enough space at the bottom
   position: 'relative', // Ensure absolute positioning works within this container
+  overflowY: 'auto', // Make it scrollable
 }));
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
@@ -74,7 +75,11 @@ const LinkCheckboxContainer = styled(Box)({
   alignItems: 'center',
 });
 
-const Player: FC = () => {
+interface PlayerProps {
+  containerHeight: number;
+}
+
+const Player: FC<PlayerProps> = ({ containerHeight }) => {
   const { gameState, setGameState } = useGameContext();
   const { showAlert } = useAlert();
   const [showNewTurnSettings, setShowNewTurnSettings] = useState(false);
@@ -286,7 +291,11 @@ const Player: FC = () => {
   };
 
   return (
-    <OuterContainer>
+    <OuterContainer
+      style={{
+        maxHeight: `${containerHeight}px`,
+      }}
+    >
       <StyledPaper
         elevation={3}
         style={{

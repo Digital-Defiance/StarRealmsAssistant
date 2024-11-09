@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Nov 09 12:22:00 2024
+
+- Version 0.10.9
+  - Try to improve viewport issues for various components
+
 ### Sat Nov 09 11:03:00 2024
 
 - Version 0.10.8

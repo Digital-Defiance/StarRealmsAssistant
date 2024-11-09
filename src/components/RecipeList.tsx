@@ -1,13 +1,4 @@
-import React, {
-  FC,
-  memo,
-  MouseEvent,
-  RefObject,
-  TouchEvent,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import React, { FC, memo, MouseEvent, TouchEvent, useCallback, useEffect, useState } from 'react';
 import { Box, styled, Typography } from '@mui/material';
 import { VariableSizeList, ListChildComponentProps } from 'react-window';
 import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
@@ -17,7 +8,8 @@ import { faUtensils } from '@fortawesome/pro-solid-svg-icons';
 import { RecipeCard } from '@/components/RecipeCard';
 
 interface RecipesProps {
-  viewBoxRef: RefObject<HTMLDivElement>;
+  containerHeight: number;
+  containerWidth: number;
   onHover: (
     event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
     section: RecipeSections,
@@ -55,13 +47,13 @@ const sectionList = createSections();
 
 const MemoizedRecipeCard = memo(RecipeCard);
 
-export const RecipesList: FC<RecipesProps> = ({ viewBoxRef, onHover, onLeave, onClick }) => {
-  const [listHeight, setListHeight] = useState<number>(
-    viewBoxRef.current?.getBoundingClientRect().height ?? 0
-  );
-  const [listWidth, setListWidth] = useState<number>(
-    viewBoxRef.current?.getBoundingClientRect().width ?? 0
-  );
+export const RecipesList: FC<RecipesProps> = ({
+  containerHeight,
+  containerWidth,
+  onHover,
+  onLeave,
+  onClick,
+}) => {
   const [activeRecipeKey, setActiveRecipeKey] = useState<RecipeKey | null>(null);
 
   const handleClick = useCallback(
@@ -91,24 +83,6 @@ export const RecipesList: FC<RecipesProps> = ({ viewBoxRef, onHover, onLeave, on
       document.removeEventListener('click', handleOutsideClick);
     };
   }, [handleOutsideClick]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const viewBoxBound = viewBoxRef.current?.getBoundingClientRect();
-      const viewBoxHeight = viewBoxBound?.height ?? 0;
-      const viewBoxWidth = viewBoxBound?.width ?? 0;
-      const paddingBottom = 16;
-      setListHeight(viewBoxHeight - paddingBottom);
-      setListWidth(viewBoxWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Set initial height
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [viewBoxRef]);
 
   const itemCount = sectionList.reduce(
     (count, entry) => count + Object.keys(entry.section.recipes).length + 2, // +2 for header and spacer
@@ -201,21 +175,26 @@ export const RecipesList: FC<RecipesProps> = ({ viewBoxRef, onHover, onLeave, on
   };
 
   return (
-    <Box sx={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-      {listHeight > 0 ? (
-        <VariableSizeList
-          height={listHeight}
-          width={listWidth}
-          itemCount={itemCount}
-          itemSize={getItemSize}
-          itemKey={getItemKey}
-          overscanCount={5} // Increase overscan for smoother scrolling
-        >
-          {Row}
-        </VariableSizeList>
-      ) : (
-        <Typography>Loading recipes...</Typography>
-      )}
+    <Box
+      sx={{
+        flexGrow: 1,
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+        maxHeight: `${containerHeight}px`,
+      }}
+      onMouseLeave={onLeave}
+    >
+      <VariableSizeList
+        height={containerHeight}
+        width={containerWidth}
+        itemCount={itemCount}
+        itemSize={getItemSize}
+        itemKey={getItemKey}
+        overscanCount={5} // Increase overscan for smoother scrolling
+      >
+        {Row}
+      </VariableSizeList>
     </Box>
   );
 };

@@ -25,7 +25,7 @@ import theme from '@/components/theme';
 
 interface TurnAdjustmentProps {
   turn?: number;
-  containerHeight: number | string;
+  containerHeight: number;
 }
 
 const FieldName = styled(Typography)({
@@ -56,7 +56,7 @@ const TurnAdjustmentsSummary: FC<TurnAdjustmentProps> = ({ turn, containerHeight
   return (
     <ScrollableContainer
       style={{
-        maxHeight: typeof containerHeight === 'number' ? `${containerHeight}px` : containerHeight,
+        maxHeight: `${containerHeight}px`,
       }}
     >
       <Container>
