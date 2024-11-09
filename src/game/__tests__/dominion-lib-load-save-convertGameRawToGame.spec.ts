@@ -12,10 +12,7 @@ import { getNextPlayerIndexByIndex } from '../dominion-lib';
 
 const firstPlayerIndex = 0;
 const numPlayers = 2;
-const nextPlayerIndex = getNextPlayerIndexByIndex(
-  firstPlayerIndex,
-  numPlayers,
-);
+const nextPlayerIndex = getNextPlayerIndexByIndex(firstPlayerIndex, numPlayers);
 
 const mockGame: IGame = createMockGame(numPlayers, {
   firstPlayerIndex: firstPlayerIndex,
