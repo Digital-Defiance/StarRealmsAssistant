@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Set up FontAwesome NPM registry
+        run: ./fontawesome-npmrc.sh
+        env:
+          FONTAWESOME_KEY: ${{ secrets.FONTAWESOME_KEY }}
+
       - name: Install dependencies
         run: yarn install
 

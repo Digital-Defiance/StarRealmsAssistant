@@ -55,6 +55,15 @@ export const RecipesList: FC<RecipesProps> = ({
   onClick,
 }) => {
   const [activeRecipeKey, setActiveRecipeKey] = useState<RecipeKey | null>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  const handleTouchStart = () => {
+    setIsScrolling(false);
+  };
+
+  const handleTouchMove = () => {
+    setIsScrolling(true);
+  };
 
   const handleClick = useCallback(
     (
@@ -62,6 +71,7 @@ export const RecipesList: FC<RecipesProps> = ({
       section: RecipeSections,
       recipeKey: RecipeKey
     ) => {
+      if (isScrolling) return;
       onClick(event, section, recipeKey);
       setActiveRecipeKey(recipeKey);
 
@@ -155,8 +165,12 @@ export const RecipesList: FC<RecipesProps> = ({
               padding: '4px 8px',
             }}
             onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
           >
             <MemoizedRecipeCard
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
               onHover={onHover}
               onLeave={onLeave}
               onClick={handleClick}

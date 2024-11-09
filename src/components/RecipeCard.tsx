@@ -21,6 +21,8 @@ interface RecipeCardProps {
     section: RecipeSections,
     recipeKey: RecipeKey
   ) => void;
+  onTouchStart?: () => void;
+  onTouchMove?: () => void;
 }
 
 const ClickEffectBox = styled(Box)(({ theme }) => ({
@@ -38,6 +40,8 @@ export const RecipeCard: FC<RecipeCardProps> = ({
   onHover,
   onLeave,
   onClick,
+  onTouchStart,
+  onTouchMove,
 }) => {
   const [isClicked, setIsClicked] = useState(false);
 
@@ -69,6 +73,8 @@ export const RecipeCard: FC<RecipeCardProps> = ({
       onTouchEnd={handleInteraction}
       onMouseEnter={handleHover}
       onMouseLeave={onLeave}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
       className={isClicked ? 'click-effect' : ''}
       sx={{
         display: 'flex',

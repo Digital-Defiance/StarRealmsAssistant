@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Nov 09 14:20:00 2024
+
+- Version 0.10.11
+  - Fixed bug that applied common actions while scrolling the options
+
 ### Sat Nov 09 13:58:00 2024
 
 - Version 0.10.10
