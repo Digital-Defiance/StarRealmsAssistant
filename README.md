@@ -207,6 +207,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Nov 09 22:52:00 2024
+
+- Version 0.10.12
+  - Improved common actions interface
+  - Improved common actions UI issues with scrollbars
+
 ### Sat Nov 09 14:20:00 2024
 
 - Version 0.10.11

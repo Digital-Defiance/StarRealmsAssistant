@@ -1,26 +1,17 @@
-import React, { FC, memo, MouseEvent, TouchEvent, useCallback, useEffect, useState } from 'react';
+import React, { FC, memo } from 'react';
 import { Box, styled, Typography } from '@mui/material';
 import { VariableSizeList, ListChildComponentProps } from 'react-window';
 import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
 import { RecipeSection } from '@/game/interfaces/recipe-section';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUtensils } from '@fortawesome/pro-solid-svg-icons';
+import { faLayerGroup, faUtensils } from '@fortawesome/pro-solid-svg-icons';
 import { RecipeCard } from '@/components/RecipeCard';
 
 interface RecipesProps {
   containerHeight: number;
   containerWidth: number;
-  onHover: (
-    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
-    section: RecipeSections,
-    recipeKey: RecipeKey
-  ) => void;
-  onLeave: () => void;
-  onClick: (
-    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
-    section: RecipeSections,
-    recipeKey: RecipeKey
-  ) => void;
+  onApply: (section: RecipeSections, recipeKey: RecipeKey) => void;
+  onDetails: (section: RecipeSections, recipeKey: RecipeKey) => void;
 }
 
 const createSections = (): { key: RecipeSections; section: RecipeSection }[] => {
@@ -37,7 +28,8 @@ const createSections = (): { key: RecipeSections; section: RecipeSection }[] => 
 const StyledListItem = styled(Box)(() => ({
   position: 'relative',
   zIndex: 1,
-  paddingRight: '75px', // Increased padding to accommodate the new popover position
+  width: '100%', // Ensure the item takes the full width
+  boxSizing: 'border-box', // Include padding in the width calculation
   '&:hover': {
     zIndex: 1000,
   },
@@ -50,50 +42,9 @@ const MemoizedRecipeCard = memo(RecipeCard);
 export const RecipesList: FC<RecipesProps> = ({
   containerHeight,
   containerWidth,
-  onHover,
-  onLeave,
-  onClick,
+  onApply,
+  onDetails,
 }) => {
-  const [activeRecipeKey, setActiveRecipeKey] = useState<RecipeKey | null>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
-
-  const handleTouchStart = () => {
-    setIsScrolling(false);
-  };
-
-  const handleTouchMove = () => {
-    setIsScrolling(true);
-  };
-
-  const handleClick = useCallback(
-    (
-      event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
-      section: RecipeSections,
-      recipeKey: RecipeKey
-    ) => {
-      if (isScrolling) return;
-      onClick(event, section, recipeKey);
-      setActiveRecipeKey(recipeKey);
-
-      // Clear the active state after a short delay
-      setTimeout(() => {
-        setActiveRecipeKey(null);
-      }, 300); // Adjust this delay as needed
-    },
-    [onClick]
-  );
-
-  const handleOutsideClick = useCallback(() => {
-    setActiveRecipeKey(null);
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener('click', handleOutsideClick);
-    return () => {
-      document.removeEventListener('click', handleOutsideClick);
-    };
-  }, [handleOutsideClick]);
-
   const itemCount = sectionList.reduce(
     (count, entry) => count + Object.keys(entry.section.recipes).length + 2, // +2 for header and spacer
     0
@@ -139,11 +90,12 @@ export const RecipesList: FC<RecipesProps> = ({
               padding: '8px 8px',
               borderBottom: '1px solid #ccc',
               backgroundColor: '#f5f5f5',
+              width: `${containerWidth - 32}px`,
             }}
             display="flex"
             alignItems="center"
           >
-            {entry.section.icon}
+            {entry.section.icon ?? <FontAwesomeIcon icon={faLayerGroup} />}
             <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 'bold' }}>
               {entry.section.title}
             </Typography>
@@ -163,18 +115,12 @@ export const RecipesList: FC<RecipesProps> = ({
             style={{
               ...style,
               padding: '4px 8px',
+              width: `${containerWidth - 32}px`,
             }}
-            onClick={(e) => e.stopPropagation()} // Prevent clicks from bubbling up
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
           >
             <MemoizedRecipeCard
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onHover={onHover}
-              onLeave={onLeave}
-              onClick={handleClick}
-              isActive={actionKey === activeRecipeKey}
+              onApply={onApply}
+              onDetails={onDetails}
               section={entry.key}
               key={actionKey}
               recipeKey={actionKey}
@@ -189,27 +135,16 @@ export const RecipesList: FC<RecipesProps> = ({
   };
 
   return (
-    <Box
-      sx={{
-        flexGrow: 1,
-        height: '100%',
-        width: '100%',
-        overflow: 'hidden',
-        maxHeight: `${containerHeight}px`,
-      }}
-      onMouseLeave={onLeave}
+    <VariableSizeList
+      height={containerHeight}
+      width={containerWidth}
+      itemCount={itemCount}
+      itemSize={getItemSize}
+      itemKey={getItemKey}
+      overscanCount={5}
     >
-      <VariableSizeList
-        height={containerHeight}
-        width={containerWidth}
-        itemCount={itemCount}
-        itemSize={getItemSize}
-        itemKey={getItemKey}
-        overscanCount={5} // Increase overscan for smoother scrolling
-      >
-        {Row}
-      </VariableSizeList>
-    </Box>
+      {Row}
+    </VariableSizeList>
   );
 };
 

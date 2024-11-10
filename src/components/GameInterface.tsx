@@ -1,12 +1,4 @@
-import React, {
-  FC,
-  MouseEvent,
-  SyntheticEvent,
-  TouchEvent,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { FC, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -45,7 +37,7 @@ import { RecipesList } from '@/components/RecipeList';
 import ForwardRefBox from '@/components/ForwardRefBox';
 import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
 import { IGroupedAction } from '@/game/interfaces/grouped-action';
-import { RecipeSummaryPopover } from '@/components/RecipeSummaryPopover';
+import { RecipeSummaryDialog } from '@/components/RecipeSummaryDialog';
 import { useAlert } from '@/components/AlertContext';
 
 interface GameInterfaceProps {
@@ -86,17 +78,10 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const [canUndo, setCanUndo] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  const [selectedRecipeSection, setSelectedRecipeSection] = useState<RecipeSections | null>(null);
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeKey | null>(null);
   const viewBoxRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const [hoveredRecipe, setHoveredRecipe] = useState<IGroupedAction | null>(null);
-  const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number } | null>(
-    null
-  );
-  const [recipeListPosition, setRecipeListPosition] = useState<{
-    top: number;
-    left: number;
-    width: number;
-  } | null>(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const { showAlert } = useAlert();
@@ -108,27 +93,30 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   useEffect(() => {
     const handleResize = () => {
       if (viewBoxRef.current) {
-        const containerPaddingBottom = 16;
-        setContainerHeight(viewBoxRef.current.clientHeight - containerPaddingBottom);
-        setContainerWidth(viewBoxRef.current.clientWidth);
+        const rect = viewBoxRef.current.getBoundingClientRect();
+        const style = getComputedStyle(viewBoxRef.current);
+        const marginTop = parseFloat(style.marginTop) || 0;
+        const marginBottom = parseFloat(style.marginBottom) || 0;
+        const paddingTop = parseFloat(style.paddingTop) || 0;
+        const paddingBottom = parseFloat(style.paddingBottom) || 0;
+        const marginLeft = parseFloat(style.marginLeft) || 0;
+        const marginRight = parseFloat(style.marginRight) || 0;
+        const paddingLeft = parseFloat(style.paddingLeft) || 0;
+        const paddingRight = parseFloat(style.paddingRight) || 0;
+
+        const totalVerticalMargin = marginTop + marginBottom;
+        const totalVerticalPadding = paddingTop + paddingBottom;
+        const totalHorizontalMargin = marginLeft + marginRight;
+        const totalHorizontalPadding = paddingLeft + paddingRight;
+
+        setContainerHeight(rect.height - totalVerticalMargin - totalVerticalPadding);
+        setContainerWidth(rect.width - totalHorizontalMargin - totalHorizontalPadding);
       }
     };
+
+    handleResize(); // Initial calculation
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (viewBoxRef.current) {
-      const rect = viewBoxRef.current.getBoundingClientRect();
-      setRecipeListPosition({
-        top: rect.top,
-        left: rect.left,
-        width: rect.width,
-      });
-      const paddingBottom = 16;
-      setContainerHeight(rect.height - paddingBottom);
-      setContainerWidth(rect.width);
-    }
   }, []);
 
   const handleOpenConfirmEndGameDialog = () => {
@@ -144,42 +132,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
     endGame();
   };
 
-  const handleRecipeHover = (
-    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
-    section: RecipeSections,
-    recipeKey: RecipeKey
-  ) => {
-    const target = event.currentTarget.getBoundingClientRect();
-    const viewBoxBound = viewBoxRef.current?.getBoundingClientRect();
-    const viewBoxWidth = viewBoxBound?.width ?? 0;
-
-    // Adjust the left position to ensure the popover does not cover the list
-    const popoverLeft = target.left + viewBoxWidth / 2;
-    const adjustedLeft = Math.min(popoverLeft, window.innerWidth - 400); // Ensure it doesn't go off-screen
-
-    let top = target.top;
-    if (viewBoxRef.current) {
-      const rect = viewBoxRef.current.getBoundingClientRect();
-      top = rect.top;
-    }
-    if (recipeListPosition) {
-      setPopoverPosition({ top: top, left: adjustedLeft });
-    }
-    const recipe = Recipes[section].recipes[recipeKey];
-    setHoveredRecipe(recipe);
-  };
-
-  const handleRecipeLeave = () => {
-    setHoveredRecipe(null);
-    setPopoverPosition(null);
-  };
-
-  const handleRecipeClick = (
-    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
-    section: RecipeSections,
-    recipeKey: RecipeKey
-  ) => {
-    event.preventDefault();
+  const onApply = (section: RecipeSections, recipeKey: RecipeKey) => {
     const recipeSection = Recipes[section];
     const groupedAction = recipeSection.recipes[recipeKey] as IGroupedAction;
 
@@ -232,9 +185,18 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
     if (newValue !== 3) {
-      setHoveredRecipe(null);
-      setPopoverPosition(null);
+      setSelectedRecipeSection(null);
+      setSelectedRecipe(null);
     }
+  };
+
+  const onDetails = (section: RecipeSections, recipeKey: RecipeKey) => {
+    setSelectedRecipeSection(section);
+    setSelectedRecipe(recipeKey);
+  };
+
+  const handleCloseDetailsDialog = () => {
+    setSelectedRecipe(null);
   };
 
   return (
@@ -259,7 +221,14 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
         </Tabs>
         <ForwardRefBox
           ref={viewBoxRef}
-          sx={{ p: 2, flex: 1, overflow: 'hidden', maxWidth: '100%' }}
+          sx={{
+            p: 2,
+            flex: 1,
+            overflow: 'hidden',
+            maxWidth: '100%',
+            width: '100%',
+            boxSizing: 'border-box',
+          }}
         >
           {tabValue === 0 && <Player containerHeight={containerHeight} />}
           {tabValue === 1 && <TurnAdjustmentsSummary containerHeight={containerHeight} />}
@@ -268,18 +237,11 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
             <RecipesList
               containerHeight={containerHeight}
               containerWidth={containerWidth}
-              onHover={handleRecipeHover}
-              onLeave={handleRecipeLeave}
-              onClick={handleRecipeClick}
+              onApply={onApply}
+              onDetails={onDetails}
             />
           )}
         </ForwardRefBox>
-        <RecipeSummaryPopover
-          open={Boolean(hoveredRecipe)}
-          position={popoverPosition}
-          recipe={hoveredRecipe}
-          listWidth={viewBoxRef.current?.getBoundingClientRect().width ?? 0}
-        />
         <ButtonContainer>
           <Button
             variant="contained"
@@ -340,6 +302,23 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           </Button>
         </DialogActions>
       </Dialog>
+      <RecipeSummaryDialog
+        open={selectedRecipe !== null && selectedRecipeSection !== null}
+        section={
+          selectedRecipeSection !== null && selectedRecipeSection !== undefined
+            ? Recipes[selectedRecipeSection]
+            : null
+        }
+        recipe={
+          selectedRecipeSection !== null &&
+          selectedRecipeSection !== undefined &&
+          selectedRecipe !== null &&
+          selectedRecipe !== undefined
+            ? Recipes[selectedRecipeSection].recipes[selectedRecipe]
+            : null
+        }
+        onClose={handleCloseDetailsDialog}
+      />
     </>
   );
 };
