@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 10 12:20:00 2024
+
+- Version 0.11.1
+  - Add more common actions
+
 ### Sun Nov 10 00:53:00 2024
 
 - Version 0.11.0

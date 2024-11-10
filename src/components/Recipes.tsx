@@ -37,6 +37,12 @@ import {
   faHatWitch,
   faWave,
   faWarehouse,
+  faOliveBranch,
+  faPersonSimple,
+  faBook,
+  faCandleHolder,
+  faHorse,
+  faShoePrints,
 } from '@fortawesome/pro-solid-svg-icons';
 import { RecipeSection } from '@/game/interfaces/recipe-section';
 import { IGame } from '@/game/interfaces/game';
@@ -49,7 +55,8 @@ export type RecipeSections =
   | 'Empires'
   | 'Menagerie'
   | 'CornucopiaGuilds'
-  | 'Renaissance';
+  | 'Renaissance'
+  | 'Allies';
 
 export const Recipes: Record<RecipeSections, RecipeSection> = {
   General: {
@@ -267,6 +274,30 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
           [GroupedActionDest.AllPlayersExceptSelected]: [],
         },
       },
+      Library: {
+        name: 'Library',
+        icon: <FontAwesomeIcon icon={faBook} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: (game: IGame, playerIndex: number) => {
+                // draw until hand has 7 cards
+                const currentCards = game.players[playerIndex].turn.cards;
+                return currentCards < 7 ? 7 - currentCards : 0;
+              },
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
       Smithy: {
         name: 'Smithy',
         icon: <FontAwesomeIcon icon={faHammer} />,
@@ -354,6 +385,31 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
           [GroupedActionDest.SelectedPlayerIndex]: [],
           [GroupedActionDest.AllPlayers]: [],
           [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+      Witch: {
+        name: 'Witch',
+        icon: <FontAwesomeIcon icon={faHatWitch} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 2,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [
+            {
+              action: GameLogAction.ADD_CURSES,
+              count: 1,
+            },
+          ],
           [GroupedActionDest.AllPlayersExceptSelected]: [],
         },
       },
@@ -939,6 +995,91 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
     title: 'Cornucopia & Guilds',
     icon: <FontAwesomeIcon icon={faHammer} />,
     recipes: {
+      CandleStickMaker: {
+        name: 'Candlestick Maker',
+        icon: <FontAwesomeIcon icon={faCandleHolder} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_BUYS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_COFFERS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+      Farrier: {
+        name: 'Farrier',
+        icon: <FontAwesomeIcon icon={faHorse} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_BUYS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+      Footpad: {
+        name: 'Footpad',
+        icon: <FontAwesomeIcon icon={faShoePrints} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_COFFERS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [
+            {
+              action: GameLogAction.ADD_NEXT_TURN_DISCARD,
+              count: (game: IGame, playerIndex: number) => {
+                // discard down to 3 cards
+                const cardsToDiscard = Math.max(0, game.players[playerIndex].turn.cards - 3);
+                return cardsToDiscard;
+              },
+            },
+          ],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
       Demesne: {
         name: 'Demesne',
         icon: <FontAwesomeIcon icon={faLandmark} />,
@@ -1003,6 +1144,73 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
             {
               action: GameLogAction.ADD_BUYS,
               count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+    },
+  },
+  Allies: {
+    title: 'Allies',
+    icon: <FontAwesomeIcon icon={faOliveBranch} />,
+    recipes: {
+      Underling: {
+        name: 'Underling',
+        icon: <FontAwesomeIcon icon={faPersonSimple} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_FAVORS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+      Marquis: {
+        name: 'Marquis',
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_BUYS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: (game: IGame, playerIndex: number) => {
+                return game.players[playerIndex].turn.cards;
+              },
+            },
+            {
+              action: GameLogAction.ADD_DISCARD,
+              count: (game: IGame, playerIndex: number) => {
+                const currentCards = game.players[playerIndex].turn.cards;
+                // Calculate how many cards to discard to get down to 10
+                return currentCards > 10 ? currentCards - 10 : 0;
+              },
             },
           ],
           [GroupedActionDest.SelectedPlayerIndex]: [],
