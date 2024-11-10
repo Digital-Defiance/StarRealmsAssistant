@@ -25,6 +25,7 @@ export function generateLargeGame(turns = 50): IGame {
       },
       trackCardCounts: true,
       trackCardGains: true,
+      trackDiscard: true,
     },
     expansions: {
       renaissance: DefaultRenaissanceFeatures(),
@@ -93,6 +94,7 @@ function simulatePlayerTurn(game: IGame, timestamp: Date): IGame {
     GameLogAction.ADD_COINS,
     GameLogAction.ADD_CARDS,
     GameLogAction.ADD_GAINS,
+    GameLogAction.ADD_DISCARD,
     GameLogAction.ADD_VP_TOKENS,
     GameLogAction.ADD_PROVINCES,
     GameLogAction.ADD_ESTATES,

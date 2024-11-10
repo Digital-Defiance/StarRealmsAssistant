@@ -18,6 +18,8 @@ export enum GameLogAction {
   REMOVE_CARDS = 'Removed {COUNT} Cards',
   ADD_GAINS = 'Added {COUNT} Gains',
   REMOVE_GAINS = 'Removed {COUNT} Gains',
+  ADD_DISCARD = 'Added {COUNT} Discards',
+  REMOVE_DISCARD = 'Removed {COUNT} Discards',
   ADD_COFFERS = 'Added {COUNT} Coffers',
   REMOVE_COFFERS = 'Removed {COUNT} Coffers',
   ADD_VILLAGERS = 'Added {COUNT} Villagers',
@@ -50,4 +52,6 @@ export enum GameLogAction {
   REMOVE_NEXT_TURN_COINS = 'Removed {COUNT} Next Turn Coins',
   ADD_NEXT_TURN_CARDS = 'Added {COUNT} Next Turn Cards',
   REMOVE_NEXT_TURN_CARDS = 'Removed {COUNT} Next Turn Cards',
+  ADD_NEXT_TURN_DISCARD = 'Added {COUNT} Next Turn Discards',
+  REMOVE_NEXT_TURN_DISCARD = 'Removed {COUNT} Next Turn Discards',
 }

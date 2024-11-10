@@ -19,6 +19,8 @@ export enum FutureAction {
   ADD_CARDS = 'Add {COUNT} Cards',
   REMOVE_CARDS = 'Remove {COUNT} Cards',
   ADD_GAINS = 'Add {COUNT} Gains',
+  ADD_DISCARD = 'Add {COUNT} Discards',
+  REMOVE_DISCARD = 'Remove {COUNT} Discards',
   REMOVE_GAINS = 'Remove {COUNT} Gains',
   ADD_COFFERS = 'Add {COUNT} Coffers',
   REMOVE_COFFERS = 'Remove {COUNT} Coffers',
@@ -52,6 +54,8 @@ export enum FutureAction {
   REMOVE_NEXT_TURN_COINS = 'Remove {COUNT} Next Turn Coins',
   ADD_NEXT_TURN_CARDS = 'Add {COUNT} Next Turn Cards',
   REMOVE_NEXT_TURN_CARDS = 'Remove {COUNT} Next Turn Cards',
+  ADD_NEXT_TURN_DISCARD = 'Add {COUNT} Next Turn Discards',
+  REMOVE_NEXT_TURN_DISCARD = 'Remove {COUNT} Next Turn Discards',
 }
 
 export const futureActionMap: Record<GameLogAction, FutureAction> = {
@@ -74,6 +78,8 @@ export const futureActionMap: Record<GameLogAction, FutureAction> = {
   [GameLogAction.REMOVE_CARDS]: FutureAction.REMOVE_CARDS,
   [GameLogAction.ADD_GAINS]: FutureAction.ADD_GAINS,
   [GameLogAction.REMOVE_GAINS]: FutureAction.REMOVE_GAINS,
+  [GameLogAction.ADD_DISCARD]: FutureAction.ADD_DISCARD,
+  [GameLogAction.REMOVE_DISCARD]: FutureAction.REMOVE_DISCARD,
   [GameLogAction.ADD_COFFERS]: FutureAction.ADD_COFFERS,
   [GameLogAction.REMOVE_COFFERS]: FutureAction.REMOVE_COFFERS,
   [GameLogAction.ADD_VILLAGERS]: FutureAction.ADD_VILLAGERS,
@@ -106,4 +112,6 @@ export const futureActionMap: Record<GameLogAction, FutureAction> = {
   [GameLogAction.REMOVE_NEXT_TURN_COINS]: FutureAction.REMOVE_NEXT_TURN_COINS,
   [GameLogAction.ADD_NEXT_TURN_CARDS]: FutureAction.ADD_NEXT_TURN_CARDS,
   [GameLogAction.REMOVE_NEXT_TURN_CARDS]: FutureAction.REMOVE_NEXT_TURN_CARDS,
+  [GameLogAction.ADD_NEXT_TURN_DISCARD]: FutureAction.ADD_NEXT_TURN_DISCARD,
+  [GameLogAction.REMOVE_NEXT_TURN_DISCARD]: FutureAction.REMOVE_NEXT_TURN_DISCARD,
 };

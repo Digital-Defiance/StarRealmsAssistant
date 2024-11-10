@@ -21,7 +21,6 @@ import {
 } from '@/game/dominion-lib-log';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
 import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
-import { RecipeKey } from '@/components/Recipes';
 
 describe('reconstructGameState', () => {
   let baseGame: IGame;
@@ -253,6 +252,7 @@ describe('reconstructGameState', () => {
         },
         trackCardCounts: true,
         trackCardGains: true,
+        trackDiscard: true,
       },
       log: [
         ...baseGame.log,
@@ -387,6 +387,7 @@ describe('reconstructGameState', () => {
       buys: 2,
       cards: 5,
       gains: 0,
+      discard: 0,
     });
     expect(result.players[1].turn).toStrictEqual({
       actions: 1,
@@ -394,6 +395,7 @@ describe('reconstructGameState', () => {
       buys: 1,
       cards: 5,
       gains: 0,
+      discard: 0,
     });
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });

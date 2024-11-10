@@ -106,6 +106,7 @@ describe('NewGameState', () => {
       mats: { coffersVillagers: true, debt: true, favors: false },
       trackCardCounts: true,
       trackCardGains: true,
+      trackDiscard: true,
     };
     const initialGameState: IGame = {
       ...EmptyGameState(),

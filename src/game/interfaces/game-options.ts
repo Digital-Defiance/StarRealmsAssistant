@@ -7,4 +7,5 @@ export interface IGameOptions {
   mats: IMatsEnabled;
   trackCardCounts: boolean;
   trackCardGains: boolean;
+  trackDiscard: boolean;
 }

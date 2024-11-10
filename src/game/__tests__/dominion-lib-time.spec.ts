@@ -1268,6 +1268,7 @@ describe('dominion-lib-time', () => {
               expansions: { prosperity: false, renaissance: false, risingSun: false },
               trackCardCounts: true,
               trackCardGains: true,
+              trackDiscard: true,
             }),
             coppers: 32, // 46 - 14 (2 player game)
           },
@@ -1286,6 +1287,7 @@ describe('dominion-lib-time', () => {
               expansions: { prosperity: false, renaissance: false, risingSun: false },
               trackCardCounts: true,
               trackCardGains: true,
+              trackDiscard: true,
             }),
             coppers: 32, // 46 - 14 (2 player game)
           },
@@ -1376,6 +1378,7 @@ describe('dominion-lib-time', () => {
               expansions: { prosperity: false, renaissance: false, risingSun: false },
               trackCardCounts: true,
               trackCardGains: true,
+              trackDiscard: true,
             }),
             coppers: 32, // 46 - 14 (2 players)
           },
@@ -1394,6 +1397,7 @@ describe('dominion-lib-time', () => {
               expansions: { prosperity: false, renaissance: false, risingSun: false },
               trackCardCounts: true,
               trackCardGains: true,
+              trackDiscard: true,
             }),
             coppers: 32, // 46 - 14 (2 players)
           },
@@ -1654,6 +1658,7 @@ describe('dominion-lib-time', () => {
             expansions: { prosperity: false, renaissance: false, risingSun: false },
             trackCardCounts: true,
             trackCardGains: true,
+            trackDiscard: true,
           }),
           coppers: 32, // 46 - 14 (2 players)
         },
@@ -1707,6 +1712,7 @@ describe('dominion-lib-time', () => {
               expansions: { prosperity: false, renaissance: false, risingSun: false },
               trackCardCounts: true,
               trackCardGains: true,
+              trackDiscard: true,
             }),
             coppers: 32, // 46 - 14 (2 players)
           },

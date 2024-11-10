@@ -65,6 +65,8 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
           return increment > 0 ? GameLogAction.ADD_CARDS : GameLogAction.REMOVE_CARDS;
         case 'gains':
           return increment > 0 ? GameLogAction.ADD_GAINS : GameLogAction.REMOVE_GAINS;
+        case 'discard':
+          return increment > 0 ? GameLogAction.ADD_DISCARD : GameLogAction.REMOVE_DISCARD;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }
@@ -118,6 +120,10 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
           return increment > 0
             ? GameLogAction.ADD_NEXT_TURN_CARDS
             : GameLogAction.REMOVE_NEXT_TURN_CARDS;
+        case 'discard':
+          return increment > 0
+            ? GameLogAction.ADD_NEXT_TURN_DISCARD
+            : GameLogAction.REMOVE_NEXT_TURN_DISCARD;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }

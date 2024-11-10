@@ -17,6 +17,7 @@ describe('calculateInitialSupply', () => {
     mats: { coffersVillagers: false, debt: false, favors: false },
     trackCardCounts: true,
     trackCardGains: true,
+    trackDiscard: true,
   });
 
   const prosperityOptions = (): IGameOptions => ({

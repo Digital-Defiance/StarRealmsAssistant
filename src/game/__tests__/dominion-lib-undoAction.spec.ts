@@ -126,6 +126,7 @@ describe('undoAction', () => {
         expansions: { risingSun: true, prosperity: false, renaissance: false },
         trackCardCounts: true,
         trackCardGains: true,
+        trackDiscard: true,
       },
       log: [createLogEntry(GameLogAction.REMOVE_PROPHECY)],
     });

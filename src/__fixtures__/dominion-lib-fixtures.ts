@@ -33,6 +33,7 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
     } as IMatsEnabled,
     trackCardCounts: true,
     trackCardGains: true,
+    trackDiscard: true,
   };
   const supply = calculateInitialSupply(playerCount, options);
   const game: IGame = {

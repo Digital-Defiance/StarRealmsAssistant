@@ -207,6 +207,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Sun Nov 10 00:53:00 2024
+
+- Version 0.11.0
+  - Added support for discard tracking
+  - Added several cards to common actions, including several from Seaside with discard involved
+
 ### Sat Nov 09 22:52:00 2024
 
 - Version 0.10.12

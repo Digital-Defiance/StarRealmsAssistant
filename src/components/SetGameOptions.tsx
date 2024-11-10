@@ -158,6 +158,20 @@ const SetGameOptions: FC<SetGameOptionsProps> = ({ startGame }) => {
         tooltip="Whether to track the cards gained by each player"
       />
 
+      <OptionItem
+        checked={gameState.options.trackDiscard}
+        onChange={(e) => {
+          setGameState((prevState: IGame) => {
+            return {
+              ...prevState,
+              options: { ...prevState.options, trackDiscrd: e.target.checked },
+            };
+          });
+        }}
+        title="Track Discards"
+        tooltip="Whether to track the cards discarded by each player"
+      />
+
       <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
         <Button variant="contained" onClick={handleStartGame}>
           Start Game

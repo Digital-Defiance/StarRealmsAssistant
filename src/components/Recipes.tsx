@@ -31,6 +31,12 @@ import {
   faPaw,
   faPaintBrush,
   faOnion,
+  faLighthouse,
+  faAnchor,
+  faDagger,
+  faHatWitch,
+  faWave,
+  faWarehouse,
 } from '@fortawesome/pro-solid-svg-icons';
 import { RecipeSection } from '@/game/interfaces/recipe-section';
 import { IGame } from '@/game/interfaces/game';
@@ -149,6 +155,60 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
           [GroupedActionDest.AllPlayersExceptSelected]: [],
         },
       },
+      OneCardOneActionOneCoin: {
+        name: 'One Card, One Action, One Coin',
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_COINS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
+      OneCardTwoActionsOneCoin: {
+        name: 'One Card, Two Actions, One Coin',
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 2,
+            },
+            {
+              action: GameLogAction.ADD_COINS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+      },
     },
   },
   Base: {
@@ -247,19 +307,14 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
           ],
           [GroupedActionDest.SelectedPlayerIndex]: [],
           [GroupedActionDest.AllPlayers]: [],
-          [GroupedActionDest.AllPlayersExceptCurrent]: [
-            {
-              action: GameLogAction.ADD_NEXT_TURN_CARDS,
-              count: 1,
-            },
-          ],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
           [GroupedActionDest.AllPlayersExceptSelected]: [],
         },
         triggers: {
           [GroupedActionTrigger.AfterNextTurnBegins]: {
             [GroupedActionDest.AllPlayersExceptCurrent]: [
               {
-                action: GameLogAction.REMOVE_NEXT_TURN_CARDS,
+                action: GameLogAction.ADD_CARDS,
                 count: 1,
               },
             ],
@@ -428,6 +483,299 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
             [GroupedActionDest.AllPlayersExceptSelected]: [],
             [GroupedActionDest.SelectedPlayerIndex]: [],
           },
+        },
+      },
+      Lighthouse: {
+        name: 'Lighthouse',
+        icon: <FontAwesomeIcon icon={faLighthouse} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_COINS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+        triggers: {
+          [GroupedActionTrigger.AfterNextTurnBegins]: {
+            [GroupedActionDest.CurrentPlayerIndex]: [
+              {
+                action: GameLogAction.ADD_COINS,
+                count: 1,
+              },
+            ],
+            [GroupedActionDest.AllPlayers]: [],
+            [GroupedActionDest.AllPlayersExceptCurrent]: [],
+            [GroupedActionDest.AllPlayersExceptSelected]: [],
+            [GroupedActionDest.SelectedPlayerIndex]: [],
+          },
+        },
+      },
+      Sailor: {
+        name: 'Sailor',
+        icon: <FontAwesomeIcon icon={faAnchor} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+        triggers: {
+          [GroupedActionTrigger.AfterNextTurnBegins]: {
+            [GroupedActionDest.CurrentPlayerIndex]: [
+              {
+                action: GameLogAction.ADD_COINS,
+                count: 2,
+              },
+            ],
+            [GroupedActionDest.AllPlayers]: [],
+            [GroupedActionDest.AllPlayersExceptCurrent]: [],
+            [GroupedActionDest.AllPlayersExceptSelected]: [],
+            [GroupedActionDest.SelectedPlayerIndex]: [],
+          },
+        },
+      },
+      Corsair: {
+        name: 'Corsair',
+        icon: <FontAwesomeIcon icon={faShip} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_COINS,
+              count: 2,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+        triggers: {
+          [GroupedActionTrigger.AfterNextTurnBegins]: {
+            [GroupedActionDest.CurrentPlayerIndex]: [
+              {
+                action: GameLogAction.ADD_CARDS,
+                count: 1,
+              },
+            ],
+            [GroupedActionDest.AllPlayers]: [],
+            [GroupedActionDest.AllPlayersExceptCurrent]: [],
+            [GroupedActionDest.AllPlayersExceptSelected]: [],
+            [GroupedActionDest.SelectedPlayerIndex]: [],
+          },
+        },
+      },
+      MerchantShip: {
+        name: 'Merchant Ship',
+        icon: <FontAwesomeIcon icon={faShip} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_COINS,
+              count: 2,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+        triggers: {
+          [GroupedActionTrigger.AfterNextTurnBegins]: {
+            [GroupedActionDest.CurrentPlayerIndex]: [
+              {
+                action: GameLogAction.ADD_COINS,
+                count: 2,
+              },
+            ],
+            [GroupedActionDest.AllPlayers]: [],
+            [GroupedActionDest.AllPlayersExceptCurrent]: [],
+            [GroupedActionDest.AllPlayersExceptSelected]: [],
+            [GroupedActionDest.SelectedPlayerIndex]: [],
+          },
+        },
+      },
+      Tactitian: {
+        name: 'Tactitian',
+        icon: <FontAwesomeIcon icon={faDagger} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_DISCARD,
+              count: (game: IGame, playerIndex: number) => {
+                return game.players[playerIndex].turn.cards;
+              },
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+        triggers: {
+          [GroupedActionTrigger.AfterNextTurnBegins]: {
+            [GroupedActionDest.CurrentPlayerIndex]: [
+              {
+                action: GameLogAction.ADD_CARDS,
+                count: 5,
+              },
+              {
+                action: GameLogAction.ADD_ACTIONS,
+                count: 1,
+              },
+              {
+                action: GameLogAction.ADD_BUYS,
+                count: 1,
+              },
+            ],
+            [GroupedActionDest.AllPlayers]: [],
+            [GroupedActionDest.AllPlayersExceptCurrent]: [],
+            [GroupedActionDest.AllPlayersExceptSelected]: [],
+            [GroupedActionDest.SelectedPlayerIndex]: [],
+          },
+        },
+      },
+      SeaWitch: {
+        name: 'Sea Witch',
+        icon: <FontAwesomeIcon icon={faHatWitch} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 2,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [
+            {
+              action: GameLogAction.ADD_CURSES,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+        triggers: {
+          [GroupedActionTrigger.AfterNextTurnBegins]: {
+            [GroupedActionDest.CurrentPlayerIndex]: [
+              {
+                action: GameLogAction.ADD_CARDS,
+                count: 2,
+              },
+              {
+                action: GameLogAction.ADD_DISCARD,
+                count: 2,
+              },
+            ],
+            [GroupedActionDest.AllPlayers]: [],
+            [GroupedActionDest.AllPlayersExceptCurrent]: [],
+            [GroupedActionDest.AllPlayersExceptSelected]: [],
+            [GroupedActionDest.SelectedPlayerIndex]: [],
+          },
+        },
+      },
+      TidePools: {
+        name: 'Tide Pools',
+        icon: <FontAwesomeIcon icon={faWave} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 3,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
+        },
+        triggers: {
+          [GroupedActionTrigger.AfterNextTurnBegins]: {
+            [GroupedActionDest.CurrentPlayerIndex]: [
+              {
+                action: GameLogAction.ADD_DISCARD,
+                count: 2,
+              },
+            ],
+            [GroupedActionDest.AllPlayers]: [],
+            [GroupedActionDest.AllPlayersExceptCurrent]: [],
+            [GroupedActionDest.AllPlayersExceptSelected]: [],
+            [GroupedActionDest.SelectedPlayerIndex]: [],
+          },
+        },
+      },
+      Warehouse: {
+        name: 'Warehouse',
+        icon: <FontAwesomeIcon icon={faWarehouse} />,
+        actions: {
+          [GroupedActionDest.CurrentPlayerIndex]: [
+            {
+              action: GameLogAction.REMOVE_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_CARDS,
+              count: 3,
+            },
+            {
+              action: GameLogAction.ADD_ACTIONS,
+              count: 1,
+            },
+            {
+              action: GameLogAction.ADD_DISCARD,
+              count: 3,
+            },
+          ],
+          [GroupedActionDest.SelectedPlayerIndex]: [],
+          [GroupedActionDest.AllPlayers]: [],
+          [GroupedActionDest.AllPlayersExceptCurrent]: [],
+          [GroupedActionDest.AllPlayersExceptSelected]: [],
         },
       },
     },

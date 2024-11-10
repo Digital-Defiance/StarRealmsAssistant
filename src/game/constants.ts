@@ -14,8 +14,8 @@ import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 import { calculateInitialSunTokens } from '@/game/interfaces/set-mats/prophecy';
 
-export const VERSION_NUMBER = '0.10.12';
-export const LAST_COMPATIBLE_SAVE_VERSION = '0.10.0';
+export const VERSION_NUMBER = '0.11.0';
+export const LAST_COMPATIBLE_SAVE_VERSION = '0.11.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -88,6 +88,7 @@ export function DefaultGameOptions(): IGameOptions {
     mats: DefaultMatsEnabled(),
     trackCardCounts: true,
     trackCardGains: true,
+    trackDiscard: true,
   });
 }
 
@@ -130,6 +131,7 @@ export function DefaultTurnDetails(): IPlayerGameTurnDetails {
     coins: DEFAULT_TURN_COINS,
     cards: DEFAULT_TURN_CARDS,
     gains: 0,
+    discard: 0,
   });
 }
 
@@ -321,13 +323,7 @@ export function EmptyGameState(): IGame {
     players: [],
     setsRequired: 1,
     supply: EmptyGameSupply(),
-    options: {
-      curses: true,
-      expansions: DefaultExpansionsEnabled(),
-      mats: DefaultMatsEnabled(),
-      trackCardCounts: true,
-      trackCardGains: true,
-    },
+    options: DefaultGameOptions(),
     currentTurn: 1,
     expansions: {
       renaissance: DefaultRenaissanceFeatures(),
@@ -370,6 +366,8 @@ export const AdjustmentActions = [
   GameLogAction.REMOVE_CARDS,
   GameLogAction.ADD_GAINS,
   GameLogAction.REMOVE_GAINS,
+  GameLogAction.ADD_DISCARD,
+  GameLogAction.REMOVE_DISCARD,
   // mats
   GameLogAction.ADD_COFFERS,
   GameLogAction.REMOVE_COFFERS,
@@ -406,6 +404,8 @@ export const AdjustmentActions = [
   GameLogAction.REMOVE_NEXT_TURN_COINS,
   GameLogAction.ADD_NEXT_TURN_CARDS,
   GameLogAction.REMOVE_NEXT_TURN_CARDS,
+  GameLogAction.ADD_NEXT_TURN_DISCARD,
+  GameLogAction.REMOVE_NEXT_TURN_DISCARD,
 ];
 
 /**
@@ -418,6 +418,7 @@ export const NegativeAdjustmentActions = [
   GameLogAction.REMOVE_BUYS,
   GameLogAction.REMOVE_CARDS,
   GameLogAction.REMOVE_GAINS,
+  GameLogAction.REMOVE_DISCARD,
   // mats
   GameLogAction.REMOVE_COFFERS,
   GameLogAction.REMOVE_VILLAGERS,
@@ -438,6 +439,7 @@ export const NegativeAdjustmentActions = [
   GameLogAction.REMOVE_NEXT_TURN_BUYS,
   GameLogAction.REMOVE_NEXT_TURN_COINS,
   GameLogAction.REMOVE_NEXT_TURN_CARDS,
+  GameLogAction.REMOVE_NEXT_TURN_DISCARD,
 ];
 
 /**

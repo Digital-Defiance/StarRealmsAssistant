@@ -401,6 +401,15 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                     onDecrement={() => handleFieldChange('turn', 'gains', -1, linkChangeId)}
                   />
                 )}
+                {gameState.options.trackDiscard && (
+                  <IncrementDecrementControl
+                    label="Discard"
+                    value={player.turn.discard}
+                    tooltip="Tracks the number of cards discarded this turn"
+                    onIncrement={() => handleFieldChange('turn', 'discard', 1, linkChangeId)}
+                    onDecrement={() => handleFieldChange('turn', 'discard', -1, linkChangeId)}
+                  />
+                )}
               </ColumnBox>
               {(showMats || showGlobalMats) && (
                 <ColumnBox>
@@ -613,6 +622,15 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                   tooltip="Number of cards available for new turns"
                   onIncrement={() => handleFieldChange('newTurn', 'cards', 1, linkChangeId)}
                   onDecrement={() => handleFieldChange('newTurn', 'cards', -1, linkChangeId)}
+                />
+              )}
+              {gameState.options.trackDiscard && (
+                <IncrementDecrementControl
+                  label="Discard"
+                  value={player.newTurn.discard}
+                  tooltip="Number of cards to discard for new turns"
+                  onIncrement={() => handleFieldChange('newTurn', 'discard', 1, linkChangeId)}
+                  onDecrement={() => handleFieldChange('newTurn', 'discard', -1, linkChangeId)}
                 />
               )}
             </Box>

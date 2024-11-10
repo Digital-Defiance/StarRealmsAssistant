@@ -295,6 +295,7 @@ describe('canUndoAction', () => {
         expansions: { risingSun: true, renaissance: false, prosperity: false },
         trackCardCounts: true,
         trackCardGains: true,
+        trackDiscard: true,
       },
       log: [
         createLogEntry(GameLogAction.ADD_PROPHECY, 1), // Prophecy suns to 1

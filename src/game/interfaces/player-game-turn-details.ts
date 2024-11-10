@@ -4,4 +4,5 @@ export interface IPlayerGameTurnDetails {
   coins: number;
   cards: number;
   gains: number;
+  discard: number;
 }
