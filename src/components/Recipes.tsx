@@ -58,6 +58,18 @@ export type RecipeSections =
   | 'Renaissance'
   | 'Allies';
 
+export const RecipeSectionNames = [
+  'General',
+  'Base',
+  'Seaside',
+  'Prosperity',
+  'Empires',
+  'Menagerie',
+  'CornucopiaGuilds',
+  'Renaissance',
+  'Allies',
+] as const;
+
 export const Recipes: Record<RecipeSections, RecipeSection> = {
   General: {
     title: 'General',
@@ -1225,3 +1237,12 @@ export const Recipes: Record<RecipeSections, RecipeSection> = {
 
 type RecipeKeysFromSection<T> = T extends { actions: Record<infer K, IGroupedAction> } ? K : never;
 export type RecipeKey = RecipeKeysFromSection<(typeof Recipes)[keyof typeof Recipes]>;
+export const RecipeKeyNames: RecipeKey[] = Object.keys(Recipes).reduce<RecipeKey[]>(
+  (acc: RecipeKey[], section: string) => {
+    const keys: RecipeKey[] = Object.keys(Recipes[section as RecipeSections].recipes).map((key) => {
+      return key as RecipeKey;
+    });
+    return [...acc, ...keys];
+  },
+  []
+);

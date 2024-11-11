@@ -1,5 +1,13 @@
-import React, { FC } from 'react';
-import { Dialog, DialogTitle, DialogContent, Typography, Box } from '@mui/material';
+import React, { FC, useEffect, useRef } from 'react';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Typography,
+  Box,
+  DialogActions,
+  Button,
+} from '@mui/material';
 import { IGroupedAction } from '@/game/interfaces/grouped-action';
 import { RecipeSummary } from '@/components/RecipeSummary';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,11 +27,21 @@ export const RecipeSummaryDialog: FC<RecipeSummaryDialogProps> = ({
   recipe,
   onClose,
 }) => {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (open) {
+      closeButtonRef.current?.focus();
+    }
+  }, [open]);
+
+  if (!section || !recipe) {
+    return null;
+  }
+
   return (
     <Dialog
-      open={
-        open && section !== null && recipe !== null && section !== undefined && recipe !== undefined
-      }
+      open={open}
       onClose={onClose}
       maxWidth="md"
       fullWidth
@@ -33,6 +51,8 @@ export const RecipeSummaryDialog: FC<RecipeSummaryDialogProps> = ({
           maxHeight: '80%',
         },
       }}
+      aria-labelledby="recipe-summary-dialog-title"
+      disableRestoreFocus
     >
       {section !== null && recipe !== null && section !== undefined && recipe !== undefined && (
         <DialogTitle>
@@ -61,6 +81,11 @@ export const RecipeSummaryDialog: FC<RecipeSummaryDialogProps> = ({
       <DialogContent>
         {recipe !== null && recipe !== undefined && <RecipeSummary recipe={recipe} />}
       </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} ref={closeButtonRef}>
+          Close
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

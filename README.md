@@ -207,6 +207,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Mon Nov 11 12:03:00 2024
+
+- Version 0.11.2
+  - Improve visual feedback on applying common actions
+  - Prevent aria error on clicking out of the details dialog
+
 ### Sun Nov 10 12:20:00 2024
 
 - Version 0.11.1

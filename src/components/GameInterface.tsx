@@ -84,6 +84,8 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const viewportRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false);
+  const recipeDialogTriggerRef = useRef<HTMLButtonElement>(null);
   const { showAlert } = useAlert();
 
   useEffect(() => {
@@ -193,10 +195,16 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const onDetails = (section: RecipeSections, recipeKey: RecipeKey) => {
     setSelectedRecipeSection(section);
     setSelectedRecipe(recipeKey);
+    setIsRecipeDialogOpen(true);
   };
 
   const handleCloseDetailsDialog = () => {
+    setIsRecipeDialogOpen(false);
     setSelectedRecipe(null);
+    // Focus back on the trigger button after closing the dialog
+    if (recipeDialogTriggerRef.current) {
+      recipeDialogTriggerRef.current.focus();
+    }
   };
 
   return (
@@ -303,17 +311,10 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
         </DialogActions>
       </Dialog>
       <RecipeSummaryDialog
-        open={selectedRecipe !== null && selectedRecipeSection !== null}
-        section={
-          selectedRecipeSection !== null && selectedRecipeSection !== undefined
-            ? Recipes[selectedRecipeSection]
-            : null
-        }
+        open={isRecipeDialogOpen}
+        section={selectedRecipeSection ? Recipes[selectedRecipeSection] : null}
         recipe={
-          selectedRecipeSection !== null &&
-          selectedRecipeSection !== undefined &&
-          selectedRecipe !== null &&
-          selectedRecipe !== undefined
+          selectedRecipe && selectedRecipeSection
             ? Recipes[selectedRecipeSection].recipes[selectedRecipe]
             : null
         }
