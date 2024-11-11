@@ -56,28 +56,37 @@ const CenteredTitle = styled(Box)({
   marginBottom: 2,
 });
 
-const CheckboxContainer = styled(Box)(({ theme }) => ({
-  position: 'absolute',
-  bottom: theme.spacing(2), // Adjust as needed
-  left: theme.spacing(2), // Adjust as needed
-  display: 'flex',
-  alignItems: 'center',
-  gap: theme.spacing(2), // Adjust the gap as needed
-}));
-
-const CorrectionCheckboxContainer = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-});
-
-const LinkCheckboxContainer = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-});
-
 interface PlayerProps {
   containerHeight: number;
 }
+const PlayerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  width: '100%',
+  marginBottom: theme.spacing(1),
+}));
+
+const HeaderLeftSection = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  flex: 1,
+});
+
+const HeaderRightSection = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
+
+const CheckboxesContainer = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  marginLeft: 'auto',
+  marginRight: '8px',
+});
 
 const Player: FC<PlayerProps> = ({ containerHeight }) => {
   const { gameState, setGameState } = useGameContext();
@@ -307,8 +316,8 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
       >
         <DisabledOverlay />
         <Box sx={{ position: 'relative', pointerEvents: isGamePaused() ? 'none' : 'auto' }}>
-          <Box mb={2} display="flex" alignItems="center" justifyContent="space-between">
-            <Box display="flex" alignItems="center">
+          <PlayerHeader>
+            <HeaderLeftSection>
               <Tooltip
                 title={
                   isCurrentPlayer
@@ -329,11 +338,34 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                 />
               </Tooltip>
               <SuperCapsText className={`typography-title`}>{player.name}</SuperCapsText>
-            </Box>
-            <IconButton onClick={handleNewTurnClick}>
-              <SettingsIcon />
-            </IconButton>
-          </Box>
+            </HeaderLeftSection>
+            <CheckboxesContainer>
+              <Tooltip title="Use to reverse accidental changes. They will be marked as corrections in the log.">
+                <Checkbox
+                  checked={isCorrection}
+                  onChange={handleCorrectionChange}
+                  inputProps={{ 'aria-label': 'Correction Checkbox' }}
+                  icon={<EditIcon />}
+                  checkedIcon={<EditIcon color="primary" />}
+                />
+              </Tooltip>
+              <Tooltip title="Link new changes to the previous change">
+                <Checkbox
+                  checked={linkChanges}
+                  onChange={handleLinkChange}
+                  disabled={gameState.log.length <= 1}
+                  inputProps={{ 'aria-label': 'Link Checkbox' }}
+                  icon={<LinkIcon />}
+                  checkedIcon={<LinkIcon color="primary" />}
+                />
+              </Tooltip>
+            </CheckboxesContainer>
+            <HeaderRightSection>
+              <IconButton onClick={handleNewTurnClick} aria-label="New Turn Settings">
+                <SettingsIcon />
+              </IconButton>
+            </HeaderRightSection>
+          </PlayerHeader>
           {player && (
             <Box display="flex" flexWrap="wrap">
               <ColumnBox>
@@ -637,29 +669,6 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
           </Popover>
         </Box>
       </StyledPaper>
-      <CheckboxContainer>
-        <CorrectionCheckboxContainer>
-          <Checkbox
-            checked={isCorrection}
-            onChange={handleCorrectionChange}
-            inputProps={{ 'aria-label': 'Correction Checkbox' }}
-          />
-          <Tooltip title="Use to reverse accidental changes. They will be marked as corrections in the log.">
-            <EditIcon />
-          </Tooltip>
-        </CorrectionCheckboxContainer>
-        <LinkCheckboxContainer>
-          <Checkbox
-            checked={linkChanges}
-            onChange={handleLinkChange}
-            disabled={gameState.log.length <= 1}
-            inputProps={{ 'aria-label': 'Link Checkbox' }}
-          />
-          <Tooltip title="Link new changes to the previous change">
-            <LinkIcon />
-          </Tooltip>
-        </LinkCheckboxContainer>
-      </CheckboxContainer>
     </OuterContainer>
   );
 };

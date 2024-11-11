@@ -13,7 +13,13 @@ import {
   Tabs,
   Tooltip,
 } from '@mui/material';
-import { Pause as PauseIcon, PlayArrow as PlayIcon, Undo as UndoIcon } from '@mui/icons-material';
+import {
+  Pause as PauseIcon,
+  PlayArrow as PlayIcon,
+  Undo as UndoIcon,
+  SkipNext as NextTurnIcon,
+  Stop as EndGameIcon,
+} from '@mui/icons-material';
 import Scoreboard from '@/components/Scoreboard';
 import Player from '@/components/Player';
 import { canUndoAction } from '@/game/dominion-lib-undo';
@@ -55,13 +61,6 @@ const Container = styled(Box)(({ theme }) => ({
   minHeight: '70vh',
   marginTop: 0,
   paddingTop: 0,
-}));
-
-const ButtonContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'row',
-  gap: theme.spacing(2),
-  marginTop: theme.spacing(2),
 }));
 
 const FabContainer = styled(Box)(({ theme }) => ({
@@ -250,26 +249,18 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
             />
           )}
         </ForwardRefBox>
-        <ButtonContainer>
-          <Button
-            variant="contained"
+      </Container>
+      <FabContainer>
+        <Tooltip title="Next Turn">
+          <Fab
             color="primary"
+            aria-label="next-turn"
             onClick={nextTurn}
             disabled={!lastActionIsNotPause}
           >
-            Next Turn
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleOpenConfirmEndGameDialog}
-            disabled={!lastActionIsNotPause}
-          >
-            End Game
-          </Button>
-        </ButtonContainer>
-      </Container>
-      <FabContainer>
+            <NextTurnIcon />
+          </Fab>
+        </Tooltip>
         <Tooltip title="Undo the most recent update">
           <Fab
             color="secondary"
@@ -287,6 +278,16 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
             onClick={handlePauseUnpause}
           >
             {lastActionIsNotPause ? <PauseIcon /> : <PlayIcon />}
+          </Fab>
+        </Tooltip>
+        <Tooltip title="End Game">
+          <Fab
+            color="secondary"
+            aria-label="end-game"
+            onClick={handleOpenConfirmEndGameDialog}
+            disabled={!lastActionIsNotPause}
+          >
+            <EndGameIcon />
           </Fab>
         </Tooltip>
       </FabContainer>
