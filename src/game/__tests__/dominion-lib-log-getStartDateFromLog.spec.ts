@@ -11,6 +11,7 @@ describe('getStartDateFromLog', () => {
         {
           id: '1',
           timestamp: new Date(),
+          gameTime: 0,
           playerIndex: 0,
           currentPlayerIndex: 0,
           turn: 1,
@@ -25,6 +26,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '1',
         timestamp: new Date('2023-01-01T00:00:00Z'),
+        gameTime: 0,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -40,6 +42,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '1',
         timestamp: new Date('2023-01-02T00:00:00Z'),
+        gameTime: 0,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -48,6 +51,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '2',
         timestamp: new Date('2023-01-02T01:00:00Z'),
+        gameTime: 60000,
         playerIndex: 1,
         currentPlayerIndex: 0,
         turn: 1,
@@ -63,6 +67,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '1',
         timestamp: new Date('2023-01-03T00:00:00Z'),
+        gameTime: 0,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -71,6 +76,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '2',
         timestamp: new Date('2023-01-03T01:00:00Z'),
+        gameTime: 60000,
         playerIndex: 1,
         currentPlayerIndex: 0,
         turn: 1,
@@ -79,6 +85,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '3',
         timestamp: new Date('2023-01-03T02:00:00Z'),
+        gameTime: 120000,
         playerIndex: 2,
         currentPlayerIndex: 0,
         turn: 1,
@@ -94,6 +101,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '1',
         timestamp: new Date('2023-01-01T00:00:00Z'),
+        gameTime: 0,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -102,6 +110,7 @@ describe('getStartDateFromLog', () => {
       {
         id: '2',
         timestamp: new Date('2023-01-01T00:00:00Z'),
+        gameTime: 0,
         playerIndex: 1,
         currentPlayerIndex: 0,
         turn: 1,

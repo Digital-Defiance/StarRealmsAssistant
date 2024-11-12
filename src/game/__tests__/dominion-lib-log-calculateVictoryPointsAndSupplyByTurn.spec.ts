@@ -16,10 +16,12 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
   });
 
   it('should update victory points and reduce supply for victory cards', () => {
+    const gameStart = game.log[0].timestamp;
     game.log.push(
       {
         id: '2',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 1000),
+        gameTime: 1000,
         action: GameLogAction.ADD_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -28,7 +30,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       },
       {
         id: '3',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 2000),
+        gameTime: 2000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -51,10 +54,12 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
   });
 
   it('should not reduce supply if trash flag is true', () => {
+    const gameStart = game.log[0].timestamp;
     game.log.push(
       {
         id: '2',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 1000),
+        gameTime: 1000,
         action: GameLogAction.REMOVE_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -64,7 +69,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       } as ILogEntry,
       {
         id: '3',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 2000),
+        gameTime: 2000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -86,10 +92,12 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
   });
 
   it('should calculate victory points correctly with multiple actions', () => {
+    const gameStart = game.log[0].timestamp;
     game.log.push(
       {
         id: '2',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 1000),
+        gameTime: 1000,
         action: GameLogAction.ADD_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -98,7 +106,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       },
       {
         id: '3',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 2000),
+        gameTime: 2000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -107,7 +116,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       },
       {
         id: '4',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 3000),
+        gameTime: 3000,
         action: GameLogAction.ADD_DUCHIES,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -116,7 +126,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       },
       {
         id: '4',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 4000),
+        gameTime: 4000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -148,10 +159,12 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
   });
 
   it('should handle actions affecting multiple fields correctly', () => {
+    const gameStart = game.log[0].timestamp;
     game.log.push(
       createMockLog({
         id: '2',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 1000),
+        gameTime: 1000,
         action: GameLogAction.ADD_ESTATES,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -160,6 +173,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       }),
       createMockLog({
         id: '3',
+        timestamp: new Date(gameStart.getTime() + 2000),
+        gameTime: 2000,
         action: GameLogAction.NEXT_TURN,
         turn: 2,
         playerIndex: 1,
@@ -168,7 +183,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       }),
       createMockLog({
         id: '4',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 3000),
+        gameTime: 3000,
         action: GameLogAction.ADD_VP_TOKENS,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -177,7 +193,8 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
       }),
       createMockLog({
         id: '5',
-        timestamp: new Date(),
+        timestamp: new Date(gameStart.getTime() + 4000),
+        gameTime: 4000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,

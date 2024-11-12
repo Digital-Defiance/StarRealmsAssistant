@@ -3,7 +3,7 @@ import { Box, Divider, Typography } from '@mui/material';
 import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLayerGroup } from '@fortawesome/pro-solid-svg-icons';
-import { RecipeCard } from '@/components/RecipeCard';
+import RecipeCard from '@/components/RecipeCard';
 
 interface RecipesProps {
   containerHeight: number;

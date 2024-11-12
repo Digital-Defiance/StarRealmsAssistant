@@ -14,6 +14,7 @@ describe('restoreSavedGame', () => {
     id: faker.string.uuid(),
     action: GameLogAction.SAVE_GAME,
     timestamp: saveGameTime.toISOString(),
+    gameTime: faker.number.int({ min: 0, max: 50000 }),
     playerIndex: NO_PLAYER,
     currentPlayerIndex: 0,
     turn: 1,

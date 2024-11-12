@@ -5,7 +5,6 @@ import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 import { ITurnStatisticsRaw } from '@/game/interfaces/turn-statistics-raw';
 import { IRecipeAction } from './recipe-action';
 
@@ -63,10 +62,6 @@ export interface IGameRaw {
    * The number of sets required to play the game for the number of players.
    */
   setsRequired: number;
-  /**
-   * A cache of log entry time data, such as offsets from the start of the game adjusted for pauses, etc.
-   */
-  timeCache: Array<IEventTimeCacheRaw>;
   /**
    * A cache of turn statistics for the game.
    */

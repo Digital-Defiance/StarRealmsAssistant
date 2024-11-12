@@ -19,13 +19,10 @@ import { IGameSupply } from '@/game/interfaces/game-supply';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { IStorageService } from '@/game/interfaces/storage-service';
-import { IEventTimeCache } from '@/game/interfaces/event-time-cache';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { deepClone } from '@/game/utils';
-import { IEventTimeCacheRaw } from '@/game/interfaces/event-time-cache-raw';
 import { gt } from 'semver';
 import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
-import { rebuildCaches } from '@/game/dominion-lib-time';
 import { IRenaissanceFeatures } from '@/game/interfaces/set-features/renaissance';
 import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { ITurnStatisticsRaw } from '@/game/interfaces/turn-statistics-raw';
@@ -147,11 +144,6 @@ export function convertGameRawToGame(gameRaw: IGameRaw): IGame {
       ...deepClone<ILogEntryRaw>(entry),
       timestamp: convertTimestamp(entry.timestamp),
     })) as ILogEntry[],
-    timeCache: gameRaw.timeCache.map((cache) => ({
-      ...deepClone<IEventTimeCacheRaw>(cache),
-      saveStartTime: cache.saveStartTime ? convertTimestamp(cache.saveStartTime) : null,
-      pauseStartTime: cache.pauseStartTime ? convertTimestamp(cache.pauseStartTime) : null,
-    })) as IEventTimeCache[],
     turnStatisticsCache: gameRaw.turnStatisticsCache.map((cache) => ({
       ...deepClone<ITurnStatisticsRaw>(cache),
       start: convertTimestamp(cache.start),
@@ -180,19 +172,6 @@ export function convertGameToGameRaw(game: IGame): IGameRaw {
           ? logEntry.timestamp.toISOString()
           : new Date(logEntry.timestamp).toISOString(), // Ensure timestamp is a Date object
     })) as ILogEntryRaw[],
-    timeCache: game.timeCache.map((timeCache) => ({
-      ...deepClone<IEventTimeCache>(timeCache),
-      saveStartTime: timeCache.saveStartTime
-        ? timeCache.saveStartTime instanceof Date
-          ? timeCache.saveStartTime.toISOString()
-          : new Date(timeCache.saveStartTime).toISOString()
-        : null,
-      pauseStartTime: timeCache.pauseStartTime
-        ? timeCache.pauseStartTime instanceof Date
-          ? timeCache.pauseStartTime.toISOString()
-          : new Date(timeCache.pauseStartTime).toISOString()
-        : null,
-    })) as IEventTimeCacheRaw[],
     turnStatisticsCache: game.turnStatisticsCache.map((turnStatistics) => ({
       ...deepClone<ITurnStatistics>(turnStatistics),
       start:
@@ -293,9 +272,6 @@ export function loadGame(
     }
 
     game = loadGameAddLog(game, loadTime);
-    const { timeCache, turnStatisticsCache } = rebuildCaches(game);
-    game.timeCache = timeCache;
-    game.turnStatisticsCache = turnStatisticsCache;
 
     return game;
   } catch (error) {
@@ -410,6 +386,7 @@ export function loadGameAddLog(gameState: IGame, loadTime: Date): IGame {
   if (lastGameLog.action !== GameLogAction.END_GAME) {
     addLogEntry(gameState, NO_PLAYER, GameLogAction.LOAD_GAME, {
       timestamp: loadTime,
+      gameTime: lastGameLog.gameTime,
       linkedActionId: lastGameLog.id,
     });
   }

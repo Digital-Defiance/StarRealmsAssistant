@@ -1,10 +1,7 @@
 import * as undoModule from '@/game/dominion-lib-undo';
 import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
-import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { faker } from '@faker-js/faker';
-import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
-import { DefaultTurnDetails } from '@/game/constants';
+import { createMockGame, createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughProphecyError } from '@/game/errors/not-enough-prophecy';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
@@ -18,18 +15,7 @@ describe('undoAction', () => {
   let consoleErrorSpy: jest.SpyInstance;
   let removeTargetAndLinkedActionsSpy: jest.SpyInstance;
   let reconstructGameStateSpy: jest.SpyInstance;
-
-  const createLogEntry = (action: GameLogAction, id?: string): ILogEntry => ({
-    id: id ?? faker.string.uuid(),
-    timestamp: new Date(),
-    action,
-    count: 1,
-    playerIndex: 0,
-    currentPlayerIndex: 0,
-    turn: 1,
-    playerTurnDetails:
-      action === GameLogAction.NEXT_TURN ? [DefaultTurnDetails(), DefaultTurnDetails()] : undefined,
-  });
+  const gameStart: Date = new Date('2021-01-01T00:00:00.000Z');
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -47,7 +33,13 @@ describe('undoAction', () => {
 
   it('should return success false if canUndoAction returns false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
     });
 
     // Ensure removeTargetAndLinkedActions returns a valid game
@@ -57,10 +49,10 @@ describe('undoAction', () => {
       throw new Error('Simulated error');
     });
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(expect.any(Object), 0);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(expect.any(Object), 1);
     expect(reconstructGameStateSpy).toHaveBeenCalledWith(expect.any(Object));
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Error during game state reconstruction:',
@@ -70,23 +62,35 @@ describe('undoAction', () => {
 
   it('should return success true and updated game if undo is successful', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
     });
     const updatedGame = { ...game, log: [] };
     removeTargetAndLinkedActionsSpy.mockReturnValue(updatedGame);
     reconstructGameStateSpy.mockReturnValue(updatedGame);
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(true);
     expect(result.game).toEqual(updatedGame);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 0);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 1);
     expect(reconstructGameStateSpy).toHaveBeenCalledWith(updatedGame);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should handle errors during reconstruction and return success false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
     });
     removeTargetAndLinkedActionsSpy.mockReturnValue(game);
     const error = new Error('Reconstruction error');
@@ -94,17 +98,23 @@ describe('undoAction', () => {
       throw error;
     });
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(expect.any(Object), 0);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(expect.any(Object), 1);
     expect(reconstructGameStateSpy).toHaveBeenCalledWith(expect.any(Object));
     expect(consoleErrorSpy).toHaveBeenCalledWith('Error during game state reconstruction:', error);
   });
 
   it('should handle NotEnoughSupplyError and return success false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogAction.REMOVE_ESTATES)],
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.REMOVE_ESTATES,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
     });
     removeTargetAndLinkedActionsSpy.mockReturnValue(game);
     const error = new NotEnoughSupplyError('estate');
@@ -112,7 +122,7 @@ describe('undoAction', () => {
       throw error;
     });
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
     expect(consoleErrorSpy).toHaveBeenCalledWith('Error during game state reconstruction:', error);
@@ -128,7 +138,13 @@ describe('undoAction', () => {
         trackCardGains: true,
         trackDiscard: true,
       },
-      log: [createLogEntry(GameLogAction.REMOVE_PROPHECY)],
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.REMOVE_PROPHECY,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
     });
     removeTargetAndLinkedActionsSpy.mockReturnValue(game);
     const error = new NotEnoughProphecyError();
@@ -136,7 +152,7 @@ describe('undoAction', () => {
       throw error;
     });
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
     expect(consoleErrorSpy).toHaveBeenCalledWith('Error during game state reconstruction:', error);
@@ -144,7 +160,13 @@ describe('undoAction', () => {
 
   it('should return success false if removeTargetAndLinkedActions throws an error', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
     });
     const removalError = new Error('Removal error');
 
@@ -161,7 +183,7 @@ describe('undoAction', () => {
     reconstructGameStateSpy.mockClear();
     consoleErrorSpy.mockClear();
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
     expect(consoleErrorSpy).toHaveBeenCalledWith('Error undoing action:', removalError);
@@ -172,21 +194,27 @@ describe('undoAction', () => {
     const mainActionId = 'main-action';
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogAction.ADD_ACTIONS, mainActionId),
-        {
-          ...createLogEntry(GameLogAction.REMOVE_ACTIONS),
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          id: mainActionId,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+        createMockLog({
+          action: GameLogAction.REMOVE_ACTIONS,
           linkedActionId: mainActionId,
-        },
+          timestamp: new Date(gameStart.getTime() + 2000),
+        }),
       ],
     });
     const updatedGame = { ...game, log: [] };
     removeTargetAndLinkedActionsSpy.mockReturnValue(updatedGame);
     reconstructGameStateSpy.mockReturnValue(updatedGame);
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(true);
     expect(result.game).toEqual(updatedGame);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 0);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 1);
     expect(reconstructGameStateSpy).toHaveBeenCalledWith(updatedGame);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
@@ -216,9 +244,15 @@ describe('undoAction', () => {
   it('should handle consecutive undo operations', () => {
     const game = createMockGame(2, {
       log: [
-        createLogEntry(GameLogAction.START_GAME),
-        createLogEntry(GameLogAction.ADD_ACTIONS),
-        createLogEntry(GameLogAction.ADD_BUYS),
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+        createMockLog({
+          action: GameLogAction.ADD_BUYS,
+          timestamp: new Date(gameStart.getTime() + 2000),
+        }),
       ],
     });
 
@@ -265,7 +299,13 @@ describe('undoAction', () => {
 
   it('should handle NotEnoughSubfieldError and return success false', () => {
     const game = createMockGame(2, {
-      log: [createLogEntry(GameLogAction.ADD_ACTIONS)],
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.REMOVE_ACTIONS,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
     });
     const error = new NotEnoughSubfieldError('turn', 'actions');
 
@@ -279,7 +319,7 @@ describe('undoAction', () => {
       throw error;
     });
 
-    const result = undoModule.undoAction(game, 0);
+    const result = undoModule.undoAction(game, 1);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
     expect(consoleErrorSpy).toHaveBeenCalledWith(

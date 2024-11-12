@@ -26,7 +26,6 @@ import { formatTimeSpan, logEntryToString } from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
-import { getAdjustedDurationFromCacheByIndex } from '@/game/dominion-lib-time';
 import '@/styles.scss';
 import { Recipes } from './Recipes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -178,9 +177,7 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
           <Typography variant="caption">{formatDate(entry.timestamp)}</Typography>
         </Box>
         <Box>
-          <Typography variant="caption">
-            {formatTimeSpan(getAdjustedDurationFromCacheByIndex(gameState, logIndex) ?? 0)}
-          </Typography>
+          <Typography variant="caption">{formatTimeSpan(entry.gameTime)}</Typography>
         </Box>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box display="flex" alignItems="center">

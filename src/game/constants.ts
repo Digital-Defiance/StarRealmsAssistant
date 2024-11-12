@@ -14,8 +14,8 @@ import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 import { calculateInitialSunTokens } from '@/game/interfaces/set-mats/prophecy';
 
-export const VERSION_NUMBER = '0.11.3';
-export const LAST_COMPATIBLE_SAVE_VERSION = '0.11.0';
+export const VERSION_NUMBER = '0.12.0';
+export const LAST_COMPATIBLE_SAVE_VERSION = '0.12.0';
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 6;
@@ -333,7 +333,6 @@ export function EmptyGameState(): IGame {
     firstPlayerIndex: NO_PLAYER,
     selectedPlayerIndex: NO_PLAYER,
     log: [],
-    timeCache: [],
     turnStatisticsCache: [],
     gameVersion: VERSION_NUMBER,
     pendingGroupedActions: [],

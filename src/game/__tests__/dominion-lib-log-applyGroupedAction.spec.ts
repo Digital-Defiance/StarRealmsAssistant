@@ -12,6 +12,7 @@ import {
 } from '@/game/dominion-lib-log';
 import { RecipeKey, Recipes } from '@/components/Recipes';
 import { GroupedActionTrigger } from '../enumerations/grouped-action-trigger';
+import { faker } from '@faker-js/faker';
 
 function createGroupedActionBase(): IGroupedAction {
   return {
@@ -28,9 +29,10 @@ function createGroupedActionBase(): IGroupedAction {
 
 describe('applyGroupedAction', () => {
   let mockGame: IGame;
+  const gameStart = new Date('2021-01-01T00:00:00Z');
   let groupedAction: IGroupedAction;
   let consoleErrorSpy: jest.SpyInstance;
-  let actionDate: Date;
+  const actionDate = new Date(gameStart.getTime() + 10000);
   const applyGroupedActionSubActionMock: jest.Mock = jest
     .fn()
     .mockImplementation(
@@ -56,13 +58,23 @@ describe('applyGroupedAction', () => {
       currentPlayerIndex: 0,
       selectedPlayerIndex: 0,
       firstPlayerIndex: 0,
+      log: [
+        {
+          id: faker.string.uuid(),
+          action: GameLogAction.START_GAME,
+          timestamp: gameStart,
+          gameTime: 0,
+          playerIndex: 0,
+          currentPlayerIndex: 0,
+          turn: 1,
+        },
+      ],
     });
     groupedAction = createGroupedActionBase();
 
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
       // do nothing
     });
-    actionDate = new Date(getGameStartTime(mockGame).getTime() + 10000);
   });
 
   afterEach(() => {
@@ -539,10 +551,10 @@ describe('applyGroupedAction', () => {
             id: expect.any(String),
             playerIndex: mockGame.currentPlayerIndex,
             timestamp: actionDate,
+            gameTime: actionDate.getTime() - gameStart.getTime(),
             turn: mockGame.currentTurn,
           },
         ],
-        timeCache: expect.any(Array),
       },
       {
         action: GameLogAction.ADD_ACTIONS,

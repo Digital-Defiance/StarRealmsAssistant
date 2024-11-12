@@ -170,7 +170,13 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
       // Unpause the game
       setGameState((prevState) => {
         const newState = deepClone<IGame>(prevState);
-        addLogEntry(newState, NO_PLAYER, GameLogAction.UNPAUSE);
+        const lastLogEntry = newState.log[newState.log.length - 1];
+        if (lastLogEntry.action !== GameLogAction.PAUSE) {
+          return prevState;
+        }
+        addLogEntry(newState, NO_PLAYER, GameLogAction.UNPAUSE, {
+          gameTime: lastLogEntry.gameTime,
+        });
         return newState;
       });
     } else {

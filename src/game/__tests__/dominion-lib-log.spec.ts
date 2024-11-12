@@ -150,12 +150,14 @@ describe('getTurnEndTime', () => {
       createMockLog({
         turn: 1,
         action: GameLogAction.START_GAME,
+        gameTime: 0,
         timestamp: new Date('2023-01-01T00:00:00Z'),
       }),
       createMockLog({
         turn: 1,
         action: GameLogAction.END_GAME,
         timestamp: new Date('2023-01-01T02:00:00Z'),
+        gameTime: 7200000, // 2 hours
       }),
     ];
     const game = createMockGame(2, { log });
@@ -178,15 +180,19 @@ describe('getTurnEndTime', () => {
 
 describe('getTurnAdjustments', () => {
   let mockGame: IGame;
+  const gameStart = new Date('2023-01-01T00:00:00Z');
 
   beforeEach(() => {
-    mockGame = createMockGame(2);
+    mockGame = createMockGame(2, {
+      log: [createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart })],
+    });
   });
 
   it('should return correct adjustments for a given log entry', () => {
     const logEntry: ILogEntry = {
-      id: '1',
-      timestamp: new Date(),
+      id: '2',
+      timestamp: new Date(gameStart.getTime() + 1000),
+      gameTime: 1000,
       action: GameLogAction.ADD_ACTIONS,
       playerIndex: 0,
       currentPlayerIndex: 0,
@@ -205,6 +211,7 @@ describe('getTurnAdjustments', () => {
 
   it('should find adjustments for the correct turn', () => {
     const log: ILogEntry[] = [
+      createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
       createMockLog({ turn: 1, action: GameLogAction.ADD_ACTIONS, count: 3 }),
       createMockLog({ turn: 2, action: GameLogAction.NEXT_TURN }),
       createMockLog({ turn: 2, action: GameLogAction.ADD_ACTIONS, count: 2 }),
@@ -221,7 +228,8 @@ describe('getTurnAdjustments', () => {
   it('should handle edge cases correctly', () => {
     const logEntry: ILogEntry = {
       id: '2',
-      timestamp: new Date(),
+      timestamp: new Date(gameStart.getTime() + 1000),
+      gameTime: 1000,
       action: GameLogAction.ADD_BUYS,
       playerIndex: 0,
       currentPlayerIndex: 0,
@@ -375,6 +383,7 @@ describe('getPlayerForTurn', () => {
 
 describe('getAverageActionsPerTurn', () => {
   let game: IGame;
+  const gameStart = new Date('2023-01-01T00:00:00Z');
 
   beforeEach(() => {
     game = createMockGame(2);
@@ -382,20 +391,39 @@ describe('getAverageActionsPerTurn', () => {
 
   it('should return the correct average actions per turn', () => {
     game.log = [
-      createMockLog({ action: GameLogAction.START_GAME, turn: 1, playerIndex: 0 }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3, playerIndex: 0 }),
+      createMockLog({
+        action: GameLogAction.START_GAME,
+        turn: 1,
+        playerIndex: 0,
+        timestamp: gameStart,
+      }),
+      createMockLog({
+        action: GameLogAction.ADD_ACTIONS,
+        turn: 1,
+        count: 3,
+        playerIndex: 0,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
       createMockLog({
         action: GameLogAction.NEXT_TURN,
         turn: 2,
         playerIndex: 1,
         prevPlayerIndex: 0,
+        timestamp: new Date(gameStart.getTime() + 2000),
       }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5, playerIndex: 1 }),
+      createMockLog({
+        action: GameLogAction.ADD_ACTIONS,
+        turn: 2,
+        count: 5,
+        playerIndex: 1,
+        timestamp: new Date(gameStart.getTime() + 3000),
+      }),
       createMockLog({
         action: GameLogAction.END_GAME,
         turn: 2,
         playerIndex: -1,
         prevPlayerIndex: 1,
+        timestamp: new Date(gameStart.getTime() + 4000),
       }),
     ];
 
@@ -411,10 +439,24 @@ describe('getAverageActionsPerTurn', () => {
 
   it('should handle a single turn correctly', () => {
     game.log = [
-      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 4 }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 4 }),
-      createMockLog({ action: GameLogAction.END_GAME, turn: 1 }),
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1, timestamp: gameStart }),
+      createMockLog({
+        action: GameLogAction.ADD_ACTIONS,
+        turn: 1,
+        count: 4,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+      createMockLog({
+        action: GameLogAction.ADD_ACTIONS,
+        turn: 1,
+        count: 4,
+        timestamp: new Date(gameStart.getTime() + 2000),
+      }),
+      createMockLog({
+        action: GameLogAction.END_GAME,
+        turn: 1,
+        timestamp: new Date(gameStart.getTime() + 3000),
+      }),
     ];
 
     const averageActions = getAverageActionsPerTurn(game);
@@ -423,15 +465,49 @@ describe('getAverageActionsPerTurn', () => {
 
   it('should exclude non-action log entries', () => {
     game.log = [
-      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
-      createMockLog({ action: GameLogAction.PAUSE, turn: 1 }),
-      createMockLog({ action: GameLogAction.UNPAUSE, turn: 1 }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3 }),
-      createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2 }),
-      createMockLog({ action: GameLogAction.SAVE_GAME, turn: 2 }),
-      createMockLog({ action: GameLogAction.LOAD_GAME, turn: 2 }),
-      createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5 }),
-      createMockLog({ action: GameLogAction.END_GAME, turn: 2 }),
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1, timestamp: gameStart }),
+      createMockLog({
+        action: GameLogAction.PAUSE,
+        turn: 1,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+      createMockLog({
+        action: GameLogAction.UNPAUSE,
+        turn: 1,
+        timestamp: new Date(gameStart.getTime() + 2000),
+      }),
+      createMockLog({
+        action: GameLogAction.ADD_ACTIONS,
+        turn: 1,
+        count: 3,
+        timestamp: new Date(gameStart.getTime() + 3000),
+      }),
+      createMockLog({
+        action: GameLogAction.NEXT_TURN,
+        turn: 2,
+        timestamp: new Date(gameStart.getTime() + 4000),
+      }),
+      createMockLog({
+        action: GameLogAction.SAVE_GAME,
+        turn: 2,
+        timestamp: new Date(gameStart.getTime() + 5000),
+      }),
+      createMockLog({
+        action: GameLogAction.LOAD_GAME,
+        turn: 2,
+        timestamp: new Date(gameStart.getTime() + 6000),
+      }),
+      createMockLog({
+        action: GameLogAction.ADD_ACTIONS,
+        turn: 2,
+        count: 5,
+        timestamp: new Date(gameStart.getTime() + 7000),
+      }),
+      createMockLog({
+        action: GameLogAction.END_GAME,
+        turn: 2,
+        timestamp: new Date(gameStart.getTime() + 8000),
+      }),
     ];
 
     const averageActions = getAverageActionsPerTurn(game);
@@ -440,9 +516,17 @@ describe('getAverageActionsPerTurn', () => {
 
   it('should handle turns with zero actions', () => {
     game.log = [
-      createMockLog({ action: GameLogAction.START_GAME, turn: 1 }),
-      createMockLog({ action: GameLogAction.NEXT_TURN, turn: 2 }),
-      createMockLog({ action: GameLogAction.END_GAME, turn: 2 }),
+      createMockLog({ action: GameLogAction.START_GAME, turn: 1, timestamp: gameStart }),
+      createMockLog({
+        action: GameLogAction.NEXT_TURN,
+        turn: 2,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+      createMockLog({
+        action: GameLogAction.END_GAME,
+        turn: 2,
+        timestamp: new Date(gameStart.getTime() + 2000),
+      }),
     ];
 
     const averageActions = getAverageActionsPerTurn(game);
@@ -452,6 +536,7 @@ describe('getAverageActionsPerTurn', () => {
 
 describe('getPlayerNextTurnCount', () => {
   let mockGame: IGame;
+  const gameStart = new Date('2023-01-01T00:00:00Z');
 
   beforeEach(() => {
     mockGame = createMockGame(3, {
@@ -459,31 +544,64 @@ describe('getPlayerNextTurnCount', () => {
       currentPlayerIndex: 1,
       firstPlayerIndex: 0,
       log: [
-        createMockLog({ action: GameLogAction.START_GAME, turn: 1, playerIndex: 0 }),
-        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 1, count: 3, playerIndex: 0 }),
+        createMockLog({
+          action: GameLogAction.START_GAME,
+          turn: 1,
+          playerIndex: 0,
+          timestamp: gameStart,
+        }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          turn: 1,
+          count: 3,
+          playerIndex: 0,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
         createMockLog({
           action: GameLogAction.NEXT_TURN,
+          timestamp: new Date(gameStart.getTime() + 2000),
           turn: 2,
           playerIndex: 1,
           prevPlayerIndex: 0,
         }),
-        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 2, count: 5, playerIndex: 1 }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          turn: 2,
+          count: 5,
+          playerIndex: 1,
+          timestamp: new Date(gameStart.getTime() + 3000),
+        }),
         createMockLog({
           action: GameLogAction.NEXT_TURN,
+          timestamp: new Date(gameStart.getTime() + 4000),
           turn: 3,
           playerIndex: 2,
           prevPlayerIndex: 1,
         }),
-        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 3, count: 7, playerIndex: 2 }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          turn: 3,
+          count: 7,
+          playerIndex: 2,
+          timestamp: new Date(gameStart.getTime() + 5000),
+        }),
         createMockLog({
           action: GameLogAction.NEXT_TURN,
+          timestamp: new Date(gameStart.getTime() + 6000),
           turn: 4,
           playerIndex: 0,
           prevPlayerIndex: 2,
         }),
-        createMockLog({ action: GameLogAction.ADD_ACTIONS, turn: 4, count: 9, playerIndex: 0 }),
+        createMockLog({
+          action: GameLogAction.ADD_ACTIONS,
+          turn: 4,
+          count: 9,
+          playerIndex: 0,
+          timestamp: new Date(gameStart.getTime() + 7000),
+        }),
         createMockLog({
           action: GameLogAction.NEXT_TURN,
+          timestamp: new Date(gameStart.getTime() + 8000),
           turn: 5,
           playerIndex: 1,
           prevPlayerIndex: 0,
@@ -538,12 +656,14 @@ describe('getPlayerNextTurnCount', () => {
 });
 
 describe('getMasterActionId', () => {
+  const gameStart = new Date('2023-01-01T00:00:00Z');
+
   it('should return the linked action ID for a valid log entry', () => {
     const logEntry: ILogEntry = createMockLog({
       id: '1',
       action: GameLogAction.ADD_ACTIONS,
+      timestamp: new Date(gameStart.getTime() + 1000),
       linkedActionId: 'master-123',
-      timestamp: new Date(),
       // other properties
     });
     const result = getMasterActionId(logEntry);
@@ -554,7 +674,7 @@ describe('getMasterActionId', () => {
     const logEntry: ILogEntry = createMockLog({
       id: '2',
       action: GameLogAction.ADD_ACTIONS,
-      timestamp: new Date(),
+      timestamp: new Date(gameStart.getTime() + 1000),
       // other properties
     });
     const result = getMasterActionId(logEntry);

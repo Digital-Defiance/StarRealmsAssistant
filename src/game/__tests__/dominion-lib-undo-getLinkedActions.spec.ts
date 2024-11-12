@@ -1,49 +1,71 @@
 import { getLinkedActions } from '@/game/dominion-lib-undo';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
+import { createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 
 describe('getLinkedActions', () => {
-  const createLogEntry = (
-    id: string,
-    action: GameLogAction,
-    linkedActionId?: string
-  ): ILogEntry => ({
-    id,
-    timestamp: new Date(),
-    action,
-    playerIndex: 0,
-    currentPlayerIndex: 0,
-    turn: 1,
-    count: 1,
-    linkedActionId,
-  });
+  const gameStart = new Date('2021-01-01T00:00:00Z');
 
   it('should return an empty array when the log entry has a linkedAction', () => {
     const log = [
-      createLogEntry('1', GameLogAction.ADD_ACTIONS),
-      createLogEntry('2', GameLogAction.REMOVE_ACTIONS, '1'),
+      createMockLog({ id: '1', action: GameLogAction.START_GAME, timestamp: gameStart }),
+      createMockLog({
+        id: '2',
+        action: GameLogAction.ADD_ACTIONS,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+      createMockLog({
+        id: '3',
+        action: GameLogAction.REMOVE_ACTIONS,
+        linkedActionId: '1',
+        timestamp: new Date(gameStart.getTime() + 2000),
+      }),
     ];
-    const result = getLinkedActions(log, 1);
+    const result = getLinkedActions(log, 2);
     expect(result).toEqual([]);
   });
 
   it('should return the original action and its linked actions', () => {
     const log = [
-      createLogEntry('1', GameLogAction.ADD_ACTIONS),
-      createLogEntry('2', GameLogAction.REMOVE_ACTIONS, '1'),
-      createLogEntry('3', GameLogAction.ADD_BUYS, '1'),
+      createMockLog({ id: '1', action: GameLogAction.ADD_ACTIONS, timestamp: gameStart }),
+      createMockLog({
+        id: '2',
+        action: GameLogAction.ADD_ACTIONS,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+      createMockLog({
+        id: '3',
+        action: GameLogAction.REMOVE_ACTIONS,
+        linkedActionId: '2',
+        timestamp: new Date(gameStart.getTime() + 2000),
+      }),
+      createMockLog({
+        id: '4',
+        action: GameLogAction.ADD_BUYS,
+        linkedActionId: '2',
+        timestamp: new Date(gameStart.getTime() + 3000),
+      }),
     ];
-    const result = getLinkedActions(log, 0);
-    expect(result).toEqual([log[0], log[1], log[2]]);
+    const result = getLinkedActions(log, 1);
+    expect(result).toEqual([log[1], log[2], log[3]]);
   });
 
   it('should return only the original action when there are no linked actions', () => {
     const log = [
-      createLogEntry('1', GameLogAction.ADD_ACTIONS),
-      createLogEntry('2', GameLogAction.REMOVE_ACTIONS),
+      createMockLog({ id: '1', action: GameLogAction.ADD_ACTIONS, timestamp: gameStart }),
+      createMockLog({
+        id: '2',
+        action: GameLogAction.ADD_ACTIONS,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+      createMockLog({
+        id: '3',
+        action: GameLogAction.REMOVE_ACTIONS,
+        timestamp: new Date(gameStart.getTime() + 2000),
+      }),
     ];
-    const result = getLinkedActions(log, 0);
-    expect(result).toEqual([log[0]]);
+    const result = getLinkedActions(log, 1);
+    expect(result).toEqual([log[1]]);
   });
 
   it('should handle an empty log array', () => {
@@ -52,18 +74,44 @@ describe('getLinkedActions', () => {
   });
 
   it('should handle an invalid index', () => {
-    const log = [createLogEntry('1', GameLogAction.ADD_ACTIONS)];
-    expect(() => getLinkedActions(log, 1)).toThrow();
+    const log = [
+      createMockLog({ id: '1', action: GameLogAction.ADD_ACTIONS, timestamp: gameStart }),
+      createMockLog({
+        id: '2',
+        action: GameLogAction.ADD_ACTIONS,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+    ];
+    expect(() => getLinkedActions(log, 2)).toThrow();
   });
 
   it('should not include actions linked to other entries', () => {
     const log = [
-      createLogEntry('1', GameLogAction.ADD_ACTIONS),
-      createLogEntry('2', GameLogAction.REMOVE_ACTIONS, '1'),
-      createLogEntry('3', GameLogAction.ADD_BUYS),
-      createLogEntry('4', GameLogAction.REMOVE_BUYS, '3'),
+      createMockLog({ id: '1', action: GameLogAction.ADD_ACTIONS, timestamp: gameStart }),
+      createMockLog({
+        id: '2',
+        action: GameLogAction.ADD_ACTIONS,
+        timestamp: new Date(gameStart.getTime() + 1000),
+      }),
+      createMockLog({
+        id: '3',
+        action: GameLogAction.REMOVE_ACTIONS,
+        linkedActionId: '2',
+        timestamp: new Date(gameStart.getTime() + 2000),
+      }),
+      createMockLog({
+        id: '4',
+        action: GameLogAction.ADD_BUYS,
+        timestamp: new Date(gameStart.getTime() + 3000),
+      }),
+      createMockLog({
+        id: '5',
+        action: GameLogAction.REMOVE_BUYS,
+        linkedActionId: '3',
+        timestamp: new Date(gameStart.getTime() + 4000),
+      }),
     ];
-    const result = getLinkedActions(log, 0);
-    expect(result).toEqual([log[0], log[1]]);
+    const result = getLinkedActions(log, 1);
+    expect(result).toEqual([log[1], log[2]]);
   });
 });

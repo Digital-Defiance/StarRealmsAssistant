@@ -10,7 +10,7 @@ import {
   NegativeAdjustmentActions,
 } from '@/game/constants';
 import { IMatDetails } from '@/game/interfaces/mat-details';
-import { applyLogAction } from '@/game/dominion-lib-log';
+import { applyLogAction, calculateDurationUpToEvent } from '@/game/dominion-lib-log';
 
 export function generateLargeGame(turns = 50): IGame {
   console.log('Generating large game with', turns, 'turns');
@@ -43,6 +43,7 @@ export function generateLargeGame(turns = 50): IGame {
       playerIndex: 0,
       turn: 1,
       timestamp: gameStartTime,
+      gameTime: 0,
     })
   );
 
@@ -65,6 +66,7 @@ export function generateLargeGame(turns = 50): IGame {
           prevPlayerIndex: game.currentPlayerIndex,
           turn: game.currentTurn + 1,
           timestamp: newTimestamp,
+          gameTime: calculateDurationUpToEvent(game.log, newTimestamp),
         })
       );
     }
@@ -80,6 +82,7 @@ export function generateLargeGame(turns = 50): IGame {
       playerIndex: -1,
       turn: turns,
       timestamp: endTimestamp,
+      gameTime: calculateDurationUpToEvent(game.log, endTimestamp),
     })
   );
 
@@ -145,6 +148,7 @@ function simulatePlayerTurn(game: IGame, timestamp: Date): IGame {
         turn: game.currentTurn,
         count: 1,
         timestamp,
+        gameTime: calculateDurationUpToEvent(game.log, timestamp),
       })
     );
   }

@@ -14,6 +14,7 @@ jest.mock('@/game/interfaces/set-mats/prophecy', () => ({
 }));
 
 describe('NewGameState', () => {
+  const gameStart = new Date('2022-01-01T00:00:00Z');
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -28,7 +29,7 @@ describe('NewGameState', () => {
       selectedPlayerIndex: firstPlayerIndex,
     };
 
-    const result = NewGameState(initialGameState);
+    const result = NewGameState(initialGameState, gameStart);
 
     expect(result.currentStep).toBe(CurrentStep.Game);
     expect(result.players.length).toBe(2);
@@ -38,7 +39,8 @@ describe('NewGameState', () => {
     expect(result.log).toEqual([
       {
         id: expect.any(String),
-        timestamp: expect.any(Date),
+        timestamp: gameStart,
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: initialGameState.firstPlayerIndex,
         currentPlayerIndex: initialGameState.currentPlayerIndex,
@@ -70,7 +72,7 @@ describe('NewGameState', () => {
       },
     };
 
-    const result = NewGameState(initialGameState);
+    const result = NewGameState(initialGameState, gameStart);
 
     expect(result.expansions.risingSun.prophecy.suns).toBe(5);
     expect(result.expansions.risingSun.greatLeaderProphecy).toBe(true);
@@ -83,7 +85,7 @@ describe('NewGameState', () => {
       players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
     };
 
-    const result = NewGameState(initialGameState);
+    const result = NewGameState(initialGameState, gameStart);
 
     expect(result.expansions.risingSun.prophecy.suns).toBe(NOT_PRESENT);
     expect(result.expansions.risingSun.greatLeaderProphecy).toBe(false);
@@ -96,7 +98,7 @@ describe('NewGameState', () => {
       players: [newPlayer('Player 1', 0)],
     };
 
-    expect(() => NewGameState(initialGameState)).toThrow(MinPlayersError);
+    expect(() => NewGameState(initialGameState, gameStart)).toThrow(MinPlayersError);
   });
 
   it('should preserve custom options', () => {
@@ -114,7 +116,7 @@ describe('NewGameState', () => {
       options: customOptions,
     };
 
-    const result = NewGameState(initialGameState);
+    const result = NewGameState(initialGameState, gameStart);
 
     expect(result.options).toEqual(customOptions);
   });
@@ -127,7 +129,7 @@ describe('NewGameState', () => {
         .map((_, i) => newPlayer(`Player ${i + 1}`, i)),
     };
 
-    const result = NewGameState(initialGameState);
+    const result = NewGameState(initialGameState, gameStart);
 
     expect(result.players.length).toBe(MAX_PLAYERS);
   });
@@ -140,6 +142,6 @@ describe('NewGameState', () => {
         .map((_, i) => newPlayer(`Player ${i + 1}`, i)),
     };
 
-    expect(() => NewGameState(initialGameState)).toThrow(MaxPlayersError);
+    expect(() => NewGameState(initialGameState, gameStart)).toThrow(MaxPlayersError);
   });
 });

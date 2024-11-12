@@ -1,3 +1,4 @@
 [
-  "Don't forget to check the <a target=\"_blank\" href=\"https://github.com/Digital-Defiance/DominionAssistant?tab=readme-ov-file#changelog\">Changelog</a> to see what has changed recently. The code is updated frequently at this point."
+  "Don't forget to check the <a target=\"_blank\" href=\"https://github.com/Digital-Defiance/DominionAssistant?tab=readme-ov-file#changelog\">Changelog</a> to see what has changed recently. The code is updated frequently at this point.",
+  "The game is currently in active development. While I strive to maintain save game compatibility, changes to the game state may occasionally render save games incompatible. Until development progresses further, this may happen from time to time. If you have a save game that you need to load, please raise an issue on GitHub and attach the exported save game JSON. I will attempt to manually fix it to the correct format. Apologies for any inconvenience."
 ]

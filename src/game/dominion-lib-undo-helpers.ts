@@ -48,7 +48,7 @@ export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGa
  * @returns The reconstructed game state
  */
 export function reconstructGameState(game: IGame): IGame {
-  let reconstructedGame = NewGameState(game);
+  let reconstructedGame = NewGameState(game, game.log[0].timestamp);
   // clear the log
   reconstructedGame.log = [];
 

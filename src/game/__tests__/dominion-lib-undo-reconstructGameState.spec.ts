@@ -25,28 +25,20 @@ import { GroupedActionDest } from '@/game/enumerations/grouped-action-dest';
 describe('reconstructGameState', () => {
   let baseGame: IGame;
   let consoleErrorSpy: jest.SpyInstance;
+  const gameStart = new Date('2022-01-01T00:00:00Z');
 
   beforeEach(() => {
-    baseGame = NewGameState({
-      ...EmptyGameState(),
-      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
-      // start with second player
-      firstPlayerIndex: 1,
-      currentPlayerIndex: 1,
-      selectedPlayerIndex: 1,
-    });
-    baseGame.timeCache = [
+    baseGame = NewGameState(
       {
-        adjustedDuration: 0,
-        eventId: baseGame.log[0].id,
-        inPauseState: false,
-        inSaveState: false,
-        pauseStartTime: null,
-        saveStartTime: null,
-        totalPauseTime: 0,
-        turnPauseTime: 0,
+        ...EmptyGameState(),
+        players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
+        // start with second player
+        firstPlayerIndex: 1,
+        currentPlayerIndex: 1,
+        selectedPlayerIndex: 1,
       },
-    ];
+      gameStart
+    );
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
       // do nothing
     });
@@ -146,7 +138,8 @@ describe('reconstructGameState', () => {
         ...baseGame.log,
         {
           id: faker.string.uuid(),
-          timestamp: new Date(),
+          timestamp: new Date(gameStart.getTime() + 1000),
+          gameTime: 1000,
           action: GameLogAction.ADD_COINS,
           playerIndex: baseGame.currentPlayerIndex,
           currentPlayerIndex: baseGame.currentPlayerIndex,
@@ -155,7 +148,8 @@ describe('reconstructGameState', () => {
         },
         {
           id: faker.string.uuid(),
-          timestamp: new Date(),
+          timestamp: new Date(gameStart.getTime() + 2000),
+          gameTime: 2000,
           action: GameLogAction.NEXT_TURN,
           playerIndex: nextPlayerIndex,
           playerTurnDetails: [

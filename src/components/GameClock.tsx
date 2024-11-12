@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { formatTimeSpan } from '@/game/dominion-lib-log';
 import {
+  calculateAverageTurnDuration,
   calculateAverageTurnDurationForPlayer,
   calculateCurrentTurnDuration,
-  calculateAverageTurnDuration,
-  calculateDurationUpToEventWithCache,
-} from '@/game/dominion-lib-time';
+  calculateDurationUpToEvent,
+  calculateTurnDurations,
+  formatTimeSpan,
+} from '@/game/dominion-lib-log';
 import { useGameContext } from '@/components/GameContext';
 import { Typography, Box } from '@mui/material';
 import { CurrentStep } from '@/game/enumerations/current-step';
@@ -22,13 +23,14 @@ const GameClock = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const gameTime = calculateDurationUpToEventWithCache(gameState, currentTime);
-  const averageTurnTime = calculateAverageTurnDuration(gameState);
+  const gameTime = calculateDurationUpToEvent(gameState.log, currentTime);
+  const turnDurations = calculateTurnDurations(gameState.log);
+  const averageTurnTime = calculateAverageTurnDuration(turnDurations);
   const averageTurnCurrentPlayer = calculateAverageTurnDurationForPlayer(
-    gameState,
+    turnDurations,
     gameState.selectedPlayerIndex
   );
-  const currentTurnTime = calculateCurrentTurnDuration(gameState, currentTime);
+  const currentTurnTime = calculateCurrentTurnDuration(gameState.log, currentTime);
 
   if (gameState.currentStep !== CurrentStep.Game) {
     return null;

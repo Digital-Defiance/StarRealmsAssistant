@@ -15,6 +15,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date(),
+        gameTime: 0,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -30,6 +31,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date(),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -45,6 +47,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T10:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -54,6 +57,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T10:05:00Z'),
+        gameTime: 5 * 60 * 1000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -63,6 +67,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T10:10:00Z'),
+        gameTime: 10 * 60 * 1000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -96,6 +101,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -104,6 +110,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
+        gameTime: 5 * 60 * 1000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -112,6 +119,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:10:00Z'),
+        gameTime: 5 * 60 * 1000,
         action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -120,6 +128,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T09:15:00Z'),
+        gameTime: 10 * 60 * 1000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -146,6 +155,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -155,6 +165,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
+        gameTime: 5 * 60 * 1000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -163,6 +174,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:10:00Z'),
+        gameTime: 5 * 60 * 1000,
         action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -172,6 +184,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T09:12:00Z'),
+        gameTime: 7 * 60 * 1000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -180,6 +193,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '5',
         timestamp: new Date('2021-01-01T09:14:00Z'),
+        gameTime: 7 * 60 * 1000,
         action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -189,6 +203,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '6',
         timestamp: new Date('2021-01-01T09:20:00Z'),
+        gameTime: 13 * 60 * 1000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -215,6 +230,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -224,6 +240,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
+        gameTime: 300000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -233,6 +250,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:10:00Z'),
+        gameTime: 600000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -242,14 +260,13 @@ describe('calculateTurnDurations', () => {
     ];
     const result = calculateTurnDurations(logEntries);
 
-    // The paused time is from SAVE_GAME to NEXT_TURN (5 mins)
     expect(result).toEqual([
       {
         turn: 1,
         playerIndex: 0,
         start: new Date('2021-01-01T09:00:00Z'),
         end: new Date('2021-01-01T09:10:00Z'),
-        duration: 300000, // 10 mins - 5 mins pause = 5 mins
+        duration: 600000,
       },
     ]);
   });
@@ -260,6 +277,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T08:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -269,6 +287,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T08:30:00Z'),
+        gameTime: 1800000, // 30 mins
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -279,6 +298,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:00:00Z'),
+        gameTime: 3600000, // 1 hour
         action: GameLogAction.END_GAME,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -311,6 +331,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T08:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -321,6 +342,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T08:30:00Z'),
+        gameTime: 1800000, // 30 mins
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -331,6 +353,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:00:00Z'),
+        gameTime: 3600000, // 1 hour
         action: GameLogAction.END_GAME,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -340,6 +363,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T09:05:00Z'),
+        gameTime: 3600000,
         action: GameLogAction.NEXT_TURN,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -373,6 +397,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T08:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -382,6 +407,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T08:10:00Z'),
+        gameTime: 10 * 60 * 1000, // 10 minutes
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -391,6 +417,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T08:15:00Z'),
+        gameTime: 15 * 60 * 1000, // 15 minutes
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -400,6 +427,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T08:20:00Z'),
+        gameTime: 15 * 60 * 1000, // 15 minutes
         action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -409,6 +437,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '5',
         timestamp: new Date('2021-01-01T08:30:00Z'),
+        gameTime: 25 * 60 * 1000, // 25 minutes
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -421,7 +450,7 @@ describe('calculateTurnDurations', () => {
     // The pause time should be from first SAVE_GAME to LOAD_GAME
     // Even though there was an overlapping SAVE_GAME, the function should handle it
     const expectedPauseTime =
-      new Date('2021-01-01T08:20:00Z').getTime() - new Date('2021-01-01T08:10:00Z').getTime();
+      new Date('2021-01-01T08:20:00Z').getTime() - new Date('2021-01-01T08:15:00Z').getTime();
 
     const expectedDuration =
       new Date('2021-01-01T08:30:00Z').getTime() -
@@ -444,6 +473,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -452,6 +482,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
+        gameTime: 300000, // 5 minutes
         action: GameLogAction.PAUSE,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -460,6 +491,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:10:00Z'),
+        gameTime: 300000, // 5 minutes
         action: GameLogAction.UNPAUSE,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -468,6 +500,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '4',
         timestamp: new Date('2021-01-01T09:20:00Z'),
+        gameTime: 900000, // 15 minutes
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -493,6 +526,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -501,6 +535,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '2',
         timestamp: new Date('2021-01-01T09:05:00Z'),
+        gameTime: 300000, // 5 minutes
         action: GameLogAction.PAUSE,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -509,6 +544,7 @@ describe('calculateTurnDurations', () => {
       {
         id: '3',
         timestamp: new Date('2021-01-01T09:20:00Z'),
+        gameTime: 300000, // 5 minutes
         action: GameLogAction.NEXT_TURN,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -517,46 +553,5 @@ describe('calculateTurnDurations', () => {
       },
     ];
     expect(() => calculateTurnDurations(logEntries)).toThrow(GamePausedError);
-  });
-
-  it('should handle unpaired SAVE_GAME actions within a turn', () => {
-    const logEntries: ILogEntry[] = [
-      {
-        id: '1',
-        timestamp: new Date('2021-01-01T09:00:00Z'),
-        action: GameLogAction.START_GAME,
-        playerIndex: 0,
-        currentPlayerIndex: 0,
-        turn: 1,
-      },
-      {
-        id: '2',
-        timestamp: new Date('2021-01-01T09:05:00Z'),
-        action: GameLogAction.SAVE_GAME,
-        playerIndex: 0,
-        currentPlayerIndex: 0,
-        turn: 1,
-      },
-      {
-        id: '3',
-        timestamp: new Date('2021-01-01T09:20:00Z'),
-        action: GameLogAction.NEXT_TURN,
-        playerIndex: 1,
-        currentPlayerIndex: 1,
-        turn: 2,
-        prevPlayerIndex: 0,
-      },
-    ];
-    const result = calculateTurnDurations(logEntries);
-
-    expect(result).toEqual([
-      {
-        turn: 1,
-        playerIndex: 0,
-        start: new Date('2021-01-01T09:00:00Z'),
-        end: new Date('2021-01-01T09:20:00Z'),
-        duration: 300000, // 5 minutes (20 minutes total - 15 minutes save)
-      },
-    ]);
   });
 });

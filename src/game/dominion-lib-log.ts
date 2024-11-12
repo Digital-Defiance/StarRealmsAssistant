@@ -18,13 +18,13 @@ import { ITurnDuration } from '@/game/interfaces/turn-duration';
 import {
   calculateVictoryPoints,
   getFieldAndSubfieldFromAction,
+  NewGameState,
   updatePlayerField,
 } from '@/game/dominion-lib';
 import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 import { reconstructGameState } from '@/game/dominion-lib-undo-helpers';
 import { GamePausedError } from '@/game/errors/game-paused';
 import { CountRequiredError } from '@/game/errors/count-required';
-import { updateCachesForEntry } from '@/game/dominion-lib-time';
 import { IVictoryGraphData } from '@/game/interfaces/victory-graph-data';
 import { ITurnAdjustment } from '@/game/interfaces/turn-adjustment';
 import { IPlayer } from '@/game/interfaces/player';
@@ -39,6 +39,8 @@ import { InvalidActionError } from '@/game/errors/invalid-action';
 import { GroupedActionTrigger } from '@/game/enumerations/grouped-action-trigger';
 import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
 import { futureActionMap } from '@/game/enumerations/future-action';
+import { ITurnStatistics } from './interfaces/turn-statistics';
+import { IGameSupply } from './interfaces/game-supply';
 
 /**
  * Map a victory field and subfield to a game log action.
@@ -185,121 +187,44 @@ export function actionToString(
  * @returns An array of turn durations.
  */
 export function calculateTurnDurations(logEntries: ILogEntry[]): ITurnDuration[] {
+  if (logEntries.length < 2) {
+    return [];
+  }
+  const startGameEntry = logEntries[0];
+  if (startGameEntry.action !== GameLogAction.START_GAME) {
+    throw new Error('Log must start with a START_GAME action');
+  }
   const durations: ITurnDuration[] = [];
-  let currentTurnStartTime: Date | null = null;
-  let currentTurnPauseTime = 0;
-  let saveStartTime: Date | null = null;
-  let pauseStartTime: Date | null = null;
-  let inSaveState = false;
+  let lastTurnGameTime = 0;
+  let lastTurnStart: Date = startGameEntry.timestamp;
   let inPauseState = false;
-  let hasNextTurnAfterStartGame = false;
 
   for (const entry of logEntries) {
-    const { action, timestamp } = entry;
+    const { action, gameTime } = entry;
 
     if (inPauseState && action !== GameLogAction.UNPAUSE) {
-      // If we encounter any action other than UNPAUSE while in a paused state, stop processing
       throw new GamePausedError();
-    }
-
-    if (action === GameLogAction.START_GAME) {
-      currentTurnStartTime = timestamp;
-      currentTurnPauseTime = 0;
-      inSaveState = false;
-      inPauseState = false;
-      saveStartTime = null;
-      pauseStartTime = null;
-    } else if (action === GameLogAction.NEXT_TURN) {
-      if (currentTurnStartTime !== null) {
-        // Process any ongoing save state before ending the turn
-        if (inSaveState && saveStartTime !== null) {
-          const saveDuration = timestamp.getTime() - saveStartTime.getTime();
-          currentTurnPauseTime += saveDuration;
-          inSaveState = false;
-          saveStartTime = null;
-        }
-
-        // Process any ongoing pause state before ending the turn
-        if (inPauseState && pauseStartTime !== null) {
-          const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
-          currentTurnPauseTime += pauseDuration;
-          inPauseState = false;
-          pauseStartTime = null;
-        }
-
-        const duration =
-          timestamp.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
+    } else if (action === GameLogAction.NEXT_TURN || action === GameLogAction.END_GAME) {
+      if (lastTurnGameTime !== null) {
+        const turnDuration = gameTime - lastTurnGameTime;
         durations.push({
-          turn: entry.turn - 1, // NEXT_TURN entries reflect the new turn
+          turn: action === GameLogAction.END_GAME ? entry.turn : entry.turn - 1,
           playerIndex: entry.prevPlayerIndex ?? entry.playerIndex,
-          start: currentTurnStartTime,
-          end: timestamp,
-          duration,
+          start: lastTurnStart,
+          end: entry.timestamp,
+          duration: turnDuration,
         });
-        hasNextTurnAfterStartGame = true;
+        lastTurnGameTime = gameTime;
+        lastTurnStart = entry.timestamp;
       }
-      currentTurnStartTime = timestamp;
-      currentTurnPauseTime = 0;
-      inSaveState = false;
-      inPauseState = false;
-      saveStartTime = null;
-      pauseStartTime = null;
-    } else if (action === GameLogAction.END_GAME) {
-      if (currentTurnStartTime !== null) {
-        if (inSaveState && saveStartTime !== null) {
-          const saveDuration = timestamp.getTime() - saveStartTime.getTime();
-          currentTurnPauseTime += saveDuration;
-          inSaveState = false;
-          saveStartTime = null;
-        }
-
-        if (inPauseState && pauseStartTime !== null) {
-          const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
-          currentTurnPauseTime += pauseDuration;
-          inPauseState = false;
-          pauseStartTime = null;
-        }
-
-        const duration =
-          timestamp.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
-        durations.push({
-          turn: entry.turn,
-          playerIndex: entry.playerIndex,
-          start: currentTurnStartTime,
-          end: timestamp,
-          duration,
-        });
-      }
-      break;
-    } else if (action === GameLogAction.SAVE_GAME) {
-      if (!inSaveState) {
-        saveStartTime = timestamp;
-        inSaveState = true;
-      }
-    } else if (action === GameLogAction.LOAD_GAME) {
-      if (inSaveState && saveStartTime !== null) {
-        const saveDuration = timestamp.getTime() - saveStartTime.getTime();
-        currentTurnPauseTime += saveDuration;
-        inSaveState = false;
-        saveStartTime = null;
+      if (action === GameLogAction.END_GAME) {
+        break;
       }
     } else if (action === GameLogAction.PAUSE) {
-      if (!inPauseState) {
-        pauseStartTime = timestamp;
-        inPauseState = true;
-      }
+      inPauseState = true;
     } else if (action === GameLogAction.UNPAUSE) {
-      if (inPauseState && pauseStartTime !== null) {
-        const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
-        currentTurnPauseTime += pauseDuration;
-        inPauseState = false;
-        pauseStartTime = null;
-      }
+      inPauseState = false;
     }
-  }
-
-  if (!hasNextTurnAfterStartGame) {
-    return [];
   }
 
   return durations;
@@ -391,76 +316,16 @@ export function calculateAverageTurnDurationForPlayer(
  * @returns The duration of the current turn in milliseconds.
  */
 export function calculateCurrentTurnDuration(logEntries: ILogEntry[], currentTime: Date): number {
-  let currentTurnStartTime: Date | null = null;
-  let currentTurnPauseTime = 0;
-  let inSaveState = false;
-  let inPauseState = false;
-  let saveStartTime: Date | null = null;
-  let pauseStartTime: Date | null = null;
-
-  // Find the last NEXT_TURN or START_GAME
-  for (let i = logEntries.length - 1; i >= 0; i--) {
-    const entry = logEntries[i];
-    if (entry.action === GameLogAction.NEXT_TURN) {
-      currentTurnStartTime = entry.timestamp;
-      break;
-    } else if (entry.action === GameLogAction.START_GAME) {
-      currentTurnStartTime = entry.timestamp;
-      break;
-    }
-  }
-
-  if (currentTurnStartTime === null) {
+  if (logEntries.length === 0) {
     return 0;
   }
+  const currentTurn = logEntries[logEntries.length - 1].turn;
+  const turnStartEntry: ILogEntry = getTurnStartEntry(logEntries, currentTurn);
+  const lastEntry: ILogEntry = logEntries[logEntries.length - 1];
 
-  // Process log entries from currentTurnStartTime onwards
-  for (const entry of logEntries) {
-    if (entry.timestamp < currentTurnStartTime) continue;
-
-    const { action, timestamp } = entry;
-
-    if (action === GameLogAction.SAVE_GAME) {
-      if (!inSaveState) {
-        saveStartTime = timestamp;
-        inSaveState = true;
-      }
-    } else if (action === GameLogAction.LOAD_GAME) {
-      if (inSaveState && saveStartTime !== null) {
-        const saveDuration = timestamp.getTime() - saveStartTime.getTime();
-        currentTurnPauseTime += saveDuration;
-        inSaveState = false;
-        saveStartTime = null;
-      }
-    } else if (action === GameLogAction.PAUSE) {
-      if (!inPauseState) {
-        pauseStartTime = timestamp;
-        inPauseState = true;
-      }
-    } else if (action === GameLogAction.UNPAUSE) {
-      if (inPauseState && pauseStartTime !== null) {
-        const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
-        currentTurnPauseTime += pauseDuration;
-        inPauseState = false;
-        pauseStartTime = null;
-      }
-    }
-  }
-
-  // Handle unpaired SAVE_GAME by subtracting up to current time
-  if (inSaveState && saveStartTime !== null) {
-    const saveDuration = currentTime.getTime() - saveStartTime.getTime();
-    currentTurnPauseTime += saveDuration;
-  }
-
-  // Handle unpaired PAUSE by subtracting up to current time
-  if (inPauseState && pauseStartTime !== null) {
-    const pauseDuration = currentTime.getTime() - pauseStartTime.getTime();
-    currentTurnPauseTime += pauseDuration;
-  }
-
-  const duration = currentTime.getTime() - currentTurnStartTime.getTime() - currentTurnPauseTime;
-  return duration;
+  const turnGameTime = lastEntry.gameTime - turnStartEntry.gameTime;
+  const lastActionDuration = currentTime.getTime() - lastEntry.timestamp.getTime();
+  return turnGameTime + lastActionDuration;
 }
 
 /**
@@ -496,91 +361,29 @@ export function calculateGameDuration(
  * @returns The adjusted duration in milliseconds.
  */
 export function calculateDurationUpToEvent(logEntries: ILogEntry[], eventTime: Date): number {
-  let startGameTime: Date | null = null;
-  let totalPauseTime = 0;
-  let inSaveState = false;
-  let inPauseState = false;
-  let saveStartTime: Date | null = null;
-  let pauseStartTime: Date | null = null;
-
-  // Find the START_GAME action
-  if (logEntries.length === 0) {
+  if (logEntries.length < 1) {
     return 0;
   }
-  const firstLog = logEntries[0];
-  if (firstLog.action === GameLogAction.START_GAME) {
-    startGameTime = firstLog.timestamp;
-  } else {
-    // No START_GAME found
-    return 0;
-  }
-
-  if (startGameTime >= eventTime) {
-    // eventTime is before the game started
-    return 0;
-  }
-
-  // Calculate total duration from START_GAME to eventTime
-  const totalDuration = eventTime.getTime() - startGameTime.getTime();
-
-  // Process log entries from START_GAME up to eventTime
-  for (const entry of logEntries) {
-    // Skip entries before the game started
-    if (entry.timestamp < startGameTime) {
-      continue;
-    }
-
-    // Stop processing entries after the event time
-    if (entry.timestamp > eventTime) {
+  // find the last entry before the event time
+  let lastEntryBeforeEvent: ILogEntry = logEntries[0];
+  for (let i = logEntries.length - 1; i >= 0; i--) {
+    const entry = logEntries[i];
+    if (entry.timestamp.getTime() < eventTime.getTime()) {
+      lastEntryBeforeEvent = entry;
       break;
     }
-
-    const { action, timestamp } = entry;
-
-    if (action === GameLogAction.SAVE_GAME) {
-      if (!inSaveState) {
-        inSaveState = true;
-        saveStartTime = timestamp;
-      }
-    } else if (action === GameLogAction.LOAD_GAME) {
-      if (inSaveState && saveStartTime !== null) {
-        const saveDuration = timestamp.getTime() - saveStartTime.getTime();
-        totalPauseTime += saveDuration;
-        inSaveState = false;
-        saveStartTime = null;
-      }
-    } else if (action === GameLogAction.PAUSE) {
-      if (!inPauseState) {
-        inPauseState = true;
-        pauseStartTime = timestamp;
-      }
-    } else if (action === GameLogAction.UNPAUSE) {
-      if (inPauseState && pauseStartTime !== null) {
-        const pauseDuration = timestamp.getTime() - pauseStartTime.getTime();
-        totalPauseTime += pauseDuration;
-        inPauseState = false;
-        pauseStartTime = null;
-      }
-    }
-    // Other actions are ignored for pause time calculation
   }
-
-  // Handle unpaired SAVE_GAME before eventTime
-  if (inSaveState && saveStartTime !== null) {
-    const saveDuration = eventTime.getTime() - saveStartTime.getTime();
-    totalPauseTime += saveDuration;
+  if (eventTime.getTime() <= lastEntryBeforeEvent.timestamp.getTime()) {
+    return 0;
+  } else if (
+    lastEntryBeforeEvent.action === GameLogAction.PAUSE ||
+    lastEntryBeforeEvent.action === GameLogAction.END_GAME
+  ) {
+    return lastEntryBeforeEvent.gameTime;
   }
-
-  // Handle unpaired PAUSE before eventTime
-  if (inPauseState && pauseStartTime !== null) {
-    const pauseDuration = eventTime.getTime() - pauseStartTime.getTime();
-    totalPauseTime += pauseDuration;
-  }
-
-  // Adjust the total duration by subtracting the total pause time
-  const adjustedDuration = totalDuration - totalPauseTime;
-
-  return adjustedDuration;
+  return (
+    lastEntryBeforeEvent.gameTime + (eventTime.getTime() - lastEntryBeforeEvent.timestamp.getTime())
+  );
 }
 
 /**
@@ -640,9 +443,11 @@ export function addLogEntry(
   }
   const { field } = getFieldAndSubfieldFromAction(action);
 
+  const eventTime = new Date();
   const newLog: ILogEntry = {
     id: uuidv4(),
-    timestamp: new Date(),
+    timestamp: eventTime,
+    gameTime: calculateDurationUpToEvent(game.log, eventTime),
     action,
     playerIndex,
     currentPlayerIndex: game.currentPlayerIndex,
@@ -653,9 +458,19 @@ export function addLogEntry(
     throw new InvalidTrashActionError();
   }
   game.log.push(newLog);
-  const { timeCache, turnStatisticsCache } = updateCachesForEntry(game, newLog);
-  game.timeCache = timeCache;
-  game.turnStatisticsCache = turnStatisticsCache;
+  const turnStartEvent = getTurnStartEntry(game.log, game.currentTurn);
+  if (action === GameLogAction.NEXT_TURN || action === GameLogAction.END_GAME) {
+    const turnStatisticsEntry: ITurnStatistics = {
+      turn: game.currentTurn,
+      playerScores: game.players.map((player) => calculateVictoryPoints(player)),
+      supply: deepClone<IGameSupply>(game.supply),
+      playerIndex: overrides?.prevPlayerIndex ?? playerIndex,
+      start: turnStartEvent.timestamp,
+      end: newLog.timestamp,
+      turnDuration: newLog.gameTime - turnStartEvent.gameTime,
+    };
+    game.turnStatisticsCache.push(turnStatisticsEntry);
+  }
   return newLog;
 }
 
@@ -784,9 +599,19 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
   }
 
   updatedGame.log.push(deepClone<ILogEntry>(logEntry));
-  const { timeCache, turnStatisticsCache } = updateCachesForEntry(updatedGame, logEntry);
-  updatedGame.timeCache = timeCache;
-  updatedGame.turnStatisticsCache = turnStatisticsCache;
+  const turnStartEvent = getTurnStartEntry(updatedGame.log, game.currentTurn);
+  if (logEntry.action === GameLogAction.NEXT_TURN || logEntry.action === GameLogAction.END_GAME) {
+    const turnStatisticsEntry: ITurnStatistics = {
+      turn: game.currentTurn,
+      playerScores: game.players.map((player) => calculateVictoryPoints(player)),
+      supply: deepClone<IGameSupply>(game.supply),
+      playerIndex: logEntry.prevPlayerIndex ?? logEntry.playerIndex,
+      start: turnStartEvent.timestamp,
+      end: logEntry.timestamp,
+      turnDuration: logEntry.gameTime - turnStartEvent.gameTime,
+    };
+    game.turnStatisticsCache.push(turnStatisticsEntry);
+  }
 
   return updatedGame;
 }
@@ -836,11 +661,14 @@ export function applyGroupedActionSubAction(
     game.expansions.risingSun.greatLeaderProphecy &&
     game.expansions.risingSun.prophecy.suns === 0
   ) {
+    const actionCount = subAction.count ?? 1;
     const prophecyActionLog: ILogEntry = {
       id: uuidv4(),
       action: GameLogAction.ADD_ACTIONS,
-      count: subAction.count ?? 1,
+      actionName: `Added ${actionCount} actions (Great Leader Prophecy)`,
+      count: actionCount,
       timestamp: actionDate,
+      gameTime: calculateDurationUpToEvent(game.log, actionDate),
       playerIndex: playerIndex,
       currentPlayerIndex: game.currentPlayerIndex,
       turn: game.currentTurn,
@@ -938,17 +766,15 @@ export function applyGroupedAction(
     const groupedActionLog: ILogEntry = {
       id: groupedActionId,
       timestamp: actionDate,
+      gameTime: calculateDurationUpToEvent(game.log, actionDate),
       action: GameLogAction.GROUPED_ACTION,
       playerIndex: updatedGame.selectedPlayerIndex,
       currentPlayerIndex: updatedGame.currentPlayerIndex,
       turn: updatedGame.currentTurn,
       actionName: groupedAction.name,
-      actionKey: groupedActionKey,
+      ...(groupedActionKey ? { actionKey: groupedActionKey } : {}),
     };
-    updatedGame.log.push(groupedActionLog);
-    const { timeCache, turnStatisticsCache } = updateCachesForEntry(updatedGame, groupedActionLog);
-    updatedGame.timeCache = timeCache;
-    updatedGame.turnStatisticsCache = turnStatisticsCache;
+    updatedGame = applyLogAction(updatedGame, groupedActionLog);
     // Apply each sub-action
     for (const [dest, actions] of Object.entries(groupedAction.actions)) {
       const targetPlayers = getGroupedActionTargetPlayers(updatedGame, dest as GroupedActionDest);
@@ -1061,6 +887,7 @@ export function applyPendingGroupedActions(
       ...action,
       id: uuidv4(),
       timestamp: actionDate,
+      gameTime: calculateDurationUpToEvent(updatedGame.log, actionDate),
       ...(typeof action.count === 'function'
         ? { count: action.count(updatedGame, action.playerIndex ?? updatedGame.currentPlayerIndex) }
         : {}),
@@ -1147,18 +974,31 @@ export function getGameEndTime(game: IGame): Date {
  * Get the start time of a turn.
  * @param game - The game object
  * @param turn - The turn number
- * @returns The start time of the turn
+ * @returns The log entry marking the beginning of the turn
  */
-export function getTurnStartTime(game: IGame, turn: number): Date {
-  if (turn === 1) {
-    return getGameStartTime(game);
+export function getTurnStartEntry(logEntries: ILogEntry[], turn: number): ILogEntry {
+  if (turn === 1 && logEntries.length > 0) {
+    return logEntries[0];
+  } else if (logEntries.length === 0) {
+    throw new EmptyLogError();
   }
-  const newTurnLog = game.log.find(
+  const newTurnLog = logEntries.find(
     (entry) => entry.action === GameLogAction.NEXT_TURN && entry.turn === turn
   );
   if (newTurnLog === undefined) {
     throw new Error(`Could not find turn ${turn} in the log`);
   }
+  return newTurnLog;
+}
+
+/**
+ * Get the start time of a turn.
+ * @param game - The game object
+ * @param turn - The turn number
+ * @returns The start time of the turn
+ */
+export function getTurnStartTime(game: IGame, turn: number): Date {
+  const newTurnLog = getTurnStartEntry(game.log, turn);
   return newTurnLog.timestamp;
 }
 
@@ -1187,9 +1027,13 @@ export function getTurnEndTime(game: IGame, turn: number): Date {
   // a turn ends with either a NEXT_TURN or END_GAME action
   // a NEXT_TURN will have the next higher turn number than the current turn
   // an END_GAME will have the same turn number as the current turn
-  const nextTurnLog = game.log.find(
-    (entry) => entry.action === GameLogAction.NEXT_TURN && entry.turn === turn + 1
-  );
+  let nextTurnLog = undefined;
+  try {
+    nextTurnLog = getTurnStartEntry(game.log, turn + 1);
+  } catch {
+    // do nothing
+    nextTurnLog = undefined;
+  }
   if (nextTurnLog !== undefined) {
     return nextTurnLog.timestamp;
   }
@@ -1336,4 +1180,72 @@ export function getPlayerNextTurnCount(
  */
 export function getMasterActionId(logEntry: ILogEntry): string {
   return logEntry.linkedActionId ?? logEntry.id;
+}
+
+/**
+ * Rebuild the turn statistics cache for a given game.
+ * This function is expected to be computationally expensive and should be called only when necessary.
+ * The turn statistics should be maintained automatically throughout the game in normal conditions.
+ * @param game - The game object containing log entries, time cache, and turn statistics cache.
+ */
+export function rebuildTurnStatisticsCache(game: IGame): Array<ITurnStatistics> {
+  if (game.log.length === 0) {
+    return [];
+  }
+
+  const newTurnStatisticsCache: Array<ITurnStatistics> = [];
+  let reconstructedGame = NewGameState(game, game.log[0].timestamp);
+  // clear the log
+  reconstructedGame.log = [];
+
+  let turnStart: Date = game.log[0].timestamp;
+  let turnStartGameTime = 0;
+  let turnEnd: Date | null = null;
+  let currentTurn = 0;
+  for (let i = 0; i < game.log.length; i++) {
+    const entry = game.log[i];
+
+    // also updates the time cache
+    reconstructedGame = applyLogAction(reconstructedGame, entry);
+
+    if (reconstructedGame.log.length !== i + 1) {
+      console.error('Log and time cache out of sync after applying', entry.action);
+      throw new Error(`Log and time cache out of sync after applying ${entry.action}`);
+    }
+
+    if (entry.action === GameLogAction.START_GAME) {
+      turnStart = entry.timestamp;
+      turnEnd = null;
+      currentTurn = 1;
+    } else if (entry.action === GameLogAction.NEXT_TURN) {
+      turnEnd = entry.timestamp;
+      newTurnStatisticsCache.push({
+        turn: currentTurn,
+        start: turnStart,
+        end: turnEnd,
+        supply: reconstructedGame.supply,
+        playerScores: reconstructedGame.players.map((player) => calculateVictoryPoints(player)),
+        playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex,
+        turnDuration: entry.gameTime - turnStartGameTime,
+      });
+      turnStart = entry.timestamp;
+      turnStartGameTime = entry.gameTime;
+      currentTurn++;
+    } else if (entry.action === GameLogAction.END_GAME) {
+      turnEnd = entry.timestamp;
+      newTurnStatisticsCache.push({
+        turn: currentTurn,
+        start: turnStart,
+        end: turnEnd,
+        supply: reconstructedGame.supply,
+        playerScores: reconstructedGame.players.map((player) => calculateVictoryPoints(player)),
+        playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex,
+        turnDuration: entry.gameTime - turnStartGameTime,
+      });
+      turnStartGameTime = entry.gameTime;
+      break;
+    }
+  }
+
+  return newTurnStatisticsCache;
 }

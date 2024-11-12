@@ -22,12 +22,14 @@ import {
   Box,
 } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
-import { formatTimeSpan, getAverageActionsPerTurn } from '@/game/dominion-lib-log';
 import {
   calculateAverageTurnDuration,
   calculateAverageTurnDurationForPlayer,
-  calculateDurationUpToEventWithCache,
-} from '@/game/dominion-lib-time';
+  calculateDurationUpToEvent,
+  calculateTurnDurations,
+  formatTimeSpan,
+  getAverageActionsPerTurn,
+} from '@/game/dominion-lib-log';
 import TabTitle from '@/components/TabTitle';
 import { VictoryField } from '@/game/types';
 import { CurrentStep } from '@/game/enumerations/current-step';
@@ -37,14 +39,15 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 export default function StatisticsScreen() {
   const { gameState } = useGameContext();
+  const turnDurations = calculateTurnDurations(gameState.log);
 
   let averageTurnTime = 0;
   let totalGameTime = 0;
   try {
     if (gameState.turnStatisticsCache.length > 0 && gameState.log.length > 0) {
-      averageTurnTime = calculateAverageTurnDuration(gameState);
-      totalGameTime = calculateDurationUpToEventWithCache(
-        gameState,
+      averageTurnTime = calculateAverageTurnDuration(turnDurations);
+      totalGameTime = calculateDurationUpToEvent(
+        gameState.log,
         gameState.log[gameState.log.length - 1].timestamp
       );
     }
@@ -179,7 +182,9 @@ export default function StatisticsScreen() {
                     <TableRow key={player.name}>
                       <TableCell>{player.name}</TableCell>
                       <TableCell>
-                        {formatTimeSpan(calculateAverageTurnDurationForPlayer(gameState, index))}
+                        {formatTimeSpan(
+                          calculateAverageTurnDurationForPlayer(turnDurations, index)
+                        )}
                       </TableCell>
                     </TableRow>
                   ))}

@@ -6,15 +6,12 @@ import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
 import { AdjustmentActions, NO_PLAYER, NoPlayerActions } from '../constants';
 import { GamePausedError } from '../errors/game-paused';
 import { CountRequiredError } from '../errors/count-required';
-import * as dominionLibTime from '../dominion-lib-time';
 
 describe('addLogEntry', () => {
   let mockGame: IGame;
-  let updateCachesForEntrySpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockGame = createMockGame(2);
-    updateCachesForEntrySpy = jest.spyOn(dominionLibTime, 'updateCachesForEntry');
   });
 
   afterEach(() => {
@@ -30,7 +27,6 @@ describe('addLogEntry', () => {
         turn: 1,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should add a log entry with all fields', () => {
@@ -52,7 +48,6 @@ describe('addLogEntry', () => {
         trash: true,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should add a log entry with only some fields overridden', () => {
@@ -64,14 +59,12 @@ describe('addLogEntry', () => {
         count: 5,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should handle invalid player index gracefully', () => {
     expect(() => {
       addLogEntry(mockGame, 99, GameLogAction.ADD_COINS, { count: 5 });
     }).toThrow('Player index is out of range');
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should add a log entry with a correction flag', () => {
@@ -87,7 +80,6 @@ describe('addLogEntry', () => {
         correction: true,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should add a log entry with player turn details', () => {
@@ -106,7 +98,6 @@ describe('addLogEntry', () => {
         playerTurnDetails,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   // New edge cases
@@ -114,21 +105,18 @@ describe('addLogEntry', () => {
     expect(() => {
       addLogEntry(mockGame, -1, GameLogAction.ADD_COINS, { count: 5 });
     }).toThrow('Player index is required for this action');
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should throw an error when player index is out of range', () => {
     expect(() => {
       addLogEntry(mockGame, 99, GameLogAction.ADD_COINS, { count: 5 });
     }).toThrow('Player index is out of range');
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should throw an error when player index is provided for an action that does not require it', () => {
     expect(() => {
       addLogEntry(mockGame, 0, GameLogAction.END_GAME, { count: 5 });
     }).toThrow('Player index is not relevant for this action');
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should add a log entry with a valid NoPlayerActions action and playerIndex set to -1', () => {
@@ -139,21 +127,18 @@ describe('addLogEntry', () => {
         action: GameLogAction.END_GAME,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should throw an error when player index is provided for a NoPlayerActions action', () => {
     expect(() => {
       addLogEntry(mockGame, 0, GameLogAction.END_GAME);
     }).toThrow('Player index is not relevant for this action');
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should throw an error when player index is out of range for a NoPlayerActions action', () => {
     expect(() => {
       addLogEntry(mockGame, 99, GameLogAction.END_GAME);
     }).toThrow('Player index is not relevant for this action');
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should add a log entry with a valid NoPlayerActions action and playerIndex set to -1 with overrides', () => {
@@ -166,7 +151,6 @@ describe('addLogEntry', () => {
         action: GameLogAction.END_GAME,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 with overrides', () => {
@@ -182,7 +166,6 @@ describe('addLogEntry', () => {
         correction: true,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should add a log entry with a valid player action and playerIndex set to 0 with minimal overrides', () => {
@@ -194,7 +177,6 @@ describe('addLogEntry', () => {
         count: 1,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it('should throw an error if you try to mark trash a non-removal action as trash', () => {
@@ -204,7 +186,6 @@ describe('addLogEntry', () => {
         trash: true,
       });
     }).toThrow(InvalidTrashActionError);
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
   it('should throw an error if you try to mark trash a a positive increase action as trash', () => {
     expect(() => {
@@ -213,7 +194,6 @@ describe('addLogEntry', () => {
         trash: true,
       });
     }).toThrow(InvalidTrashActionError);
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
   it('should throw an error if you try to mark trash something other than a victory card', () => {
     expect(() => {
@@ -222,7 +202,6 @@ describe('addLogEntry', () => {
         trash: true,
       });
     }).toThrow(InvalidTrashActionError);
-    expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
   });
 
   it('should not throw an error if you try to mark trash a victory card', () => {
@@ -238,7 +217,6 @@ describe('addLogEntry', () => {
         trash: true,
       })
     );
-    expect(updateCachesForEntrySpy).toHaveBeenCalled();
   });
 
   it.each(AdjustmentActions)(
@@ -247,7 +225,6 @@ describe('addLogEntry', () => {
       expect(() => {
         addLogEntry(mockGame, 0, action);
       }).toThrow(CountRequiredError);
-      expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
     }
   );
 
@@ -265,7 +242,6 @@ describe('addLogEntry', () => {
       const overrides = AdjustmentActions.includes(action) ? { count: 1 } : {};
 
       expect(() => addLogEntry(mockGame, playerIndex, action, overrides)).toThrow(GamePausedError);
-      expect(updateCachesForEntrySpy).not.toHaveBeenCalled();
     }
   );
 });

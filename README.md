@@ -207,9 +207,14 @@ Join our community of developers.
 
 ## Changelog
 
-### Mon Nov 11 12:28:00 2024
+### Mon Nov 11 23:53:00 2024
 
 - Version 0.12.0
+  - Remove timeCache, add gameTime to game log events
+
+### Mon Nov 11 12:28:00 2024
+
+- Version 0.11.3
   - Remove next turn/end game buttons in favor of fab buttons at bottom right
 
 ### Mon Nov 11 12:03:00 2024

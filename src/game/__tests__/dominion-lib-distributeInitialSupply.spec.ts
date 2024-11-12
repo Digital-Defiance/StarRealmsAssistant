@@ -37,7 +37,6 @@ describe('distributeInitialSupply', () => {
       firstPlayerIndex: 0,
       selectedPlayerIndex: 0,
       log: [],
-      timeCache: [],
       turnStatisticsCache: [],
       currentStep: CurrentStep.Game,
       setsRequired: 1,

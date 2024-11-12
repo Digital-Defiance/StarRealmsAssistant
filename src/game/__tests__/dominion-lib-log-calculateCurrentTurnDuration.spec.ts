@@ -62,6 +62,7 @@ describe('calculateCurrentTurnDuration', () => {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
         action: GameLogAction.START_GAME,
+        gameTime: 0,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -70,6 +71,7 @@ describe('calculateCurrentTurnDuration', () => {
         id: '2',
         timestamp: nextTurnTime,
         action: GameLogAction.NEXT_TURN,
+        gameTime: 60 * 60 * 1000,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -78,6 +80,7 @@ describe('calculateCurrentTurnDuration', () => {
       createMockLog({
         id: '3',
         timestamp: new Date('2021-01-01T10:05:00Z'),
+        gameTime: 60 * 60 * 1000 + 300000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -86,6 +89,7 @@ describe('calculateCurrentTurnDuration', () => {
       createMockLog({
         id: '4',
         timestamp: new Date('2021-01-01T10:10:00Z'),
+        gameTime: 60 * 60 * 1000 + 300000,
         action: GameLogAction.LOAD_GAME,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -94,7 +98,7 @@ describe('calculateCurrentTurnDuration', () => {
     ];
     const result = calculateCurrentTurnDuration(logEntries, currentTime);
     // Total time: 20 mins, Paused time: 5 mins
-    expect(result).toBe(900000); // 15 minutes
+    expect(result).toBe(15 * 60 * 1000); // 15 minutes
   });
 
   it('should handle unpaired SAVE_GAME by subtracting time up to current time', () => {
@@ -105,6 +109,7 @@ describe('calculateCurrentTurnDuration', () => {
         id: '1',
         timestamp: new Date('2021-01-01T09:00:00Z'),
         action: GameLogAction.START_GAME,
+        gameTime: 0,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -113,6 +118,7 @@ describe('calculateCurrentTurnDuration', () => {
         id: '2',
         timestamp: nextTurnTime,
         action: GameLogAction.NEXT_TURN,
+        gameTime: 60 * 60 * 1000,
         playerIndex: 1,
         currentPlayerIndex: 1,
         turn: 2,
@@ -121,6 +127,7 @@ describe('calculateCurrentTurnDuration', () => {
       createMockLog({
         id: '3',
         timestamp: new Date('2021-01-01T10:05:00Z'),
+        gameTime: 60 * 60 * 1000 + 5 * 60 * 1000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 1,
         currentPlayerIndex: 1,
@@ -128,7 +135,7 @@ describe('calculateCurrentTurnDuration', () => {
       }),
     ];
     const result = calculateCurrentTurnDuration(logEntries, currentTime);
-    // Total time: 20 mins, Paused time: 15 mins
-    expect(result).toBe(300000); // 5 minutes
+    // Total time: 20 mins
+    expect(result).toBe(20 * 60 * 1000);
   });
 });

@@ -12,6 +12,10 @@ export interface ILogEntry {
    */
   timestamp: Date;
   /**
+   * Game time at the time of this log entry, less pauses/load/save gaps
+   */
+  gameTime: number;
+  /**
    * Action that was taken
    */
   action: GameLogAction;

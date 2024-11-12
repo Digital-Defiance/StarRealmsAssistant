@@ -162,7 +162,8 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
     incrementField: T,
     incrementSubfield: PlayerFieldMap[T],
     increment: number,
-    linkedActionId?: string
+    linkedActionId?: string,
+    overrideIncrementActionName?: string
   ): void => {
     const prevGame = deepClone<IGame>(gameState);
     try {
@@ -207,6 +208,7 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
         count: Math.abs(increment),
         correction: isCorrection,
         linkedActionId: linkedActionId ?? decrementLogEntry.id,
+        actionName: overrideIncrementActionName,
       });
 
       // Update the actual game state with the final updated game
@@ -394,7 +396,8 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                         'turn',
                         'actions',
                         1,
-                        linkChangeId
+                        linkChangeId,
+                        `Added 1 actions (Great Leader Prophecy)`
                       );
                     } else {
                       handleFieldChange('turn', 'actions', -1, linkChangeId);

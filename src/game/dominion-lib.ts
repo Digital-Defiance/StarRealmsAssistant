@@ -144,9 +144,10 @@ export function newPlayer(playerName: string, index: number): IPlayer {
 /**
  * Re-Initialize the game state with the given number of players and options.
  * @param gameStateWithOptions - The game state with players and selected options
+ * @param gameStart - The start time of the game
  * @returns The updated game state
  */
-export const NewGameState = (gameStateWithOptions: IGame): IGame => {
+export const NewGameState = (gameStateWithOptions: IGame, gameStart: Date): IGame => {
   let newGameState = deepClone<IGame>(gameStateWithOptions);
   const playerCount = gameStateWithOptions.players.length;
 
@@ -172,7 +173,8 @@ export const NewGameState = (gameStateWithOptions: IGame): IGame => {
   newGameState.log = [
     {
       id: uuidv4(),
-      timestamp: new Date(),
+      timestamp: gameStart,
+      gameTime: 0,
       playerIndex: newGameState.firstPlayerIndex,
       currentPlayerIndex: newGameState.firstPlayerIndex,
       turn: 1,

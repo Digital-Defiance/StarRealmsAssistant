@@ -6,7 +6,6 @@ import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import * as undoHelpers from '@/game/dominion-lib-undo-helpers';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import { updateCache } from '@/game/dominion-lib-time';
 
 /**
  * Returns the linked actions for the given log entry.
@@ -91,9 +90,6 @@ export function undoAction(game: IGame, logIndex: number): { game: IGame; succes
   try {
     const gameWithRemovedActions = undoHelpers.removeTargetAndLinkedActions(game, logIndex);
     const reconstructedGame = undoHelpers.reconstructGameState(gameWithRemovedActions);
-    // reset the timeCache to invalidate the cache due to the removed actions
-    reconstructedGame.timeCache = [];
-    reconstructedGame.timeCache = updateCache(reconstructedGame);
     return { game: reconstructedGame, success: true };
   } catch (error) {
     if (

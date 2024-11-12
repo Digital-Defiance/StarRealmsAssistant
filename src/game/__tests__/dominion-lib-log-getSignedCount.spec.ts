@@ -8,6 +8,7 @@ describe('getSignedCount', () => {
     const log: ILogEntry = {
       id: '1',
       timestamp: new Date(),
+      gameTime: 0,
       action: GameLogAction.ADD_ACTIONS,
       playerIndex: 0,
       currentPlayerIndex: 0,
@@ -21,6 +22,7 @@ describe('getSignedCount', () => {
     const log: ILogEntry = {
       id: '2',
       timestamp: new Date(),
+      gameTime: 0,
       action: GameLogAction.REMOVE_ACTIONS,
       playerIndex: 0,
       currentPlayerIndex: 0,
@@ -34,6 +36,7 @@ describe('getSignedCount', () => {
     const log: ILogEntry = {
       id: '3',
       timestamp: new Date(),
+      gameTime: 0,
       action: GameLogAction.ADD_ACTIONS,
       playerIndex: 0,
       currentPlayerIndex: 0,

@@ -35,6 +35,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '1',
         timestamp: startGameTime,
+        gameTime: 0,
         action: GameLogAction.START_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -44,6 +45,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '2',
         timestamp: new Date('2021-01-01T09:15:00Z'),
+        gameTime: 900000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -52,6 +54,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '3',
         timestamp: new Date('2021-01-01T09:30:00Z'),
+        gameTime: 900000,
         action: GameLogAction.LOAD_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -61,6 +64,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '4',
         timestamp: new Date('2021-01-01T10:15:00Z'),
+        gameTime: 3600000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -81,6 +85,7 @@ describe('calculateDurationUpToEvent', () => {
         id: '1',
         timestamp: startGameTime,
         action: GameLogAction.START_GAME,
+        gameTime: 0,
         playerIndex: 0,
         currentPlayerIndex: 0,
         turn: 1,
@@ -89,6 +94,7 @@ describe('calculateDurationUpToEvent', () => {
       createMockLog({
         id: '2',
         timestamp: new Date('2021-01-01T09:15:00Z'),
+        gameTime: 15 * 60 * 1000,
         action: GameLogAction.SAVE_GAME,
         playerIndex: 0,
         currentPlayerIndex: 0,
@@ -97,7 +103,6 @@ describe('calculateDurationUpToEvent', () => {
     ];
     const result = calculateDurationUpToEvent(logEntries, eventTime);
     // Total duration: 30 mins
-    // Paused time: 15 mins (from 09:15 to 09:30)
-    expect(result).toBe(900000); // 15 minutes
+    expect(result).toBe(30 * 60 * 1000); // 30 minutes
   });
 });

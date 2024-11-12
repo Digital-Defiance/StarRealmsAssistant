@@ -8,6 +8,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -21,6 +22,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -34,6 +36,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -46,6 +49,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -58,6 +62,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -71,6 +76,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -84,6 +90,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -98,6 +105,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,
@@ -112,6 +120,7 @@ describe('logEntryToString', () => {
     const logEntry: ILogEntry = {
       id: faker.string.uuid(),
       timestamp: new Date(),
+      gameTime: 0,
       playerIndex: 0,
       currentPlayerIndex: 0,
       turn: 1,

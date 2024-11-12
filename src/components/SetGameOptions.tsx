@@ -39,7 +39,7 @@ const SetGameOptions: FC<SetGameOptionsProps> = ({ startGame }) => {
 
   const handleStartGame = () => {
     setGameState((prevState: IGame) => {
-      return NewGameState(prevState);
+      return NewGameState(prevState, new Date());
     });
 
     startGame();

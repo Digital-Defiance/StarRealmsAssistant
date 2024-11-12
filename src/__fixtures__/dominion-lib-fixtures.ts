@@ -59,13 +59,13 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
       {
         id: faker.string.uuid(),
         timestamp: new Date(),
+        gameTime: 0,
         playerIndex: firstPlayerIndex,
         currentPlayerIndex: firstPlayerIndex,
         turn: 1,
         action: GameLogAction.START_GAME,
       },
     ],
-    timeCache: [],
     turnStatisticsCache: [],
     currentStep: CurrentStep.Game,
     setsRequired: 1,
@@ -92,13 +92,15 @@ export function createMockPlayer(index?: number, overrides?: Partial<IPlayer>): 
 }
 
 export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
+  const action = log?.action ?? GameLogAction.ADD_ACTIONS;
   return {
     id: faker.string.uuid(),
     timestamp: new Date(),
+    gameTime: faker.number.int({ min: 0, max: 50000 }),
     playerIndex: faker.number.int({ min: 0, max: 3 }),
     currentPlayerIndex: faker.number.int({ min: 0, max: 3 }),
     turn: faker.number.int({ min: 1, max: 10 }),
-    action: GameLogAction.ADD_ACTIONS,
+    action,
     count: faker.number.int({ min: 1, max: 5 }),
     correction: false,
     // linkedActionId: faker.string.uuid(),
@@ -106,6 +108,9 @@ export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
       log?.action && log.action === GameLogAction.START_GAME
         ? -1
         : faker.number.int({ min: 0, max: 3 }),
+    ...(action === GameLogAction.NEXT_TURN
+      ? { playerTurnDetails: [DefaultTurnDetails(), DefaultTurnDetails()] }
+      : {}),
     ...(log ? deepClone<Partial<ILogEntry>>(log) : {}),
   };
 }
@@ -120,11 +125,6 @@ export function createMockGameRaw(numPlayers: number, overrides?: Partial<IGameR
     log: mockGame.log.map((logEntry) => ({
       ...logEntry,
       timestamp: logEntry.timestamp.toISOString(),
-    })),
-    timeCache: mockGame.timeCache.map((timeCache) => ({
-      ...timeCache,
-      saveStartTime: timeCache.saveStartTime ? timeCache.saveStartTime.toISOString() : null,
-      pauseStartTime: timeCache.pauseStartTime ? timeCache.pauseStartTime.toISOString() : null,
     })),
     turnStatisticsCache: mockGame.turnStatisticsCache.map((turnStatistics) => ({
       ...turnStatistics,
@@ -144,16 +144,6 @@ export function createMockGameRaw(numPlayers: number, overrides?: Partial<IGameR
             typeof logEntry.timestamp === 'string'
               ? logEntry.timestamp
               : new Date(logEntry.timestamp).toISOString(),
-        }));
-      } else if (key === 'timeCache' && Array.isArray(overrides.timeCache)) {
-        baseGameRaw.timeCache = overrides.timeCache.map((timeCache) => ({
-          ...timeCache,
-          saveStartTime: timeCache.saveStartTime
-            ? new Date(timeCache.saveStartTime).toISOString()
-            : null,
-          pauseStartTime: timeCache.pauseStartTime
-            ? new Date(timeCache.pauseStartTime).toISOString()
-            : null,
         }));
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
