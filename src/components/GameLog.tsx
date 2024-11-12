@@ -22,6 +22,13 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
   const [listWidth, setListWidth] = useState<number>(window.innerWidth);
   const [dialogHeight, setDialogHeight] = useState<number>(0);
   const headerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<FixedSizeList>(null);
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollToItem(gameState.log.length - 1, 'end');
+    }
+  }, [gameState.log.length]);
 
   const calculateDialogHeight = () => {
     return window.innerHeight * 0.8; // 80% of the window height
@@ -99,6 +106,7 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
             <Box>Action</Box>
           </Box>
           <FixedSizeList
+            ref={listRef}
             height={listHeight}
             width={listWidth}
             itemCount={gameState.log.length}

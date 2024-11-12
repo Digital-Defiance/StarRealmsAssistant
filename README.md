@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Tue Nov 12 00:06:00 2024
+
+- Version 0.12.1
+  - Make game log retain scroll position between visits and scroll to bottom on updates
+
 ### Mon Nov 11 23:53:00 2024
 
 - Version 0.12.0
