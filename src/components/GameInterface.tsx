@@ -223,6 +223,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           padding: 1,
           overflow: 'auto',
           maxWidth: '100%',
+          paddingBottom: '70px', // fab icons height
         }}
       >
         <Scoreboard />
@@ -297,7 +298,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           </Fab>
         </Tooltip>
       </FabContainer>
-      {gameState.currentStep === CurrentStep.Game && containerWidth > 1300 && (
+      {gameState.currentStep === CurrentStep.Game && window.innerWidth > 1300 && (
         <>
           <GameClock />
           <FloatingCounter />

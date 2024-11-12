@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Tue Nov 12 00:16:00 2024
+
+- Version 0.12.2
+  - Add padding to bottom of game interface so we can scroll above the fab buttons
+
 ### Tue Nov 12 00:06:00 2024
 
 - Version 0.12.1
