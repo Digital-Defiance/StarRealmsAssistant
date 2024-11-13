@@ -40,13 +40,13 @@ jobs:
 
       # Run lint, test, build, and e2e tasks explicitly
       - name: Run Lint
-        run: npx nx run-many --target=lint --all
+        run: npx nx run-many --target=lint --all --skip-nx-cache --parallel=3
 
       - name: Run Tests
-        run: npx nx run-many --target=test --all
+        run: npx nx run-many --target=test --all --skip-nx-cache --parallel=3
 
       - name: Run Build
-        run: npx nx run-many --target=build --all
+        run: npx nx run-many --target=build --all --skip-nx-cache --parallel=3
 
       - name: Run E2E Tests
-        run: npx nx run-many --target=e2e --all
+        run: npx nx run-many --target=e2e --all --skip-nx-cache --parallel=3
