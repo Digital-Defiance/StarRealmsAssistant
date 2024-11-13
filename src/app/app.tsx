@@ -1,10 +1,11 @@
-import React, { useRef, ReactElement, ReactNode } from 'react';
+import React, { useRef, ReactElement, ReactNode, useEffect, useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import { BrowserRouter as Router, useRoutes } from 'react-router-dom';
+import { BrowserRouter as Router, useLocation, useNavigate, useRoutes } from 'react-router-dom';
 import AboutScreen from '@/components/screens/AboutScreen';
 import HomeIcon from '@mui/icons-material/Home';
 import BookIcon from '@mui/icons-material/Book';
 import SaveIcon from '@mui/icons-material/Save';
+import SettingsIcon from '@mui/icons-material/Settings';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DominionVictoryIcon from '@/assets/images/Dominion-Victory.png';
 import TabBarIcon from '@/components/TabBarIcon';
@@ -17,6 +18,7 @@ import { GameProvider } from '@/components/GameContext';
 import { AlertProvider } from '@/components/AlertContext';
 import AlertDialog from '@/components/AlertDialog';
 import StatisticsScreen from '@/components/screens/StatisticsScreen';
+import { UtilsScreen } from '@/components/screens/UtilsScreen';
 
 interface ITab {
   label: string;
@@ -28,6 +30,21 @@ interface ITab {
 
 function AppRoutes() {
   const tabViewRef = useRef<TabViewHandle>(null);
+  const location = useLocation();
+  const [utilsEnabled, setUtilsEnabled] = useState(() => {
+    return localStorage.getItem('utilsEnabled') === 'true';
+  });
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('utils') === 'true') {
+      localStorage.setItem('utilsEnabled', 'true');
+      setUtilsEnabled(true);
+    } else if (searchParams.get('utils') === 'false') {
+      localStorage.setItem('utilsEnabled', 'false');
+      setUtilsEnabled(false);
+    }
+  }, [location.search]);
 
   const tabs: ITab[] = [
     {
@@ -62,6 +79,15 @@ function AppRoutes() {
       path: '/statistics',
     },
   ];
+
+  if (utilsEnabled) {
+    tabs.push({
+      label: 'Utils',
+      icon: <TabBarIcon name="utils" icon={SettingsIcon} focused={false} />,
+      content: <UtilsScreen />,
+      path: '/utils',
+    });
+  }
 
   const routes = useRoutes([
     {

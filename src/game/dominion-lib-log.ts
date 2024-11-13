@@ -1250,3 +1250,30 @@ export function rebuildTurnStatisticsCache(game: IGame): Array<ITurnStatistics> 
 
   return newTurnStatisticsCache;
 }
+
+/**
+ * Rebuild the game time history for a given game.
+ * @param game - The game object containing log entries and time cache.
+ * @returns The game object with updated game time history.
+ */
+export function rebuildGameTimeHistory(game: IGame): IGame {
+  const newGame = deepClone<IGame>(game);
+  newGame.log = [game.log[0]];
+  const lastGameTime = 0;
+  for (let i = 1; i < game.log.length; i++) {
+    // if the entry is a load or unpause, we dont increase the game time from the associated save/pause
+    if (
+      game.log[i].action === GameLogAction.LOAD_GAME ||
+      game.log[i].action === GameLogAction.UNPAUSE
+    ) {
+      newGame.log.push({ ...game.log[i], gameTime: lastGameTime });
+    } else {
+      const gameTime = calculateDurationUpToEvent(newGame.log, game.log[i].timestamp);
+      newGame.log.push({
+        ...game.log[i],
+        gameTime,
+      });
+    }
+  }
+  return newGame;
+}

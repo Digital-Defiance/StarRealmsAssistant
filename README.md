@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Tue Nov 12 23:15:00 2024
+
+- Version 0.12.5
+  - Added "secret" utils tab with tools to repair game state
+
 ### Tue Nov 12 22:09:00 2024
 
 - Version 0.12.4
