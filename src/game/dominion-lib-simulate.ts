@@ -10,9 +10,13 @@ import {
   NegativeAdjustmentActions,
 } from '@/game/constants';
 import { IMatDetails } from '@/game/interfaces/mat-details';
-import { applyLogAction, calculateDurationUpToEvent } from '@/game/dominion-lib-log';
+import {
+  applyLogAction,
+  calculateDurationUpToEvent,
+  rebuildTurnStatisticsCache,
+} from '@/game/dominion-lib-log';
 
-export function generateLargeGame(turns = 50): IGame {
+export function generateLargeGame(turns = 50, endGame = true): IGame {
   console.log('Generating large game with', turns, 'turns');
   let game = createMockGame(3, {
     options: {
@@ -72,22 +76,26 @@ export function generateLargeGame(turns = 50): IGame {
     }
   }
 
-  // End the game
-  elapsedTimeMS += Math.floor(Math.random() * 60000);
-  const endTimestamp = new Date(gameStartTime.getTime() + elapsedTimeMS);
-  game = applyLogAction(
-    game,
-    createMockLog({
-      action: GameLogAction.END_GAME,
-      playerIndex: -1,
-      turn: turns,
-      timestamp: endTimestamp,
-      gameTime: calculateDurationUpToEvent(game.log, endTimestamp),
-    })
-  );
+  if (endGame) {
+    // End the game
+    elapsedTimeMS += Math.floor(Math.random() * 60000);
+    const endTimestamp = new Date(gameStartTime.getTime() + elapsedTimeMS);
+    game = applyLogAction(
+      game,
+      createMockLog({
+        action: GameLogAction.END_GAME,
+        playerIndex: -1,
+        turn: turns,
+        timestamp: endTimestamp,
+        gameTime: calculateDurationUpToEvent(game.log, endTimestamp),
+      })
+    );
+  }
 
   console.log('Generated large game with', game.log.length, 'log entries');
-  return reconstructGameState(game);
+  game = reconstructGameState(game);
+  game.turnStatisticsCache = rebuildTurnStatisticsCache(game);
+  return game;
 }
 
 function simulatePlayerTurn(game: IGame, timestamp: Date): IGame {

@@ -1,4 +1,6 @@
 import 'module-alias/register';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import { generateLargeGame } from '@/game/dominion-lib-simulate';
 import { saveGameData } from '@/game/dominion-lib-load-save';
 import { IGame } from '@/game/interfaces/game';
@@ -8,12 +10,22 @@ import { copyFileSync } from 'fs';
 import { join } from 'path';
 
 async function main() {
+  const argv = yargs(hideBin(process.argv))
+    .option('noEnd', {
+      type: 'boolean',
+      description:
+        'Prevent the generated game from adding the END_GAME log and setting the state to game over',
+    })
+    .parseSync();
+
+  const endGame = argv.noEnd ? false : true;
+
   const storageLocation = './game-storage';
 
   // pick a random number of turns between 50 and 60
   const numTurns = Math.floor(Math.random() * 11) + 50;
   // Generate a large game
-  const game: IGame = generateLargeGame(numTurns);
+  const game: IGame = generateLargeGame(numTurns, endGame);
 
   // Create a disk storage service
   const storageService = new DiskStorageService(storageLocation);

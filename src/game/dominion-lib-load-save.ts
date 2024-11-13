@@ -13,7 +13,7 @@ import {
   SaveGameStorageKey,
   SaveGameStorageKeyPrefix,
 } from '@/game/constants';
-import { addLogEntry } from '@/game/dominion-lib-log';
+import { addLogEntry, rebuildTurnStatisticsCache } from '@/game/dominion-lib-log';
 import { IPlayer } from '@/game/interfaces/player';
 import { IGameSupply } from '@/game/interfaces/game-supply';
 import { IGameOptions } from '@/game/interfaces/game-options';
@@ -272,6 +272,7 @@ export function loadGame(
     }
 
     game = loadGameAddLog(game, loadTime);
+    game.turnStatisticsCache = rebuildTurnStatisticsCache(game);
 
     return game;
   } catch (error) {

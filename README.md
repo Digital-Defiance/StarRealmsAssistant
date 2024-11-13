@@ -207,6 +207,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Tue Nov 12 16:49:00 2024
+
+- Version 0.12.3
+  - Rebuild turn statistics cache on game load and after creating a large test game
+  - Add --noEnd arg to create large game script for testing large games
+
 ### Tue Nov 12 00:16:00 2024
 
 - Version 0.12.2
