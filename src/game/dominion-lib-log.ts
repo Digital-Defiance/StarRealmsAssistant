@@ -643,6 +643,7 @@ export function applyGroupedActionSubAction(
     action: subAction.action,
     id: uuidv4(),
     timestamp: actionDate,
+    gameTime: calculateDurationUpToEvent(game.log, actionDate),
     ...(NoPlayerActions.includes(subAction.action)
       ? { playerIndex: NO_PLAYER }
       : { playerIndex: playerIndex }),

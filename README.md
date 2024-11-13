@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Tue Nov 12 22:09:00 2024
+
+- Version 0.12.4
+  - Fixed bug with grouped actions botching the time record
+
 ### Tue Nov 12 16:49:00 2024
 
 - Version 0.12.3
