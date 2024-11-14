@@ -6,6 +6,7 @@ import { rebuildGameTimeHistory, rebuildTurnStatisticsCache } from '@/game/domin
 import { deepClone } from '@/game/utils';
 import { IGame } from '@/game/interfaces/game';
 import { CurrentStep } from '@/game/enumerations/current-step';
+import { GameDebug } from '@/components/GameDebug';
 
 const StyledContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -17,6 +18,7 @@ const StyledContainer = styled(Box)(({ theme }) => ({
 
 export const UtilsScreen: FC = () => {
   const { gameState, setGameState } = useGameContext();
+  const [showGameDebug, setShowGameDebug] = React.useState<boolean>(false);
 
   const handleRebuildGameTime = () => {
     setGameState((prevState) => {
@@ -45,6 +47,10 @@ export const UtilsScreen: FC = () => {
     });
   };
 
+  const handleToggleGameDebug = () => {
+    setShowGameDebug((prevShowGameDebug) => !prevShowGameDebug);
+  };
+
   return (
     <StyledContainer>
       <TabTitle>Utilities</TabTitle>
@@ -57,6 +63,11 @@ export const UtilsScreen: FC = () => {
           <ListItem>
             <Link onClick={handleRebuildTurnStatistics}>Rebuild Turn Statistics</Link>
           </ListItem>
+          <ListItem>
+            <Link onClick={handleToggleGameDebug}>
+              {showGameDebug ? 'Hide Game Debug' : 'Show Game Debug'}
+            </Link>
+          </ListItem>
         </List>
       )}
       {gameState.currentStep !== CurrentStep.Game &&
@@ -66,6 +77,7 @@ export const UtilsScreen: FC = () => {
             state.
           </Box>
         )}
+      {showGameDebug && <GameDebug value={JSON.stringify(gameState, null, 2)} />}
     </StyledContainer>
   );
 };

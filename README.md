@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Wed Nov 13 17:18:00 2024
+
+- Version 0.12.6
+  - Add game debug page to utils
+
 ### Tue Nov 12 23:15:00 2024
 
 - Version 0.12.5
