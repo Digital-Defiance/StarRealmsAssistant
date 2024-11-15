@@ -4,24 +4,25 @@ import {
   Chip,
   Paper,
   Box,
-  IconButton,
-  Popover,
   Tooltip,
   Typography,
+  Popover,
+  IconButton,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import LinkIcon from '@mui/icons-material/Link';
-import { styled } from '@mui/system';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { styled } from '@mui/system';
 import { useGameContext } from '@/components/GameContext';
 import SuperCapsText from '@/components/SuperCapsText';
 import IncrementDecrementControl from '@/components/IncrementDecrementControl';
-import { updatePlayerField } from '@/game/dominion-lib';
+import { updatePlayerField } from '@/game/starrealms-lib';
 import {
   addLogEntry,
+  checkPlayerEliminationAndGameEnd,
   fieldSubfieldToGameLogAction,
   getMasterActionId,
-} from '@/game/dominion-lib-log';
+} from '@/game/starrealms-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
@@ -124,8 +125,7 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
     field: T,
     subfield: PlayerFieldMap[T],
     increment: number,
-    linkedActionId?: string,
-    victoryTrash?: boolean
+    linkedActionId?: string
   ): void => {
     const prevGame = deepClone<IGame>(gameState);
     try {
@@ -134,16 +134,16 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
         prevGame.selectedPlayerIndex,
         field,
         subfield,
-        increment,
-        victoryTrash
+        increment
       );
       const action = fieldSubfieldToGameLogAction(field, subfield, increment);
       addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
         count: Math.abs(increment),
         correction: isCorrection,
         linkedActionId,
-        trash: field === 'victory' && victoryTrash,
+        scrap: false,
       });
+      checkPlayerEliminationAndGameEnd(updatedGame);
       setGameState(updatedGame);
     } catch (error) {
       if (error instanceof Error) {
@@ -151,75 +151,6 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
       } else {
         showAlert('Could not increment', 'Unknown error');
       }
-      setGameState(prevGame);
-    }
-  };
-
-  const handleCombinedFieldChange = <T extends keyof PlayerFieldMap>(
-    decrementField: T,
-    decrementSubfield: PlayerFieldMap[T],
-    decrement: number,
-    incrementField: T,
-    incrementSubfield: PlayerFieldMap[T],
-    increment: number,
-    linkedActionId?: string,
-    overrideIncrementActionName?: string
-  ): void => {
-    const prevGame = deepClone<IGame>(gameState);
-    try {
-      // Perform the decrement action
-      const tempGame = updatePlayerField(
-        prevGame,
-        prevGame.selectedPlayerIndex,
-        decrementField,
-        decrementSubfield,
-        decrement
-      );
-      const decrementAction = fieldSubfieldToGameLogAction(
-        decrementField,
-        decrementSubfield,
-        decrement
-      );
-      const decrementLogEntry = addLogEntry(
-        tempGame,
-        tempGame.selectedPlayerIndex,
-        decrementAction,
-        {
-          count: Math.abs(decrement),
-          correction: isCorrection,
-          linkedActionId,
-        }
-      );
-
-      // Perform the increment action using the logEntry ID from the decrement action
-      const updatedGame = updatePlayerField(
-        tempGame,
-        tempGame.selectedPlayerIndex,
-        incrementField,
-        incrementSubfield,
-        increment
-      );
-      const incrementAction = fieldSubfieldToGameLogAction(
-        incrementField,
-        incrementSubfield,
-        increment
-      );
-      addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, incrementAction, {
-        count: Math.abs(increment),
-        correction: isCorrection,
-        linkedActionId: linkedActionId ?? decrementLogEntry.id,
-        actionName: overrideIncrementActionName,
-      });
-
-      // Update the actual game state with the final updated game
-      setGameState(updatedGame);
-    } catch (error) {
-      if (error instanceof Error) {
-        showAlert('Could not update field', error.message);
-      } else {
-        showAlert('Could not update field', 'Unknown error');
-      }
-      // Rollback to the previous game state
       setGameState(prevGame);
     }
   };
@@ -241,49 +172,9 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
     }
   };
 
-  const showMats =
-    gameState.options.mats.coffersVillagers ||
-    gameState.options.mats.debt ||
-    gameState.options.mats.favors;
-
-  const showGlobalMats = gameState.options.expansions.risingSun;
-
-  const handleProphecyIncrease = () => {
-    setGameState((prevState: IGame) => {
-      if (prevState.expansions.risingSun && prevState.options.expansions.risingSun) {
-        const newGameState = deepClone<IGame>(prevState);
-        // prophecy is always triggered by the selected player, not the current player in case there is an off-turn action triggered by a defense, etc
-        addLogEntry(newGameState, newGameState.selectedPlayerIndex, GameLogAction.ADD_PROPHECY, {
-          count: 1,
-          linkedActionId: linkChangeId,
-        });
-        newGameState.expansions.risingSun.prophecy.suns += 1;
-        return newGameState;
-      }
-      return prevState;
-    });
-  };
-
-  const handleProphecyDecrease = () => {
-    setGameState((prevState: IGame) => {
-      if (prevState.options.expansions.risingSun) {
-        if (prevState.expansions.risingSun.prophecy.suns - 1 < 0) {
-          return prevState;
-        }
-        const newGameState = deepClone<IGame>(prevState);
-        addLogEntry(newGameState, newGameState.selectedPlayerIndex, GameLogAction.REMOVE_PROPHECY, {
-          count: 1,
-          linkedActionId: linkChangeId,
-        });
-
-        newGameState.expansions.risingSun.prophecy.suns = Math.max(
-          0,
-          newGameState.expansions.risingSun.prophecy.suns - 1
-        );
-        return newGameState;
-      }
-      return prevState;
-    });
+  const isGamePaused = (): boolean => {
+    const lastLogEntry = gameState.log.length > 0 ? gameState.log[gameState.log.length - 1] : null;
+    return lastLogEntry !== null && lastLogEntry.action === GameLogAction.PAUSE;
   };
 
   const handleNewTurnClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -294,11 +185,6 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
   const handleNewTurnClose = () => {
     setAnchorEl(null);
     setShowNewTurnSettings(false);
-  };
-
-  const isGamePaused = (): boolean => {
-    const lastLogEntry = gameState.log.length > 0 ? gameState.log[gameState.log.length - 1] : null;
-    return lastLogEntry !== null && lastLogEntry.action === GameLogAction.PAUSE;
   };
 
   return (
@@ -377,46 +263,18 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                   </Tooltip>
                 </CenteredTitle>
                 <IncrementDecrementControl
-                  label="Actions"
-                  value={player.turn.actions}
-                  tooltip="Tracks the number of actions available this turn"
-                  onIncrement={() => handleFieldChange('turn', 'actions', 1, linkChangeId)}
-                  onDecrement={() => {
-                    // greatLeaderProphecy gives unlimited actions when the prophecy is empty
-                    if (
-                      !isCorrection &&
-                      gameState.options.expansions.risingSun &&
-                      gameState.expansions.risingSun.greatLeaderProphecy &&
-                      gameState.expansions.risingSun.prophecy.suns === 0
-                    ) {
-                      handleCombinedFieldChange(
-                        'turn',
-                        'actions',
-                        -1,
-                        'turn',
-                        'actions',
-                        1,
-                        linkChangeId,
-                        `Added 1 actions (Great Leader Prophecy)`
-                      );
-                    } else {
-                      handleFieldChange('turn', 'actions', -1, linkChangeId);
-                    }
-                  }}
-                />
-                <IncrementDecrementControl
-                  label="Buys"
-                  value={player.turn.buys}
+                  label="Trade"
+                  value={player.turn.trade}
                   tooltip="Tracks the number of buys available this turn"
-                  onIncrement={() => handleFieldChange('turn', 'buys', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('turn', 'buys', -1, linkChangeId)}
+                  onIncrement={() => handleFieldChange('turn', 'trade', 1, linkChangeId)}
+                  onDecrement={() => handleFieldChange('turn', 'trade', -1, linkChangeId)}
                 />
                 <IncrementDecrementControl
-                  label="Coins"
-                  value={player.turn.coins}
+                  label="Combat"
+                  value={player.turn.combat}
                   tooltip="Tracks the number of coins played this turn"
-                  onIncrement={() => handleFieldChange('turn', 'coins', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('turn', 'coins', -1, linkChangeId)}
+                  onIncrement={() => handleFieldChange('turn', 'combat', 1, linkChangeId)}
+                  onDecrement={() => handleFieldChange('turn', 'combat', -1, linkChangeId)}
                 />
                 {gameState.options.trackCardCounts && (
                   <IncrementDecrementControl
@@ -446,168 +304,18 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                   />
                 )}
               </ColumnBox>
-              {(showMats || showGlobalMats) && (
-                <ColumnBox>
-                  {showMats && (
-                    <CenteredTitle>
-                      <Tooltip title="These player mat values persist between turns">
-                        <SuperCapsText className={`typography-large-title`}>Mats</SuperCapsText>
-                      </Tooltip>
-                    </CenteredTitle>
-                  )}
-                  {gameState.options.mats.coffersVillagers && (
-                    <>
-                      <IncrementDecrementControl
-                        label="Coffers"
-                        value={player.mats.coffers}
-                        tooltip="Spending a coffer automatically gives a coin"
-                        onIncrement={() => handleFieldChange('mats', 'coffers', 1, linkChangeId)}
-                        onDecrement={() => {
-                          if (!isCorrection) {
-                            // spending a coffer gives a coin
-                            handleCombinedFieldChange(
-                              'mats',
-                              'coffers',
-                              -1,
-                              'turn',
-                              'coins',
-                              1,
-                              linkChangeId
-                            );
-                          } else {
-                            handleFieldChange('mats', 'coffers', -1, linkChangeId);
-                          }
-                        }}
-                      />
-                      <IncrementDecrementControl
-                        label="Villagers"
-                        value={player.mats.villagers}
-                        tooltip="Spending a villager automatically gives an action"
-                        onIncrement={() => handleFieldChange('mats', 'villagers', 1, linkChangeId)}
-                        onDecrement={() => {
-                          if (!isCorrection) {
-                            // spending a villager gives an action
-                            handleCombinedFieldChange(
-                              'mats',
-                              'villagers',
-                              -1,
-                              'turn',
-                              'actions',
-                              1,
-                              linkChangeId
-                            );
-                          } else {
-                            handleFieldChange('mats', 'villagers', -1, linkChangeId);
-                          }
-                        }}
-                      />
-                    </>
-                  )}
-                  {gameState.options.mats.debt && (
-                    <IncrementDecrementControl
-                      label="Debt"
-                      value={player.mats.debt}
-                      tooltip="Tracks players' debt across turns"
-                      onIncrement={() => handleFieldChange('mats', 'debt', 1, linkChangeId)}
-                      onDecrement={() => handleFieldChange('mats', 'debt', -1, linkChangeId)}
-                    />
-                  )}
-                  {gameState.options.mats.favors && (
-                    <IncrementDecrementControl
-                      label="Favors"
-                      value={player.mats.favors}
-                      tooltip="Tracks players' favors across turns"
-                      onIncrement={() => handleFieldChange('mats', 'favors', 1, linkChangeId)}
-                      onDecrement={() => handleFieldChange('mats', 'favors', -1, linkChangeId)}
-                    />
-                  )}
-                  {showGlobalMats && (
-                    <>
-                      <Box sx={showMats ? { paddingTop: 2 } : {}}>
-                        <CenteredTitle>
-                          <Tooltip title="Global Mats affect all players and persist between turns">
-                            <SuperCapsText className={`typography-large-title`}>
-                              Global Mats
-                            </SuperCapsText>
-                          </Tooltip>
-                        </CenteredTitle>
-                      </Box>
-                      {gameState.options.expansions.risingSun && (
-                        <IncrementDecrementControl
-                          label="Prophecy"
-                          value={gameState.expansions.risingSun.prophecy.suns}
-                          tooltip="Rising Sun Prophecy affects all players and persists between turns"
-                          onIncrement={handleProphecyIncrease}
-                          onDecrement={handleProphecyDecrease}
-                        />
-                      )}
-                    </>
-                  )}
-                </ColumnBox>
-              )}
               <ColumnBox sx={{ marginLeft: '10px' }}>
                 <CenteredTitle>
-                  <Tooltip title="Victory points" arrow>
-                    <SuperCapsText className={`typography-large-title`}>Victory</SuperCapsText>
+                  <Tooltip title="Authority" arrow>
+                    <SuperCapsText className={`typography-large-title`}>Authority</SuperCapsText>
                   </Tooltip>
                 </CenteredTitle>
-                {gameState.options.curses && (
-                  <IncrementDecrementControl
-                    label="Curses"
-                    value={player.victory.curses}
-                    tooltip="Tracks players' curses across turns"
-                    onIncrement={() => handleFieldChange('victory', 'curses', 1, linkChangeId)}
-                    onDecrement={() => handleFieldChange('victory', 'curses', -1, linkChangeId)}
-                    onTrash={() => handleFieldChange('victory', 'curses', -1, linkChangeId, true)}
-                  />
-                )}
                 <IncrementDecrementControl
-                  label="Estates"
-                  value={player.victory.estates}
-                  tooltip="Tracks players' estates owned across turns"
-                  onIncrement={() => handleFieldChange('victory', 'estates', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('victory', 'estates', -1, linkChangeId)}
-                  onTrash={() => handleFieldChange('victory', 'estates', -1, linkChangeId, true)}
-                />
-                <IncrementDecrementControl
-                  label="Duchies"
-                  value={player.victory.duchies}
-                  tooltip="Tracks players' duchies owned across turns"
-                  onIncrement={() => handleFieldChange('victory', 'duchies', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('victory', 'duchies', -1, linkChangeId)}
-                  onTrash={() => handleFieldChange('victory', 'duchies', -1, linkChangeId, true)}
-                />
-                <IncrementDecrementControl
-                  label="Provinces"
-                  value={player.victory.provinces}
-                  tooltip="Tracks players' provinces owned across turns"
-                  onIncrement={() => handleFieldChange('victory', 'provinces', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('victory', 'provinces', -1, linkChangeId)}
-                  onTrash={() => handleFieldChange('victory', 'provinces', -1, linkChangeId, true)}
-                />
-                {gameState.options.expansions.prosperity && (
-                  <IncrementDecrementControl
-                    label="Colonies"
-                    value={player.victory.colonies}
-                    tooltip="Tracks players' colonies owned across turns"
-                    onIncrement={() => handleFieldChange('victory', 'colonies', 1, linkChangeId)}
-                    onDecrement={() => handleFieldChange('victory', 'colonies', -1, linkChangeId)}
-                    onTrash={() => handleFieldChange('victory', 'colonies', -1, linkChangeId, true)}
-                  />
-                )}
-                <IncrementDecrementControl
-                  label="Tokens"
-                  value={player.victory.tokens}
-                  tooltip="Tracks players' victory tokens owned across turns"
-                  onIncrement={() => handleFieldChange('victory', 'tokens', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('victory', 'tokens', -1, linkChangeId)}
-                />
-                <IncrementDecrementControl
-                  label="Other"
-                  value={player.victory.other}
-                  tooltip="Tracks players' other victory points owned across turns"
-                  onIncrement={() => handleFieldChange('victory', 'other', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('victory', 'other', -1, linkChangeId)}
+                  label="Authority"
+                  value={player.authority.authority}
+                  tooltip="Tracks players' authority across turns"
+                  onIncrement={() => handleFieldChange('authority', 'authority', 1, linkChangeId)}
+                  onDecrement={() => handleFieldChange('authority', 'authority', -1, linkChangeId)}
                 />
               </ColumnBox>
             </Box>
@@ -630,25 +338,18 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                 <SuperCapsText className={`typography-title`}>Next Turn</SuperCapsText>
               </CenteredTitle>
               <IncrementDecrementControl
-                label="Actions"
-                value={player.newTurn.actions}
+                label="Trade"
+                value={player.newTurn.trade}
                 tooltip="Number of actions available for new turns"
-                onIncrement={() => handleFieldChange('newTurn', 'actions', 1, linkChangeId)}
-                onDecrement={() => handleFieldChange('newTurn', 'actions', -1, linkChangeId)}
+                onIncrement={() => handleFieldChange('newTurn', 'trade', 1, linkChangeId)}
+                onDecrement={() => handleFieldChange('newTurn', 'trade', -1, linkChangeId)}
               />
               <IncrementDecrementControl
-                label="Buys"
-                value={player.newTurn.buys}
+                label="Combat"
+                value={player.newTurn.combat}
                 tooltip="Number of buys available for new turns"
-                onIncrement={() => handleFieldChange('newTurn', 'buys', 1, linkChangeId)}
-                onDecrement={() => handleFieldChange('newTurn', 'buys', -1, linkChangeId)}
-              />
-              <IncrementDecrementControl
-                label="Coins"
-                value={player.newTurn.coins}
-                tooltip="Number of coins available for new turns"
-                onIncrement={() => handleFieldChange('newTurn', 'coins', 1, linkChangeId)}
-                onDecrement={() => handleFieldChange('newTurn', 'coins', -1, linkChangeId)}
+                onIncrement={() => handleFieldChange('newTurn', 'combat', 1, linkChangeId)}
+                onDecrement={() => handleFieldChange('newTurn', 'combat', -1, linkChangeId)}
               />
               {gameState.options.trackCardCounts && (
                 <IncrementDecrementControl

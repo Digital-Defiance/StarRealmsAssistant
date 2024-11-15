@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export class DiskStorageService implements IStorageService {
-  private storageDir: string;
+  private readonly storageDir: string;
 
   constructor(storageDir: string) {
     this.storageDir = storageDir;

@@ -1,10 +1,8 @@
-import { IMatDetails } from '@/game/interfaces/mat-details';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
-import { IVictoryDetails } from '@/game/interfaces/victory-details';
+import { IAuthorityDetails } from '@/game/interfaces/authority-details';
 
 export interface IPlayerGameDetails {
-  victory: IVictoryDetails;
-  mats: IMatDetails;
+  authority: IAuthorityDetails;
   turn: IPlayerGameTurnDetails;
   newTurn: IPlayerGameTurnDetails;
 }

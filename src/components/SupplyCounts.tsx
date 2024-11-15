@@ -2,10 +2,9 @@ import React, { FC } from 'react';
 import { Box, Typography, List, ListItem, styled } from '@mui/material';
 import SuperCapsText from '@/components/SuperCapsText';
 import { useGameContext } from '@/components/GameContext';
-import { IBaseKingdom } from '@/game/interfaces/set-kingdom/base';
-import { IProsperityKingdom } from '@/game/interfaces/set-kingdom/prosperity';
 import theme from '@/components/theme';
 import SecondarySubtitle from '@/components/SecondarySubtitle';
+import { IGameSupply } from '@/game/interfaces/game-supply';
 
 const Container = styled(Box)(({ theme }) => ({
   flex: 1,
@@ -27,11 +26,11 @@ const StyledListItem = styled(ListItem)({
 });
 
 const CardName = styled(Typography)({
-  fontFamily: 'Minion Pro Medium Cond Subhead',
+  fontFamily: 'Handel Gothic ITC Pro',
 });
 
 const Quantity = styled(Typography)({
-  fontFamily: 'TrajanProBold',
+  fontFamily: 'Handel Gothic ITC Pro',
   fontWeight: 'bold',
 });
 
@@ -48,17 +47,7 @@ interface SupplyCountsProps {
 const SupplyCounts: FC<SupplyCountsProps> = ({ containerHeight }) => {
   const { gameState } = useGameContext();
 
-  const supplyCards: (keyof IBaseKingdom | keyof IProsperityKingdom)[] = [
-    'estates',
-    'duchies',
-    'provinces',
-    'coppers',
-    'silvers',
-    'golds',
-    'curses',
-    'colonies',
-    'platinums',
-  ];
+  const supplyCards: (keyof IGameSupply)[] = ['explorers'];
 
   const getSetInfo = () => {
     const playerCount = gameState.players.length;
@@ -74,7 +63,7 @@ const SupplyCounts: FC<SupplyCountsProps> = ({ containerHeight }) => {
       }}
     >
       <Header>
-        <SuperCapsText className={`typography-large-title`}>Kingdom Supply</SuperCapsText>
+        <SuperCapsText className={`typography-large-title`}>Card Supply</SuperCapsText>
         <SecondarySubtitle sx={{ marginTop: theme.spacing(1) }}>{getSetInfo()}</SecondarySubtitle>
       </Header>
       <List>
@@ -91,7 +80,7 @@ const SupplyCounts: FC<SupplyCountsProps> = ({ containerHeight }) => {
           );
         })}
       </List>
-      <Note>Note: Supply counts include trashed cards.</Note>
+      <Note>Note: Supply counts include scrapped cards.</Note>
     </Container>
   );
 };

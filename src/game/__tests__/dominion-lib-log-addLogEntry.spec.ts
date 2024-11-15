@@ -2,7 +2,7 @@ import { addLogEntry } from '@/game/dominion-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGame, createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 import { IGame } from '@/game/interfaces/game';
-import { InvalidTrashActionError } from '@/game/errors/invalid-trash-action';
+import { InvalidScrapActionError } from '@/game/errors/invalid-trash-action';
 import { AdjustmentActions, NO_PLAYER, NoPlayerActions } from '../constants';
 import { GamePausedError } from '../errors/game-paused';
 import { CountRequiredError } from '../errors/count-required';
@@ -185,7 +185,7 @@ describe('addLogEntry', () => {
         count: 1,
         trash: true,
       });
-    }).toThrow(InvalidTrashActionError);
+    }).toThrow(InvalidScrapActionError);
   });
   it('should throw an error if you try to mark trash a a positive increase action as trash', () => {
     expect(() => {
@@ -193,7 +193,7 @@ describe('addLogEntry', () => {
         count: 1,
         trash: true,
       });
-    }).toThrow(InvalidTrashActionError);
+    }).toThrow(InvalidScrapActionError);
   });
   it('should throw an error if you try to mark trash something other than a victory card', () => {
     expect(() => {
@@ -201,7 +201,7 @@ describe('addLogEntry', () => {
         count: 1,
         trash: true,
       });
-    }).toThrow(InvalidTrashActionError);
+    }).toThrow(InvalidScrapActionError);
   });
 
   it('should not throw an error if you try to mark trash a victory card', () => {

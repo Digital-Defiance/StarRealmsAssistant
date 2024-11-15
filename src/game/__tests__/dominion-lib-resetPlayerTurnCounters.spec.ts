@@ -55,7 +55,7 @@ describe('resetPlayerTurnCounters', () => {
           name: 'Player 1',
           turn: { actions: 0, buys: 0, coins: 0, cards: 5, gains: 0, discard: 0 },
           newTurn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0, discard: 0 },
-          victory: { ...EmptyVictoryDetails(), estates: 3 },
+          authority: { ...EmptyVictoryDetails(), estates: 3 },
         }),
         createMockPlayer(1),
       ],
@@ -71,7 +71,7 @@ describe('resetPlayerTurnCounters', () => {
     const incompletePlayer: Partial<IPlayer> = {
       name: 'Incomplete Player',
       mats: EmptyMatDetails(),
-      victory: EmptyVictoryDetails(),
+      authority: EmptyVictoryDetails(),
     };
 
     const initialGame = createMockGame(2, { players: [incompletePlayer as IPlayer] });

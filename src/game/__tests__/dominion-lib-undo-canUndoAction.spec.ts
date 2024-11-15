@@ -4,7 +4,7 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { faker } from '@faker-js/faker';
 import { createMockGame, createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
-import { ActionsWithOnlyLastActionUndo, DefaultTurnDetails, NoUndoActions } from '@/game/constants';
+import { ActionsWithOnlyLastActionUndo, NoUndoActions } from '@/game/constants';
 import { NotEnoughSupplyError } from '../errors/not-enough-supply';
 import { NotEnoughProphecyError } from '../errors/not-enough-prophecy';
 import { CurrentStep } from '../enumerations/current-step';
@@ -458,7 +458,7 @@ describe('canUndoAction', () => {
       ],
     });
 
-    expect(undoModule.canUndoAction(game, 2)).toBe(true);
+    expect(undoModule.canUndoAction(game, 1)).toBe(true);
     expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(1);
     expect(reconstructGameStateSpy).toHaveBeenCalledTimes(1);
     expect(consoleErrorSpy).not.toHaveBeenCalled();

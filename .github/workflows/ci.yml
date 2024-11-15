@@ -30,11 +30,6 @@ jobs:
           node-version: 20
           cache: 'yarn'
 
-      - name: Set up FontAwesome NPM registry
-        run: ./fontawesome-npmrc.sh
-        env:
-          FONTAWESOME_KEY: ${{ secrets.FONTAWESOME_KEY }}
-
       - run: yarn install --frozen-lockfile
       - uses: nrwl/nx-set-shas@v4
 

@@ -1,11 +1,16 @@
-import { updatePlayerField } from '@/game/dominion-lib';
+import { updatePlayerField } from '@/game/starrealms-lib';
 import { IGame } from '@/game/interfaces/game';
 import { IPlayer } from '@/game/interfaces/player';
 import { InvalidFieldError } from '@/game/errors/invalid-field';
-import { NotEnoughSupplyError } from '@/game/errors/not-enough-supply';
 import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import { PlayerFieldMap } from '@/game/types';
-import { DefaultPlayerColors, EmptyGameState } from '@/game/constants';
+import {
+  DefaultPlayerColors,
+  EmptyGameState,
+  STARTING_EXPLORERS,
+  STARTING_SCOUTS,
+  STARTING_VIPERS,
+} from '@/game/constants';
 
 describe('updatePlayerField', () => {
   let mockGame: IGame;
@@ -15,17 +20,10 @@ describe('updatePlayerField', () => {
     mockPlayer = {
       name: 'Test Player',
       color: DefaultPlayerColors[0],
-      mats: { coffers: 0, villagers: 0, debt: 0, favors: 0 },
-      turn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0, discard: 0 },
-      newTurn: { actions: 1, buys: 1, coins: 0, cards: 5, gains: 0, discard: 0 },
-      victory: {
-        estates: 3,
-        duchies: 0,
-        provinces: 0,
-        colonies: 0,
-        curses: 0,
-        tokens: 0,
-        other: 0,
+      turn: { trade: 1, combat: 0, cards: 5, gains: 0, discard: 0, scrap: 0 },
+      newTurn: { trade: 1, combat: 0, cards: 5, gains: 0, discard: 0, scrap: 0 },
+      authority: {
+        authority: 3,
       },
     };
     mockGame = {
@@ -33,29 +31,21 @@ describe('updatePlayerField', () => {
       players: [mockPlayer],
       supply: {
         ...EmptyGameState().supply,
-        estates: 8,
-        duchies: 8,
-        provinces: 8,
-        colonies: 8,
-        curses: 10,
+        explorers: STARTING_EXPLORERS,
+        vipers: STARTING_VIPERS,
+        scouts: STARTING_SCOUTS,
       },
     };
   });
 
   it('should update turn field correctly', () => {
-    const updatedGame = updatePlayerField(mockGame, 0, 'turn', 'actions', 2);
-    expect(updatedGame.players[0].turn.actions).toBe(3);
+    const updatedGame = updatePlayerField(mockGame, 0, 'turn', 'trade', 2);
+    expect(updatedGame.players[0].turn.trade).toBe(2);
   });
 
   it('should update victory field correctly', () => {
-    const updatedGame = updatePlayerField(mockGame, 0, 'victory', 'duchies', 1);
-    expect(updatedGame.players[0].victory.duchies).toBe(1);
-    expect(updatedGame.supply.duchies).toBe(7);
-  });
-
-  it('should update mats field correctly', () => {
-    const updatedGame = updatePlayerField(mockGame, 0, 'mats', 'coffers', 3);
-    expect(updatedGame.players[0].mats.coffers).toBe(3);
+    const updatedGame = updatePlayerField(mockGame, 0, 'turn', 'combat', 1);
+    expect(updatedGame.players[0].turn.combat).toBe(1);
   });
 
   it('should update newTurn field correctly', () => {
@@ -81,13 +71,6 @@ describe('updatePlayerField', () => {
     }).toThrow(InvalidFieldError);
   });
 
-  it('should throw NotEnoughSupplyError when trying to take more cards than available', () => {
-    mockGame.supply.duchies = 2;
-    expect(() => {
-      updatePlayerField(mockGame, 0, 'victory', 'duchies', 3);
-    }).toThrow(NotEnoughSupplyError);
-  });
-
   it('should correctly handle zero increments', () => {
     const updatedGame = updatePlayerField(mockGame, 0, 'turn', 'actions', 0);
     expect(updatedGame.players[0].turn.actions).toBe(1);
@@ -109,10 +92,10 @@ describe('updatePlayerField', () => {
     mockGame = {
       ...mockGame,
       players: [
-        { ...mockPlayer, victory: { ...mockPlayer.victory, estates: 3 } },
-        { ...mockPlayer, victory: { ...mockPlayer.victory, estates: 3 } },
+        { ...mockPlayer, authority: { ...mockPlayer.authority, authority: 3 } },
+        { ...mockPlayer, authority: { ...mockPlayer.authority, authority: 3 } },
       ],
-      supply: { ...mockGame.supply, estates: 8 },
+      supply: { ...mockGame.supply, explorers: 10 },
     };
 
     const updatedGame = updatePlayerField(mockGame, 1, 'victory', 'estates', 1);

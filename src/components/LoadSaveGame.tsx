@@ -7,7 +7,7 @@ import {
   deleteSavedGame,
   loadGameJsonFromStorage,
   restoreSavedGame,
-} from '@/game/dominion-lib-load-save';
+} from '@/game/starrealms-lib-load-save';
 import { ISavedGameMetadata } from '@/game/interfaces/saved-game-metadata';
 import {
   Box,

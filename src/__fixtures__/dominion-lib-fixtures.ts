@@ -1,20 +1,17 @@
 import { faker } from '@faker-js/faker';
 import { IPlayer } from '@/game/interfaces/player';
 import {
-  NOT_PRESENT,
-  EmptyVictoryDetails,
-  EmptyMatDetails,
+  EmptyVictoryDetails as EmptyAuthorityDetails,
   DefaultTurnDetails,
   DefaultPlayerColors,
   VERSION_NUMBER,
-  DefaultRenaissanceFeatures,
+  DEFAULT_STARTING_AUTHORITY,
+  DEFAULT_TURN_CARDS,
 } from '@/game/constants';
-import { calculateInitialSupply, distributeInitialSupply } from '@/game/dominion-lib';
+import { calculateInitialSupply, distributeInitialSupply } from '@/game/starrealms-lib';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { IGame } from '@/game/interfaces/game';
-import { IMatsEnabled } from '@/game/interfaces/mats-enabled';
-import { IExpansionsEnabled } from '@/game/interfaces/expansions-enabled';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { deepClone } from '@/game/utils';
@@ -24,33 +21,27 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
   const firstPlayerIndex =
     overrides?.firstPlayerIndex ?? faker.number.int({ min: 0, max: playerCount - 1 });
   const options: IGameOptions = {
-    curses: true,
-    expansions: { prosperity: false, renaissance: false, risingSun: false } as IExpansionsEnabled,
-    mats: {
-      coffersVillagers: false,
-      debt: false,
-      favors: false,
-    } as IMatsEnabled,
     trackCardCounts: true,
     trackCardGains: true,
     trackDiscard: true,
+    startingAuthorityByPlayerIndex: Object.fromEntries(
+      Array(playerCount)
+        .fill(null)
+        .map((_, index) => [index, DEFAULT_STARTING_AUTHORITY])
+    ),
+    startingCardsByPlayerIndex: Object.fromEntries(
+      Array(playerCount)
+        .fill(null)
+        .map((_, index) => [index, DEFAULT_TURN_CARDS])
+    ),
   };
-  const supply = calculateInitialSupply(playerCount, options);
+  const supply = calculateInitialSupply(playerCount);
   const game: IGame = {
     players: Array(playerCount)
       .fill(null)
       .map((value, index) => createMockPlayer(index, overrides?.players?.[index])),
     supply,
     options,
-    expansions: {
-      renaissance: DefaultRenaissanceFeatures(),
-      risingSun: {
-        prophecy: {
-          suns: NOT_PRESENT,
-        },
-        greatLeaderProphecy: false,
-      },
-    },
     currentTurn: 1,
     currentPlayerIndex: firstPlayerIndex,
     firstPlayerIndex: firstPlayerIndex,
@@ -70,7 +61,6 @@ export function createMockGame(playerCount: number, overrides?: Partial<IGame>):
     currentStep: CurrentStep.Game,
     setsRequired: 1,
     gameVersion: VERSION_NUMBER,
-    pendingGroupedActions: [],
     ...(overrides ? deepClone<Partial<IGame>>(overrides) : {}),
   };
   return distributeInitialSupply(game);
@@ -83,16 +73,15 @@ export function createMockPlayer(index?: number, overrides?: Partial<IPlayer>): 
       DefaultPlayerColors[
         index ?? faker.number.int({ min: 0, max: DefaultPlayerColors.length - 1 })
       ],
-    mats: EmptyMatDetails(),
     turn: DefaultTurnDetails(),
     newTurn: DefaultTurnDetails(),
-    victory: EmptyVictoryDetails(),
+    victory: EmptyAuthorityDetails(),
     ...deepClone<Partial<IPlayer>>(overrides ?? {}),
   } as IPlayer;
 }
 
 export function createMockLog(log?: Partial<ILogEntry>): ILogEntry {
-  const action = log?.action ?? GameLogAction.ADD_ACTIONS;
+  const action = log?.action ?? GameLogAction.ADD_AUTHORITY;
   return {
     id: faker.string.uuid(),
     timestamp: new Date(),
@@ -138,13 +127,7 @@ export function createMockGameRaw(numPlayers: number, overrides?: Partial<IGameR
     // Merge overrides with baseGameRaw
     Object.keys(overrides).forEach((key) => {
       if (key === 'log' && Array.isArray(overrides.log)) {
-        baseGameRaw.log = overrides.log.map((logEntry) => ({
-          ...logEntry,
-          timestamp:
-            typeof logEntry.timestamp === 'string'
-              ? logEntry.timestamp
-              : new Date(logEntry.timestamp).toISOString(),
-        }));
+        baseGameRaw.log = overrides.log;
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (baseGameRaw as any)[key] = (overrides as any)[key];

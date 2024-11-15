@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { IGame } from '@/game/interfaces/game';
-import { calculateVictoryPoints, rankPlayers } from '@/game/dominion-lib';
+import { rankPlayers } from '@/game/starrealms-lib';
 import TabTitle from '@/components/TabTitle';
 import CenteredContainer from '@/components/CenteredContainer';
 import { RankedPlayer } from '@/game/interfaces/ranked-player';
@@ -24,7 +24,7 @@ interface EndGameProps {
 }
 
 const EndGame: FC<EndGameProps> = ({ game, onNewGame }) => {
-  const playerScores: RankedPlayer[] = rankPlayers(game.players, calculateVictoryPoints);
+  const playerScores: RankedPlayer[] = rankPlayers(game.players);
 
   return (
     <CenteredContainer>

@@ -1,11 +1,11 @@
 {
-  "name": "dominion-assistant",
+  "name": "starrealms-assistant",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "includedScripts": [],
   "sourceRoot": "./src",
   "projectType": "application",
   "tags": [],
-  "// targets": "to see all targets run: nx show project dominion-assistant --web",
+  "// targets": "to see all targets run: nx show project starrealms-assistant --web",
   "targets": {
     "build-create-large-game": {
       "executor": "nx:run-commands",

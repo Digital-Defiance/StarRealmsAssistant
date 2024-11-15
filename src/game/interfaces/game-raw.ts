@@ -1,12 +1,9 @@
 import { IGameSupply } from '@/game/interfaces/game-supply';
 import { IPlayer } from '@/game/interfaces/player';
-import { IRenaissanceFeatures } from '@/game/interfaces/set-features/renaissance';
-import { IRisingSunFeatures } from '@/game/interfaces/set-features/rising-sun';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { IGameOptions } from '@/game/interfaces/game-options';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { ITurnStatisticsRaw } from '@/game/interfaces/turn-statistics-raw';
-import { IRecipeAction } from './recipe-action';
 
 export interface IGameRaw {
   /**
@@ -21,19 +18,6 @@ export interface IGameRaw {
    * The supply counts of cards for the game.
    */
   supply: IGameSupply;
-  /**
-   * The features from the expansions.
-   */
-  expansions: {
-    /**
-     * The features from the Renaissance expansion.
-     */
-    renaissance: IRenaissanceFeatures;
-    /**
-     * The features from the Rising Sun expansion.
-     */
-    risingSun: IRisingSunFeatures;
-  };
   /**
    * The current turn number.
    */
@@ -70,8 +54,4 @@ export interface IGameRaw {
    * The version of the game.
    */
   gameVersion: string;
-  /**
-   * The pending grouped actions that will be applied in the future.
-   */
-  pendingGroupedActions: Array<Partial<IRecipeAction>>;
 }

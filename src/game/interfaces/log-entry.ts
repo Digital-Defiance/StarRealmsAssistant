@@ -1,4 +1,3 @@
-import { RecipeKey } from '@/components/Recipes';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 
@@ -36,9 +35,9 @@ export interface ILogEntry {
    */
   count?: number;
   /**
-   * Whether the removal action was to the trash
+   * Whether the removal action was to the scrap pile
    */
-  trash?: boolean;
+  scrap?: boolean;
   /**
    * Whether the action was a correction
    */
@@ -57,10 +56,4 @@ export interface ILogEntry {
    * Used when undoing a "next turn" action
    */
   playerTurnDetails?: IPlayerGameTurnDetails[];
-  /**
-   * Name of the grouped action taken, for grouped actions
-   */
-  actionName?: string;
-  /** Key for the grouped action */
-  actionKey?: RecipeKey;
 }

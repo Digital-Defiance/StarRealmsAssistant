@@ -76,14 +76,14 @@ describe('convertGameToGameRaw', () => {
       players: [
         createMockPlayer(0, {
           name: 'Karina',
-          victory: {
+          authority: {
             ...EmptyVictoryDetails(),
             estates: 3,
           },
         }),
         createMockPlayer(1, {
           name: 'Jerel',
-          victory: {
+          authority: {
             ...EmptyVictoryDetails(),
             estates: 3,
           },

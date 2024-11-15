@@ -29,9 +29,8 @@ import {
   calculateTurnDurations,
   formatTimeSpan,
   getAverageActionsPerTurn,
-} from '@/game/dominion-lib-log';
+} from '@/game/starrealms-lib-log';
 import TabTitle from '@/components/TabTitle';
-import { VictoryField } from '@/game/types';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import ScrollableContainer from '@/components/ScrollableContainer';
 
@@ -67,34 +66,6 @@ export default function StatisticsScreen() {
     })),
   };
 
-  const victoryFields: VictoryField[] = [
-    ...(gameState.options.curses ? ['curses' as VictoryField] : []),
-    'estates',
-    'duchies',
-    'provinces',
-    ...(gameState.options.expansions.prosperity ? ['colonies' as VictoryField] : []),
-  ];
-  const victoryColors = [
-    ...(gameState.options.curses ? ['#FF6384'] : []),
-    '#36A2EB',
-    '#FFCE56',
-    '#4BC0C0',
-    ...(gameState.options.expansions.prosperity ? ['#9966FF'] : []),
-  ];
-
-  const supplyData = {
-    labels: gameState.turnStatisticsCache.map((stat, index) => `${index + 1}`),
-    datasets: victoryFields.map((field, index) => ({
-      label: field,
-      data: gameState.turnStatisticsCache.map(
-        (stat) => stat.supply[field as keyof typeof stat.supply]
-      ),
-      borderColor: victoryColors[index],
-      backgroundColor: victoryColors[index],
-      fill: false,
-    })),
-  };
-
   const turnTimeData = {
     labels: gameState.turnStatisticsCache.map((stat) => `${stat.turn}`),
     datasets: [
@@ -123,13 +94,9 @@ export default function StatisticsScreen() {
         <TabTitle>Game Statistics</TabTitle>
         {gameStarted && hasTurns ? (
           <>
-            <Typography variant="h6">Player Scores</Typography>
+            <Typography variant="h6">Authority</Typography>
             <Box className="graph-container">
               <Line data={scoreData} options={chartOptions} />
-            </Box>
-            <Typography variant="h6">Victory Supply Counts</Typography>
-            <Box className="graph-container">
-              <Line data={supplyData} options={chartOptions} />
             </Box>
             <Typography variant="h6">Turn Times</Typography>
             <Box className="graph-container">

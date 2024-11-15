@@ -1,17 +1,21 @@
-[![CI](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/ci.yml)
+[![CI](https://github.com/Digital-Defiance/StarRealmsAssistant/actions/workflows/ci.yml/badge.svg)](https://github.com/Digital-Defiance/StarRealmsAssistant/actions/workflows/ci.yml)
 
-[![Deploy to S3](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/deploy-to-s3.yml/badge.svg)](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/deploy-to-s3.yml)
+[![Deploy to S3](https://github.com/Digital-Defiance/StarRealmsAssistant/actions/workflows/deploy-to-s3.yml/badge.svg)](https://github.com/Digital-Defiance/StarRealmsAssistant/actions/workflows/deploy-to-s3.yml)
 
-[![Test and Upload to Codacy](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/test-and-upload-codacy.yml/badge.svg)](https://github.com/Digital-Defiance/DominionAssistant/actions/workflows/test-and-upload-codacy.yml)
+[![Test and Upload to Codacy](https://github.com/Digital-Defiance/StarRealmsAssistant/actions/workflows/test-and-upload-codacy.yml/badge.svg)](https://github.com/Digital-Defiance/StarRealmsAssistant/actions/workflows/test-and-upload-codacy.yml)
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6875e251bae24f99bab9d7b53ad8d2eb)](https://app.codacy.com/gh/Digital-Defiance/DominionAssistant/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6875e251bae24f99bab9d7b53ad8d2eb)](https://app.codacy.com/gh/Digital-Defiance/StarRealmsAssistant/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
-# Unofficial Dominion Assistant
+![image](https://github.com/user-attachments/assets/a1b11077-7bd6-4494-9c00-c9fb19131161)
 
-Welcome to the **Unofficial Dominion Assistant**, a React application designed to enhance your gameplay experience for the popular card game, Dominion! This tool provides comprehensive features for game management, scoring, and player interaction, allowing Dominion enthusiasts to focus on strategy and enjoyment.
+# Unofficial Star Realms Assistant
 
-Unofficial Dominion Assistant is a free tool which aimed to support the main features of the game and the ones we used personally. Many of the specfific expansions and cards are not specifically supported but should allow for manual adjustment to accommodate them.
-Please see our GitHub [issues](https://github.com/Digital-Defiance/DominionAssistant/issues) page for our roadmap/upcoming features and to make requests.
+Welcome to the **Unofficial Star Realms Assistant**, a React application designed to enhance your gameplay experience for the popular card game, Star Realms! This tool provides comprehensive features for game management, scoring, and player interaction, allowing Star Realms enthusiasts to focus on strategy and enjoyment.
+
+Based on the original [**Unofficial Dominion Assistant**](https://github.com/Digital-Defiance/DominionAssistant).
+
+Unofficial Star Realms Assistant is a free tool which aimed to support the main features of the game and the ones we used personally. Many of the specfific expansions and cards are not specifically supported but should allow for manual adjustment to accommodate them.
+Please see our GitHub [issues](https://github.com/Digital-Defiance/StarRealmsAssistant/issues) page for our roadmap/upcoming features and to make requests.
 
 ## Disclaimer for End Users
 
@@ -19,7 +23,7 @@ This software runs entirely in the browser and should not affect the local machi
 
 Especially as a free tool, we make no guarantees, waranty, or promises of bug-free accuracy or that we will implement all suggestions. Our time is limited and this project is made and run for free. If you'd like to donate to [Digital Defiance](https://digitaldefiance.org) to facilitate specific features or support development, that would be greatly appreciated. Donations will not be refunded and we make no guarantees that a donation will ensure a requested change is made, though we will certainly make the effort if possible.
 
-Please note that the Unofficial Dominion Assistant is not affiliated with or endorsed by the makers of Dominion or Donald X Vaccarino. This application is a fan-built project created to enhance your gameplay experience and requires ownership of the physical Dominion game to use. It does not allow you to play without having the original game. The use of the Dominion logo is intended solely for personal use to support the Dominion community and should be considered under the _Fair Use Doctrine_.
+Please note that the Unofficial Star Realms Assistant is not affiliated with or endorsed by the makers of Star Realms or Wise Wizard Games. This application is a fan-built project created to enhance your gameplay experience and requires ownership of the physical Star Realms game to use. It does not allow you to play without having the original game. The use of the Star Realms logo is intended solely for personal use to support the Star Realms community and should be considered under the _Fair Use Doctrine_.
 
 ### Fair Use Doctrine
 
@@ -44,22 +48,23 @@ Our application, as a fan-built tool that does not replicate the game, could be 
 - **Game Setup Wizard**: Customizable options for various game modes and expansions
 - **Turn Tracking**: Keep track of player turns and phases
 - **Detailed Game Log**: Record and review game events and card plays
-- **Expansion Support**: Compatibility with various Dominion expansions and game mats
+- **Expansion Support**: Compatibility with various Star Realms expansions and game mats
 - **Save/Load Games**: Ability to save game progress and resume later
 - **Intuitive UI**: User-friendly interface with Material-UI components
-
-This is an [NX](https://nx.dev/getting-started/intro) project created with [`create-nx-workspace`](https://nx.dev/nx-api/nx/documents/create-nx-workspace).
-
-## Roadmap/Upcoming Features
-
 - Confirm end game with dialog
 - Game timer visible
 - Auto-save after each event
 - Graph of victory points over time
 - Track turn card gains
 - +card tracking (optional/enable-able)
-- Council-Room button?
-- Implement pause/unpause game enhancement: may be covered by save/load?
+- Council-Room and other card action buttons
+- Pause/unpause game
+
+This is an [NX](https://nx.dev/getting-started/intro) project created with [`create-nx-workspace`](https://nx.dev/nx-api/nx/documents/create-nx-workspace).
+
+## Roadmap/Upcoming Features
+
+- No features are planned at this time. Please suggest one.
 
 ## Getting Started
 
@@ -74,7 +79,7 @@ This is an [NX](https://nx.dev/getting-started/intro) project created with [`cre
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/Digital-Defiance/DominionAssistant.git
+   git clone https://github.com/Digital-Defiance/StarRealmsAssistant.git
    ```
 
 From here you may follow the instructions below or jump to the section on Dev Container usage.
@@ -104,15 +109,14 @@ A popup should offer to open the application in a browser.
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/Digital-Defiance/DominionAssistant.git
+   git clone https://github.com/Digital-Defiance/StarRealmsAssistant.git
    ```
 
 2. Open the project folder in Visual Studio Code.
 3. Set up .env:
 
 - Copy the .env.example in the project root to .env
-- Fill in the CODACY_PROJECT_TOKEN from https://app.codacy.com/gh/Digital-Defiance/DominionAssistant/settings/coverage
-- Fill in the FONTAWESOME_KEY from https://fontawesome.com/kits/1111eb8cf6/package
+- Fill in the CODACY_PROJECT_TOKEN from https://app.codacy.com/gh/Digital-Defiance/StarRealmsAssistant/settings/coverage
 - Save the .env file
 
 4. When prompted, click "Reopen in Container" or use the command palette (F1) and select "Remote-Containers: Reopen in Container".
@@ -141,7 +145,7 @@ Once the application is started with yarn start-
 The app consists of several main screens:
 
 1. Home Screen
-2. Dominion Assistant (main game screen)
+2. Star Realms Assistant (main game screen)
 3. Game Log
 4. Load/Save Game
 
@@ -160,7 +164,7 @@ Other commands available:
 - yarn start: Starts the development server
 - yarn build: Builds the app using NX
 - yarn test:jest: Runs Jest tests
-- yarn test:jest:single: Runs a single specified test (eg yarn test:jest:single src/game/**tests**/dominion-lib-load-save-saveGame.spec.ts)
+- yarn test:jest:single: Runs a single specified test (eg yarn test:jest:single src/game/**tests**/Star Realms-lib-load-save-saveGame.spec.ts)
 - yarn test:playwright: Runs playwright e2e tests
 - yarn test:playwright:report: Shows the playwright report
 - yarn lint:eslint: Runs ESLint
@@ -171,7 +175,7 @@ Other commands available:
 
 ## Contributing
 
-We welcome contributions to Dominion Assistant! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+We welcome contributions to Star Realms Assistant! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## License
 
@@ -179,7 +183,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
-- The creators of Dominion for inspiring this project
+- The creators of Star Realms for inspiring this project
 - React and NX for providing the development framework
 - Material-UI for the component library
 - Digital Defiance and Jessica Mulein for facilitating and creating this work
@@ -207,571 +211,6 @@ Join our community of developers.
 
 ## Changelog
 
-### Thu Nov 14 20:03:00 2024
+### Wed Mar 05 14:37:00 2024
 
-- Version 0.12.7
-  - Fix game time calculation functions for current turn/time up to event, fixes #65
-
-### Wed Nov 13 17:18:00 2024
-
-- Version 0.12.6
-  - Add game debug page to utils
-
-### Tue Nov 12 23:15:00 2024
-
-- Version 0.12.5
-  - Added "secret" utils tab with tools to repair game state
-
-### Tue Nov 12 22:09:00 2024
-
-- Version 0.12.4
-  - Fixed bug with grouped actions botching the time record
-
-### Tue Nov 12 16:49:00 2024
-
-- Version 0.12.3
-  - Rebuild turn statistics cache on game load and after creating a large test game
-  - Add --noEnd arg to create large game script for testing large games
-
-### Tue Nov 12 00:16:00 2024
-
-- Version 0.12.2
-  - Add padding to bottom of game interface so we can scroll above the fab buttons
-
-### Tue Nov 12 00:06:00 2024
-
-- Version 0.12.1
-  - Make game log retain scroll position between visits and scroll to bottom on updates
-
-### Mon Nov 11 23:53:00 2024
-
-- Version 0.12.0
-  - Remove timeCache, add gameTime to game log events
-
-### Mon Nov 11 12:28:00 2024
-
-- Version 0.11.3
-  - Remove next turn/end game buttons in favor of fab buttons at bottom right
-
-### Mon Nov 11 12:03:00 2024
-
-- Version 0.11.2
-  - Improve visual feedback on applying common actions
-  - Prevent aria error on clicking out of the details dialog
-
-### Sun Nov 10 12:20:00 2024
-
-- Version 0.11.1
-  - Add more common actions
-
-### Sun Nov 10 00:53:00 2024
-
-- Version 0.11.0
-  - Added support for discard tracking
-  - Added several cards to common actions, including several from Seaside with discard involved
-
-### Sat Nov 09 22:52:00 2024
-
-- Version 0.10.12
-  - Improved common actions interface
-  - Improved common actions UI issues with scrollbars
-
-### Sat Nov 09 14:20:00 2024
-
-- Version 0.10.11
-  - Fixed bug that applied common actions while scrolling the options
-
-### Sat Nov 09 13:58:00 2024
-
-- Version 0.10.10
-  - Added support in common actions/recipes to make count by a function in order to implement Huge Turnip or other dynamic actions
-  - Fixed bug when switching off recipe list tab hovered recipe stayed active
-
-### Sat Nov 09 12:22:00 2024
-
-- Version 0.10.9
-  - Try to improve viewport issues for various components
-
-### Sat Nov 09 11:03:00 2024
-
-- Version 0.10.8
-
-  - Resolve [#55](https://github.com/Digital-Defiance/DominionAssistant/issues/55)
-  - Resolve [#54](https://github.com/Digital-Defiance/DominionAssistant/issues/54)
-
-### Fri Nov 08 12:46:00 2024
-
-- Version 0.10.7
-  - Try to resolve [#50](https://github.com/Digital-Defiance/DominionAssistant/issues/50)
-
-### Fri Nov 08 13:07:00 2024
-
-- Version 0.10.6
-  - Added:
-    - Introduced RecipeSummaryPopover component to display recipe information in a pop-up when a recipe is hovered over in RecipeList.
-    - Created RecipeSummary component for detailed display of recipe actions and future actions.
-    - Added futureActionMap enumeration for standardized future-tense action names.
-    - Implemented GroupedActionDestStrings and GroupedActionTriggerStrings for enhanced readability in grouped action destination and trigger displays.
-  - Updated:
-    - GameInterface now supports new grouped action recipes with onHover, onLeave, and onClick handlers.
-    - Enhanced TurnAdjustmentsSummary for responsive height adjustments based on container size.
-    - Modified RecipeList component with VariableSizeList to allow different item sizes for headers, spacers, and recipes, improving layout consistency.
-    - applyGroupedAction now validates grouped action names against defined recipes to ensure accuracy.
-  - Tests:
-    - Updated unit tests in dominion-lib-log-applyGroupedAction to include validation for grouped actions and future action handling.
-
-### Fri Nov 08 13:04:00 2024
-
-- Version 0.10.5
-  - Add messages box for displaying messages
-
-### Thu Nov 07 03:07:00 2024
-
-- Version 0.10.4
-  - Filter out net-zero adjustments from Turn Adjustments
-
-### Thu Nov 07 02:06:00 2024
-
-- Version 0.10.3
-  - Improve FontAwesome icons for goruped actions
-  - Add icon to the log for grouped actions
-
-### Thu Nov 07 00:40:00 2024
-
-- Version 0.10.2
-  - Add FontAwesome
-  - Add custom icon support to recipes/common actions
-  - Add icons to Common Actions/recipes tab
-
-### Wed Nov 06 23:09:00 2024
-
-- Version 0.10.1
-  - Add more common actions (Smithy, Library, Market, Festival, etc)
-  - Recipes are in a FixedSizeList
-
-### Wed Nev 06 17:05:00 2024
-
-- Version 0.10.0
-  - Add common actions with support for cards like council room which add cards now for other players and remove them on their turns
-
-### Mon Nov 04 12:44:00 2024
-
-- Version 0.9.10
-  - Remove curses/colonies from statistics graphing when disabled
-
-### Mon Nov 04 12:34:00 2024
-
-- Version 0.9.9
-  - Reworked Game Log screen completely to improve performance
-
-### Sun Nov 03 21:51:00 2024
-
-- Version 0.9.8
-  - Add options to show/hide track cards and track gains
-
-### Sun Nov 03 21:01:00 2024
-
-- Version 0.9.7
-  - FloatingCounter background color to match player
-  - Fix player checkboxes positioning
-
-### Sun Nov 03 16:24:00 2024
-
-- Version 0.9.6
-  - GameClock to use caching functions
-  - New overlay with quick reference counters
-
-### Sun Nov 03 14:53:00 2024
-
-- Version 0.9.5
-  - Added average actions per turn statistic
-
-### Sun Nov 03 14:10:00 2024
-
-- Version 0.9.4
-  - Subtle tweaks to increment/decrement tooltips
-  - Rename GameScreen to GameInterface
-  - Rename CurrentStep.GameScreen to CurrentStep.Game
-  - Show no adjustments instead of empty table in Turn Adjustments component
-
-### Sun Nov 03 13:52:00 2024
-
-- Version 0.9.3
-  - Rework game display, add Turn Adjustments feature which summarizes the changes in the current turn
-  - Rework game log, add Turn Adjustments feature which summarizes the changes in a given turn
-
-### Sat Nov 02 22:23:00 2024
-
-- Version 0.9.2
-  - Add link checkbox to link changes together
-
-### Sat Nov 02 20:21:00 2024
-
-- Version 0.9.1
-  - Tiny hotfix to fix the add players page breaking due to recent changesl
-
-### Fri Nov 01 11:45:00 2024
-
-- Version 0.9.0
-  - Breaks save game compatibility by changing some property names in the save game
-  - Adds version compatibility check when loading and importing save games
-  - Reworked cache system to try and improve the game log and statistics pages
-    - Implemented new functions for `rebuildCaches` and `updateCachesForEntry` to handle game log caching
-    - Adjusted `applyLogAction` and `addLogEntry` to work with new caching functions
-  - Improved `loadGame` to support reloading of cached data and updated error handling in `loadGameAddLog`
-  - Updated the `StatisticsScreen` to rely on the new updateCachesForEntry function via addLogEntry
-  - Updated tests to mock `updateCachesForEntry` and ensure accurate time cache and statistics calculations
-  - Added simulated game generator with customizable turn count for testing game log performance
-  - Refactored `dominion-lib-fixtures.ts` to simplify mocked log entries for tests
-  - Minor optimizations and bug fixes
-  - Added s3 deployment YAML to auto-deploy to S3 on version tag
-  - Fixed initial supply amounts to use table from BoardGameGeek
-
-### Thu Oct 31 11:45:00 2024
-
-- Version 0.8.0
-  - Extend caching functionality so that statistics page is rendered faster
-
-### Mon Oct 28 20:00:00 2024
-
-- Version 0.7.0
-  - Add import functionality
-  - Add caching of game time calculations so that game log is rendered faster on a big game
-
-### Sun Oct 27 16:13:00 2024
-
-- Version 0.6.1
-  - Fix game log/statistics scrollability at bottom for tab bar
-
-### Sun Oct 27 16:00:00 2024
-
-- Version 0.6.0
-  - Added turn card gains count tracking
-
-### Sun Oct 27 15:35:00 2024
-
-- Version 0.5.0
-  - Added turn/new turn card count tracking
-
-### Sun Oct 27 14:39:00 2024
-
-- Version 0.4.1
-  - Restricted Load/Save screen from saving over auto saves
-  - Fixed viewport issues and start working towards responsiveness to different screen sizes.
-
-### Sat Oct 26 14:46:00 2024
-
-- Version 0.4.0
-  - Added autosave functionality to save game progress after each state change.
-
-### Sat Oct 26 14:01:00 2024
-
-- Version 0.3.0
-  - Added load/save game functionality
-
-### Fri Oct 25 16:31:00 2024
-
-- Version 0.2.0
-  - New Feature: Added detailed victory point tracking by turn in calculateVictoryPointsAndSupplyByTurn, supporting graphical representation.
-  - UI Enhancements: Introduced StatisticsScreen for game statistics display with line charts for player scores, supply counts, and turn durations.
-  - Game Log Updates: Added trash option for log entries, ensuring trashed items don't impact supply counts.
-  - Error Handling: Introduced InvalidTrashActionError for invalid trash actions.
-  - Dependencies: Integrated chart.js and react-chartjs-2 for graphing capabilities.
-  - Other Enhancements: Refactored game setup and mock creation for better test coverage and clarity.
-
-### Fri Oct 25 11:10:00 2024
-
-- Added
-  - Added VERSION_NUMBER constant in constants.ts.
-  - Displayed the version number in the AboutScreen.
-- Changed
-  - Modified the font size of the GameClock component to 1rem for better readability.
-  - Updated GameInterface to conditionally render the GameClock component only if the viewport width is greater than 1300 pixels.
-  - Enhanced the IncrementDecrementControl component to include a trash icon button for decrementing victory fields.
-  - Updated the Player component to handle the trash action for victory fields.
-- Fixed
-  - Fixed the supply decrement logic in updatePlayerField to account for the victoryTrash flag.
-
-### Fri Oct 25 00:40:30 2024
-
-- Add confirm end game dialog
-
-### Thu Oct 24 22:24:59 2024
-
-- **Feature**: Added GameClock component to display the game time, current turn time, average turn time, and the average turn time for the current player
-  - The GameClock component shows the total game time, current turn time, average turn time, and the average turn time for the current player
-  - Updated the GameLogEntry component to format date and time correctly.
-  - Adjusted the position of the GameClock component to ensure all lines are visible.
-  - Added tests for the new functions.
-  - Fixed bug in computation of game time
-  - Fixed bugs in NEXT_TURN properties
-
-### Thu Oct 24 17:10:15 2024
-
-- **Improvement**: Improve about/disclaimer/readme
-
-### Thu Oct 24 17:04:19 2024
-
-- **Improvement**: Avoid combined actions when correcting.
-
-### Thu Oct 24 16:59:18 2024
-
-- **Fix**: Resolved bug preventing the addition of the last victory card.
-
-### Thu Oct 24 06:36:44 2024
-
-- Enhancement
-
-  :
-
-  - Added turn to log entries.
-  - Display turn number in the next turn.
-  - Fixed linked action issues in player component and log.
-
-### Wed Oct 23 21:27:10 2024
-
-- **Feature**: Enabled undo for the most recent select/next turn.
-
-### Wed Oct 23 20:38:23 2024
-
-- **Improvement**: Enhanced game log readability.
-
-### Wed Oct 23 20:19:42 2024
-
-- **Maintenance**: Codacy/lint fixes.
-
-### Wed Oct 23 19:42:05 2024
-
-- **Improvement**: Improved typing.
-
-### Wed Oct 23 19:35:58 2024
-
-- **Feature**: Added typings.
-
-### Wed Oct 23 19:22:54 2024
-
-- **Fix**: Tracked currentPlayerIndex in log entries and fixed game log.
-
-### Wed Oct 23 18:29:00 2024
-
-- Improvement
-
-  :
-
-  - Improved endgame display.
-  - Allowed ties in rankings.
-  - Improved select first player.
-  - Fixed first player state.
-
-### Tue Oct 22 23:02:36 2024
-
-- **Maintenance**: Addressed linting issues.
-
-### Tue Oct 22 22:35:19 2024
-
-- **Cleanup**: Removed unused variables.
-
-### Tue Oct 22 22:30:14 2024
-
-- **Refactor**: Reworked log/start/next.
-
-### Tue Oct 22 08:29:14 2024
-
-- UI Rework
-
-  :
-
-  - Relied more on CSS for font sizes.
-  - Converted all fonts to WOFF/WOFF2.
-  - Used Minion over Trajan in many places.
-  - Homogenized tab centering components.
-
-### Sat Oct 19 19:44:24 2024
-
-- Refactor
-
-  :
-
-  - Moved sizing constants into theme.
-  - Removed 'any' types.
-  - Improved type safety and centralized sizing in theme.
-
-### Sat Oct 19 19:00:47 2024
-
-- **Maintenance**: Attempted to resolve ESLint issues.
-
-### Sat Oct 19 18:42:35 2024
-
-- **Feature**: Migrated to flat ESLint config and updated Prettier to v3.
-
-### Fri Oct 18 20:36:49 2024
-
-- **Update**: Included GitHub Actions extension in devcontainer.
-
-### Fri Oct 18 20:18:17 2024
-
-- **Feature**: Uploaded coverage to Codacy.
-
-### Fri Oct 18 20:00:57 2024
-
-- **Setup**: Configured zshrc/bashrc to load DOTENV_CONFIG_PATH.
-
-### Fri Oct 18 19:03:21 2024
-
-- **Setup**: Configured Codacy environment.
-
-### Fri Oct 18 18:16:37 2024
-
-- Feature
-
-  :
-
-  - Set NO_PLAYER for NEXT_TURN and SELECT_PLAYER actions.
-  - Added getPreviousPlayerIndex.
-  - Updated tests.
-
-### Fri Oct 18 17:16:58 2024
-
-- **Fix**: Corrected getTimeSpanFromStartGame to handle consecutive saves.
-
-### Fri Oct 18 00:49:42 2024
-
-- **Feature**: Added logic to add the save game log entry when saving.
-
-### Fri Oct 18 00:33:09 2024
-
-- **Refactor**: Reworked storage system.
-
-### Thu Oct 17 06:13:25 2024
-
-- **Removal**: Removed 'cross-platform' feature since now react only.
-
-### Thu Oct 17 06:09:45 2024
-
-- **Fix**: Fixed Playwright server.
-
-### Thu Oct 17 05:47:57 2024
-
-- Fix
-
-  :
-
-  - Resolved Playwright/Jest overlap.
-  - Fixed canUndoAction to only undo NEXT_TURN of NoPlayerActions.
-  - Moved set-kingdom base/prosperity to **tests**.
-  - Moved app.spec.tsx to **tests**.
-
-### Thu Oct 17 04:09:06 2024
-
-- UI Improvement
-
-  :
-
-  - Removed margin on Scoreboard.
-  - Moved correction checkbox to within Player component.
-
-### Wed Oct 16 23:35:01 2024
-
-- **Setup**: Installed Copilot CLI in devcontainer and hid canUndo for START_GAME.
-
-### Wed Oct 16 23:15:16 2024
-
-- **Fix**: Corrected useMemo.
-
-### Wed Oct 16 22:09:42 2024
-
-- Improvement
-
-  :
-
-  - Improved titles.
-  - Moved canUndo CurrentStep check into canUndoAction.
-
-### Wed Oct 16 21:49:59 2024
-
-- Fix
-
-  :
-
-  - Removed react-native 8081 port forward.
-  - Fixed TabView/App to render only single tab.
-  - Fixed duplicate about screen.
-  - Fixed canUndo error when not in CurrentStep.Game.
-  - Added sx property option for SuperCapsText.
-  - Used MUI styled instead of emotion styled.
-  - Improved About screen sub-panel titles to use SuperCapsText.
-
-### Wed Oct 16 18:49:42 2024
-
-- **Maintenance**: Lint/Prettier fixes.
-
-### Wed Oct 16 18:27:13 2024
-
-- **Cleanup**: Removed Zone identifier.
-
-### Wed Oct 16 18:22:02 2024
-
-- **Migration**: Migrated to plain React.
-
-### Mon Oct 14 15:31:35 2024
-
-- **Conversion**: Converted from react-native. Addresses #12.
-
-### Tue Oct 8 02:28:01 2024
-
-- **Enhancement**: Split up dominion-lib and added tests.
-
-### Tue Oct 8 18:13:56 2024
-
-- **Fix**: Set color when editing different user. Closes #8.
-
-### Tue Oct 8 18:00:34 2024
-
-- **Fix**: Corrected overwrite save game.
-
-### Tue Oct 8 17:32:25 2024
-
-- **Improvement**: Enhanced load save functionality. Closes #11.
-
-### Mon Oct 7 22:22:17 2024
-
-- **Feature**: Removed HelloWave and added Correction checkbox. Closes #7.
-
-### Mon Oct 7 20:20:45 2024
-
-- **Fix**: Corrected README.
-
-### Mon Oct 7 20:17:31 2024
-
-- Refactor
-
-  :
-
-  - Removed global mats component.
-  - Integrated into Player.
-  - Redid SuperCaps to be Tooltip compatible.
-  - Made IncrementDecrementControl have optional tooltip on the label.
-
-### Mon Oct 7 19:39:57 2024
-
-- **Feature**: Defaulted to curses enabled.
-
-### Mon Oct 7 18:24:06 2024
-
-- **Setup**: Codacy configuration.
-
-### Mon Oct 7 18:07:07 2024
-
-- **Switch**: Changed ESLint configs.
-
-### Mon Oct 7 10:39:32 2024
-
-- **Update**: Added Codacy badge to README.
-
-### Mon Oct 7 17:36:41 2024
-
-- **Improvement**: Enhanced home screen.
-
-### Mon Sep 30 12:41:43 2024
-
-- **Initial Commit**: Generated by create-expo-app 3.0.0.
+- **Initial Commit**: Brought over from dominion assistant.

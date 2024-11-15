@@ -8,7 +8,6 @@
     "vscode": {
       "extensions": [
         "eamodio.gitlens",
-        "TabNine.tabnine-vscode",
         "nrwl.angular-console",
         "GitHub.copilot",
         "GitHub.copilot-chat",
@@ -25,10 +24,10 @@
     "PLAYWRIGHT_HTML_HOST": "0.0.0.0"
   },
   "remoteEnv": {
-    "DOTENV_CONFIG_PATH": "/workspaces/dominion-assistant/.env"
+    "DOTENV_CONFIG_PATH": "/workspaces/starrealms-assistant/.env"
   },
   "mounts": [
-    "source=${localWorkspaceFolder}/.env,target=/workspaces/dominion-assistant/.env,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder}/.env,target=/workspaces/starrealms-assistant/.env,type=bind,consistency=cached"
   ],
 
   // Features to add to the dev container. More info: https://containers.dev/features.
@@ -38,7 +37,7 @@
   "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "export $(grep -v '^#' /workspaces/dominion-assistant/.env | xargs) && ./fontawesome-npmrc.sh && ./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh && ./setup-shell-config.sh && export $(grep -v '^#' ${DOTENV_CONFIG_PATH} | xargs)"
+  "postCreateCommand": "export $(grep -v '^#' /workspaces/starrealms-assistant/.env | xargs) && ./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh && ./setup-shell-config.sh && export $(grep -v '^#' ${DOTENV_CONFIG_PATH} | xargs)"
 
   // Configure tool-specific properties.
   // "customizations": {},

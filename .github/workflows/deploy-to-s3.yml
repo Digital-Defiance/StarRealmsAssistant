@@ -21,11 +21,6 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Set up FontAwesome NPM registry
-        run: ./fontawesome-npmrc.sh
-        env:
-          FONTAWESOME_KEY: ${{ secrets.FONTAWESOME_KEY }}
-
       - name: Install dependencies
         run: yarn install
 
@@ -46,9 +41,9 @@ jobs:
           DEBUG: ${{ vars.S3_DEBUG }}
         run: |
           if [ "$DEBUG" = "true" ]; then
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
           else
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
           fi
 
   deploy-staging:
@@ -63,11 +58,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
-      - name: Set up FontAwesome NPM registry
-        run: ./fontawesome-npmrc.sh
-        env:
-          FONTAWESOME_KEY: ${{ secrets.FONTAWESOME_KEY }}
 
       - name: Install dependencies
         run: yarn install
@@ -89,7 +79,7 @@ jobs:
           DEBUG: ${{ vars.S3_DEBUG }}
         run: |
           if [ "$DEBUG" = "true" ]; then
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
           else
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
           fi
