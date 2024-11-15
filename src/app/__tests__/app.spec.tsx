@@ -3,6 +3,14 @@ import { render } from '@testing-library/react';
 
 import App from '@/app/app';
 
+// Mock the GameDebug component due to hljs issues
+jest.mock('@/components/GameDebug', () => {
+  return {
+    __esModule: true,
+    default: () => <div data-testid="mock-game-debug">Mock Game Debug</div>,
+  };
+});
+
 describe('App', () => {
   it('should render successfully', () => {
     const { baseElement } = render(<App />);

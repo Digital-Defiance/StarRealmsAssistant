@@ -320,12 +320,35 @@ export function calculateCurrentTurnDuration(logEntries: ILogEntry[], currentTim
     return 0;
   }
   const currentTurn = logEntries[logEntries.length - 1].turn;
-  const turnStartEntry: ILogEntry = getTurnStartEntry(logEntries, currentTurn);
-  const lastEntry: ILogEntry = logEntries[logEntries.length - 1];
+  const turnStartEntry = getTurnStartEntry(logEntries, currentTurn);
 
-  const turnGameTime = lastEntry.gameTime - turnStartEntry.gameTime;
-  const lastActionDuration = currentTime.getTime() - lastEntry.timestamp.getTime();
-  return turnGameTime + lastActionDuration;
+  let totalPausedTime = 0;
+  let lastSaveTime: number | null = null;
+  let pauseStartTime: number | null = null;
+
+  for (let i = logEntries.indexOf(turnStartEntry); i < logEntries.length; i++) {
+    const entry = logEntries[i];
+
+    if (entry.action === GameLogAction.SAVE_GAME) {
+      lastSaveTime = entry.timestamp.getTime();
+    } else if (entry.action === GameLogAction.LOAD_GAME && lastSaveTime !== null) {
+      totalPausedTime += entry.timestamp.getTime() - lastSaveTime;
+      lastSaveTime = null;
+    } else if (entry.action === GameLogAction.PAUSE) {
+      pauseStartTime = entry.timestamp.getTime();
+    } else if (entry.action === GameLogAction.UNPAUSE && pauseStartTime !== null) {
+      totalPausedTime += entry.timestamp.getTime() - pauseStartTime;
+      pauseStartTime = null;
+    }
+  }
+
+  // Handle case where the game is currently paused
+  if (pauseStartTime !== null) {
+    totalPausedTime += currentTime.getTime() - pauseStartTime;
+  }
+
+  const currentTurnDuration = currentTime.getTime() - turnStartEntry.timestamp.getTime();
+  return currentTurnDuration - totalPausedTime;
 }
 
 /**
@@ -361,29 +384,45 @@ export function calculateGameDuration(
  * @returns The adjusted duration in milliseconds.
  */
 export function calculateDurationUpToEvent(logEntries: ILogEntry[], eventTime: Date): number {
-  if (logEntries.length < 1) {
+  if (logEntries.length === 0) {
     return 0;
   }
-  // find the last entry before the event time
-  let lastEntryBeforeEvent: ILogEntry = logEntries[0];
-  for (let i = logEntries.length - 1; i >= 0; i--) {
+
+  const startGameTime = logEntries[0].timestamp.getTime();
+  if (eventTime.getTime() <= startGameTime) {
+    return 0;
+  }
+
+  let totalPausedTime = 0;
+  let lastSaveTime: number | null = null;
+  let pauseStartTime: number | null = null;
+
+  for (let i = 0; i < logEntries.length; i++) {
     const entry = logEntries[i];
-    if (entry.timestamp.getTime() < eventTime.getTime()) {
-      lastEntryBeforeEvent = entry;
+    if (entry.timestamp.getTime() >= eventTime.getTime()) {
       break;
     }
+
+    if (entry.action === GameLogAction.SAVE_GAME) {
+      lastSaveTime = entry.timestamp.getTime();
+    } else if (entry.action === GameLogAction.LOAD_GAME && lastSaveTime !== null) {
+      totalPausedTime += entry.timestamp.getTime() - lastSaveTime;
+      lastSaveTime = null;
+    } else if (entry.action === GameLogAction.PAUSE) {
+      pauseStartTime = entry.timestamp.getTime();
+    } else if (entry.action === GameLogAction.UNPAUSE && pauseStartTime !== null) {
+      totalPausedTime += entry.timestamp.getTime() - pauseStartTime;
+      pauseStartTime = null;
+    }
   }
-  if (eventTime.getTime() <= lastEntryBeforeEvent.timestamp.getTime()) {
-    return 0;
-  } else if (
-    lastEntryBeforeEvent.action === GameLogAction.PAUSE ||
-    lastEntryBeforeEvent.action === GameLogAction.END_GAME
-  ) {
-    return lastEntryBeforeEvent.gameTime;
+
+  // Handle case where the event time is during a pause
+  if (pauseStartTime !== null) {
+    totalPausedTime += eventTime.getTime() - pauseStartTime;
   }
-  return (
-    lastEntryBeforeEvent.gameTime + (eventTime.getTime() - lastEntryBeforeEvent.timestamp.getTime())
-  );
+
+  const eventDuration = eventTime.getTime() - startGameTime;
+  return Math.max(0, eventDuration - totalPausedTime);
 }
 
 /**
@@ -1259,7 +1298,7 @@ export function rebuildTurnStatisticsCache(game: IGame): Array<ITurnStatistics> 
 export function rebuildGameTimeHistory(game: IGame): IGame {
   const newGame = deepClone<IGame>(game);
   newGame.log = [game.log[0]];
-  const lastGameTime = 0;
+  let lastGameTime = 0;
   for (let i = 1; i < game.log.length; i++) {
     // if the entry is a load or unpause, we dont increase the game time from the associated save/pause
     if (
@@ -1273,6 +1312,7 @@ export function rebuildGameTimeHistory(game: IGame): IGame {
         ...game.log[i],
         gameTime,
       });
+      lastGameTime = gameTime;
     }
   }
   return newGame;

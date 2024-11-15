@@ -207,6 +207,11 @@ Join our community of developers.
 
 ## Changelog
 
+### Thu Nov 14 20:03:00 2024
+
+- Version 0.12.7
+  - Fix game time calculation functions for current turn/time up to event, fixes #65
+
 ### Wed Nov 13 17:18:00 2024
 
 - Version 0.12.6
