@@ -1,4 +1,3 @@
-import { RecipeKey } from '@/components/Recipes';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 
 export interface ILogEntryRaw {
@@ -57,10 +56,4 @@ export interface ILogEntryRaw {
    * Used when undoing a "next turn" action
    */
   playerTurnDetails?: IPlayerGameTurnDetails[];
-  /**
-   * Name of the action taken, for grouped actions
-   */
-  actionName?: string;
-  /** Key for the grouped action */
-  actionKey?: RecipeKey;
 }

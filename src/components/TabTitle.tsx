@@ -8,7 +8,7 @@ interface TabTitleProps {
 }
 
 const StyledTabTitle = styled(Typography)(({ theme }) => ({
-  fontFamily: 'TrajanProBold',
+  fontFamily: 'Handel Gothic ITC Pro',
   color: theme.palette.text.primary,
 }));
 

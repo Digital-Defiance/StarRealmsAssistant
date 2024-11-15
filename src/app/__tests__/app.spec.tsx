@@ -19,6 +19,6 @@ describe('App', () => {
 
   it('should have a greeting as the title', () => {
     const { getByRole } = render(<App />);
-    expect(getByRole('heading', { name: /Unofficial Dominion Assistant/i })).toBeTruthy();
+    expect(getByRole('heading', { name: /Unofficial Star Realms Assistant/i })).toBeTruthy();
   });
 });

@@ -2,7 +2,7 @@ import { Box, Link, List, ListItem, styled } from '@mui/material';
 import React, { FC } from 'react';
 import TabTitle from '@/components/TabTitle';
 import { useGameContext } from '@/components/GameContext';
-import { rebuildGameTimeHistory, rebuildTurnStatisticsCache } from '@/game/dominion-lib-log';
+import { rebuildGameTimeHistory, rebuildTurnStatisticsCache } from '@/game/starrealms-lib-log';
 import { deepClone } from '@/game/utils';
 import { IGame } from '@/game/interfaces/game';
 import { CurrentStep } from '@/game/enumerations/current-step';
@@ -28,8 +28,7 @@ export const UtilsScreen: FC = () => {
       ) {
         return prevState;
       }
-      const newGame = rebuildGameTimeHistory(prevState);
-      return newGame;
+      return rebuildGameTimeHistory(prevState);
     });
   };
 

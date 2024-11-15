@@ -1,8 +1,8 @@
 import 'module-alias/register';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { generateLargeGame } from '@/game/dominion-lib-simulate';
-import { saveGameData } from '@/game/dominion-lib-load-save';
+import { generateLargeGame } from '@/game/starrealms-lib-simulate';
+import { saveGameData } from '@/game/starrealms-lib-load-save';
 import { IGame } from '@/game/interfaces/game';
 import { DiskStorageService } from '@/game/disk-storage-service';
 import { SaveGameStorageKeyPrefix } from '@/game/constants';
@@ -18,7 +18,7 @@ async function main() {
     })
     .parseSync();
 
-  const endGame = argv.noEnd ? false : true;
+  const endGame = !argv.noEnd;
 
   const storageLocation = './game-storage';
 

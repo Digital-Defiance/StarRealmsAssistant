@@ -21,15 +21,12 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useGameContext } from '@/components/GameContext';
 import { ILogEntry } from '@/game/interfaces/log-entry';
-import { canUndoAction, undoAction } from '@/game/dominion-lib-undo';
-import { formatTimeSpan, logEntryToString } from '@/game/dominion-lib-log';
+import { canUndoAction, undoAction } from '@/game/starrealms-lib-undo';
+import { formatTimeSpan, logEntryToString } from '@/game/starrealms-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { AdjustmentActions } from '@/game/constants';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
 import '@/styles.scss';
-import { Recipes } from './Recipes';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay } from '@fortawesome/pro-solid-svg-icons';
 
 interface GameLogEntryProps {
   logIndex: number;
@@ -147,18 +144,6 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
     'data-action-id': entry.linkedActionId ?? entry.id,
   };
 
-  const groupedAction =
-    entry.action === GameLogAction.GROUPED_ACTION && entry.actionKey
-      ? (() => {
-          for (const section of Object.values(Recipes)) {
-            if (section.recipes[entry.actionKey]) {
-              return section.recipes[entry.actionKey];
-            }
-          }
-          return null;
-        })()
-      : null;
-
   return (
     <>
       <Box
@@ -186,7 +171,7 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
                 label={relevantPlayer.name.charAt(0).toUpperCase()}
                 size="small"
                 style={{
-                  backgroundColor: relevantPlayer !== undefined ? relevantPlayer.color : 'gray',
+                  backgroundColor: relevantPlayer.color,
                   color: 'white',
                   marginRight: '8px',
                   fontWeight: isActivePlayer ? 'bold' : 'normal',
@@ -198,14 +183,6 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
               {relevantPlayer !== undefined && !isNotTriggeredByPlayer && (
                 <ColoredPlayerName player={relevantPlayer} marginDirection="right" />
               )}
-              {entry.action === GameLogAction.GROUPED_ACTION && (
-                <Box
-                  component="span"
-                  sx={{ fontSize: '16px', display: 'inline-flex', alignItems: 'center', mr: 1 }}
-                >
-                  {groupedAction?.icon ?? <FontAwesomeIcon icon={faPlay} />}
-                </Box>
-              )}
               <Typography variant="body2" component="span">
                 {actionText}
               </Typography>
@@ -214,11 +191,11 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
               )}
               {[GameLogAction.START_GAME, GameLogAction.NEXT_TURN].includes(entry.action) &&
                 `\u00A0(\u00A0${entry.turn}\u00A0)`}
-              {entry.trash === true && (
-                <Tooltip title="The card was trashed" arrow>
+              {entry.scrap === true && (
+                <Tooltip title="The card was scrapped" arrow>
                   <DeleteIcon
                     fontSize="small"
-                    titleAccess="Card was trashed"
+                    titleAccess="Card was scrapped"
                     style={{ marginLeft: '8px' }}
                   />
                 </Tooltip>

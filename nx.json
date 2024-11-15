@@ -48,7 +48,7 @@
       "dependsOn": ["^build"]
     }
   },
-  "defaultProject": "dominion-assistant",
+  "defaultProject": "starrealms-assistant",
   "generators": {
     "@nx/react": {
       "application": {

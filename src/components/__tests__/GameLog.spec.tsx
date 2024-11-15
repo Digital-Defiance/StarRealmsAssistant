@@ -2,7 +2,7 @@ import React, { RefObject } from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import GameLog from '@/components/GameLog';
-import { generateLargeGame } from '@/game/dominion-lib-simulate';
+import { generateLargeGame } from '@/game/starrealms-lib-simulate';
 import { useGameContext } from '@/components/GameContext';
 import theme from '@/components/theme';
 import { ThemeProvider } from '@mui/material';

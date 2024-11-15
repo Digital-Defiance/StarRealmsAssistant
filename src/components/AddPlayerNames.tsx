@@ -15,8 +15,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { ColorResult, SketchPicker } from 'react-color';
 import { useGameContext } from '@/components/GameContext';
-import { newPlayer } from '@/game/dominion-lib';
-import { MAX_PLAYERS, MIN_PLAYERS, SupplyForPlayerCount } from '@/game/constants';
+import { newPlayer } from '@/game/starrealms-lib';
+import {
+  DEFAULT_STARTING_AUTHORITY,
+  DEFAULT_TURN_CARDS,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  SupplyForPlayerCount,
+} from '@/game/constants';
 import SuperCapsText from '@/components/SuperCapsText';
 import CenteredContainer from '@/components/CenteredContainer';
 import TabTitle from '@/components/TabTitle';
@@ -28,7 +34,7 @@ interface AddPlayerNamesProps {
 }
 
 const StyledPlayerNumber = styled(Typography)(() => ({
-  fontFamily: 'TrajanProBold',
+  fontFamily: 'Handel Gothic ITC Pro',
 }));
 
 const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
@@ -41,7 +47,7 @@ const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
     setGameState((prevState: IGame) => {
       const newGame = deepClone<IGame>(prevState);
       const minPlayers = Math.max(MIN_PLAYERS, newGame.players.length);
-      const supplyInfo = SupplyForPlayerCount(minPlayers, newGame.options.expansions.prosperity);
+      const supplyInfo = SupplyForPlayerCount(minPlayers);
       newGame.setsRequired = supplyInfo.setsRequired;
       return newGame;
     });
@@ -53,6 +59,9 @@ const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
       setGameState((prevState: IGame) => {
         const newGame = deepClone<IGame>(prevState);
         newGame.players = [...newGame.players, newPlayer(playerName, nextPlayerIndex)];
+        const playerIndex = newGame.players.length - 1;
+        newGame.options.startingAuthorityByPlayerIndex[playerIndex] = DEFAULT_STARTING_AUTHORITY;
+        newGame.options.startingCardsByPlayerIndex[playerIndex] = DEFAULT_TURN_CARDS;
         return newGame;
       });
       setPlayerName('');
@@ -63,6 +72,10 @@ const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
     setGameState((prevState: IGame) => {
       const newGame = deepClone<IGame>(prevState);
       newGame.players = newGame.players.filter((_, i) => i !== index);
+      newGame.options.startingAuthorityByPlayerIndex =
+        newGame.options.startingAuthorityByPlayerIndex.filter((_, i) => i !== index);
+      newGame.options.startingCardsByPlayerIndex =
+        newGame.options.startingCardsByPlayerIndex.filter((_, i) => i !== index);
       return newGame;
     });
   };
@@ -149,9 +162,9 @@ const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
           </IconButton>
         </Box>
       )}
-      {gameState.players.length >= 5 && (
+      {gameState.players.length >= 2 && (
         <Typography variant="body2" color="error">
-          * Two sets of base cards required for 5-6 players.
+          * One additional set of base cards is required for every 2 players added.
         </Typography>
       )}
       {gameState.players.length >= MIN_PLAYERS && gameState.players.length <= MAX_PLAYERS && (

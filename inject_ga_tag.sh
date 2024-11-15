@@ -7,7 +7,7 @@ if [ -z "$GA_TAG_ID" ]; then
 fi
 
 # Define the path to the index.html file
-INDEX_FILE="dist/dominion-assistant/index.html"
+INDEX_FILE="dist/starrealms-assistant/index.html"
 
 # Check if the index.html file exists
 if [ ! -f "$INDEX_FILE" ]; then

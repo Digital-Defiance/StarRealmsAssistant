@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Link, Paper, List, ListItem, ListItemText } from '@mui/material';
-import DominionTransparentLogo from '@/assets/images/Dominion-tx.png';
+import StarRealmsTransparentLogo from '@/assets/images/star-realms-logo.png';
 import SuperCapsText from '@/components/SuperCapsText';
 import { VERSION_NUMBER } from '@/game/constants';
 import CenteredContainer from '../CenteredContainer';
@@ -21,10 +21,13 @@ export default function AboutScreen() {
           return;
         }
         setMessages(data);
-      } catch (err) {}
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        setMessages(['Failed to fetch messages. Please try again later.']);
+      }
     };
 
-    fetchMessages();
+    void fetchMessages();
   }, []);
 
   return (
@@ -66,8 +69,8 @@ export default function AboutScreen() {
                 }}
               >
                 <img
-                  src={DominionTransparentLogo}
-                  alt="Dominion Logo"
+                  src={StarRealmsTransparentLogo}
+                  alt="Star Realms Logo"
                   style={{
                     width: '100%',
                     height: '100%',
@@ -77,13 +80,13 @@ export default function AboutScreen() {
               </Box>
               <Typography
                 variant="h4"
-                sx={{ fontFamily: 'CharlemagneStdBold', textAlign: 'center', mb: 2 }}
+                sx={{ fontFamily: 'Handel Gothic ITC Pro', textAlign: 'center', mb: 2 }}
               >
-                Unofficial Dominion Assistant
+                Unofficial Star Realms Assistant
               </Typography>
               <Typography variant="body1" component="p" align="center">
-                This React application enhances your Dominion gameplay experience with comprehensive
-                features for game management, scoring, and player interaction.
+                This React application enhances your Star Realms gameplay experience with
+                comprehensive features for game management, scoring, and player interaction.
               </Typography>
             </Paper>
           </Box>
@@ -116,10 +119,9 @@ export default function AboutScreen() {
                     'Game Setup Wizard: Customizable game modes and expansions',
                     'Turn Tracking: Keep track of player turns and phases',
                     'Detailed Game Log: Record and review game events',
-                    'Expansion Support: Compatible with various Dominion expansions',
                     'Save/Load Games: Save progress and resume later',
                     'Intuitive UI: User-friendly Material-UI components',
-                    'Victory point graphing/statistics',
+                    'Authority graphing/statistics',
                     'Most-recent move is auto-saved to local storage',
                   ].map((feature, index) => (
                     <ListItem key={index}>
@@ -152,16 +154,16 @@ export default function AboutScreen() {
                   >
                     Jessica Mulein
                   </Link>
-                  . Unofficial Dominion Assistant is an open-source project and not affiliated with
-                  or endorsed by the makers of Dominion or Donald X Vaccarino. It is offered free of
-                  charge and is provided as-is, and with limited support. Please consider supporting
-                  Digital Defiance to promote open source and help us to serve the open source
-                  community.
+                  . Unofficial Star Realms Assistant is an open-source project and not affiliated
+                  with or endorsed by the makers of Star Realms or White Wizard Games. It is offered
+                  free of charge and is provided as-is, and with limited support. Please consider
+                  supporting Digital Defiance to promote open source and help us to serve the open
+                  source community.
                 </Typography>
                 <Typography variant="body1" component="p">
                   For more information, contributions, or to report{' '}
                   <Link
-                    href="https://github.com/Digital-Defiance/DominionAssistant/issues"
+                    href="https://github.com/Digital-Defiance/StarRealmsAssistant/issues"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -169,7 +171,7 @@ export default function AboutScreen() {
                   </Link>
                   , please visit our{' '}
                   <Link
-                    href="https://github.com/Digital-Defiance/DominionAssistant"
+                    href="https://github.com/Digital-Defiance/StarRealmsAssistant"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -178,12 +180,13 @@ export default function AboutScreen() {
                   .
                 </Typography>
                 <Typography variant="body1" component="p">
-                  Please note that this tool requires the physical game of Dominion to play.
+                  Please note that this tool requires one or more copies of the physical Star Realms
+                  game to play.
                 </Typography>
                 <Typography variant="body1" component="p">
                   See our{' '}
                   <Link
-                    href="https://github.com/Digital-Defiance/DominionAssistant?tab=readme-ov-file#disclaimer-for-end-users"
+                    href="https://github.com/Digital-Defiance/StarRealmsAssistant?tab=readme-ov-file#disclaimer-for-end-users"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -193,7 +196,7 @@ export default function AboutScreen() {
                 </Typography>
                 <Typography variant="body1" component="p" align="center">
                   <Link
-                    href="https://github.com/Digital-Defiance/DominionAssistant/blob/main/USER_MANUAL.md"
+                    href="https://github.com/Digital-Defiance/StarRealmsAssistant/blob/main/USER_MANUAL.md"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -209,7 +212,7 @@ export default function AboutScreen() {
         <Typography variant="body2">
           Version:{' '}
           <Link
-            href="https://github.com/Digital-Defiance/DominionAssistant?tab=readme-ov-file#changelog"
+            href="https://github.com/Digital-Defiance/StarRealmsAssistant?tab=readme-ov-file#changelog"
             target="_blank"
             rel="noopener noreferrer"
           >

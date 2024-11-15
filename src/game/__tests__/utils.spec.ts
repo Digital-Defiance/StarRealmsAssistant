@@ -1,4 +1,4 @@
-import { deepClone } from '@/game/utils';
+import { deepClone, isValidDate } from '@/game/utils';
 
 describe('deepClone', () => {
   it('should clone primitive types correctly', () => {
@@ -61,5 +61,25 @@ describe('deepClone', () => {
     expect(clonedObj.arr).not.toBe(obj.arr);
     expect(clonedObj.nested).toEqual(obj.nested);
     expect(clonedObj.nested).not.toBe(obj.nested);
+  });
+});
+
+describe('isValidDate', () => {
+  it('should return true for valid Date objects', () => {
+    expect(isValidDate(new Date())).toBe(true);
+    expect(isValidDate(new Date('2023-01-01T00:00:00Z'))).toBe(true);
+  });
+
+  it('should return false for invalid Date objects', () => {
+    expect(isValidDate(new Date('invalid date'))).toBe(false);
+  });
+
+  it('should return false for non-Date objects', () => {
+    expect(isValidDate('2023-01-01')).toBe(false);
+    expect(isValidDate(1672531199000)).toBe(false); // timestamp
+    expect(isValidDate({})).toBe(false);
+    expect(isValidDate(null)).toBe(false);
+    expect(isValidDate(undefined)).toBe(false);
+    expect(isValidDate([])).toBe(false);
   });
 });
