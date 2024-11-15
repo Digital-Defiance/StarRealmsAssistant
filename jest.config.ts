@@ -1,5 +1,5 @@
 module.exports = {
-  displayName: 'dominion-assistant',
+  displayName: 'starrealms-assistant',
   preset: 'ts-jest', // Use 'ts-jest' preset for TypeScript support
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
@@ -13,7 +13,7 @@ module.exports = {
     '!<rootDir>/src/**/__tests__/**/*.{ts,tsx}',
     '!<rootDir>/src/**/__mocks__/**',
   ],
-  coverageDirectory: './coverage/dominion-assistant',
+  coverageDirectory: './coverage/starrealms-assistant',
   coverageReporters: ['json', 'lcov', 'text', 'clover'],
   moduleDirectories: ['node_modules', 'src'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],

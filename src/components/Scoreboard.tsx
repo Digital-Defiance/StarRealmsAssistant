@@ -14,24 +14,23 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/system';
 import SuperCapsText from '@/components/SuperCapsText';
-import { calculateVictoryPoints } from '@/game/dominion-lib';
 import { useGameContext } from '@/components/GameContext';
-import { addLogEntry } from '@/game/dominion-lib-log';
+import { addLogEntry } from '@/game/starrealms-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
 
 const TableText = styled(Typography)(() => ({
-  fontFamily: 'TrajanProBold',
+  fontFamily: 'Handel Gothic ITC Pro',
 }));
 
 const TableScore = styled(Typography)(() => ({
-  fontFamily: 'Minion Pro Bold Caption',
+  fontFamily: 'Handel Gothic ITC Pro',
   fontWeight: 'bold',
 }));
 
 const StyledButton = styled(Button)(() => ({
-  fontFamily: 'TrajanProBold',
+  fontFamily: 'Handel Gothic ITC Pro',
 }));
 
 const Scoreboard: FC = () => {
@@ -121,7 +120,7 @@ const Scoreboard: FC = () => {
                 </TableCell>
                 <TableCell align="right">
                   <TableScore className={`typography-title`}>
-                    {calculateVictoryPoints(player)}
+                    {player.authority.authority}
                   </TableScore>
                 </TableCell>
                 <TableCell align="right">

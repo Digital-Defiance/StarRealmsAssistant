@@ -5,8 +5,7 @@ import { GroupedActionTrigger } from '@/game/enumerations/grouped-action-trigger
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { getPlayerNextTurnCount, prepareGroupedActionTriggers } from '@/game/dominion-lib-log';
 import { createMockGame } from '@/__fixtures__/dominion-lib-fixtures';
-import { ILogEntry } from '../interfaces/log-entry';
-import { getNextPlayerIndexByIndex } from '../dominion-lib';
+import { ILogEntry } from '@/game/interfaces/log-entry';
 
 jest.mock('uuid', () => ({
   v4: jest.fn(() => 'mocked-uuid'),

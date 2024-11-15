@@ -22,29 +22,19 @@ import {
 } from '@mui/icons-material';
 import Scoreboard from '@/components/Scoreboard';
 import Player from '@/components/Player';
-import { canUndoAction } from '@/game/dominion-lib-undo';
+import { canUndoAction } from '@/game/starrealms-lib-undo';
 import { useGameContext } from '@/components/GameContext';
 import SupplyCounts from '@/components/SupplyCounts';
 import GameClock from '@/components/GameClock';
 import { CurrentStep } from '@/game/enumerations/current-step';
-import {
-  addLogEntry,
-  applyGroupedAction,
-  applyGroupedActionSubAction,
-  prepareGroupedActionTriggers,
-} from '@/game/dominion-lib-log';
+import { addLogEntry } from '@/game/starrealms-lib-log';
 import { NO_PLAYER } from '@/game/constants';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
 import FloatingCounter from '@/components/FloatingCounter';
-import { RecipesList } from '@/components/RecipeList';
 import ForwardRefBox from '@/components/ForwardRefBox';
-import { RecipeKey, Recipes, RecipeSections } from '@/components/Recipes';
-import { IGroupedAction } from '@/game/interfaces/grouped-action';
-import { RecipeSummaryDialog } from '@/components/RecipeSummaryDialog';
-import { useAlert } from '@/components/AlertContext';
 
 interface GameInterfaceProps {
   nextTurn: () => void;
@@ -77,15 +67,10 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const [canUndo, setCanUndo] = useState(false);
   const [confirmEndGameDialogOpen, setConfirmEndGameDialogOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
-  const [selectedRecipeSection, setSelectedRecipeSection] = useState<RecipeSections | null>(null);
-  const [selectedRecipe, setSelectedRecipe] = useState<RecipeKey | null>(null);
   const viewBoxRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
-  const [isRecipeDialogOpen, setIsRecipeDialogOpen] = useState(false);
-  const recipeDialogTriggerRef = useRef<HTMLButtonElement>(null);
-  const { showAlert } = useAlert();
 
   useEffect(() => {
     setCanUndo(canUndoAction(gameState, gameState.log.length - 1));
@@ -133,33 +118,6 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
     endGame();
   };
 
-  const onApply = (section: RecipeSections, recipeKey: RecipeKey) => {
-    const recipeSection = Recipes[section];
-    const groupedAction = recipeSection.recipes[recipeKey] as IGroupedAction;
-
-    if (!groupedAction) {
-      return;
-    }
-
-    try {
-      const newGame = applyGroupedAction(
-        gameState,
-        groupedAction,
-        new Date(),
-        applyGroupedActionSubAction,
-        prepareGroupedActionTriggers,
-        recipeKey
-      );
-      setGameState(newGame);
-    } catch (error) {
-      if (error instanceof Error) {
-        showAlert(`${groupedAction.name} Failed`, error.message);
-      } else {
-        showAlert(`${groupedAction.name} Failed`, 'Unknown error');
-      }
-    }
-  };
-
   const lastAction =
     gameState.log.length > 0 ? gameState.log[gameState.log.length - 1].action : null;
   const lastActionIsPause = lastAction === GameLogAction.PAUSE;
@@ -191,25 +149,6 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
 
   const handleTabChange = (event: SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-    if (newValue !== 3) {
-      setSelectedRecipeSection(null);
-      setSelectedRecipe(null);
-    }
-  };
-
-  const onDetails = (section: RecipeSections, recipeKey: RecipeKey) => {
-    setSelectedRecipeSection(section);
-    setSelectedRecipe(recipeKey);
-    setIsRecipeDialogOpen(true);
-  };
-
-  const handleCloseDetailsDialog = () => {
-    setIsRecipeDialogOpen(false);
-    setSelectedRecipe(null);
-    // Focus back on the trigger button after closing the dialog
-    if (recipeDialogTriggerRef.current) {
-      recipeDialogTriggerRef.current.focus();
-    }
   };
 
   return (
@@ -231,7 +170,6 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           <Tab label="Player" />
           <Tab label="Adjustments" />
           <Tab label="Supply" />
-          <Tab label="Common Actions" />
         </Tabs>
         <ForwardRefBox
           ref={viewBoxRef}
@@ -247,14 +185,6 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           {tabValue === 0 && <Player containerHeight={containerHeight} />}
           {tabValue === 1 && <TurnAdjustmentsSummary containerHeight={containerHeight} />}
           {tabValue === 2 && <SupplyCounts containerHeight={containerHeight} />}
-          {tabValue === 3 && (
-            <RecipesList
-              containerHeight={containerHeight}
-              containerWidth={containerWidth}
-              onApply={onApply}
-              onDetails={onDetails}
-            />
-          )}
         </ForwardRefBox>
       </Container>
       <FabContainer>
@@ -318,16 +248,6 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           </Button>
         </DialogActions>
       </Dialog>
-      <RecipeSummaryDialog
-        open={isRecipeDialogOpen}
-        section={selectedRecipeSection ? Recipes[selectedRecipeSection] : null}
-        recipe={
-          selectedRecipe && selectedRecipeSection
-            ? Recipes[selectedRecipeSection].recipes[selectedRecipe]
-            : null
-        }
-        onClose={handleCloseDetailsDialog}
-      />
     </>
   );
 };

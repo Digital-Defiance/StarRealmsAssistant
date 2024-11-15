@@ -58,15 +58,9 @@ This tool is designed to enhance your Dominion game experience by assisting with
 ### Resource Management
 
 1. **Basic Resources**:
-   - **Actions**: Needed to play action cards.
-   - **Buys**: Used to buy additional cards each turn.
-   - **Coins**: Represents purchasing power.
-   - **Victory Points**: Tracks each player’s score.
-2. **Special Resources**:
-   - **Villagers**: Stores additional actions for future turns.
-   - **Coffers**: Stores extra coins for future use.
-   - **Prophecy Tokens**: Available with the Rising Sun expansion.
-   - **Victory Tokens**: Tracks special point values that don’t require physical VP cards.
+   - **Trade**: Amount of trade power per turn.
+   - **Combat**: Amount of attack power per turn.
+   - **Authority**: Tracks each player’s score/remaining authority.
 
 ### Game Controls
 
@@ -131,7 +125,7 @@ The tool automatically tracks and displays statistics, including:
 - **Current Turn Time**: How long the current turn has lasted.
 - **Average Turn Duration**: An average of all player turn times.
 - **Player-Specific Averages**: Average time taken per player.
-- **Victory Point Tracking**: Comprehensive victory point tally per player.
+- **Authority Tracking**: Comprehensive authority tally per player.
 - **Supply Count Tracking**: Keeps track of remaining cards in the supply.
 
 ### Auto-Save Feature

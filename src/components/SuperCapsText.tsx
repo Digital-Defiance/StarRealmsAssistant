@@ -10,7 +10,7 @@ interface SuperCapsSpanProps extends TypographyProps {
 const SmallCapsSpan = styled(Typography)<SuperCapsSpanProps>(() => ({
   fontVariantCaps: 'small-caps',
   display: 'inline-block',
-  fontFamily: 'CharlemagneStdBold',
+  fontFamily: 'Handel Gothic ITC Pro',
   lineHeight: 1,
 }));
 

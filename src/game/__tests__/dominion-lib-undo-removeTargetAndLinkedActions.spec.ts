@@ -1,6 +1,5 @@
 import { removeTargetAndLinkedActions } from '@/game/dominion-lib-undo-helpers';
 import { IGame } from '@/game/interfaces/game';
-import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGame, createMockLog } from '@/__fixtures__/dominion-lib-fixtures';
 

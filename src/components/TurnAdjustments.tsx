@@ -17,7 +17,7 @@ import {
   getPlayerForTurn,
   getTurnAdjustments,
   groupTurnAdjustments,
-} from '@/game/dominion-lib-log';
+} from '@/game/starrealms-lib-log';
 import ColoredPlayerName from '@/components/ColoredPlayerName';
 import SuperCapsText from '@/components/SuperCapsText';
 import SecondarySubtitle from '@/components/SecondarySubtitle';
@@ -37,7 +37,7 @@ const Header = styled(Box)(({ theme }) => ({
 }));
 
 const Quantity = styled(Typography)({
-  fontFamily: 'TrajanProBold',
+  fontFamily: 'Handel Gothic ITC Pro',
   fontWeight: 'bold',
   fontSize: '1.5rem',
 });

@@ -30,7 +30,7 @@ html,
 
 .label {
   font-size: $TEXT_SIZE;
-  font-family: 'TrajanProBold', sans-serif;
+  font-family: 'Handel Gothic ITC Pro', sans-serif;
 }
 
 .input {
@@ -112,24 +112,5 @@ canvas {
   transition: background-color 0.3s ease;
 }
 
-@font-face {
-  font-family: 'CharlemagneStdBold';
-  src:
-    url('/assets/fonts/charlemagnestd-bold-webfont.woff2') format('woff2'),
-    url('/assets/fonts/charlemagnestd-bold-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SpaceMonoRegular';
-  src:
-    url('/assets/fonts/spacemono-regular-webfont.woff2') format('woff2'),
-    url('/assets/fonts/spacemono-regular-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@import 'minion-pro';
-@import 'trajan-pro';
+@import 'handel-gothic';
 @import 'typography';

@@ -5,9 +5,12 @@ import * as ReactDOM from 'react-dom/client';
 import App from '@/app/app';
 import '@/styles.scss';
 
-const root = ReactDOM.createRoot(document.getElementById('root')!);
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+}

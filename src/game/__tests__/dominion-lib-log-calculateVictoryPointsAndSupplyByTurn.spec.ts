@@ -65,7 +65,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
         currentPlayerIndex: 0,
         turn: 1,
         count: 1,
-        trash: true,
+        scrap: true,
       } as ILogEntry,
       {
         id: '3',

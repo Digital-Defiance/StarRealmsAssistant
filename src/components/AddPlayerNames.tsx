@@ -15,7 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { ColorResult, SketchPicker } from 'react-color';
 import { useGameContext } from '@/components/GameContext';
-import { newPlayer } from '@/game/dominion-lib';
+import { newPlayer } from '@/game/starrealms-lib';
 import { MAX_PLAYERS, MIN_PLAYERS, SupplyForPlayerCount } from '@/game/constants';
 import SuperCapsText from '@/components/SuperCapsText';
 import CenteredContainer from '@/components/CenteredContainer';
@@ -28,7 +28,7 @@ interface AddPlayerNamesProps {
 }
 
 const StyledPlayerNumber = styled(Typography)(() => ({
-  fontFamily: 'TrajanProBold',
+  fontFamily: 'Handel Gothic ITC Pro',
 }));
 
 const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
@@ -41,7 +41,7 @@ const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
     setGameState((prevState: IGame) => {
       const newGame = deepClone<IGame>(prevState);
       const minPlayers = Math.max(MIN_PLAYERS, newGame.players.length);
-      const supplyInfo = SupplyForPlayerCount(minPlayers, newGame.options.expansions.prosperity);
+      const supplyInfo = SupplyForPlayerCount(minPlayers);
       newGame.setsRequired = supplyInfo.setsRequired;
       return newGame;
     });
@@ -149,9 +149,9 @@ const AddPlayerNames: FC<AddPlayerNamesProps> = ({ nextStep }) => {
           </IconButton>
         </Box>
       )}
-      {gameState.players.length >= 5 && (
+      {gameState.players.length >= 2 && (
         <Typography variant="body2" color="error">
-          * Two sets of base cards required for 5-6 players.
+          * One additional set of base cards is required for every 2 players added.
         </Typography>
       )}
       {gameState.players.length >= MIN_PLAYERS && gameState.players.length <= MAX_PLAYERS && (

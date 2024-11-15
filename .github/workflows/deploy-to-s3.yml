@@ -46,9 +46,9 @@ jobs:
           DEBUG: ${{ vars.S3_DEBUG }}
         run: |
           if [ "$DEBUG" = "true" ]; then
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
           else
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
           fi
 
   deploy-staging:
@@ -89,7 +89,7 @@ jobs:
           DEBUG: ${{ vars.S3_DEBUG }}
         run: |
           if [ "$DEBUG" = "true" ]; then
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete --debug
           else
-            aws s3 sync dist/dominion-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
+            aws s3 sync dist/starrealms-assistant/ s3://$S3_BUCKET_NAME --region $S3_REGION --delete
           fi

@@ -1,8 +1,8 @@
 export interface IPlayerGameTurnDetails {
-  actions: number;
-  buys: number;
-  coins: number;
+  trade: number;
+  combat: number;
   cards: number;
   gains: number;
   discard: number;
+  scrap: number;
 }

@@ -1,4 +1,13 @@
-import React, { useEffect, useRef, useState, memo, CSSProperties, RefObject, FC } from 'react';
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  memo,
+  CSSProperties,
+  RefObject,
+  FC,
+  useCallback,
+} from 'react';
 import { Paper, TableContainer, Typography, Box, Dialog, DialogContent } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
@@ -34,9 +43,9 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
     return window.innerHeight * 0.8; // 80% of the window height
   };
 
-  const updateDialogHeight = () => {
+  const updateDialogHeight = useCallback(() => {
     setDialogHeight(calculateDialogHeight());
-  };
+  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -63,7 +72,7 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [tabViewRef]);
+  }, [tabViewRef, updateDialogHeight]);
 
   const handleOpenTurnAdjustmentsDialog = (turn: number) => {
     setSelectedTurn(turn);

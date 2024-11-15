@@ -5,7 +5,7 @@ const { join } = require('path');
 
 module.exports = {
   output: {
-    path: join(__dirname, './dist/dominion-assistant'),
+    path: join(__dirname, './dist/starrealms-assistant'),
   },
   devServer: {
     port: 4200,
