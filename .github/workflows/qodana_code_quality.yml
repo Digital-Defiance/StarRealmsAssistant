@@ -17,27 +17,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.sha }} # to check out the actual pull request commit, not the merge commit
-          fetch-depth: 0 # a full history is required for pull request analysis
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20' # Specify the Node.js version you want to use
-          cache: 'yarn'
-
-      - name: Set up FontAwesome NPM registry
-        run: ./fontawesome-npmrc.sh
-        env:
-          FONTAWESOME_KEY: ${{ secrets.FONTAWESOME_KEY }}
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0  # a full history is required for pull request analysis
       - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2024.2
+        uses: JetBrains/qodana-action@v2024.3
         with:
           pr-mode: false
         env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1177090119 }}
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_789719253 }}
           QODANA_ENDPOINT: 'https://qodana.cloud'
