@@ -1219,6 +1219,13 @@
     debug "^4.3.1"
     minimatch "^3.1.2"
 
+"@eslint/core@^0.12.0":
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/@eslint/core/-/core-0.12.0.tgz#5f960c3d57728be9f6c65bd84aa6aa613078798e"
+  integrity sha512-cmrR6pytBuSMTaBweKoGMwu3EiHiEC+DoyupPmlZ0HxBJBtIxwe+j/E4XPIKNx+Q74c8lXKPwYawBf5glsTkHg==
+  dependencies:
+    "@types/json-schema" "^7.0.15"
+
 "@eslint/core@^0.7.0":
   version "0.7.0"
   resolved "https://registry.yarnpkg.com/@eslint/core/-/core-0.7.0.tgz#a1bb4b6a4e742a5ff1894b7ee76fbf884ec72bd3"
@@ -1255,35 +1262,17 @@
   integrity sha512-BsWiH1yFGjXXS2yvrf5LyuoSIIbPrGUWob917o+BTKuZ7qJdxX8aJLRxs1fS9n6r7vESrq1OUqb68dANcFXuQQ==
 
 "@eslint/plugin-kit@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@eslint/plugin-kit/-/plugin-kit-0.2.0.tgz#8712dccae365d24e9eeecb7b346f85e750ba343d"
-  integrity sha512-vH9PiIMMwvhCx31Af3HiGzsVNULDbyVkHXwlemn/B0TFj/00ho3y55efXrUZTfQipxoHC5u4xq6zblww1zm1Ig==
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@eslint/plugin-kit/-/plugin-kit-0.2.7.tgz#9901d52c136fb8f375906a73dcc382646c3b6a27"
+  integrity sha512-JubJ5B2pJ4k4yGxaNLdbjrnk9d/iDz6/q8wOilpIowd6PJPgaxCuHBnBszq7Ce2TyMrywm5r4PnKm6V3iiZF+g==
   dependencies:
+    "@eslint/core" "^0.12.0"
     levn "^0.4.1"
 
 "@faker-js/faker@^9.0.3":
   version "9.0.3"
   resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-9.0.3.tgz#be817db896b07d1716bc65d9aad1ba587b499826"
   integrity sha512-lWrrK4QNlFSU+13PL9jMbMKLJYXDFu3tQfayBsMXX7KL/GiQeqfB1CzHkqD5UHBUtPAuPo6XwGbMFNdVMZObRA==
-
-"@fortawesome/fontawesome-common-types@6.6.0", "@fortawesome/fontawesome-common-types@^6.6.0":
-  version "6.6.0"
-  resolved "https://npm.fontawesome.com/@fortawesome/fontawesome-common-types/-/6.6.0/fontawesome-common-types-6.6.0.tgz#31ab07ca6a06358c5de4d295d4711b675006163f"
-  integrity sha512-xyX0X9mc0kyz9plIyryrRbl7ngsA9jz77mCZJsUkLl+ZKs0KWObgaEBoSgQiYWAsSmjz/yjl0F++Got0Mdp4Rw==
-
-"@fortawesome/fontawesome-svg-core@^6.6.0":
-  version "6.6.0"
-  resolved "https://npm.fontawesome.com/@fortawesome/fontawesome-svg-core/-/6.6.0/fontawesome-svg-core-6.6.0.tgz#2a24c32ef92136e98eae2ff334a27145188295ff"
-  integrity sha512-KHwPkCk6oRT4HADE7smhfsKudt9N/9lm6EJ5BVg0tD1yPA5hht837fB87F8pn15D8JfTqQOjhKTktwmLMiD7Kg==
-  dependencies:
-    "@fortawesome/fontawesome-common-types" "6.6.0"
-
-"@fortawesome/react-fontawesome@^0.2.2":
-  version "0.2.2"
-  resolved "https://npm.fontawesome.com/@fortawesome/react-fontawesome/-/0.2.2/react-fontawesome-0.2.2.tgz#68b058f9132b46c8599875f6a636dad231af78d4"
-  integrity sha512-EnkrprPNqI6SXJl//m29hpaNzOp1bruISWaOiRtkMi/xSvHJlzc2j2JAYS7egxt/EbjSNV/k6Xy0AQI6vB2+1g==
-  dependencies:
-    prop-types "^15.8.1"
 
 "@hapi/hoek@^9.0.0", "@hapi/hoek@^9.3.0":
   version "9.3.0"
