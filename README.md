@@ -48,7 +48,7 @@ Our application, as a fan-built tool that does not replicate the game, could be 
 - **Game Setup Wizard**: Customizable options for various game modes and expansions
 - **Turn Tracking**: Keep track of player turns and phases
 - **Detailed Game Log**: Record and review game events and card plays
-- **Expansion Support**: Compatibility with various Star Realms expansions and game mats
+- **Expansion Support**: Compatibility with various Star Realms expansions
 - **Save/Load Games**: Ability to save game progress and resume later
 - **Intuitive UI**: User-friendly interface with Material-UI components
 - Confirm end game with dialog
@@ -57,7 +57,6 @@ Our application, as a fan-built tool that does not replicate the game, could be 
 - Graph of authority over time
 - Track turn card gains
 - +card tracking (optional/enable-able)
-- Council-Room and other card action buttons
 - Pause/unpause game
 
 This is an [NX](https://nx.dev/getting-started/intro) project created with [`create-nx-workspace`](https://nx.dev/nx-api/nx/documents/create-nx-workspace).
