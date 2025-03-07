@@ -12,7 +12,7 @@
 
 Welcome to the **Unofficial Star Realms Assistant**, a React application designed to enhance your gameplay experience for the popular card game, Star Realms! This tool provides comprehensive features for game management, scoring, and player interaction, allowing Star Realms enthusiasts to focus on strategy and enjoyment.
 
-Based on the original [**Unofficial Dominion Assistant**](https://github.com/Digital-Defiance/DominionAssistant).
+Based on the original [**Unofficial Dominion Assistant**](https://github.com/Digital-Defiance/DominionAssistant) which is live on [dominionassistant.com](https://dominionassistant.com).
 
 Unofficial Star Realms Assistant is a free tool which aimed to support the main features of the game and the ones we used personally. Many of the specfific expansions and cards are not specifically supported but should allow for manual adjustment to accommodate them.
 Please see our GitHub [issues](https://github.com/Digital-Defiance/StarRealmsAssistant/issues) page for our roadmap/upcoming features and to make requests.
