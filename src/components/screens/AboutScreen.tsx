@@ -177,6 +177,14 @@ export default function AboutScreen() {
                   >
                     GitHub repository
                   </Link>
+                  . Additionally, there is the project{' '}
+                  <Link
+                    href="https://github.com/orgs/Digital-Defiance/projects/14"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Backlog
+                  </Link>
                   .
                 </Typography>
                 <Typography variant="body1" component="p">
