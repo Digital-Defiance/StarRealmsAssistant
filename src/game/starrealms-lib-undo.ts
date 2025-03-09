@@ -60,6 +60,11 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
     if (mainActionIndex === -1) {
       return false; // Linked action's main action not found
     }
+    // if any of the linked actions are NO_UNDO_ACTIONS, then none of the linked actions can be undone
+    const linkedActions = getLinkedActions(game.log, mainActionIndex);
+    if (linkedActions.some((entry) => NoUndoActions.includes(entry.action))) {
+      return false;
+    }
   }
 
   // Remove the action and its linked actions in a cloned game state

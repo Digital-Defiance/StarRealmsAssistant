@@ -1,13 +1,14 @@
 import { rankPlayers, newPlayer } from '@/game/starrealms-lib';
 import { RankedPlayer } from '@/game/interfaces/ranked-player';
 import { IPlayer } from '@/game/interfaces/player';
+import { DefaultPlayerColors } from '../constants';
 
 describe('rankPlayers', () => {
   it('should rank players correctly with no ties', () => {
     const players: IPlayer[] = [
-      newPlayer('Alice', 0),
-      newPlayer('Bob', 1),
-      newPlayer('Charlie', 2),
+      newPlayer('Alice', false, DefaultPlayerColors[0]),
+      newPlayer('Bob', false, DefaultPlayerColors[1]),
+      newPlayer('Charlie', false, DefaultPlayerColors[2]),
     ];
     players[0].authority.authority = 10;
     players[1].authority.authority = 15;
@@ -24,10 +25,10 @@ describe('rankPlayers', () => {
 
   it('should rank players correctly with ties', () => {
     const players: IPlayer[] = [
-      newPlayer('Alice', 0),
-      newPlayer('Bob', 1),
-      newPlayer('Charlie', 2),
-      newPlayer('David', 3),
+      newPlayer('Alice', false, DefaultPlayerColors[0]),
+      newPlayer('Bob', false, DefaultPlayerColors[1]),
+      newPlayer('Charlie', false, DefaultPlayerColors[2]),
+      newPlayer('David', false, DefaultPlayerColors[3]),
     ];
 
     players[0].authority.authority = 10;
@@ -47,10 +48,10 @@ describe('rankPlayers', () => {
 
   it('should rank players correctly with ties and name sorting', () => {
     const players: IPlayer[] = [
-      newPlayer('Alice', 0),
-      newPlayer('Bob', 1),
-      newPlayer('Charlie', 2),
-      newPlayer('David', 3),
+      newPlayer('Alice', false, DefaultPlayerColors[0]),
+      newPlayer('Bob', false, DefaultPlayerColors[1]),
+      newPlayer('Charlie', false, DefaultPlayerColors[2]),
+      newPlayer('David', false, DefaultPlayerColors[3]),
     ];
 
     players[0].authority.authority = 10;
@@ -77,7 +78,7 @@ describe('rankPlayers', () => {
   });
 
   it('should handle a single player', () => {
-    const players: IPlayer[] = [newPlayer('Alice', 0)];
+    const players: IPlayer[] = [newPlayer('Alice', false, DefaultPlayerColors[0])];
     players[0].authority.authority = 10;
 
     const expected: RankedPlayer[] = [{ index: 0, score: 10, rank: 1 }];

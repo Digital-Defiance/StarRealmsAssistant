@@ -1,7 +1,7 @@
 import { IGame } from '@/game/interfaces/game';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import { newPlayer, NewGameState } from '@/game/starrealms-lib';
-import { EmptyGameState, MAX_PLAYERS } from '@/game/constants';
+import { DefaultPlayerColors, EmptyGameState, MAX_PLAYERS } from '@/game/constants';
 import { MinPlayersError } from '@/game/errors/min-players';
 import { MaxPlayersError } from '@/game/errors/max-players';
 import { ILogEntry } from '@/game/interfaces/log-entry';
@@ -15,13 +15,14 @@ describe('NewGameState', () => {
   });
 
   it('should initialize a new game state with default options', () => {
-    const firstPlayerIndex = faker.number.int({ min: 0, max: 1 });
     const initialGameState: IGame = {
       ...EmptyGameState(),
-      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
-      currentPlayerIndex: firstPlayerIndex,
-      firstPlayerIndex: firstPlayerIndex,
-      selectedPlayerIndex: firstPlayerIndex,
+      players: [
+        newPlayer('Player 1', false, DefaultPlayerColors[0]),
+        newPlayer('Player 2', false, DefaultPlayerColors[1]),
+      ],
+      currentPlayerIndex: 0,
+      selectedPlayerIndex: 0,
     };
 
     const result = NewGameState(initialGameState, gameStart);
@@ -29,7 +30,6 @@ describe('NewGameState', () => {
     expect(result.currentStep).toBe(CurrentStep.Game);
     expect(result.players.length).toBe(2);
     expect(result.currentPlayerIndex).toBe(initialGameState.currentPlayerIndex);
-    expect(result.firstPlayerIndex).toBe(initialGameState.firstPlayerIndex);
     expect(result.currentTurn).toBe(1);
     expect(result.log).toEqual([
       {
@@ -37,7 +37,7 @@ describe('NewGameState', () => {
         timestamp: gameStart,
         gameTime: 0,
         action: GameLogAction.START_GAME,
-        playerIndex: initialGameState.firstPlayerIndex,
+        playerIndex: 0,
         currentPlayerIndex: initialGameState.currentPlayerIndex,
         turn: 1,
       } as ILogEntry,
@@ -48,7 +48,7 @@ describe('NewGameState', () => {
   it('should throw MinPlayersError for less than minimum players', () => {
     const initialGameState: IGame = {
       ...EmptyGameState(),
-      players: [newPlayer('Player 1', 0)],
+      players: [newPlayer('Player 1', false, DefaultPlayerColors[0])],
     };
 
     expect(() => NewGameState(initialGameState, gameStart)).toThrow(MinPlayersError);
@@ -59,12 +59,16 @@ describe('NewGameState', () => {
       trackCardCounts: true,
       trackCardGains: true,
       trackDiscard: true,
+      trackAssimilation: false,
       startingAuthorityByPlayerIndex: [50, 50],
       startingCardsByPlayerIndex: [5, 5],
     };
     const initialGameState: IGame = {
       ...EmptyGameState(),
-      players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
+      players: [
+        newPlayer('Player 1', false, DefaultPlayerColors[0]),
+        newPlayer('Player 2', false, DefaultPlayerColors[1]),
+      ],
       options: customOptions,
     };
 
@@ -78,7 +82,7 @@ describe('NewGameState', () => {
       ...EmptyGameState(),
       players: Array(MAX_PLAYERS)
         .fill(null)
-        .map((_, i) => newPlayer(`Player ${i + 1}`, i)),
+        .map((_, i) => newPlayer(`Player ${i + 1}`, false, DefaultPlayerColors[i])),
     };
 
     const result = NewGameState(initialGameState, gameStart);
@@ -91,7 +95,7 @@ describe('NewGameState', () => {
       ...EmptyGameState(),
       players: Array(MAX_PLAYERS + 1)
         .fill(null)
-        .map((_, i) => newPlayer(`Player ${i + 1}`, i)),
+        .map((_, i) => newPlayer(`Player ${i + 1}`, false, DefaultPlayerColors[i])),
     };
 
     expect(() => NewGameState(initialGameState, gameStart)).toThrow(MaxPlayersError);

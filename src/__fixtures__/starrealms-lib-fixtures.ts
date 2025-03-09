@@ -17,38 +17,52 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { deepClone } from '@/game/utils';
 import { IGameRaw } from '@/game/interfaces/game-raw';
 
-export function createMockGame(playerCount: number, overrides?: Partial<IGame>): IGame {
-  const firstPlayerIndex =
-    overrides?.firstPlayerIndex ?? faker.number.int({ min: 0, max: playerCount - 1 });
+/**
+ * Create totalPlayerCount mock players in an empty game
+ * @param totalPlayerCount The total number of players to create
+ * @param overrides Any overrides to apply to the game
+ * @param addBoss Whether to add a first player boss to the game
+ * @returns A mock game with the specified number of players
+ */
+export function createMockGame(
+  totalPlayerCount: number,
+  overrides?: Partial<IGame>,
+  addBoss = false
+): IGame {
   const options: IGameOptions = {
     trackCardCounts: true,
     trackCardGains: true,
     trackDiscard: true,
-    startingAuthorityByPlayerIndex: Array(playerCount)
+    trackAssimilation: false,
+    startingAuthorityByPlayerIndex: Array(totalPlayerCount)
       .fill(null)
       .map(() => DEFAULT_STARTING_AUTHORITY),
-    startingCardsByPlayerIndex: Array(playerCount)
+    startingCardsByPlayerIndex: Array(totalPlayerCount)
       .fill(null)
       .map(() => DEFAULT_TURN_CARDS),
   };
-  const supply = calculateInitialSupply(playerCount);
-  const game: IGame = {
-    players: Array(playerCount)
+  const supply = calculateInitialSupply(totalPlayerCount);
+  const totalHumanPlayers = addBoss ? totalPlayerCount - 1 : totalPlayerCount;
+  const players = [
+    ...(addBoss ? [createMockPlayer(0, { name: 'boss', boss: true })] : []),
+    ...Array(totalHumanPlayers)
       .fill(null)
       .map((value, index) => createMockPlayer(index, overrides?.players?.[index])),
+  ];
+  const game: IGame = {
+    players,
     supply,
     options,
     currentTurn: 1,
-    currentPlayerIndex: firstPlayerIndex,
-    firstPlayerIndex: firstPlayerIndex,
-    selectedPlayerIndex: firstPlayerIndex,
+    currentPlayerIndex: 0,
+    selectedPlayerIndex: 0,
     log: [
       {
         id: faker.string.uuid(),
         timestamp: new Date(),
         gameTime: 0,
-        playerIndex: firstPlayerIndex,
-        currentPlayerIndex: firstPlayerIndex,
+        playerIndex: 0,
+        currentPlayerIndex: 0,
         turn: 1,
         action: GameLogAction.START_GAME,
       },

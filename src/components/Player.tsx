@@ -317,6 +317,19 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                   onIncrement={() => handleFieldChange('authority', 'authority', 1, linkChangeId)}
                   onDecrement={() => handleFieldChange('authority', 'authority', -1, linkChangeId)}
                 />
+                {player.boss && gameState.options.trackAssimilation && (
+                  <IncrementDecrementControl
+                    label="Assimilation"
+                    value={player.authority.assimilation}
+                    tooltip="Tracks Boss Assimilation across turns"
+                    onIncrement={() =>
+                      handleFieldChange('authority', 'assimilation', 1, linkChangeId)
+                    }
+                    onDecrement={() =>
+                      handleFieldChange('authority', 'assimilation', -1, linkChangeId)
+                    }
+                  />
+                )}
               </ColumnBox>
             </Box>
           )}

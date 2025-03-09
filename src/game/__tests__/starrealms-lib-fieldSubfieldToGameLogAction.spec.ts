@@ -48,6 +48,18 @@ describe('victoryFieldToGameLogAction', () => {
     );
   });
 
+  it('should return ADD_ASSIMILATION for assimilation increment', () => {
+    expect(fieldSubfieldToGameLogAction('authority', 'assimilation', 1)).toBe(
+      GameLogAction.ADD_ASSIMILATION
+    );
+  });
+
+  it('should return REMOVE_AUTHORITY for authority estates decrement', () => {
+    expect(fieldSubfieldToGameLogAction('authority', 'assimilation', -1)).toBe(
+      GameLogAction.REMOVE_ASSIMILATION
+    );
+  });
+
   it('should fail for authority invalid field', () => {
     expect(() =>
       fieldSubfieldToGameLogAction(

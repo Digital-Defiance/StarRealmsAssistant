@@ -14,6 +14,7 @@ import React, {
 import { LocalStorageService } from '@/game/local-storage-service';
 import { deepClone } from '@/game/utils';
 import { AutoSaveGameSaveId, AutoSaveGameSaveName, EmptyGameState } from '@/game/constants';
+import { NewGameState } from '@/game/starrealms-lib';
 
 // Define the shape of the context
 interface GameContextProps {
@@ -35,7 +36,7 @@ export const useGameContext = (): GameContextProps => {
 
 // Custom provider component
 export const GameProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [gameState, setGameState] = useState<IGame>(EmptyGameState);
+  const [gameState, setGameState] = useState<IGame>(EmptyGameState());
 
   useEffect(() => {
     if (gameState.log.length === 0) {

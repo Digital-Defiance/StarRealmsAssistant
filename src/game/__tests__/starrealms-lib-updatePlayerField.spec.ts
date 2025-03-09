@@ -25,7 +25,9 @@ describe('updatePlayerField', () => {
       newTurn: { trade: 1, combat: 0, cards: 5, gains: 0, discard: 0, scrap: 0 },
       authority: {
         authority: 3,
+        assimilation: 0,
       },
+      boss: false,
     };
     mockGame = {
       ...EmptyGameState(),

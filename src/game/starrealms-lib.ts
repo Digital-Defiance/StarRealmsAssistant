@@ -14,6 +14,9 @@ import {
   STARTING_SCOUTS,
   STARTING_VIPERS,
   DEFAULT_TURN_CARDS,
+  DefaultPlayerColorsWithBoss,
+  BossColor,
+  NOT_PRESENT,
 } from '@/game/constants';
 import { IPlayer } from '@/game/interfaces/player';
 import { PlayerField, PlayerFieldMap, PlayerSubFields } from '@/game/types';
@@ -78,16 +81,18 @@ export function distributeInitialSupply(game: IGame): IGame {
 /**
  * Create a new player object with default values
  * @param playerName - The name of the player
- * @param index - The index of the player
+ * @param boss - Whether the player is the boss
+ * @param color - The color of the player
  * @returns The new player object
  */
-export function newPlayer(playerName: string, index: number): IPlayer {
+export function newPlayer(playerName: string, boss: boolean, color: string): IPlayer {
   const newPlayer: IPlayer = {
     name: playerName.trim(),
-    color: DefaultPlayerColors[index],
+    color: boss ? BossColor : color,
     turn: DefaultTurnDetails(),
     newTurn: DefaultTurnDetails(),
     authority: EmptyAuthorityDetails(),
+    boss,
   };
   return newPlayer;
 }
@@ -122,10 +127,10 @@ export const NewGameState = (gameStateWithOptions: IGame, gameStart: Date): IGam
 
   // Create a new game state with the initial supply, while resetting the player details
   newGameState.players = newGameState.players.map((player, index) => ({
-    ...newPlayer(player.name, index),
-    color: newGameState.players[index].color,
+    ...newPlayer(player.name, player.boss, newGameState.players[index].color),
     authority: {
       authority: gameStateWithOptions.options.startingAuthorityByPlayerIndex[index],
+      assimilation: 0,
     },
     newTurn: {
       ...DefaultTurnDetails(),
@@ -144,14 +149,14 @@ export const NewGameState = (gameStateWithOptions: IGame, gameStart: Date): IGam
       id: uuidv4(),
       timestamp: gameStart,
       gameTime: 0,
-      playerIndex: newGameState.firstPlayerIndex,
-      currentPlayerIndex: newGameState.firstPlayerIndex,
+      playerIndex: 0,
+      currentPlayerIndex: 0,
       turn: 1,
       action: GameLogAction.START_GAME,
     } as ILogEntry,
   ];
-  newGameState.selectedPlayerIndex = newGameState.firstPlayerIndex;
-  newGameState.currentPlayerIndex = newGameState.firstPlayerIndex;
+  newGameState.selectedPlayerIndex = 0;
+  newGameState.currentPlayerIndex = 0;
 
   // Distribute initial supply to players
   newGameState = distributeInitialSupply(newGameState);
@@ -217,6 +222,9 @@ export function getFieldAndSubfieldFromAction(action: GameLogAction): {
     case GameLogAction.ADD_AUTHORITY:
     case GameLogAction.REMOVE_AUTHORITY:
       return { field: 'authority', subfield: 'authority' };
+    case GameLogAction.ADD_ASSIMILATION:
+    case GameLogAction.REMOVE_ASSIMILATION:
+      return { field: 'authority', subfield: 'assimilation' };
     case GameLogAction.ADD_TRADE:
     case GameLogAction.REMOVE_TRADE:
       return { field: 'turn', subfield: 'trade' };
@@ -367,4 +375,65 @@ export function rankPlayers(players: IPlayer[]): RankedPlayer[] {
   });
 
   return rankedPlayers;
+}
+
+/**
+ * Whether the game is being played against a Boss
+ * @param players The game's players array
+ * @returns True if any of the players (should only be one or none) are a Boss.
+ */
+export function hasBoss(players: IPlayer[]): boolean {
+  return players.some((value) => value.boss === true);
+}
+
+/**
+ * Returns the next available player color from the appropriate color palette.
+ * @param players An array of players with color properties
+ * @param bossEnabled Whether the boss mode is enabled
+ * @returns The next available color string
+ * @throws Error if there are no more available colors
+ */
+export function getNextAvailablePlayerColor(
+  players: Array<{ color: string }>,
+  bossEnabled: boolean
+): string {
+  // Choose the appropriate color palette
+  const colorPalette = bossEnabled ? DefaultPlayerColorsWithBoss : DefaultPlayerColors;
+
+  // Get the set of colors currently in use
+  const usedColors = new Set(
+    players.filter((player) => player.color !== undefined).map((player) => player.color)
+  );
+
+  // Find the first color in the palette that isn't used
+  for (const color of colorPalette) {
+    if (!usedColors.has(color)) {
+      return color;
+    }
+  }
+
+  throw new Error('No available colors found.');
+}
+
+/**
+ * Return the first turn the boss will take
+ * @param gameState The game state
+ * @returns The turn number the boss will take their first turn
+ */
+export function getFirstBossTurn(gameState: IGame): number {
+  if (!hasBoss(gameState.players)) {
+    return NOT_PRESENT;
+  }
+  /* the boss must wait for all players to have N turns before taking their first turn
+   * if the wait (W) is one turn, and there are 2 human players (P=3), then by turn 3 the boss will take their first turn
+   * if the wait (W) is two turns and there are 3 human players (P=4), then by turn 7 the boss will take their first turn
+   * P * W + 1
+   * W = 1, P = 3: 0x -> 1 -> 2 -> 0 (Boss) - turn 4
+   * 3 * 1 + 1 = 4
+   * W = 1, P = 4: 0x -> 1 -> 2 -> 3 -> 0 (Boss) - turn 5
+   * 4 * 1 + 1 = 5
+   * W = 2, P = 4: 0x -> 1 -> 2 -> 3 -> 0x -> 1 -> 2 -> 3 -> 0 (Boss) - turn 9
+   * 4 * 2 + 1 = 9
+   */
+  return gameState.players.length * (gameState.options.bossStartTurn ?? 0) + 1;
 }

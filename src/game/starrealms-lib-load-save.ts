@@ -8,7 +8,7 @@ import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { InvalidLogSaveGameError } from '@/game/errors/invalid-log-save-game';
 import {
   DefaultGameOptions,
-  LAST_COMPATIBLE_SAVE_VERSION,
+  MINIMUM_COMPATIBLE_SAVE_VERSION,
   NO_PLAYER,
   SaveGameStorageKey,
   SaveGameStorageKeyPrefix,
@@ -21,7 +21,7 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { IStorageService } from '@/game/interfaces/storage-service';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { deepClone, isValidDate, isValidDateString } from '@/game/utils';
-import { gt } from 'semver';
+import { gte, lt } from 'semver';
 import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
 import { ITurnStatisticsRaw } from '@/game/interfaces/turn-statistics-raw';
 import { ITurnStatistics } from '@/game/interfaces/turn-statistics';
@@ -189,11 +189,11 @@ export function restoreSavedGame(gameRaw: IGameRaw): IGame {
   if (
     gameRaw.gameVersion === undefined ||
     gameRaw.gameVersion.length === 0 ||
-    gt(gameRaw.gameVersion, LAST_COMPATIBLE_SAVE_VERSION)
+    lt(gameRaw.gameVersion, MINIMUM_COMPATIBLE_SAVE_VERSION)
   ) {
     throw new IncompatibleSaveError(
       gameRaw.gameVersion ?? 'undefined',
-      LAST_COMPATIBLE_SAVE_VERSION
+      MINIMUM_COMPATIBLE_SAVE_VERSION
     );
   }
 
@@ -497,7 +497,6 @@ export function isValidGame(game: unknown): game is IGame {
     g.log.every(isValidLogEntry) &&
     typeof g.currentTurn === 'number' &&
     typeof g.currentPlayerIndex === 'number' &&
-    typeof g.firstPlayerIndex === 'number' &&
     typeof g.selectedPlayerIndex === 'number' &&
     typeof g.currentStep === 'number' &&
     typeof g.setsRequired === 'number'

@@ -27,10 +27,6 @@ export interface IGame {
    */
   currentPlayerIndex: number;
   /**
-   * The index of the first player that started the game.
-   */
-  firstPlayerIndex: number;
-  /**
    * The index of the selected player.
    */
   selectedPlayerIndex: number;

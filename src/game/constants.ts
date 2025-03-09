@@ -10,22 +10,28 @@ import { IGame } from '@/game/interfaces/game';
 import { ISupplyInfo } from '@/game/interfaces/supply-info';
 import { MinPlayersError } from './errors/min-players';
 
-export const VERSION_NUMBER = '0.0.1';
-export const LAST_COMPATIBLE_SAVE_VERSION = '0.0.1';
+/**
+ * The current game version
+ */
+export const VERSION_NUMBER = '0.0.2' as const;
+/**
+ * The lowest version of the game that is compatible with this version of the save game format.
+ */
+export const MINIMUM_COMPATIBLE_SAVE_VERSION = '0.0.2' as const;
 
-export const MIN_PLAYERS = 2;
-export const MAX_PLAYERS = 6;
-export const NO_PLAYER = -1;
-export const NOT_PRESENT = -1;
+export const MIN_PLAYERS = 2 as const;
+export const MAX_PLAYERS = 6 as const;
+export const NO_PLAYER = -1 as const;
+export const NOT_PRESENT = -1 as const;
 // Base Set
-export const STARTING_EXPLORERS = 10;
-export const STARTING_VIPERS = 2;
-export const STARTING_SCOUTS = 8;
+export const STARTING_EXPLORERS = 10 as const;
+export const STARTING_VIPERS = 2 as const;
+export const STARTING_SCOUTS = 8 as const;
 
 // game defaults
-export const DEFAULT_TURN_CARDS = 5;
-export const DEFAULT_FIRST_TURN_CARDS = 3;
-export const DEFAULT_STARTING_AUTHORITY = 50;
+export const DEFAULT_TURN_CARDS = 5 as const;
+export const DEFAULT_FIRST_TURN_CARDS = 3 as const;
+export const DEFAULT_STARTING_AUTHORITY = 50 as const;
 
 /**
  * Default values for the game options.
@@ -35,6 +41,7 @@ export function DefaultGameOptions(): IGameOptions {
     trackCardCounts: true,
     trackCardGains: true,
     trackDiscard: true,
+    trackAssimilation: false,
     startingAuthorityByPlayerIndex: [DEFAULT_STARTING_AUTHORITY, DEFAULT_STARTING_AUTHORITY],
     startingCardsByPlayerIndex: [DEFAULT_TURN_CARDS, DEFAULT_TURN_CARDS],
   });
@@ -71,6 +78,7 @@ export function DefaultTurnDetails(): IPlayerGameTurnDetails {
 export function EmptyAuthorityDetails(): IAuthorityDetails {
   return deepClone<IAuthorityDetails>({
     authority: 0,
+    assimilation: 0,
   });
 }
 
@@ -129,7 +137,6 @@ export function EmptyGameState(): IGame {
     options: DefaultGameOptions(),
     currentTurn: 1,
     currentPlayerIndex: NO_PLAYER,
-    firstPlayerIndex: NO_PLAYER,
     selectedPlayerIndex: NO_PLAYER,
     log: [],
     turnStatisticsCache: [],
@@ -155,6 +162,8 @@ export const AdjustmentActions = [
   // turn actions
   GameLogAction.ADD_AUTHORITY,
   GameLogAction.REMOVE_AUTHORITY,
+  GameLogAction.ADD_ASSIMILATION,
+  GameLogAction.REMOVE_ASSIMILATION,
   GameLogAction.ADD_TRADE,
   GameLogAction.REMOVE_TRADE,
   GameLogAction.ADD_COMBAT,
@@ -176,6 +185,7 @@ export const NegativeAdjustmentActions = [
   // turn actions
   GameLogAction.REMOVE_TRADE,
   GameLogAction.REMOVE_AUTHORITY,
+  GameLogAction.REMOVE_ASSIMILATION,
   GameLogAction.REMOVE_COMBAT,
   GameLogAction.REMOVE_CARDS,
   GameLogAction.REMOVE_GAINS,
@@ -201,29 +211,42 @@ export const ActionsWithOnlyLastActionUndo = [GameLogAction.SELECT_PLAYER, GameL
 /**
  * Actions that cannot be undone.
  */
-export const NoUndoActions = [...NoPlayerActions, GameLogAction.START_GAME];
+export const NoUndoActions = [
+  ...NoPlayerActions,
+  GameLogAction.START_GAME,
+  GameLogAction.BOSS_SKIPPED,
+];
 
 /**
  * State machine transitions for the game steps.
  */
 export const StepTransitions: Record<CurrentStep, CurrentStep> = {
-  [CurrentStep.AddPlayerNames]: CurrentStep.SelectFirstPlayer,
-  [CurrentStep.SelectFirstPlayer]: CurrentStep.SetGameOptions,
+  [CurrentStep.AddPlayerNames]: CurrentStep.SetPlayerOrder,
+  [CurrentStep.SetPlayerOrder]: CurrentStep.SetGameOptions,
   [CurrentStep.SetGameOptions]: CurrentStep.Game,
   [CurrentStep.Game]: CurrentStep.EndGame,
   [CurrentStep.EndGame]: CurrentStep.EndGame,
 };
 
-export const SaveGameStorageKey = '@starrealms_saved_games';
-export const SaveGameStorageKeyPrefix = '@starrealms_game_';
-export const AutoSaveGameSaveName = 'AutoSave';
-export const AutoSaveGameSaveId = 'autosave';
+export const SaveGameStorageKey = '@starrealms_saved_games' as const;
+export const SaveGameStorageKeyPrefix = '@starrealms_game_' as const;
+export const AutoSaveGameSaveName = 'AutoSave' as const;
+export const AutoSaveGameSaveId = 'autosave' as const;
 
+export const BossColor = '#8B0000' as const;
 export const DefaultPlayerColors = [
-  '#e57373',
-  '#64b5f6',
-  '#81c784',
-  '#ffd54f',
-  '#ba68c8',
-  '#4db6ac',
-];
+  '#e57373', // Red
+  '#64b5f6', // Blue
+  '#81c784', // Green
+  '#ffd54f', // Yellow
+  '#ba68c8', // Purple
+  '#4db6ac', // Teal
+] as const;
+export const DefaultPlayerColorsWithBoss = [
+  '#ffb74d', // Orange (replacing red)
+  '#64b5f6', // Blue
+  '#81c784', // Green
+  '#ffd54f', // Yellow
+  '#ba68c8', // Purple
+  '#4db6ac', // Teal
+] as const;

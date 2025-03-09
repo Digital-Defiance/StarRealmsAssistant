@@ -34,6 +34,18 @@ describe('getFieldAndSubfieldFromAction', () => {
     }
   );
 
+  // Test cases for 'assimilation' field
+  it.each([
+    [GameLogAction.ADD_ASSIMILATION, 'authority', 'assimilation'],
+    [GameLogAction.REMOVE_ASSIMILATION, 'authority', 'assimilation'],
+  ])(
+    'should return correct field and subfield for %s',
+    (action, expectedField, expectedSubfield) => {
+      const result = getFieldAndSubfieldFromAction(action);
+      expect(result).toEqual({ field: expectedField, subfield: expectedSubfield });
+    }
+  );
+
   // Test cases for 'newTurn' field
   it.each([
     [GameLogAction.ADD_NEXT_TURN_TRADE, 'newTurn', 'trade'],

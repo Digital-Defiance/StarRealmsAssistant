@@ -85,7 +85,6 @@ describe('loadGame', () => {
   it('should return the loaded game when the game is loaded successfully', () => {
     const saveGameLogId = faker.string.uuid();
     const game: IGame = createMockGame(3, {
-      firstPlayerIndex: 0,
       currentPlayerIndex: 0,
       selectedPlayerIndex: 0,
       log: [

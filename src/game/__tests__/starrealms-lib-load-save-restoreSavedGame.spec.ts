@@ -3,7 +3,7 @@ import { IGameRaw } from '@/game/interfaces/game-raw';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { createMockGameRaw } from '@/__fixtures__/starrealms-lib-fixtures';
-import { LAST_COMPATIBLE_SAVE_VERSION, NO_PLAYER } from '@/game/constants';
+import { MINIMUM_COMPATIBLE_SAVE_VERSION, NO_PLAYER } from '@/game/constants';
 import { faker } from '@faker-js/faker';
 import { EmptyLogError } from '@/game/errors/empty-log';
 import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
@@ -93,8 +93,8 @@ describe('restoreSavedGame', () => {
     expect(mockConsoleError).not.toHaveBeenCalled();
   });
 
-  it('should throw an error if the game version is greater than the last compatible save version', () => {
-    const game = { ...validGameRaw, gameVersion: '0.8.0' };
+  it('should throw an error if the game version is lower than the last compatible save version', () => {
+    const game = { ...validGameRaw, gameVersion: '0.0.1' };
 
     expect(() => restoreSavedGame(game)).toThrow(IncompatibleSaveError);
     expect(mockConsoleError).not.toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe('restoreSavedGame', () => {
   it('should not throw an error if the game version is compatible', () => {
     const game = {
       ...validGameRaw,
-      gameVersion: LAST_COMPATIBLE_SAVE_VERSION,
+      gameVersion: MINIMUM_COMPATIBLE_SAVE_VERSION,
     };
 
     expect(() => restoreSavedGame(game)).not.toThrow();

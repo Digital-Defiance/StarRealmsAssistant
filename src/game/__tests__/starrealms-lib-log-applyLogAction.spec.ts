@@ -138,6 +138,43 @@ describe('applyLogAction', () => {
     expect(result.players[0].authority.authority).toBe(51);
   });
 
+  it('should update player field for ADD_ASSIMILATION', () => {
+    const gameStart = mockGame.log[0].timestamp;
+    const logEntry: ILogEntry = {
+      action: GameLogAction.ADD_ASSIMILATION,
+      playerIndex: 0,
+      count: 2,
+      id: '2',
+      timestamp: new Date(gameStart.getTime() + 1000),
+      gameTime: 1000,
+      currentPlayerIndex: 0,
+      turn: 1,
+    };
+
+    const result = applyLogAction(mockGame, logEntry);
+
+    expect(result.players[0].authority.assimilation).toBe(2); // Default 0 + 2
+  });
+
+  it('should update player field for REMOVE_ASSIMILATION', () => {
+    mockGame.players[0].authority.assimilation = 3;
+    const gameStart = mockGame.log[0].timestamp;
+    const logEntry: ILogEntry = {
+      action: GameLogAction.REMOVE_ASSIMILATION,
+      playerIndex: 0,
+      count: 2,
+      id: '2',
+      timestamp: new Date(gameStart.getTime() + 1000),
+      gameTime: 1000,
+      currentPlayerIndex: 0,
+      turn: 1,
+    };
+
+    const result = applyLogAction(mockGame, logEntry);
+
+    expect(result.players[0].authority.assimilation).toBe(1);
+  });
+
   it('should not allow negative player field/subfield counters', () => {
     const gameStart = mockGame.log[0].timestamp;
     const logEntry: ILogEntry = {

@@ -7,16 +7,12 @@ import { convertGameRawToGame } from '@/game/starrealms-lib-load-save';
 import { IGame } from '@/game/interfaces/game';
 import { IGameRaw } from '@/game/interfaces/game-raw';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { getNextPlayerIndexByIndex } from '../starrealms-lib';
 
-const firstPlayerIndex = 0;
 const numPlayers = 2;
-const nextPlayerIndex = getNextPlayerIndexByIndex(firstPlayerIndex, numPlayers);
 
 const mockGame: IGame = createMockGame(numPlayers, {
-  firstPlayerIndex: firstPlayerIndex,
-  currentPlayerIndex: firstPlayerIndex,
-  selectedPlayerIndex: firstPlayerIndex,
+  currentPlayerIndex: 0,
+  selectedPlayerIndex: 0,
   log: [
     createMockLog({
       id: '1',
@@ -24,8 +20,8 @@ const mockGame: IGame = createMockGame(numPlayers, {
       timestamp: new Date('2023-01-01T00:00:00Z'),
       gameTime: 0,
       count: 3,
-      currentPlayerIndex: firstPlayerIndex,
-      playerIndex: firstPlayerIndex,
+      currentPlayerIndex: 0,
+      playerIndex: 0,
       prevPlayerIndex: -1,
       turn: 1,
       correction: false,
@@ -37,9 +33,9 @@ const mockGame: IGame = createMockGame(numPlayers, {
       timestamp: new Date('2023-01-01T01:00:00Z'),
       gameTime: 60 * 60 * 1000,
       count: 3,
-      currentPlayerIndex: nextPlayerIndex,
-      playerIndex: nextPlayerIndex,
-      prevPlayerIndex: firstPlayerIndex,
+      currentPlayerIndex: 1,
+      playerIndex: 1,
+      prevPlayerIndex: 0,
       turn: 3,
       correction: false,
       linkedActionId: 'ea926061-1113-4760-abc5-56fbe7f3a5ce',
@@ -51,7 +47,6 @@ const mockGame: IGame = createMockGame(numPlayers, {
 const mockGameRaw: IGameRaw = createMockGameRaw(numPlayers, {
   currentPlayerIndex: mockGame.currentPlayerIndex,
   selectedPlayerIndex: mockGame.selectedPlayerIndex,
-  firstPlayerIndex: mockGame.firstPlayerIndex,
   log: [
     {
       ...createMockLog({
@@ -60,8 +55,8 @@ const mockGameRaw: IGameRaw = createMockGameRaw(numPlayers, {
         gameTime: 0,
         turn: 1,
         count: 3,
-        currentPlayerIndex: firstPlayerIndex,
-        playerIndex: firstPlayerIndex,
+        currentPlayerIndex: 0,
+        playerIndex: 0,
         correction: false,
         linkedActionId: '1ab917db-9d17-419f-8b16-3e068d58b85e',
       }),
@@ -74,9 +69,9 @@ const mockGameRaw: IGameRaw = createMockGameRaw(numPlayers, {
         gameTime: 60 * 60 * 1000,
         turn: 3,
         count: 3,
-        currentPlayerIndex: nextPlayerIndex,
-        playerIndex: nextPlayerIndex,
-        prevPlayerIndex: firstPlayerIndex,
+        currentPlayerIndex: 1,
+        playerIndex: 1,
+        prevPlayerIndex: 0,
         correction: false,
         linkedActionId: 'ea926061-1113-4760-abc5-56fbe7f3a5ce',
       }),

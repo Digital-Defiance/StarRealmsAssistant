@@ -2,7 +2,7 @@ import { reconstructGameState } from '@/game/starrealms-lib-undo-helpers';
 import { getNextPlayerIndex, newPlayer, NewGameState } from '@/game/starrealms-lib';
 import { IGame } from '@/game/interfaces/game';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { DefaultTurnDetails, EmptyGameState } from '@/game/constants';
+import { DefaultPlayerColors, DefaultTurnDetails, EmptyGameState } from '@/game/constants';
 import { faker } from '@faker-js/faker';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
@@ -17,11 +17,12 @@ describe('reconstructGameState', () => {
     baseGame = NewGameState(
       {
         ...EmptyGameState(),
-        players: [newPlayer('Player 1', 0), newPlayer('Player 2', 1)],
-        // start with second player
-        firstPlayerIndex: 1,
-        currentPlayerIndex: 1,
-        selectedPlayerIndex: 1,
+        players: [
+          newPlayer('Player 1', false, DefaultPlayerColors[0]),
+          newPlayer('Player 2', false, DefaultPlayerColors[1]),
+        ],
+        currentPlayerIndex: 0,
+        selectedPlayerIndex: 0,
       },
       gameStart
     );
@@ -45,16 +46,16 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogAction.ADD_COMBAT,
-          playerIndex: 0,
+          playerIndex: 1,
           count: 1,
-          currentPlayerIndex: 0,
+          currentPlayerIndex: 1,
           turn: 1,
         } as ILogEntry,
       ],
     };
 
     const result = reconstructGameState(gameWithAction);
-    expect(result.players[0].turn.combat).toBe(1);
+    expect(result.players[1].turn.combat).toBe(1);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
@@ -67,8 +68,8 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogAction.ADD_COMBAT,
-          playerIndex: 0,
-          currentPlayerIndex: 0,
+          playerIndex: 1,
+          currentPlayerIndex: 1,
           turn: 1,
           count: 2,
         } as ILogEntry,
@@ -76,8 +77,8 @@ describe('reconstructGameState', () => {
           id: faker.string.uuid(),
           timestamp: new Date(),
           action: GameLogAction.ADD_TRADE,
-          playerIndex: 1,
-          currentPlayerIndex: 0,
+          playerIndex: 0,
+          currentPlayerIndex: 1,
           turn: 1,
           count: 1,
         } as ILogEntry,
@@ -85,8 +86,8 @@ describe('reconstructGameState', () => {
     };
 
     const result = reconstructGameState(gameWithActions);
-    expect(result.players[0].turn.combat).toBe(2);
-    expect(result.players[1].turn.trade).toBe(1);
+    expect(result.players[1].turn.combat).toBe(2);
+    expect(result.players[0].turn.trade).toBe(1);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
@@ -110,9 +111,33 @@ describe('reconstructGameState', () => {
     };
 
     const result = reconstructGameState(gameWithNextTurn);
-    expect(nextPlayerIndex).toBe(0); // should wrap back to 0
-    expect(result.currentPlayerIndex).toBe(nextPlayerIndex); // should wrap back to 0
+    expect(nextPlayerIndex).toBe(1);
+    expect(result.currentPlayerIndex).toBe(nextPlayerIndex);
     expect(result.currentTurn).toBe(2); // should increment
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+
+    // add one more turn
+    const nextPlayerIndex2 = getNextPlayerIndex(result);
+    const gameWithNextTurn2 = {
+      ...result,
+      log: [
+        ...result.log,
+        {
+          id: faker.string.uuid(),
+          timestamp: new Date(),
+          action: GameLogAction.NEXT_TURN,
+          playerIndex: nextPlayerIndex2,
+          currentPlayerIndex: result.currentPlayerIndex,
+          turn: 3,
+          playerTurnDetails: [{ ...DefaultTurnDetails }, { ...DefaultTurnDetails }],
+          prevPlayerIndex: result.currentPlayerIndex,
+        } as ILogEntry,
+      ],
+    };
+    const result2 = reconstructGameState(gameWithNextTurn2);
+    expect(nextPlayerIndex2).toBe(0); // should wrap back around
+    expect(result2.currentPlayerIndex).toBe(nextPlayerIndex2);
+    expect(result2.currentTurn).toBe(3); // should increment
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 

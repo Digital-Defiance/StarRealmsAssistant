@@ -46,6 +46,16 @@ html,
   width: 80%;
 }
 
+.scoreboard tbody tr th,
+.scoreboard tbody tr td {
+  padding: 8px;
+}
+
+.scoreboard thead tr th,
+.scoreboard thead tr td {
+  padding: 16px;
+}
+
 .player-row {
   display: flex;
   flex-direction: row;

@@ -368,6 +368,41 @@ describe('canUndoAction', () => {
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
+  it('should not allow undoing a linked action if any of the linked actions are NO_UNDO_ACTIONS', () => {
+    const linkedAction = createMockLog({
+      action: GameLogAction.BOSS_SKIPPED,
+      timestamp: new Date(gameStart.getTime() + 1000),
+    });
+    const game = createMockGame(2, {
+      log: [
+        createMockLog({
+          action: GameLogAction.START_GAME,
+          timestamp: gameStart,
+          prevPlayerIndex: 0,
+          currentPlayerIndex: 0,
+        }),
+        linkedAction,
+        createMockLog({
+          action: GameLogAction.NEXT_TURN,
+          count: 1,
+          linkedActionId: linkedAction.id,
+          currentPlayerIndex: 1,
+          prevPlayerIndex: 0,
+          timestamp: new Date(gameStart.getTime() + 2000),
+        }),
+      ],
+    });
+    reconstructGameStateSpy.mockImplementation(() => {
+      // Simulate successful reconstruction
+    });
+
+    expect(undoModule.canUndoAction(game, 1)).toBe(false);
+    expect(undoModule.canUndoAction(game, 2)).toBe(false);
+    expect(removeTargetAndLinkedActionsSpy).not.toHaveBeenCalled();
+    expect(reconstructGameStateSpy).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+  });
+
   it('should handle multiple linked actions correctly', () => {
     const mainActionId = 'main-action';
     const game = createMockGame(2, {

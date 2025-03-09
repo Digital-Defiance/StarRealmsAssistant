@@ -70,6 +70,8 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
       switch (subfield) {
         case 'authority':
           return increment > 0 ? GameLogAction.ADD_AUTHORITY : GameLogAction.REMOVE_AUTHORITY;
+        case 'assimilation':
+          return increment > 0 ? GameLogAction.ADD_ASSIMILATION : GameLogAction.REMOVE_ASSIMILATION;
         default:
           throw new InvalidFieldError(field as string, subfield as string);
       }
@@ -430,6 +432,11 @@ export function addLogEntry(
     }
   } else if (playerIndex > -1) {
     throw new Error('Player index is not relevant for this action');
+  } else if (
+    !game.players[0].boss &&
+    (action === GameLogAction.ADD_ASSIMILATION || action === GameLogAction.REMOVE_ASSIMILATION)
+  ) {
+    throw new Error('Assimilation may only be adjusted on the Boss');
   }
   if (AdjustmentActions.includes(action) && overrides?.count === undefined) {
     throw new CountRequiredError();
@@ -527,7 +534,6 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
 
   if (logEntry.action === GameLogAction.START_GAME) {
     // set first player to the player who started the game
-    updatedGame.firstPlayerIndex = logEntry.playerIndex;
     updatedGame.selectedPlayerIndex = logEntry.playerIndex;
     updatedGame.currentStep = CurrentStep.Game;
     updatedGame.currentTurn = 1;

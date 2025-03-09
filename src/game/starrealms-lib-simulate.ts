@@ -17,6 +17,7 @@ export function generateLargeGame(turns = 50, endGame = true): IGame {
       trackCardCounts: true,
       trackCardGains: true,
       trackDiscard: true,
+      trackAssimilation: false,
       startingAuthorityByPlayerIndex: [50, 50],
       startingCardsByPlayerIndex: [5, 5],
     },

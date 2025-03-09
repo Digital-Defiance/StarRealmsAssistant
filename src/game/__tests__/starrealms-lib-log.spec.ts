@@ -335,7 +335,6 @@ describe('getPlayerForTurn', () => {
 
   beforeEach(() => {
     gameState = createMockGame(2, {
-      firstPlayerIndex: 0,
       currentPlayerIndex: 0,
       selectedPlayerIndex: 0,
       log: [createMockLog({ action: GameLogAction.START_GAME, turn: 1, playerIndex: 0 })],
@@ -534,7 +533,6 @@ describe('getPlayerNextTurnCount', () => {
     mockGame = createMockGame(3, {
       currentTurn: 5,
       currentPlayerIndex: 1,
-      firstPlayerIndex: 0,
       log: [
         createMockLog({
           action: GameLogAction.START_GAME,

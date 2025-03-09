@@ -1,7 +1,7 @@
 import { IPlayer } from '@/game/interfaces/player';
 
 export type TurnField = 'trade' | 'combat' | 'cards' | 'gains' | 'discard' | 'scrap';
-export type AuthorityField = 'authority';
+export type AuthorityField = 'authority' | 'assimilation';
 
 export interface PlayerFieldMap {
   turn: TurnField;
