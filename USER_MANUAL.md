@@ -1,8 +1,8 @@
-# Unofficial Dominion Assistant User Manual
+# Unofficial Star Realms Assistant User Manual
 
 ## Overview
 
-This tool is designed to enhance your Dominion game experience by assisting with player setup, resource management, and score tracking. The assistant complements the physical Dominion game and offers additional tracking and automation features for smoother gameplay.
+This tool is designed to enhance your Star Realms game experience by assisting with player setup, resource management, and score tracking. The assistant complements the physical Star Realms game and offers additional tracking and automation features for smoother gameplay.
 
 ---
 
@@ -13,32 +13,24 @@ This tool is designed to enhance your Dominion game experience by assisting with
 1. Add 2-6 players:
    - Enter each player's name in the input field.
    - Click **Add Player** for each entry.
+   - Add players in the order you would like them to play in, but you will have an opportunity to randomly shuffle the order later.
 2. Customize player colors (optional):
    - Click the color box next to each player’s name to select a color.
-3. Remove players as needed by clicking **Remove**.
+3. Remove players as needed by clicking the trash can icon next to the name.
 4. Click **Next** when you’re ready to proceed.
 
-### Step 2: First Player Selection
+### Step 2: Player Order
 
-1. Select the starting player from the player list.
-2. (Optional) Click **Random Selection** to pick a starting player at random.
-3. Click **Next** to move to game options.
+1. At your option, click the shuffle icon to shuffle the player order. A "Boss" player will stay at the top, regardless of the shuffle order.
+2. Click **Next** to move to game options.
 
 ### Step 3: Configure Game Options
 
 1. Set your desired game settings:
 
-   - **Curses**: Enabled by default.
-
+   - Edit player starting authorities (for command deck, etc) and starting card counts
    - **Track Card Counts** and **Track Card Gains**: Optional settings to monitor the supply and acquisitions of cards.
 
-   - Expansions and Mats
-
-     :
-
-     - **Prosperity**: Adds Colonies and Platinum cards.
-     - **Renaissance**: Enables Coffers and Villagers.
-     - **Rising Sun**: Enables Prophecy tokens.
 
 2. Click **Start Game** to begin the game.
 
@@ -82,13 +74,12 @@ This tool is designed to enhance your Dominion game experience by assisting with
 
 ### Next Turn Effects
 
-To manage effects that trigger on your next turn:
+To manage effects that trigger on your next (and future) turn:
 
 1. Click the ⚙️ (gear) icon in your player panel.
 2. In the "Next Turn" popover:
-   - **Barracks**: Add +1 to "Actions".
-   - **Flag Bearer**: Add +1 to "Cards".
-3. These adjustments will automatically apply at the start of your next turn.
+   - Add +1/-1 to Trade, Combat, or Authority.
+3. These adjustments will automatically apply at the start of your next and successive turns. If an effect is desired only for one turn, you'll want to go back into this setting on your next turn and decrease the count again.
 
 ### Authority Tracking
 
@@ -127,4 +118,4 @@ The tool automatically tracks and displays statistics, including:
 3. View the final scores and game statistics.
 4. Optionally, start a new game by returning to the setup phase.
 
-**Note**: This tool is an unofficial companion to the physical Dominion game. While it supports many expansions, not all are directly implemented; manual adjustments can be used to account for unsupported features.
+**Note**: This tool is an unofficial companion to the physical Star Realms game. While it many features, not all expansions, etc are directly implemented; manual adjustments can generally be used to account for unsupported features.
