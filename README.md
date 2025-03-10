@@ -210,6 +210,13 @@ Join our community of developers.
 
 ## Changelog
 
-### Wed Mar 05 14:37:00 2024
+### Wed Mar 05 14:37:00 2025
 
 - **Initial Commit**: Brought over from dominion assistant.
+
+### Sun Mar 9 10:08:24 2025
+
+- **BOSS MODE**: Added new Boss Mode
+  - Improved player addition screen validation/flow
+  - Improved set player order screen, redid shuffling algorithm and added message when shuffling results in no changes
+  - Added new Boss mode, options for how many turns the boss waits before starting, assimilation tracking for the boss
