@@ -437,3 +437,30 @@ export function getFirstBossTurn(gameState: IGame): number {
    */
   return gameState.players.length * (gameState.options.bossStartTurn ?? 0) + 1;
 }
+
+// Fisher-Yates shuffle algorithm
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+export function shuffleArray<T extends unknown>(array: T[]): { shuffled: T[]; changed: boolean } {
+  // Create a copy of the original array for comparison
+  const original = [...array];
+
+  // Create another copy for shuffling
+  const shuffled = [...array];
+
+  // Fisher-Yates shuffle algorithm
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  // Compare with the original copy to check if anything changed
+  let changed = false;
+  for (let i = 0; i < shuffled.length; i++) {
+    if (shuffled[i] !== original[i]) {
+      changed = true;
+      break;
+    }
+  }
+
+  return { shuffled, changed };
+}

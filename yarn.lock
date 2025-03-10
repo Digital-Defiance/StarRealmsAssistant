@@ -3237,13 +3237,6 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@types/yup@^0.32.0":
-  version "0.32.0"
-  resolved "https://registry.yarnpkg.com/@types/yup/-/yup-0.32.0.tgz#2a19c3bbbb3aed1bd755204f83e800f9c95f249a"
-  integrity sha512-Gr2lllWTDxGVYHgWfL8szjdedERpNgm44L9BDL2cmcHG7Bfd6taEpiW3ayMFLaYvlJr/6bFXDJdh6L406AGlFg==
-  dependencies:
-    yup "*"
-
 "@typescript-eslint/eslint-plugin@8.9.0":
   version "8.9.0"
   resolved "https://registry.yarnpkg.com/@typescript-eslint/eslint-plugin/-/eslint-plugin-8.9.0.tgz#bf0b25305b0bf014b4b194a6919103d7ac2a7907"
@@ -11405,7 +11398,7 @@ yocto-queue@^1.0.0:
   resolved "https://registry.yarnpkg.com/yocto-queue/-/yocto-queue-1.1.1.tgz#fef65ce3ac9f8a32ceac5a634f74e17e5b232110"
   integrity sha512-b4JR1PFR10y1mKjhHY9LaGo6tmrgjit7hxVIeAmyMw3jegXR4dhYqLaQF5zMXZxY7tLpMyJeLjr1C4rLmkVe8g==
 
-yup@*, yup@^1.6.1:
+yup@^1.6.1:
   version "1.6.1"
   resolved "https://registry.yarnpkg.com/yup/-/yup-1.6.1.tgz#8defcff9daaf9feac178029c0e13b616563ada4b"
   integrity sha512-JED8pB50qbA4FOkDol0bYF/p60qSEDQqBD0/qeIrUCG1KbPBIQ776fCUNb9ldbPcSTxA69g/47XTo4TqWiuXOA==

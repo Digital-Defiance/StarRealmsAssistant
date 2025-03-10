@@ -220,3 +220,7 @@ Join our community of developers.
   - Improved player addition screen validation/flow
   - Improved set player order screen, redid shuffling algorithm and added message when shuffling results in no changes
   - Added new Boss mode, options for how many turns the boss waits before starting, assimilation tracking for the boss
+
+### Mon Mar 10 03:42:00 2025
+
+- **Tweak**: Fixed shuffle order detection bug in set player order page

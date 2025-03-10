@@ -18,6 +18,7 @@ import SuperCapsText from '@/components/SuperCapsText';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
 import { IPlayer } from '@/game/interfaces/player';
+import { shuffleArray } from '@/game/starrealms-lib';
 
 interface SetPlayerOrderProps {
   nextStep: () => void;
@@ -27,24 +28,6 @@ interface PlayerMapping {
   player: IPlayer;
   originalIndex: number;
 }
-
-// Fisher-Yates shuffle algorithm
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-const shuffleArray = <T extends unknown>(array: T[]): { shuffled: T[]; changed: boolean } => {
-  let changed = false;
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  for (let i = 0; i < shuffled.length; i++) {
-    if (shuffled[i] !== array[i]) {
-      changed = true;
-      break;
-    }
-  }
-  return { shuffled, changed };
-};
 
 const SetPlayerOrder: FC<SetPlayerOrderProps> = ({ nextStep }) => {
   const { gameState, setGameState } = useGameContext();
@@ -88,7 +71,8 @@ const SetPlayerOrder: FC<SetPlayerOrderProps> = ({ nextStep }) => {
         newGame.players = playerMappings.map((mapping) => mapping.player);
       } else {
         // Shuffle all players if no boss
-        const { shuffled } = shuffleArray(playerMappings);
+        const { shuffled, changed } = shuffleArray(playerMappings);
+        setShuffleChanged(changed);
         newGame.players = shuffled.map((mapping) => mapping.player);
       }
 
