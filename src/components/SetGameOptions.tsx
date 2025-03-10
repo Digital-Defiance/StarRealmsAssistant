@@ -202,9 +202,7 @@ const SetGameOptions: FC<SetGameOptionsProps> = ({ startGame }) => {
                           min: 0,
                         } as FilledInputProps,
                       }}
-                      value={
-                        values.startingAuthorityByPlayerIndex[index] ?? DEFAULT_STARTING_AUTHORITY
-                      }
+                      value={values.startingCardsByPlayerIndex[index] ?? DEFAULT_TURN_CARDS}
                       onChange={handleChange}
                       error={Boolean(
                         Array.isArray(touched.startingCardsByPlayerIndex) &&
