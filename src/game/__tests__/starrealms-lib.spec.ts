@@ -6,7 +6,7 @@ import {
   NOT_PRESENT,
   DefaultGameOptions,
 } from '@/game/constants';
-import { getFirstBossTurn, hasBoss, shuffleArray } from '../starrealms-lib';
+import { getFirstBossTurn, getPlayerLabel, hasBoss, shuffleArray } from '../starrealms-lib';
 import { IPlayer } from '../interfaces/player';
 import { createMockGame, createMockPlayer } from '@/__fixtures__/starrealms-lib-fixtures';
 
@@ -248,5 +248,76 @@ describe('shuffleArray', () => {
       expect(result.shuffled).toHaveLength(6);
       expect(result.shuffled.sort()).toEqual([1, 1, 2, 2, 3, 3]);
     });
+  });
+});
+
+describe('getPlayerLabel', () => {
+  // Sample players array for testing
+  const testPlayers: IPlayer[] = [
+    createMockPlayer(0, { name: 'Alice' }),
+    createMockPlayer(1, { name: 'Bob' }),
+    createMockPlayer(2, { name: '...Charlie' }),
+    createMockPlayer(3, { name: ' Dave' }),
+    createMockPlayer(4, { name: '' }),
+    createMockPlayer(5, { name: '   ' }),
+    createMockPlayer(6, { name: '🎮Player' }),
+    createMockPlayer(7, { name: '\u200BErin' }), // Zero-width space followed by Erin
+    createMockPlayer(8, { name: null as unknown as string }),
+    createMockPlayer(9, { name: undefined }),
+    createMockPlayer(10, { name: '…Charlie' }),
+  ];
+
+  test('returns first letter of name for normal names', () => {
+    expect(getPlayerLabel(testPlayers, 0)).toBe('A');
+    expect(getPlayerLabel(testPlayers, 1)).toBe('B');
+  });
+
+  test('skips non-printable characters at the beginning of name', () => {
+    expect(getPlayerLabel(testPlayers, 2)).toBe('.'); // . is renderable
+    expect(getPlayerLabel(testPlayers, 3)).toBe('D'); // Skips space
+    expect(getPlayerLabel(testPlayers, 7)).toBe('E'); // Skips zero-width space
+    expect(getPlayerLabel(testPlayers, 10)).toBe('C'); // Skips ellipsis
+  });
+
+  test('returns player number for names with no printable characters', () => {
+    expect(getPlayerLabel(testPlayers, 4)).toBe('5'); // Empty string
+    expect(getPlayerLabel(testPlayers, 5)).toBe('6'); // Only spaces
+  });
+
+  test('returns player number for invalid player objects', () => {
+    expect(getPlayerLabel(testPlayers, 8)).toBe('9'); // name is null
+    expect(getPlayerLabel(testPlayers, 9)).toBe('10'); // name is undefined
+  });
+
+  test('returns player number for emoji and special character names', () => {
+    expect(getPlayerLabel(testPlayers, 6)).toBe('P'); // Skips emoji, returns 'P'
+  });
+
+  test('handles edge cases with invalid inputs', () => {
+    // Invalid players array
+    expect(getPlayerLabel(null as unknown as IPlayer[], 0)).toBe('1');
+    expect(getPlayerLabel(undefined as unknown as IPlayer[], 0)).toBe('1');
+    expect(getPlayerLabel({} as unknown as IPlayer[], 0)).toBe('1');
+    expect(getPlayerLabel('not an array' as unknown as IPlayer[], 0)).toBe('1');
+
+    // Invalid player index
+    expect(getPlayerLabel(testPlayers, -1)).toBe('0');
+    expect(getPlayerLabel(testPlayers, 999)).toBe('1000');
+    expect(getPlayerLabel(testPlayers, null as unknown as number)).toBe('1');
+    expect(getPlayerLabel(testPlayers, undefined as unknown as number)).toBe('NaN');
+  });
+
+  test('handles special character names', () => {
+    const specialCharPlayers: IPlayer[] = [
+      createMockPlayer(0, { name: '@User1' }),
+      createMockPlayer(1, { name: '#HashTag' }),
+      createMockPlayer(2, { name: '$Money' }),
+      createMockPlayer(3, { name: '%Percent' }),
+    ];
+
+    expect(getPlayerLabel(specialCharPlayers, 0)).toBe('@');
+    expect(getPlayerLabel(specialCharPlayers, 1)).toBe('#');
+    expect(getPlayerLabel(specialCharPlayers, 2)).toBe('$');
+    expect(getPlayerLabel(specialCharPlayers, 3)).toBe('%');
   });
 });

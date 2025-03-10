@@ -20,7 +20,9 @@ const GameClock = () => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => { clearInterval(interval); };
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   const gameTime = calculateDurationUpToEvent(gameState.log, currentTime);
@@ -47,6 +49,9 @@ const GameClock = () => {
         borderRadius: '8px',
       }}
     >
+      <Typography sx={{ fontFamily: 'Handel Gothic ITC Pro', fontSize: '1rem', color: 'white' }}>
+        Turn: {gameState.currentTurn}
+      </Typography>
       <Typography sx={{ fontFamily: 'Handel Gothic ITC Pro', fontSize: '1rem', color: 'white' }}>
         Game Time: {formatTimeSpan(gameTime)}
       </Typography>

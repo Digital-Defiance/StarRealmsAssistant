@@ -35,6 +35,7 @@ import { deepClone } from '@/game/utils';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
 import FloatingCounter from '@/components/FloatingCounter';
 import ForwardRefBox from '@/components/ForwardRefBox';
+import { PlayerBar } from './PlayerBar';
 
 interface GameInterfaceProps {
   nextTurn: () => void;
@@ -102,7 +103,9 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
 
     handleResize(); // Initial calculation
     window.addEventListener('resize', handleResize);
-    return () => { window.removeEventListener('resize', handleResize); };
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   const handleOpenConfirmEndGameDialog = () => {
@@ -165,9 +168,10 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           paddingBottom: '70px', // fab icons height
         }}
       >
-        <Scoreboard />
+        <PlayerBar />
         <Tabs value={tabValue} onChange={handleTabChange} sx={{ mt: 2 }}>
           <Tab label="Player" />
+          <Tab label="Scoreboard" />
           <Tab label="Adjustments" />
           <Tab label="Supply" />
         </Tabs>
@@ -183,8 +187,9 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
           }}
         >
           {tabValue === 0 && <Player containerHeight={containerHeight} />}
-          {tabValue === 1 && <TurnAdjustmentsSummary containerHeight={containerHeight} />}
-          {tabValue === 2 && <SupplyCounts containerHeight={containerHeight} />}
+          {tabValue === 1 && <Scoreboard />}
+          {tabValue === 2 && <TurnAdjustmentsSummary containerHeight={containerHeight} />}
+          {tabValue === 3 && <SupplyCounts containerHeight={containerHeight} />}
         </ForwardRefBox>
       </Container>
       <FabContainer>

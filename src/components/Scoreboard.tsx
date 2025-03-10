@@ -19,6 +19,8 @@ import { addLogEntry } from '@/game/starrealms-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
+import { PlayerChip } from './PlayerChip';
+import { getPlayerLabel } from '@/game/starrealms-lib';
 
 const TableText = styled(Typography)(() => ({
   fontFamily: 'Handel Gothic ITC Pro',
@@ -66,18 +68,19 @@ const Scoreboard: FC = () => {
           <TableHead>
             <TableRow>
               <TableCell>
-                <TableText className={`typography-text`}>Badge</TableText>
-              </TableCell>
-              <TableCell>
-                <TableText className={`typography-text`}>Player</TableText>
-              </TableCell>
-              <TableCell>
-                <TableText className={`typography-text`} align="right">
-                  Authority
+                <TableText className={`typography-text`} align="center">
+                  Badge
                 </TableText>
               </TableCell>
-              <TableCell align="right">
-                <TableText className={`typography-text`}>Turn: {gameState.currentTurn}</TableText>
+              <TableCell>
+                <TableText className={`typography-text`} align="left">
+                  Player
+                </TableText>
+              </TableCell>
+              <TableCell>
+                <TableText className={`typography-text`} align="center">
+                  Authority
+                </TableText>
               </TableCell>
             </TableRow>
           </TableHead>
@@ -91,7 +94,7 @@ const Scoreboard: FC = () => {
                   '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
                 }}
               >
-                <TableCell>
+                <TableCell align="center">
                   <Tooltip
                     title={
                       index === gameState.currentPlayerIndex
@@ -99,37 +102,26 @@ const Scoreboard: FC = () => {
                         : ''
                     }
                   >
-                    <Chip
-                      label={player.name.charAt(0).toUpperCase()}
+                    <PlayerChip
+                      label={getPlayerLabel(gameState.players, index)}
                       size="small"
                       style={{
                         backgroundColor: player.color,
                         color: 'white',
                         fontWeight: index === gameState.currentPlayerIndex ? 'bold' : 'normal',
                         border: index === gameState.currentPlayerIndex ? '2px solid #000' : 'none',
+                        minWidth: '30px',
                       }}
                     />
                   </Tooltip>
                 </TableCell>
-                <TableCell component="th" scope="row">
+                <TableCell component="th" scope="row" align="left">
                   <SuperCapsText className={`typography-text`}>{player.name}</SuperCapsText>
                 </TableCell>
-                <TableCell align="right">
+                <TableCell align="center">
                   <TableScore className={`typography-title`}>
                     {player.authority.authority}
                   </TableScore>
-                </TableCell>
-                <TableCell align="right">
-                  <StyledButton
-                    variant="contained"
-                    size="small"
-                    onClick={() => {
-                      handlePlayerSelect(index);
-                    }}
-                    disabled={isGamePaused()}
-                  >
-                    <TableText className={`typography-text`}>Select</TableText>
-                  </StyledButton>
                 </TableCell>
               </TableRow>
             ))}

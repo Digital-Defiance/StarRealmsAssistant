@@ -16,7 +16,7 @@ import { styled } from '@mui/system';
 import { useGameContext } from '@/components/GameContext';
 import SuperCapsText from '@/components/SuperCapsText';
 import IncrementDecrementControl from '@/components/IncrementDecrementControl';
-import { updatePlayerField } from '@/game/starrealms-lib';
+import { getPlayerLabel, updatePlayerField } from '@/game/starrealms-lib';
 import {
   addLogEntry,
   checkPlayerEliminationAndGameEnd,
@@ -29,6 +29,7 @@ import { useAlert } from '@/components/AlertContext';
 import '@/styles.scss';
 import { IGame } from '@/game/interfaces/game';
 import { deepClone } from '@/game/utils';
+import { PlayerChip } from './PlayerChip';
 
 const OuterContainer = styled(Box)(({ theme }) => ({
   paddingBottom: theme.spacing(8), // Ensure enough space at the bottom
@@ -213,8 +214,8 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                     : `${player.name} is not the current player`
                 }
               >
-                <Chip
-                  label={player.name.charAt(0).toUpperCase()}
+                <PlayerChip
+                  label={getPlayerLabel(gameState.players, gameState.selectedPlayerIndex)}
                   size="small"
                   style={{
                     backgroundColor: player.color,
@@ -222,6 +223,7 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                     fontWeight: isCurrentPlayer ? 'bold' : 'normal',
                     border: isCurrentPlayer ? '2px solid #000' : 'none',
                     marginRight: '8px',
+                    minWidth: '30px',
                   }}
                 />
               </Tooltip>

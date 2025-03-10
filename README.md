@@ -210,9 +210,13 @@ Join our community of developers.
 
 ## Changelog
 
-### Wed Mar 05 14:37:00 2025
+### Mon Mar 10 05:50:00 2025
 
-- **Initial Commit**: Brought over from dominion assistant.
+- **v0.0.3**: New Player Bar and moved scoreboard to tab to increase viewable space
+
+### Mon Mar 10 03:42:00 2025
+
+- **Tweak**: Fixed shuffle order detection bug in set player order page
 
 ### Sun Mar 9 10:08:24 2025
 
@@ -221,6 +225,6 @@ Join our community of developers.
   - Improved set player order screen, redid shuffling algorithm and added message when shuffling results in no changes
   - Added new Boss mode, options for how many turns the boss waits before starting, assimilation tracking for the boss
 
-### Mon Mar 10 03:42:00 2025
+### Wed Mar 05 14:37:00 2025
 
-- **Tweak**: Fixed shuffle order detection bug in set player order page
+- **Initial Commit**: Brought over from dominion assistant.

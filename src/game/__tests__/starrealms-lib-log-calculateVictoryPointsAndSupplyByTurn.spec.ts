@@ -15,7 +15,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
     initialSupply = deepClone<IGameSupply>(game.supply);
   });
 
-  it('should update victory points and reduce supply for victory cards', () => {
+  it('should update authority and reduce supply for victory cards', () => {
     const gameStart = game.log[0].timestamp;
     game.log.push(
       {
@@ -88,7 +88,7 @@ describe('calculateVictoryPointsAndSupplyByTurn', () => {
     ]);
   });
 
-  it('should calculate victory points correctly with multiple actions', () => {
+  it('should calculate authority correctly with multiple actions', () => {
     const gameStart = game.log[0].timestamp;
     game.log.push(
       {

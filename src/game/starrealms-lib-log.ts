@@ -613,7 +613,7 @@ export function getSignedCount(log: ILogEntry, defaultValue = 0): number {
 }
 
 /**
- * Calculate victory points and supply by turn for graphing.
+ * Calculate Authority and supply by turn for graphing.
  * @param game - The game object containing log entries, players, and supply
  * @returns An array of victory and supply data by turn for graphing
  */

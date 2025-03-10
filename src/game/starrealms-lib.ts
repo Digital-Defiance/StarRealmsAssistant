@@ -464,3 +464,37 @@ export function shuffleArray<T extends unknown>(array: T[]): { shuffled: T[]; ch
 
   return { shuffled, changed };
 }
+
+/**
+ * Gets the first printable character from a player's name or their player number as fallback
+ * @param {Array} players - Array of player objects
+ * @param {number} playerIndex - Index of the current player in the array
+ * @returns {string} - First printable character or player number (index + 1)
+ */
+export function getPlayerLabel(players: IPlayer[], playerIndex: number) {
+  // Return player number if index is invalid
+  if (!players || !Array.isArray(players) || playerIndex < 0 || playerIndex >= players.length) {
+    return String(playerIndex + 1);
+  }
+
+  const player = players[playerIndex];
+
+  // Check if player or player.name is valid
+  if (!player || !player.name || typeof player.name !== 'string') {
+    return String(playerIndex + 1);
+  }
+
+  // Loop through name characters to find first printable one
+  for (let i = 0; i < player.name.length; i++) {
+    const char = player.name.charAt(i);
+
+    // Check if character is a printable ASCII character
+    // This regex matches alphanumeric characters and common printable symbols
+    if (/^[A-Za-z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]$/.test(char)) {
+      return char.toUpperCase();
+    }
+  }
+
+  // Fallback to player number if no printable characters found
+  return String(playerIndex + 1);
+}
