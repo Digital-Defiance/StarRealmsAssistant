@@ -11,6 +11,7 @@ import {
   getAverageActionsPerTurn,
   getPlayerNextTurnCount,
   getMasterActionId,
+  groupTurnAdjustmentsByPlayer,
 } from '@/game/starrealms-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { EmptyLogError } from '@/game/errors/empty-log';
@@ -202,7 +203,7 @@ describe('getTurnAdjustments', () => {
     mockGame.log.push(logEntry);
 
     const expectedAdjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'trade', increment: 3 },
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
     ];
 
     const result = getTurnAdjustments(mockGame);
@@ -212,17 +213,17 @@ describe('getTurnAdjustments', () => {
   it('should find adjustments for the correct turn', () => {
     const log: ILogEntry[] = [
       createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
-      createMockLog({ turn: 1, action: GameLogAction.ADD_TRADE, count: 3 }),
-      createMockLog({ turn: 2, action: GameLogAction.NEXT_TURN }),
-      createMockLog({ turn: 2, action: GameLogAction.ADD_TRADE, count: 2 }),
-      createMockLog({ turn: 3, action: GameLogAction.NEXT_TURN }),
-      createMockLog({ turn: 3, action: GameLogAction.ADD_COMBAT, count: 2 }),
+      createMockLog({ turn: 1, action: GameLogAction.ADD_TRADE, count: 3, playerIndex: 0 }),
+      createMockLog({ turn: 2, action: GameLogAction.NEXT_TURN, playerIndex: 1 }),
+      createMockLog({ turn: 2, action: GameLogAction.ADD_TRADE, count: 2, playerIndex: 0 }),
+      createMockLog({ turn: 3, action: GameLogAction.NEXT_TURN, playerIndex: 0 }),
+      createMockLog({ turn: 3, action: GameLogAction.ADD_COMBAT, count: 2, playerIndex: 0 }),
     ];
     mockGame.log.push(...log);
     mockGame.currentTurn = 3;
 
     const result = getTurnAdjustments(mockGame, 2);
-    expect(result).toEqual([{ field: 'turn', subfield: 'trade', increment: 2 }]);
+    expect(result).toEqual([{ field: 'turn', subfield: 'trade', increment: 2, playerIndex: 0 }]);
   });
 
   it('should handle edge cases correctly', () => {
@@ -239,7 +240,7 @@ describe('getTurnAdjustments', () => {
     mockGame.log.push(logEntry);
 
     const expectedAdjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'combat', increment: 0 },
+      { field: 'turn', subfield: 'combat', increment: 0, playerIndex: 0 },
     ];
 
     const result = getTurnAdjustments(mockGame);
@@ -273,14 +274,14 @@ describe('getTurnAdjustments', () => {
 describe('groupTurnAdjustments', () => {
   it('should group adjustments by field and subfield correctly', () => {
     const adjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'trade', increment: 3 },
-      { field: 'turn', subfield: 'trade', increment: 2 },
-      { field: 'turn', subfield: 'combat', increment: 1 },
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: 2, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 1, playerIndex: 0 },
     ];
 
     const expectedGroupedAdjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'trade', increment: 5 },
-      { field: 'turn', subfield: 'combat', increment: 1 },
+      { field: 'turn', subfield: 'trade', increment: 5, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 1, playerIndex: 0 },
     ];
 
     const result = groupTurnAdjustments(adjustments);
@@ -298,15 +299,15 @@ describe('groupTurnAdjustments', () => {
 
   it('should handle adjustments with subfields correctly', () => {
     const adjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'trade', increment: 3 },
-      { field: 'turn', subfield: 'trade', increment: 2 },
-      { field: 'turn', subfield: 'trade', increment: 1 },
-      { field: 'turn', subfield: 'combat', increment: 1 },
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: 2, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: 1, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 1, playerIndex: 0 },
     ];
 
     const expectedGroupedAdjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'trade', increment: 6 },
-      { field: 'turn', subfield: 'combat', increment: 1 },
+      { field: 'turn', subfield: 'trade', increment: 6, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 1, playerIndex: 0 },
     ];
 
     const result = groupTurnAdjustments(adjustments);
@@ -315,14 +316,14 @@ describe('groupTurnAdjustments', () => {
 
   it('should handle negative increments correctly', () => {
     const adjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'trade', increment: 3 },
-      { field: 'turn', subfield: 'trade', increment: -1 },
-      { field: 'turn', subfield: 'combat', increment: 2 },
-      { field: 'turn', subfield: 'combat', increment: -2 },
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: -1, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 2, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: -2, playerIndex: 0 },
     ];
 
     const expectedGroupedAdjustments: ITurnAdjustment[] = [
-      { field: 'turn', subfield: 'trade', increment: 2 },
+      { field: 'turn', subfield: 'trade', increment: 2, playerIndex: 0 },
     ];
 
     const result = groupTurnAdjustments(adjustments);
@@ -669,5 +670,171 @@ describe('getMasterActionId', () => {
     });
     const result = getMasterActionId(logEntry);
     expect(result).toBe('2');
+  });
+});
+describe('groupTurnAdjustmentsByPlayer', () => {
+  it('should return an empty map for an empty adjustments array', () => {
+    const adjustments: ITurnAdjustment[] = [];
+    const result = groupTurnAdjustmentsByPlayer(adjustments);
+    expect(result.size).toBe(0);
+  });
+
+  it('should group adjustments by player correctly', () => {
+    const adjustments: ITurnAdjustment[] = [
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 1 },
+      { field: 'turn', subfield: 'combat', increment: 1, playerIndex: 0 },
+      { field: 'authority', subfield: 'authority', increment: 5, playerIndex: 1 },
+    ];
+
+    const result = groupTurnAdjustmentsByPlayer(adjustments);
+    expect(result.size).toBe(2);
+    expect(result.get(0)?.length).toBe(2);
+    expect(result.get(1)?.length).toBe(2);
+
+    // Check player 0's adjustments
+    const player0Adjustments = result.get(0);
+    expect(player0Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'trade',
+      increment: 3,
+      playerIndex: 0,
+    });
+    expect(player0Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'combat',
+      increment: 1,
+      playerIndex: 0,
+    });
+
+    // Check player 1's adjustments
+    const player1Adjustments = result.get(1);
+    expect(player1Adjustments).toContainEqual({
+      field: 'authority',
+      subfield: 'authority',
+      increment: 5,
+      playerIndex: 1,
+    });
+    expect(player1Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'trade',
+      increment: 3,
+      playerIndex: 1,
+    });
+  });
+
+  it('should merge adjustments with the same field and subfield for each player', () => {
+    const adjustments: ITurnAdjustment[] = [
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: 2, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: 2, playerIndex: 1 },
+      { field: 'turn', subfield: 'combat', increment: 1, playerIndex: 0 },
+      { field: 'authority', subfield: 'authority', increment: 5, playerIndex: 1 },
+      { field: 'authority', subfield: 'authority', increment: -2, playerIndex: 1 },
+    ];
+
+    const result = groupTurnAdjustmentsByPlayer(adjustments);
+    expect(result.size).toBe(2);
+
+    // Check player 0's adjustments
+    const player0Adjustments = result.get(0);
+    expect(player0Adjustments?.length).toBe(2);
+    expect(player0Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'trade',
+      increment: 5,
+      playerIndex: 0,
+    });
+    expect(player0Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'combat',
+      increment: 1,
+      playerIndex: 0,
+    });
+
+    // Check player 1's adjustments
+    const player1Adjustments = result.get(1);
+    expect(player1Adjustments?.length).toBe(2);
+    expect(player1Adjustments).toContainEqual({
+      field: 'authority',
+      subfield: 'authority',
+      increment: 3,
+      playerIndex: 1,
+    });
+    expect(player1Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'trade',
+      increment: 2,
+      playerIndex: 1,
+    });
+  });
+
+  it('should filter out adjustments with zero net increment', () => {
+    const adjustments: ITurnAdjustment[] = [
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
+      { field: 'turn', subfield: 'trade', increment: -3, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 2, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 0, playerIndex: 1 },
+    ];
+
+    const result = groupTurnAdjustmentsByPlayer(adjustments);
+    expect(result.size).toBe(1); // Player 1 has no non-zero adjustments
+
+    // Check player 0's adjustments
+    const player0Adjustments = result.get(0);
+    expect(player0Adjustments?.length).toBe(1); // Only 'combat' should remain
+    expect(player0Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'combat',
+      increment: 2,
+      playerIndex: 0,
+    });
+
+    // Player 1 should not have any entries as all are zero
+    expect(result.has(1)).toBe(false);
+  });
+
+  it('should handle various fields and subfields correctly', () => {
+    const adjustments: ITurnAdjustment[] = [
+      { field: 'turn', subfield: 'trade', increment: 3, playerIndex: 0 },
+      { field: 'turn', subfield: 'combat', increment: 2, playerIndex: 0 },
+      { field: 'authority', subfield: 'authority', increment: 5, playerIndex: 1 },
+      { field: 'turn', subfield: 'combat', increment: 1, playerIndex: 1 },
+    ];
+
+    const result = groupTurnAdjustmentsByPlayer(adjustments);
+    expect(result.size).toBe(2);
+
+    // Check player 0's adjustments
+    const player0Adjustments = result.get(0);
+    expect(player0Adjustments?.length).toBe(2);
+    expect(player0Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'trade',
+      increment: 3,
+      playerIndex: 0,
+    });
+    expect(player0Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'combat',
+      increment: 2,
+      playerIndex: 0,
+    });
+
+    // Check player 1's adjustments
+    const player1Adjustments = result.get(1);
+    expect(player1Adjustments?.length).toBe(2);
+    expect(player1Adjustments).toContainEqual({
+      field: 'authority',
+      subfield: 'authority',
+      increment: 5,
+      playerIndex: 1,
+    });
+    expect(player1Adjustments).toContainEqual({
+      field: 'turn',
+      subfield: 'combat',
+      increment: 1,
+      playerIndex: 1,
+    });
   });
 });

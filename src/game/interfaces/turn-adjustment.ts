@@ -4,4 +4,5 @@ export interface ITurnAdjustment {
   field: PlayerField | null;
   subfield: PlayerSubFields | null;
   increment: number;
+  playerIndex: number;
 }

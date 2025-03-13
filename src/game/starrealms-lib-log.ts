@@ -777,8 +777,44 @@ export function getTurnAdjustments(game: IGame, turn?: number): Array<ITurnAdjus
     )
     .map((entry) => {
       const { field, subfield } = getFieldAndSubfieldFromAction(entry.action);
-      return { field, subfield, increment: getSignedCount(entry) };
+      return { field, subfield, increment: getSignedCount(entry), playerIndex: entry.playerIndex };
     });
+}
+
+/**
+ * Group turn adjustments by field and subfield
+ * @param adjustments - An array of turn adjustments
+ * @returns An array of grouped turn adjustments
+ */
+export function groupTurnAdjustmentsByPlayer(
+  adjustments: Array<ITurnAdjustment>
+): Map<number, Array<ITurnAdjustment>> {
+  const groupedAdjustments: Map<number, Array<ITurnAdjustment>> = new Map<
+    number,
+    Array<ITurnAdjustment>
+  >();
+
+  adjustments.forEach((adjustment) => {
+    const existingAdjustments = groupedAdjustments.get(adjustment.playerIndex);
+    if (adjustment.increment !== 0 && existingAdjustments === undefined) {
+      groupedAdjustments.set(adjustment.playerIndex, [adjustment]);
+    } else if (adjustment.increment !== 0 && existingAdjustments !== undefined) {
+      const existingField = existingAdjustments.find(
+        (adj) => adj.field === adjustment.field && adj.subfield === adjustment.subfield
+      );
+      if (existingField) {
+        existingField.increment += adjustment.increment;
+      } else {
+        existingAdjustments.push(adjustment);
+      }
+      // filter out net-zero adjustments
+      groupedAdjustments.set(
+        adjustment.playerIndex,
+        existingAdjustments.filter((adj) => adj.increment !== 0)
+      );
+    }
+  });
+  return groupedAdjustments;
 }
 
 /**

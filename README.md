@@ -210,6 +210,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Tue Mar 12 21:41:00 2025
+
+- Version 0.0.5
+  - Added counter in game log indicating amount of adjustment per field per player per turn
+  - Split up turn adjustments by player
+
 ### Mon Mar 10 05:50:00 2025
 
 - **v0.0.3**: New Player Bar and moved scoreboard to tab to increase viewable space
