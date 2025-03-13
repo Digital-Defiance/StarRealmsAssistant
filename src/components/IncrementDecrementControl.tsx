@@ -5,6 +5,7 @@ import { Theme } from '@mui/material/styles';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import '@/styles.scss';
 
 // Modify StyledTypography to use forwardRef
@@ -44,6 +45,7 @@ interface IncrementDecrementControlProps {
   tooltip?: string;
   onIncrement: () => void;
   onDecrement: () => void;
+  onBatchDecrement?: () => void;
   onTrash?: () => void;
   sx?: SxProps<Theme>;
   tooltipProps?: Omit<TooltipProps, 'children' | 'title'>;
@@ -55,6 +57,7 @@ const IncrementDecrementControl: FC<IncrementDecrementControlProps> = ({
   tooltip,
   onIncrement,
   onDecrement,
+  onBatchDecrement,
   onTrash,
   tooltipProps,
   sx,
@@ -88,6 +91,13 @@ const IncrementDecrementControl: FC<IncrementDecrementControlProps> = ({
         <Tooltip title="Trash this card and remove it from the supply">
           <IconButton onClick={onTrash} size="small">
             <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
+      {onBatchDecrement && (
+        <Tooltip title="Decrease quantity">
+          <IconButton onClick={onBatchDecrement} size="small">
+            <RemoveCircleOutlineIcon fontSize="small" color="error" />
           </IconButton>
         </Tooltip>
       )}

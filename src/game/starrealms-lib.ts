@@ -58,11 +58,12 @@ export function distributeInitialSupply(game: IGame): IGame {
   /* do not subtract estates from the supply- the supply should
    * start with the specified number
    */
-  updatedGame.players = updatedGame.players.map((player) => ({
+  updatedGame.players = updatedGame.players.map((player, index) => ({
     ...player,
     authority: {
       ...EmptyAuthorityDetails(),
-      authority: DEFAULT_STARTING_AUTHORITY,
+      authority:
+        updatedGame.options.startingAuthorityByPlayerIndex[index] ?? DEFAULT_STARTING_AUTHORITY,
     },
   }));
   // Subtract the distributed scouts from the supply
@@ -128,10 +129,6 @@ export const NewGameState = (gameStateWithOptions: IGame, gameStart: Date): IGam
   // Create a new game state with the initial supply, while resetting the player details
   newGameState.players = newGameState.players.map((player, index) => ({
     ...newPlayer(player.name, player.boss, newGameState.players[index].color),
-    authority: {
-      authority: gameStateWithOptions.options.startingAuthorityByPlayerIndex[index],
-      assimilation: 0,
-    },
     newTurn: {
       ...DefaultTurnDetails(),
       cards: gameStateWithOptions.options.startingCardsByPlayerIndex[index],

@@ -30,8 +30,8 @@ import { PlayerFieldMap } from '@/game/types';
 import { useAlert } from '@/components/AlertContext';
 import '@/styles.scss';
 import { IGame } from '@/game/interfaces/game';
-import { deepClone } from '@/game/utils';
 import { PlayerChip } from './PlayerChip';
+import { ILogEntry } from '@/game/interfaces/log-entry';
 
 const OuterContainer = styled(Box)(({ theme }) => ({
   paddingBottom: theme.spacing(8), // Ensure enough space at the bottom
@@ -120,6 +120,11 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
   const assimilationAdjustments = playerAdjustments.filter(
     (adj) => adj.field === 'authority' && adj.subfield === 'assimilation'
   );
+  // subtract combat from current player's authority, limited by available authority
+  const currentPlayerCombatToSubtract = Math.min(
+    gameState.players[gameState.currentPlayerIndex].turn.combat,
+    gameState.players[gameState.selectedPlayerIndex].authority.authority
+  );
 
   // Apply a gray overlay and disable all controls when the game is paused
   const DisabledOverlay = styled(Box)(() => ({
@@ -133,38 +138,81 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
     display: isGamePaused() ? 'block' : 'none',
   }));
 
-  const handleFieldChange = <T extends keyof PlayerFieldMap>(
+  const handleFieldChangeForCurrentPlayer = <T extends keyof PlayerFieldMap>(
     field: T,
     subfield: PlayerFieldMap[T],
     increment: number,
     linkedActionId?: string
   ): void => {
-    const prevGame = deepClone<IGame>(gameState);
-    try {
-      const updatedGame = updatePlayerField(
-        prevGame,
-        prevGame.selectedPlayerIndex,
-        field,
-        subfield,
-        increment
-      );
-      const action = fieldSubfieldToGameLogAction(field, subfield, increment);
-      addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
-        count: Math.abs(increment),
-        correction: isCorrection,
-        linkedActionId,
-        scrap: false,
-      });
-      checkPlayerEliminationAndGameEnd(updatedGame);
-      setGameState(updatedGame);
-    } catch (error) {
-      if (error instanceof Error) {
-        showAlert('Could not increment', error.message);
-      } else {
-        showAlert('Could not increment', 'Unknown error');
+    setGameState((prevGame: IGame) => {
+      try {
+        const updatedGame = updatePlayerField(
+          prevGame,
+          prevGame.currentPlayerIndex,
+          field,
+          subfield,
+          increment
+        );
+        const action = fieldSubfieldToGameLogAction(field, subfield, increment);
+        addLogEntry(updatedGame, updatedGame.currentPlayerIndex, action, {
+          count: Math.abs(increment),
+          correction: isCorrection,
+          linkedActionId,
+          scrap: false,
+        });
+        checkPlayerEliminationAndGameEnd(updatedGame);
+        return updatedGame;
+      } catch (error) {
+        if (error instanceof Error) {
+          showAlert('Could not increment', error.message);
+        } else {
+          showAlert('Could not increment', 'Unknown error');
+        }
+        return prevGame;
       }
-      setGameState(prevGame);
-    }
+    });
+  };
+
+  const handleFieldChange = <T extends keyof PlayerFieldMap>(
+    field: T,
+    subfield: PlayerFieldMap[T],
+    increment: number,
+    linkedActionId?: string,
+    skipEndGame = false
+  ): ILogEntry | undefined => {
+    const lastLogLength = gameState.log.length;
+    setGameState((prevGame: IGame) => {
+      try {
+        const updatedGame = updatePlayerField(
+          prevGame,
+          prevGame.selectedPlayerIndex,
+          field,
+          subfield,
+          increment
+        );
+        const action = fieldSubfieldToGameLogAction(field, subfield, increment);
+        addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
+          count: Math.abs(increment),
+          correction: isCorrection,
+          linkedActionId,
+          scrap: false,
+        });
+        if (!skipEndGame) {
+          checkPlayerEliminationAndGameEnd(updatedGame);
+        }
+        return updatedGame;
+      } catch (error) {
+        if (error instanceof Error) {
+          showAlert('Could not increment', error.message);
+        } else {
+          showAlert('Could not increment', 'Unknown error');
+        }
+        return prevGame;
+      }
+    });
+    return gameState.log.length > lastLogLength
+      ? gameState.log[gameState.log.length - 1]
+      : undefined;
   };
 
   const handleCorrectionChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -331,6 +379,26 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                       tooltip="Tracks players' authority across turns"
                       onIncrement={() =>
                         handleFieldChange('authority', 'authority', 1, linkChangeId)
+                      }
+                      onBatchDecrement={
+                        gameState.selectedPlayerIndex !== gameState.currentPlayerIndex &&
+                        currentPlayerCombatToSubtract > 0
+                          ? () => {
+                              const log = handleFieldChange(
+                                'authority',
+                                'authority',
+                                currentPlayerCombatToSubtract * -1,
+                                linkChangeId,
+                                true
+                              );
+                              handleFieldChangeForCurrentPlayer(
+                                'turn',
+                                'combat',
+                                currentPlayerCombatToSubtract * -1,
+                                linkChangeId ?? log?.id
+                              );
+                            }
+                          : undefined
                       }
                       onDecrement={() =>
                         handleFieldChange('authority', 'authority', -1, linkChangeId)

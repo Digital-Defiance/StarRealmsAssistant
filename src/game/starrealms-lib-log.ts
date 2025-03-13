@@ -49,8 +49,6 @@ export function fieldSubfieldToGameLogAction<T extends keyof PlayerFieldMap>(
   switch (field) {
     case 'turn':
       switch (subfield) {
-        case 'authority':
-          return increment > 0 ? GameLogAction.ADD_AUTHORITY : GameLogAction.REMOVE_AUTHORITY;
         case 'trade':
           return increment > 0 ? GameLogAction.ADD_TRADE : GameLogAction.REMOVE_TRADE;
         case 'combat':
@@ -653,6 +651,7 @@ export function checkPlayerEliminationAndGameEnd(game: IGame): void {
       timestamp: endTimestamp,
       gameTime: calculateDurationUpToEvent(game.log, endTimestamp),
     });
+    game.currentStep = CurrentStep.EndGame;
   }
 }
 
