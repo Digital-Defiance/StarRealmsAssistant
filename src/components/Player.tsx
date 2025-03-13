@@ -22,6 +22,8 @@ import {
   checkPlayerEliminationAndGameEnd,
   fieldSubfieldToGameLogAction,
   getMasterActionId,
+  getTurnAdjustments,
+  groupTurnAdjustmentsByPlayer,
 } from '@/game/starrealms-lib-log';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
 import { PlayerFieldMap } from '@/game/types';
@@ -109,6 +111,15 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
 
   const player = gameState.players[gameState.selectedPlayerIndex];
   const isCurrentPlayer = gameState.selectedPlayerIndex === gameState.currentPlayerIndex;
+  const turnAdjustments = getTurnAdjustments(gameState, gameState.currentTurn);
+  const groupedAdjustmentsByPlayer = groupTurnAdjustmentsByPlayer(turnAdjustments);
+  const playerAdjustments = groupedAdjustmentsByPlayer.get(gameState.selectedPlayerIndex) ?? [];
+  const authorityAdjustments = playerAdjustments.filter(
+    (adj) => adj.field === 'authority' && adj.subfield === 'authority'
+  );
+  const assimilationAdjustments = playerAdjustments.filter(
+    (adj) => adj.field === 'authority' && adj.subfield === 'assimilation'
+  );
 
   // Apply a gray overlay and disable all controls when the game is paused
   const DisabledOverlay = styled(Box)(() => ({
@@ -312,25 +323,63 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
                     <SuperCapsText className={`typography-large-title`}>Authority</SuperCapsText>
                   </Tooltip>
                 </CenteredTitle>
-                <IncrementDecrementControl
-                  label="Authority"
-                  value={player.authority.authority}
-                  tooltip="Tracks players' authority across turns"
-                  onIncrement={() => handleFieldChange('authority', 'authority', 1, linkChangeId)}
-                  onDecrement={() => handleFieldChange('authority', 'authority', -1, linkChangeId)}
-                />
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box sx={{ flex: 1 }}>
+                    <IncrementDecrementControl
+                      label="Authority"
+                      value={player.authority.authority}
+                      tooltip="Tracks players' authority across turns"
+                      onIncrement={() =>
+                        handleFieldChange('authority', 'authority', 1, linkChangeId)
+                      }
+                      onDecrement={() =>
+                        handleFieldChange('authority', 'authority', -1, linkChangeId)
+                      }
+                    />
+                  </Box>
+                  <Box sx={{ width: 60, display: 'flex', justifyContent: 'center' }}>
+                    {authorityAdjustments.length > 0 && (
+                      <Chip
+                        label={
+                          authorityAdjustments[0].increment > 0
+                            ? `+${authorityAdjustments[0].increment}`
+                            : authorityAdjustments[0].increment
+                        }
+                        color={authorityAdjustments[0].increment > 0 ? 'success' : 'error'}
+                        size="small"
+                      />
+                    )}
+                  </Box>
+                </Box>
                 {player.boss && gameState.options.trackAssimilation && (
-                  <IncrementDecrementControl
-                    label="Assimilation"
-                    value={player.authority.assimilation}
-                    tooltip="Tracks Boss Assimilation across turns"
-                    onIncrement={() =>
-                      handleFieldChange('authority', 'assimilation', 1, linkChangeId)
-                    }
-                    onDecrement={() =>
-                      handleFieldChange('authority', 'assimilation', -1, linkChangeId)
-                    }
-                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Box sx={{ flex: 1 }}>
+                      <IncrementDecrementControl
+                        label="Assimilation"
+                        value={player.authority.assimilation}
+                        tooltip="Tracks Boss Assimilation across turns"
+                        onIncrement={() =>
+                          handleFieldChange('authority', 'assimilation', 1, linkChangeId)
+                        }
+                        onDecrement={() =>
+                          handleFieldChange('authority', 'assimilation', -1, linkChangeId)
+                        }
+                      />
+                    </Box>
+                    <Box sx={{ width: 60, display: 'flex', justifyContent: 'center' }}>
+                      {assimilationAdjustments.length > 0 && (
+                        <Chip
+                          label={
+                            assimilationAdjustments[0].increment > 0
+                              ? `+${assimilationAdjustments[0].increment}`
+                              : assimilationAdjustments[0].increment
+                          }
+                          color={assimilationAdjustments[0].increment > 0 ? 'success' : 'error'}
+                          size="small"
+                        />
+                      )}
+                    </Box>
+                  </Box>
                 )}
               </ColumnBox>
             </Box>
