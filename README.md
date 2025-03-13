@@ -210,6 +210,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Tue Mar 12 23:38:00 2025
+
+- Version 0.0.6
+  - Added icon to subtract current player available combat from selected player authority
+  - Added chip next to authority/assimilation to show +/- amounts added this turn
+
 ### Tue Mar 12 21:41:00 2025
 
 - Version 0.0.5
