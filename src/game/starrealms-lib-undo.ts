@@ -76,6 +76,16 @@ export function canUndoAction(game: IGame, logIndex: number): boolean {
     return true;
   } catch (error) {
     // If an error is thrown, it means we encountered negative counters or other issues
+    if (
+      error instanceof NotEnoughSubfieldError ||
+      error instanceof NotEnoughSupplyError ||
+      error instanceof NotEnoughProphecyError
+    ) {
+      // These are expected errors that indicate the action cannot be undone
+      return false;
+    }
+
+    // For unexpected errors, log them but still return false
     console.error('Error during game state reconstruction:', error);
     return false;
   }

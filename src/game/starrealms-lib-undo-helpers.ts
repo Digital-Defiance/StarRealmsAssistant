@@ -46,13 +46,20 @@ export function removeTargetAndLinkedActions(game: IGame, logIndex: number): IGa
  * Reconstructs the game state using the game log
  * @param game - The current game state, used for options/settings
  * @returns The reconstructed game state
+ * @throws {NotEnoughSubfieldError} If there's not enough of a subfield to perform an action
  */
 export function reconstructGameState(game: IGame): IGame {
+  if (game.log.length === 0) {
+    return deepClone<IGame>(game);
+  }
+
   let reconstructedGame = NewGameState(game, game.log[0].timestamp);
   // clear the log
   reconstructedGame.log = [];
 
-  for (let i = 0; i <= game.log.length - 1; i++) {
+  // For the GameLogEntry component, we want to catch errors to prevent UI crashes
+  // But for tests and actual undo operations, we need to let errors propagate
+  for (let i = 0; i < game.log.length; i++) {
     const entry = game.log[i];
     reconstructedGame = applyLogAction(reconstructedGame, entry);
   }

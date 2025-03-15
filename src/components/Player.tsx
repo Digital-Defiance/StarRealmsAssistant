@@ -180,7 +180,7 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
     linkedActionId?: string,
     skipEndGame = false
   ): ILogEntry | undefined => {
-    const lastLogLength = gameState.log.length;
+    let logEntry: ILogEntry | undefined;
     setGameState((prevGame: IGame) => {
       try {
         const updatedGame = updatePlayerField(
@@ -191,7 +191,7 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
           increment
         );
         const action = fieldSubfieldToGameLogAction(field, subfield, increment);
-        addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
+        logEntry = addLogEntry(updatedGame, updatedGame.selectedPlayerIndex, action, {
           count: Math.abs(increment),
           correction: isCorrection,
           linkedActionId,
@@ -210,9 +210,7 @@ const Player: FC<PlayerProps> = ({ containerHeight }) => {
         return prevGame;
       }
     });
-    return gameState.log.length > lastLogLength
-      ? gameState.log[gameState.log.length - 1]
-      : undefined;
+    return logEntry;
   };
 
   const handleCorrectionChange = (event: ChangeEvent<HTMLInputElement>) => {
