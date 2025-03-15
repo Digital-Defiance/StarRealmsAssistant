@@ -13,7 +13,7 @@ import { MinPlayersError } from './errors/min-players';
 /**
  * The current game version
  */
-export const VERSION_NUMBER = '0.0.6' as const;
+export const VERSION_NUMBER = '0.0.7' as const;
 /**
  * The lowest version of the game that is compatible with this version of the save game format.
  */

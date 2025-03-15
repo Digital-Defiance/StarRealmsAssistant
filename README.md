@@ -210,6 +210,13 @@ Join our community of developers.
 
 ## Changelog
 
+### Sat Mar 14 10:44:00 2025
+
+- Version 0.0.7
+
+  - Minor fixes to subtracting current player combat (action linking)
+  - Minor fix to undo logic to fix a bug
+
 ### Tue Mar 12 23:38:00 2025
 
 - Version 0.0.6

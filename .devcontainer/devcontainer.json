@@ -20,8 +20,9 @@
     }
   },
   "containerEnv": {
-    "NVM_VERSION": "20.9.0",
-    "PLAYWRIGHT_HTML_HOST": "0.0.0.0"
+    "DEFAULT_NVM_VERSION": "22",
+    "PLAYWRIGHT_HTML_HOST": "0.0.0.0",
+    "DEFAULT_YARN_VERSION": "4.7.0"
   },
   "remoteEnv": {
     "DOTENV_CONFIG_PATH": "/workspaces/starrealms-assistant/.env"
