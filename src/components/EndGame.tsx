@@ -8,7 +8,6 @@ import {
   TableHead,
   TableRow,
   Button,
-  Chip,
 } from '@mui/material';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { IGame } from '@/game/interfaces/game';

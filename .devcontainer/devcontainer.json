@@ -38,7 +38,7 @@
   "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "export $(grep -v '^#' /workspaces/starrealms-assistant/.env | xargs) && ./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh && ./setup-shell-config.sh && export $(grep -v '^#' ${DOTENV_CONFIG_PATH} | xargs)"
+  "postCreateCommand": "export $(grep -v '^#' /workspaces/starrealms-assistant/.env | xargs) && ./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh && ./setup-shell-config.sh && export $(grep -v '^#' ${DOTENV_CONFIG_PATH} | xargs) && npx nx reset && npx playwright install && npx playwright install-deps"
 
   // Configure tool-specific properties.
   // "customizations": {},

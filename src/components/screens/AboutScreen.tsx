@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Box, Typography, Link, Paper, List, ListItem, ListItemText } from '@mui/material';
 import StarRealmsTransparentLogo from '@/assets/images/star-realms-logo.png';
 import SuperCapsText from '@/components/SuperCapsText';
-import { VERSION_NUMBER } from '@/game/constants';
+import {
+  APP_FEATURES,
+  APP_MINI_DISCLAIMER,
+  APP_MINI_DISCLAIMER_NOTE,
+  VERSION_NUMBER,
+} from '@/game/constants';
 import CenteredContainer from '../CenteredContainer';
 
 export default function AboutScreen() {
@@ -113,17 +118,7 @@ export default function AboutScreen() {
               <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
                 <SuperCapsText className={`typography-title`}>Features</SuperCapsText>
                 <List dense>
-                  {[
-                    'Player Management: Add, remove, and track multiple players',
-                    'Dynamic Scoring: Real-time calculation and leaderboard',
-                    'Game Setup Wizard: Customizable game modes and expansions',
-                    'Turn Tracking: Keep track of player turns and phases',
-                    'Detailed Game Log: Record and review game events',
-                    'Save/Load Games: Save progress and resume later',
-                    'Intuitive UI: User-friendly Material-UI components',
-                    'Authority graphing/statistics',
-                    'Most-recent move is auto-saved to local storage',
-                  ].map((feature, index) => (
+                  {APP_FEATURES.map((feature, index) => (
                     <ListItem key={index}>
                       <ListItemText primary={feature} />
                     </ListItem>
@@ -154,11 +149,7 @@ export default function AboutScreen() {
                   >
                     Jessica Mulein
                   </Link>
-                  . Unofficial Star Realms Assistant is an open-source project and not affiliated
-                  with or endorsed by the makers of Star Realms or White Wizard Games. It is offered
-                  free of charge and is provided as-is, and with limited support. Please consider
-                  supporting Digital Defiance to promote open source and help us to serve the open
-                  source community.
+                  . {APP_MINI_DISCLAIMER}
                 </Typography>
                 <Typography variant="body1" component="p">
                   For more information, contributions, or to report{' '}
@@ -188,8 +179,7 @@ export default function AboutScreen() {
                   .
                 </Typography>
                 <Typography variant="body1" component="p">
-                  Please note that this tool requires one or more copies of the physical Star Realms
-                  game to play.
+                  {APP_MINI_DISCLAIMER_NOTE}
                 </Typography>
                 <Typography variant="body1" component="p">
                   See our{' '}

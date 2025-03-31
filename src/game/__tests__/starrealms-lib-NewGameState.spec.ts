@@ -6,7 +6,6 @@ import { MinPlayersError } from '@/game/errors/min-players';
 import { MaxPlayersError } from '@/game/errors/max-players';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { faker } from '@faker-js/faker';
 
 describe('NewGameState', () => {
   const gameStart = new Date('2022-01-01T00:00:00Z');

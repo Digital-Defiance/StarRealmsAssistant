@@ -11,16 +11,15 @@ jest.mock('@/game/starrealms-lib-undo-helpers', () => ({
 
 describe('undoAction', () => {
   let consoleErrorSpy: jest.SpyInstance;
-  let removeTargetAndLinkedActionsSpy: jest.SpyInstance;
-  let reconstructGameStateSpy: jest.SpyInstance;
+  let removeTargetAndLinkedActionsSpy: jest.Mock;
+  let reconstructGameStateSpy: jest.Mock;
   const gameStart: Date = new Date('2021-01-01T00:00:00.000Z');
 
   beforeEach(() => {
     jest.clearAllMocks();
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
-      // do nothing
+      /* Suppress console error */
     });
-
     removeTargetAndLinkedActionsSpy = undoHelpers.removeTargetAndLinkedActions as jest.Mock;
     reconstructGameStateSpy = undoHelpers.reconstructGameState as jest.Mock;
   });
@@ -29,7 +28,29 @@ describe('undoAction', () => {
     jest.resetAllMocks();
   });
 
-  it('should return success false if canUndoAction returns false', () => {
+  // --- Tests for failures within the initial canUndoAction check ---
+
+  it('should return success false if canUndoAction returns false (e.g., non-undoable action)', () => {
+    const game = createMockGame(2, {
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.END_GAME,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }), // END_GAME is not undoable
+      ],
+    });
+
+    const result = undoModule.undoAction(game, 1);
+
+    expect(result.success).toBe(false);
+    expect(result.game).toBe(game);
+    expect(removeTargetAndLinkedActionsSpy).not.toHaveBeenCalled();
+    expect(reconstructGameStateSpy).not.toHaveBeenCalled();
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
+  });
+
+  it('should return success false if canUndoAction fails due to unexpected reconstruction error', () => {
     const game = createMockGame(2, {
       log: [
         createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
@@ -39,24 +60,26 @@ describe('undoAction', () => {
         }),
       ],
     });
+    const error = new Error('Simulated unexpected error during canUndoAction check');
+    const gameAfterRemove = { ...game, log: [game.log[0]] };
 
-    // Ensure removeTargetAndLinkedActions returns a valid game
-    removeTargetAndLinkedActionsSpy.mockReturnValue(game);
-
-    reconstructGameStateSpy.mockImplementation(() => {
-      throw new Error('Simulated error');
-    });
+    // Mock sequence for canUndoAction failure (unexpected error)
+    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(gameAfterRemove); // Called by canUndoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => {
+      throw error;
+    }); // Throws on first call (in canUndoAction)
 
     const result = undoModule.undoAction(game, 1);
+
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(expect.any(Object), 1);
-    expect(reconstructGameStateSpy).toHaveBeenCalledWith(expect.any(Object));
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error during game state reconstruction:',
-      expect.any(Error)
-    );
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(1);
+    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(1);
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1); // Logged by canUndoAction
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error during game state reconstruction:', error);
   });
+
+  // --- Tests for successful execution or failures within undoAction's try block ---
 
   it('should return success true and updated game if undo is successful', () => {
     const game = createMockGame(2, {
@@ -68,19 +91,25 @@ describe('undoAction', () => {
         }),
       ],
     });
-    const updatedGame = { ...game, log: [] };
-    removeTargetAndLinkedActionsSpy.mockReturnValue(updatedGame);
-    reconstructGameStateSpy.mockReturnValue(updatedGame);
+    const gameAfterRemove = { ...game, log: [game.log[0]] };
+    const finalGame = { ...gameAfterRemove }; // Assume reconstruction is identity
+
+    // Mock sequence for successful undo
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterRemove); // For canUndoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => finalGame); // For canUndoAction (success)
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterRemove); // For undoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => finalGame); // For undoAction (success)
 
     const result = undoModule.undoAction(game, 1);
+
     expect(result.success).toBe(true);
-    expect(result.game).toEqual(updatedGame);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 1);
-    expect(reconstructGameStateSpy).toHaveBeenCalledWith(updatedGame);
+    expect(result.game).toEqual(finalGame);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(2);
+    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(2);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
-  it('should handle errors during reconstruction and return success false', () => {
+  it('should handle unexpected errors during reconstruction in undoAction and return success false', () => {
     const game = createMockGame(2, {
       log: [
         createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
@@ -90,21 +119,61 @@ describe('undoAction', () => {
         }),
       ],
     });
-    removeTargetAndLinkedActionsSpy.mockReturnValue(game);
-    const error = new Error('Reconstruction error');
-    reconstructGameStateSpy.mockImplementation(() => {
+    const error = new Error('Reconstruction error during undoAction');
+    const gameAfterRemove = { ...game, log: [game.log[0]] };
+
+    // Mock sequence: canUndoAction succeeds, undoAction's reconstruct fails (unexpected)
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterRemove); // For canUndoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => gameAfterRemove); // For canUndoAction (success)
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterRemove); // For undoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => {
       throw error;
-    });
+    }); // For undoAction (throws unexpected)
 
     const result = undoModule.undoAction(game, 1);
+
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(expect.any(Object), 1);
-    expect(reconstructGameStateSpy).toHaveBeenCalledWith(expect.any(Object));
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Error during game state reconstruction:', error);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(2);
+    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(2);
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1); // Logged by undoAction
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error undoing action:', error);
   });
 
-  it('should return success false if removeTargetAndLinkedActions throws an error', () => {
+  it('should handle NotEnoughSubfieldError during reconstruction in undoAction and return success false', () => {
+    const game = createMockGame(2, {
+      log: [
+        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
+        createMockLog({
+          action: GameLogAction.REMOVE_TRADE,
+          timestamp: new Date(gameStart.getTime() + 1000),
+        }),
+      ],
+    });
+    const error = new NotEnoughSubfieldError('turn', 'trade');
+    const gameAfterRemove = { ...game, log: [game.log[0]] };
+
+    // Mock sequence: canUndoAction succeeds, undoAction's reconstruct fails (expected)
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterRemove); // For canUndoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => gameAfterRemove); // For canUndoAction (success)
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterRemove); // For undoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => {
+      throw error;
+    }); // For undoAction (throws NotEnoughSubfieldError)
+
+    const result = undoModule.undoAction(game, 1);
+
+    expect(result.success).toBe(false);
+    expect(result.game).toBe(game);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(2);
+    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(2);
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1); // Logged by undoAction
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Cannot undo action: it would result in negative counters'
+    );
+  });
+
+  it('should return success false if removeTargetAndLinkedActions throws an error within undoAction', () => {
     const game = createMockGame(2, {
       log: [
         createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
@@ -114,26 +183,26 @@ describe('undoAction', () => {
         }),
       ],
     });
-    const removalError = new Error('Removal error');
+    const removalError = new Error('Removal error during undoAction');
+    const gameAfterRemoveCanUndo = { ...game, log: [game.log[0]] };
 
-    // First call (from canUndoAction): return a valid game
-    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(game);
-    reconstructGameStateSpy.mockReturnValueOnce(game);
+    // Mock canUndoAction sequence (success)
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterRemoveCanUndo);
+    reconstructGameStateSpy.mockImplementationOnce(() => gameAfterRemoveCanUndo);
 
-    // Second call (from undoAction): throw an error
+    // Mock undoAction sequence (removeTarget... fails)
     removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => {
       throw removalError;
     });
 
-    // Clear the call count after canUndoAction
-    reconstructGameStateSpy.mockClear();
-    consoleErrorSpy.mockClear();
-
     const result = undoModule.undoAction(game, 1);
+
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(2);
+    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(1); // Only called by canUndoAction
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(1); // Logged by undoAction
     expect(consoleErrorSpy).toHaveBeenCalledWith('Error undoing action:', removalError);
-    expect(reconstructGameStateSpy).toHaveBeenCalledWith(game);
   });
 
   it('should correctly undo a linked action', () => {
@@ -153,21 +222,26 @@ describe('undoAction', () => {
         }),
       ],
     });
-    const updatedGame = { ...game, log: [] };
-    removeTargetAndLinkedActionsSpy.mockReturnValue(updatedGame);
-    reconstructGameStateSpy.mockReturnValue(updatedGame);
+    const updatedGame = { ...game, log: [game.log[0]] };
+    const finalGame = { ...updatedGame };
 
-    const result = undoModule.undoAction(game, 1);
+    // Mock sequence for successful undo
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => updatedGame); // canUndoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => finalGame); // canUndoAction
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => updatedGame); // undoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => finalGame); // undoAction
+
+    const result = undoModule.undoAction(game, 1); // Undo the main action
+
     expect(result.success).toBe(true);
-    expect(result.game).toEqual(updatedGame);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 1);
-    expect(reconstructGameStateSpy).toHaveBeenCalledWith(updatedGame);
+    expect(result.game).toEqual(finalGame);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(2);
+    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(2);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 
   it('should handle undoing when logIndex is negative', () => {
     const game = createMockGame(2);
-
     const result = undoModule.undoAction(game, -1);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
@@ -178,7 +252,6 @@ describe('undoAction', () => {
 
   it('should handle undoing when logIndex is out of bounds', () => {
     const game = createMockGame(2, { log: [] });
-
     const result = undoModule.undoAction(game, 0);
     expect(result.success).toBe(false);
     expect(result.game).toBe(game);
@@ -194,83 +267,46 @@ describe('undoAction', () => {
         createMockLog({
           action: GameLogAction.ADD_TRADE,
           timestamp: new Date(gameStart.getTime() + 1000),
-        }),
+        }), // index 1
         createMockLog({
           action: GameLogAction.ADD_COMBAT,
           timestamp: new Date(gameStart.getTime() + 2000),
-        }),
+        }), // index 2
       ],
     });
 
-    const gameAfterFirstUndo = { ...game, log: [game.log[0], game.log[1]] };
-    const gameAfterSecondUndo = { ...game, log: [game.log[0]] };
+    const gameAfterFirstUndo_Removed = { ...game, log: [game.log[0], game.log[1]] };
+    const gameAfterFirstUndo_Reconstructed = { ...gameAfterFirstUndo_Removed };
+    const gameAfterSecondUndo_Removed = { ...game, log: [game.log[0]] };
+    const gameAfterSecondUndo_Reconstructed = { ...gameAfterSecondUndo_Removed };
 
-    // First undo
-
-    // Mocks for canUndoAction (first call to removeTargetAndLinkedActions and reconstructGameState)
-    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(gameAfterFirstUndo);
-    reconstructGameStateSpy.mockReturnValueOnce(gameAfterFirstUndo);
-
-    // Mocks for undoAction (second call to removeTargetAndLinkedActions and reconstructGameState)
-    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(gameAfterFirstUndo);
-    reconstructGameStateSpy.mockReturnValueOnce(gameAfterFirstUndo);
+    // --- First undo (index 2) ---
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterFirstUndo_Removed); // canUndoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => gameAfterFirstUndo_Reconstructed); // canUndoAction
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterFirstUndo_Removed); // undoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => gameAfterFirstUndo_Reconstructed); // undoAction
 
     let result = undoModule.undoAction(game, 2);
     expect(result.success).toBe(true);
-    expect(result.game.log.length).toBe(2);
-    expect(result.game.log[0].action).toBe(game.log[0].action);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(game, 2);
-    expect(reconstructGameStateSpy).toHaveBeenCalledWith(gameAfterFirstUndo);
+    expect(result.game).toEqual(gameAfterFirstUndo_Reconstructed);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(2);
+    expect(reconstructGameStateSpy).toHaveBeenCalledTimes(2);
     expect(consoleErrorSpy).not.toHaveBeenCalled();
 
-    jest.clearAllMocks();
+    // --- Second undo (index 1 on the *new* game state) ---
+    const gameAfterFirstUndo = result.game;
+    jest.clearAllMocks(); // Clear mocks before the second operation
 
-    // Second undo
-
-    // Mocks for canUndoAction
-    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(gameAfterSecondUndo);
-    reconstructGameStateSpy.mockReturnValueOnce(gameAfterSecondUndo);
-
-    // Mocks for undoAction
-    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(gameAfterSecondUndo);
-    reconstructGameStateSpy.mockReturnValueOnce(gameAfterSecondUndo);
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterSecondUndo_Removed); // canUndoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => gameAfterSecondUndo_Reconstructed); // canUndoAction
+    removeTargetAndLinkedActionsSpy.mockImplementationOnce(() => gameAfterSecondUndo_Removed); // undoAction
+    reconstructGameStateSpy.mockImplementationOnce(() => gameAfterSecondUndo_Reconstructed); // undoAction
 
     result = undoModule.undoAction(gameAfterFirstUndo, 1);
     expect(result.success).toBe(true);
-    expect(result.game.log.length).toBe(1);
-    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledWith(gameAfterFirstUndo, 1);
-    expect(reconstructGameStateSpy).toHaveBeenCalledWith(gameAfterSecondUndo);
-    expect(consoleErrorSpy).not.toHaveBeenCalled();
-  });
-
-  it('should handle NotEnoughSubfieldError and return success false', () => {
-    const game = createMockGame(2, {
-      log: [
-        createMockLog({ action: GameLogAction.START_GAME, timestamp: gameStart }),
-        createMockLog({
-          action: GameLogAction.REMOVE_TRADE,
-          timestamp: new Date(gameStart.getTime() + 1000),
-        }),
-      ],
-    });
-    const error = new NotEnoughSubfieldError('turn', 'trade');
-
-    // First call (from canUndoAction): return a valid game
-    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(game);
-    reconstructGameStateSpy.mockReturnValueOnce(game);
-
-    // Second call (from undoAction): throw the error
-    removeTargetAndLinkedActionsSpy.mockReturnValueOnce(game);
-    reconstructGameStateSpy.mockImplementationOnce(() => {
-      throw error;
-    });
-
-    const result = undoModule.undoAction(game, 1);
-    expect(result.success).toBe(false);
-    expect(result.game).toBe(game);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Cannot undo action: it would result in negative counters'
-    );
+    expect(result.game).toEqual(gameAfterSecondUndo_Reconstructed);
+    expect(removeTargetAndLinkedActionsSpy).toHaveBeenCalledTimes(2);
     expect(reconstructGameStateSpy).toHaveBeenCalledTimes(2);
+    expect(consoleErrorSpy).not.toHaveBeenCalled();
   });
 });

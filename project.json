@@ -28,6 +28,24 @@
         ],
         "parallel": false
       }
+    },
+    "serve-static": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "starrealms-assistant:build",
+        "port": 4200,
+        "host": "localhost",
+        "spa": true
+      }
+    },
+    "serve-static-ci": {
+      "executor": "@nx/web:file-server",
+      "options": {
+        "staticFilePath": "dist/starrealms-assistant",
+        "port": 4200,
+        "host": "localhost",
+        "spa": true
+      }
     }
   }
 }

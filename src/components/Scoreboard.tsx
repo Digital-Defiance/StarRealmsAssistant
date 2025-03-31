@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 import {
-  Chip,
   Table,
   TableBody,
   TableCell,
@@ -8,17 +7,12 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
   Typography,
   Tooltip,
 } from '@mui/material';
 import { styled } from '@mui/system';
 import SuperCapsText from '@/components/SuperCapsText';
 import { useGameContext } from '@/components/GameContext';
-import { addLogEntry } from '@/game/starrealms-lib-log';
-import { GameLogAction } from '@/game/enumerations/game-log-action';
-import { IGame } from '@/game/interfaces/game';
-import { deepClone } from '@/game/utils';
 import { PlayerChip } from './PlayerChip';
 import { getPlayerLabel } from '@/game/starrealms-lib';
 
@@ -31,35 +25,12 @@ const TableScore = styled(Typography)(() => ({
   fontWeight: 'bold',
 }));
 
-const StyledButton = styled(Button)(() => ({
-  fontFamily: 'Handel Gothic ITC Pro',
-}));
-
 const Scoreboard: FC = () => {
-  const { gameState, setGameState } = useGameContext();
+  const { gameState } = useGameContext();
 
   if (!gameState) {
     return null; // or some fallback UI
   }
-
-  const handlePlayerSelect = (index: number) => {
-    setGameState((prevState: IGame) => {
-      if (prevState.selectedPlayerIndex === index) {
-        return prevState;
-      }
-      const newGame = deepClone<IGame>(prevState);
-      addLogEntry(newGame, index, GameLogAction.SELECT_PLAYER, {
-        prevPlayerIndex: prevState.selectedPlayerIndex,
-      });
-      newGame.selectedPlayerIndex = index;
-      return newGame;
-    });
-  };
-
-  const isGamePaused = (): boolean => {
-    const lastLogEntry = gameState.log.length > 0 ? gameState.log[gameState.log.length - 1] : null;
-    return lastLogEntry !== null && lastLogEntry.action === GameLogAction.PAUSE;
-  };
 
   return (
     <Paper elevation={3} sx={{ padding: 0, maxWidth: 600 }}>

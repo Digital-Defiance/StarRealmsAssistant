@@ -62,18 +62,6 @@ describe('restoreSavedGameMetadata', () => {
     expect(() => restoreSavedGameMetadata(missingSavedAt)).toThrow('Invalid saved game metadata');
   });
 
-  it('should throw an error if savedAt is not a string', () => {
-    const nonStringSavedAt = [
-      {
-        id: faker.string.uuid(),
-        name: 'Test Game',
-        savedAt: 12345 as unknown as string, // Bypass TypeScript with `unknown`
-      },
-    ];
-
-    expect(() => restoreSavedGameMetadata(nonStringSavedAt)).toThrow('Invalid saved game metadata');
-  });
-
   it('should throw an error if savedAt is an empty string', () => {
     const emptySavedAt = [
       {

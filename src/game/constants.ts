@@ -82,9 +82,6 @@ export function EmptyAuthorityDetails(): IAuthorityDetails {
   });
 }
 
-// Base Supply calculations from https://wiki.dominionstrategy.com/index.php/Gameplay
-// Prosperity Supply calculations from https://wiki.dominionstrategy.com/index.php/Prosperity
-
 /**
  * Calculate the supply for a two player game.
  * @returns The supply information.
@@ -250,3 +247,19 @@ export const DefaultPlayerColorsWithBoss = [
   '#ba68c8', // Purple
   '#4db6ac', // Teal
 ] as const;
+
+export const APP_FEATURES = [
+  'Player Management: Add, remove, and track multiple players',
+  'Dynamic Scoring: Real-time calculation and leaderboard',
+  'Game Setup Wizard: Customizable game modes and expansions',
+  'Turn Tracking: Keep track of player turns and phases',
+  'Detailed Game Log: Record and review game events',
+  'Save/Load Games: Save progress and resume later',
+  'Intuitive UI: User-friendly Material-UI components',
+  'Authority graphing/statistics',
+  'Most-recent move is auto-saved to local storage',
+] as const;
+export const APP_MINI_DISCLAIMER =
+  'Unofficial Star Realms Assistant is an open-source project and not affiliated with or endorsed by the makers of Star Realms or White Wizard Games. It is offered free of charge and is provided as-is, and with limited support. Please consider supporting Digital Defiance to promote open source and help us to serve the open source community.' as const;
+export const APP_MINI_DISCLAIMER_NOTE =
+  'Please note that this tool requires the physical game of Star Realms to play.' as const;

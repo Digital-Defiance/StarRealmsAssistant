@@ -43,8 +43,26 @@ jobs:
       - name: Run Build
         run: npx nx run-many --target=build --all --skip-nx-cache --parallel=3
 
+      - name: Check dist directory contents # Modified step
+        run: ls -la dist/starrealms-assistant || echo "dist/starrealms-assistant directory not found or empty"
+
+      - name: Install http-server # Add step to install server
+        run: npm install -g http-server
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+
+      - name: Install Playwright Dependencies
+        run: npx playwright install-deps
+
+      - name: Run E2E Tests # Modified step
+        run: |
+          # Start http-server in the background, serving the built app silently (-s)
+          http-server dist/starrealms-assistant -p 4200 -s &
+          # Wait a few seconds for the server to initialize
+          sleep 5
+          # Run Playwright tests (using single project target, not run-many)
+          npx nx run e2e:e2e --skip-nx-cache
 
       - name: Run E2E Tests
         run: npx nx run-many --target=e2e --all --skip-nx-cache --parallel=3

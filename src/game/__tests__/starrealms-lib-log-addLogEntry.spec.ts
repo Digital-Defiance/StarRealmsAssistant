@@ -5,6 +5,26 @@ import { IGame } from '@/game/interfaces/game';
 import { AdjustmentActions, NO_PLAYER, NoPlayerActions } from '../constants';
 import { GamePausedError } from '../errors/game-paused';
 import { CountRequiredError } from '../errors/count-required';
+import { ILogEntry } from '../interfaces/log-entry';
+import { ITurnStatistics } from '../interfaces/turn-statistics';
+
+// Helper function (optional, could be inline)
+const createNextTurnLogEntry = (
+  turn: number,
+  prevPlayerIndex: number,
+  currentPlayerIndex: number,
+  timestamp: Date,
+  gameTime: number
+): ILogEntry => ({
+  action: GameLogAction.NEXT_TURN,
+  playerIndex: currentPlayerIndex,
+  id: `turn-${turn}`,
+  timestamp,
+  gameTime,
+  prevPlayerIndex,
+  currentPlayerIndex,
+  turn,
+});
 
 describe('addLogEntry', () => {
   let mockGame: IGame;
@@ -203,4 +223,75 @@ describe('addLogEntry', () => {
       expect(() => addLogEntry(mockGame, playerIndex, action, overrides)).toThrow(GamePausedError);
     }
   );
+
+  // --- Tests for Turn Statistics Cache ---
+
+  it('should add correct turn statistics to cache on NEXT_TURN', () => {
+    // Setup initial player states
+    mockGame.players[0].turn = { trade: 2, combat: 1, cards: 3, gains: 1, discard: 0, scrap: 0 };
+    mockGame.players[1].turn = { trade: 1, combat: 2, cards: 5, gains: 0, discard: 2, scrap: 0 };
+    mockGame.currentTurn = 5;
+    mockGame.currentPlayerIndex = 0; // Player 0's turn ends
+
+    addLogEntry(mockGame, 1, GameLogAction.NEXT_TURN, { prevPlayerIndex: 0 }); // Player 1 starts turn 6
+
+    expect(mockGame.turnStatisticsCache).toHaveLength(1);
+    const stats: ITurnStatistics = mockGame.turnStatisticsCache[0];
+
+    expect(stats.turn).toBe(5);
+    expect(stats.playerIndex).toBe(0); // Player whose turn ended
+    // Check player-specific stats
+    expect(stats.playerTrade[0]).toBe(2);
+    expect(stats.playerTrade[1]).toBe(1);
+    expect(stats.playerCombat[0]).toBe(1);
+    expect(stats.playerCombat[1]).toBe(2);
+    expect(stats.playerCardsDrawn[0]).toBe(3); // Drawn cards
+    expect(stats.playerCardsDrawn[1]).toBe(5);
+    expect(stats.playerGains[0]).toBe(1);
+    expect(stats.playerGains[1]).toBe(0);
+    expect(stats.playerDiscards[0]).toBe(0); // Discarded cards
+    expect(stats.playerDiscards[1]).toBe(2);
+  });
+
+  it('should add correct turn statistics to cache on END_GAME', () => {
+    // Setup initial player states
+    mockGame.players[0].turn = { trade: 0, combat: 1, cards: 4, gains: 0, discard: 1, scrap: 0 };
+    mockGame.players[1].turn = { trade: 3, combat: 1, cards: 2, gains: 2, discard: 0, scrap: 0 };
+    mockGame.currentTurn = 10;
+    mockGame.currentPlayerIndex = 1; // Player 1's turn ends
+
+    // Add log entries for turns 2 through 10
+    const gameStart = mockGame.log[0].timestamp;
+    let currentTime = gameStart.getTime();
+    let currentGameTime = 0;
+    for (let i = 2; i <= 10; i++) {
+      const prevPlayer = (i + mockGame.players.length - 2) % mockGame.players.length;
+      const currentPlayer = (i + mockGame.players.length - 1) % mockGame.players.length;
+      currentTime += 1000; // Increment time for each turn
+      currentGameTime += 1000;
+      mockGame.log.push(
+        createNextTurnLogEntry(i, prevPlayer, currentPlayer, new Date(currentTime), currentGameTime)
+      );
+    }
+
+    addLogEntry(mockGame, NO_PLAYER, GameLogAction.END_GAME, { prevPlayerIndex: 1 });
+
+    expect(mockGame.turnStatisticsCache).toHaveLength(1);
+    const stats: ITurnStatistics = mockGame.turnStatisticsCache[0];
+
+    expect(stats.turn).toBe(10);
+    expect(stats.playerIndex).toBe(1); // Player whose turn ended
+    // Check player-specific stats
+    expect(stats.playerTrade[0]).toBe(0);
+    expect(stats.playerTrade[1]).toBe(3);
+    expect(stats.playerCombat[0]).toBe(1);
+    expect(stats.playerCombat[1]).toBe(1);
+    expect(stats.playerCardsDrawn[0]).toBe(4);
+    expect(stats.playerCardsDrawn[1]).toBe(2);
+    expect(stats.playerGains[0]).toBe(0);
+    expect(stats.playerGains[1]).toBe(2);
+    expect(stats.playerDiscards[0]).toBe(1);
+    expect(stats.playerDiscards[1]).toBe(0);
+  });
+  // --- End Turn Statistics Cache Tests ---
 });

@@ -1,5 +1,10 @@
 /**
- * Clone the object
+ * Deeply clones the provided value.
+ *
+ * This function creates a complete deep copy of the input. For primitive values and non-object types, it returns the value unchanged. If the value is a Date, a new Dat     e instance is created with the same time. Arrays are recursively cloned, and plain objects have each of their own enumerable properties deep cloned.
+ *
+ * @param obj - The value to deep clone.
+ * @returns A deep clone of the input value.
  */
 export function deepClone<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
@@ -21,6 +26,7 @@ export function deepClone<T>(obj: T): T {
   }
 
   // Handle Objects
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const objCopy = {} as { [key: string]: any };
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -31,20 +37,37 @@ export function deepClone<T>(obj: T): T {
 }
 
 /**
- * Check if a value is a valid date
- * @param date - The object to check
- * @returns True if the object is a valid date
+ * Determines whether the provided Date object represents a valid date.
+ *
+ * The function verifies that the object is an instance of Date and that its time value is valid
+ * (i.e., not NaN), serving as a type guard.
+ *
+ * @param date - The Date object to validate.
+ * @returns True if the Date object is valid; otherwise, false.
  */
-export function isValidDate(date: any): date is Date {
+export function isValidDate(date: unknown): date is Date {
   return date instanceof Date && !isNaN(date.getTime());
 }
 
 /**
- * Check if a string represents a valid date
- * @param dateString - The string to check
- * @returns True if the string is a valid date
+ * Determines whether the provided value is a string that can be interpreted as a valid date.
+ *
+ * If the input is not a string, the function immediately returns false.
+ *
+ * @param dateString - The value to check.
+ * @returns True if the input is a string representing a valid date; otherwise, false.
  */
-export function isValidDateString(dateString: any): boolean {
-  const date = new Date(dateString);
-  return typeof dateString === 'string' && !isNaN(date.getTime());
+export function isValidDateString(dateString: string | number | Date): boolean {
+  if (dateString instanceof Date) {
+    return isValidDate(dateString);
+  }
+  if (typeof dateString === 'number') {
+    const date = new Date(dateString);
+    return !isNaN(date.getTime());
+  }
+  if (typeof dateString === 'string') {
+    const date = new Date(dateString);
+    return !isNaN(date.getTime());
+  }
+  return false;
 }

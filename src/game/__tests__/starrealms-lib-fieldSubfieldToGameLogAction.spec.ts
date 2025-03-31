@@ -71,12 +71,14 @@ describe('victoryFieldToGameLogAction', () => {
   });
 
   it('should throw InvalidFieldError for invalid field', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => fieldSubfieldToGameLogAction('invalidField' as any, 'actions', 1)).toThrow(
       InvalidFieldError
     );
   });
 
   it('should throw InvalidFieldError for invalid subfield', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => fieldSubfieldToGameLogAction('turn', 'invalidSubfield' as any, 1)).toThrow(
       InvalidFieldError
     );
