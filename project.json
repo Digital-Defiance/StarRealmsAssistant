@@ -46,6 +46,23 @@
         "host": "localhost",
         "spa": true
       }
+    },
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/starrealms-assistant"
+        // other build options
+      },
+      "configurations": {
+        "production": {
+          // production options
+        },
+        "capacitor": {
+          "outputPath": "dist/capacitor-app"
+        }
+      }
     }
   }
 }
