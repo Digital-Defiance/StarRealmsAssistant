@@ -24,6 +24,9 @@ jobs:
       # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
       - run: npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="e2e"
 
+      - name: Enable Corepack
+        run: corepack enable
+
       # Cache node_modules
       - uses: actions/setup-node@v4
         with:
@@ -64,8 +67,6 @@ jobs:
           # Run Playwright tests (using single project target, not run-many)
           npx nx run e2e:e2e --skip-nx-cache
 
-      - name: Run E2E Tests
-        run: npx nx run-many --target=e2e --all --skip-nx-cache --parallel=3
         env:
           CI: true
         timeout-minutes: 10

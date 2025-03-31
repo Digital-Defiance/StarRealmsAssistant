@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+source .env
 
 NEED_SUDO=0
 if [ "${USER}" != "root" ]; then
