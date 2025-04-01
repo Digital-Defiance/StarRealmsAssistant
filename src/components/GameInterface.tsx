@@ -71,6 +71,7 @@ const GameInterface: FC<GameInterfaceProps> = ({ nextTurn, endGame, undoLastActi
   const viewBoxRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {

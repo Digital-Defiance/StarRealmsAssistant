@@ -21,7 +21,7 @@ import { ILogEntry } from '@/game/interfaces/log-entry';
 import { IStorageService } from '@/game/interfaces/storage-service';
 import { ILogEntryRaw } from '@/game/interfaces/log-entry-raw';
 import { deepClone, isValidDate, isValidDateString } from '@/game/utils';
-import { gte, lt } from 'semver';
+import { lt } from 'semver';
 import { IncompatibleSaveError } from '@/game/errors/incompatible-save';
 import { ITurnStatisticsRaw } from '@/game/interfaces/turn-statistics-raw';
 import { ITurnStatistics } from '@/game/interfaces/turn-statistics';

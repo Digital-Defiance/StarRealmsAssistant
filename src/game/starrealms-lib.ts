@@ -30,7 +30,6 @@ import { deepClone } from '@/game/utils';
 import { IPlayerGameTurnDetails } from '@/game/interfaces/player-game-turn-details';
 import { ILogEntry } from '@/game/interfaces/log-entry';
 import { InvalidPlayerIndexError } from '@/game/errors/invalid-player-index';
-import { NotEnoughSupplyError } from './errors/not-enough-supply';
 import { IAuthorityDetails } from './interfaces/authority-details';
 
 /**

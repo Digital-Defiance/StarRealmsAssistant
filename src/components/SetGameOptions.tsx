@@ -36,41 +36,44 @@ const SetGameOptions: FC<SetGameOptionsProps> = ({ startGame }) => {
   const { gameState, setGameState } = useGameContext();
   const gameHasBoss = hasBoss(gameState.players);
 
-  // Ensure starting authorities and cards are initialized for all players
-  const ensureStartingValues = () => {
-    setGameState((prevState: IGame) => {
-      const startingAuthorityByPlayerIndex = Array.isArray(
-        prevState.options.startingAuthorityByPlayerIndex
-      )
-        ? [...prevState.options.startingAuthorityByPlayerIndex]
-        : [];
-
-      const startingCardsByPlayerIndex = Array.isArray(prevState.options.startingCardsByPlayerIndex)
-        ? [...prevState.options.startingCardsByPlayerIndex]
-        : [];
-
-      // Set default values for any player that doesn't have them
-      prevState.players.forEach((player, index) => {
-        startingAuthorityByPlayerIndex[index] =
-          startingAuthorityByPlayerIndex[index] ?? DEFAULT_STARTING_AUTHORITY;
-        startingCardsByPlayerIndex[index] = startingCardsByPlayerIndex[index] ?? DEFAULT_TURN_CARDS;
-      });
-
-      return {
-        ...prevState,
-        options: {
-          ...prevState.options,
-          startingAuthorityByPlayerIndex,
-          startingCardsByPlayerIndex,
-        },
-      };
-    });
-  };
-
   // Initialize starting values when component mounts
   React.useEffect(() => {
+    // Ensure starting authorities and cards are initialized for all players
+    const ensureStartingValues = () => {
+      setGameState((prevState: IGame) => {
+        const startingAuthorityByPlayerIndex = Array.isArray(
+          prevState.options.startingAuthorityByPlayerIndex
+        )
+          ? [...prevState.options.startingAuthorityByPlayerIndex]
+          : [];
+
+        const startingCardsByPlayerIndex = Array.isArray(
+          prevState.options.startingCardsByPlayerIndex
+        )
+          ? [...prevState.options.startingCardsByPlayerIndex]
+          : [];
+
+        // Set default values for any player that doesn't have them
+        prevState.players.forEach((player, index) => {
+          startingAuthorityByPlayerIndex[index] =
+            startingAuthorityByPlayerIndex[index] ?? DEFAULT_STARTING_AUTHORITY;
+          startingCardsByPlayerIndex[index] =
+            startingCardsByPlayerIndex[index] ?? DEFAULT_TURN_CARDS;
+        });
+
+        return {
+          ...prevState,
+          options: {
+            ...prevState.options,
+            startingAuthorityByPlayerIndex,
+            startingCardsByPlayerIndex,
+          },
+        };
+      });
+    };
+
     ensureStartingValues();
-  }, [gameState.players.length]);
+  }, [gameState.players.length, setGameState]);
 
   const initialValues: GameOptionsFormValues = {
     bossStartTurn: gameState.options.bossStartTurn ?? (gameHasBoss ? 0 : undefined),

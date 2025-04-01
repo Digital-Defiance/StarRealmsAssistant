@@ -2,10 +2,8 @@ import { updatePlayerField } from '@/game/starrealms-lib';
 import { IGame } from '@/game/interfaces/game';
 import { IPlayer } from '@/game/interfaces/player';
 import { InvalidFieldError } from '@/game/errors/invalid-field';
-import { NotEnoughSubfieldError } from '@/game/errors/not-enough-subfield';
 import { PlayerFieldMap } from '@/game/types';
 import {
-  DEFAULT_STARTING_AUTHORITY,
   DefaultPlayerColors,
   EmptyGameState,
   STARTING_EXPLORERS,

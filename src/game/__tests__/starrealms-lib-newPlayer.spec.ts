@@ -1,6 +1,5 @@
 import { newPlayer } from '@/game/starrealms-lib';
 import { DefaultTurnDetails, EmptyAuthorityDetails, DefaultPlayerColors } from '@/game/constants';
-import { fa } from '@faker-js/faker/.';
 
 describe('newPlayer', () => {
   it('should create a new player with the given name', () => {
