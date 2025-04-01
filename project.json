@@ -52,7 +52,8 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/starrealms-assistant"
+        "outputPath": "dist/starrealms-assistant",
+        "webpackConfig": "webpack.config.js"
         // other build options
       },
       "configurations": {
