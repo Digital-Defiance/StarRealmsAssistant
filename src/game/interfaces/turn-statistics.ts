@@ -30,6 +30,10 @@ export interface ITurnStatistics {
    */
   playerDiscards: { [playerIndex: number]: number };
   /**
+   * The assimilation value of the boss at the end of the turn
+   */
+  bossAssimilation?: number;
+  /**
    * The supply at the end of the turn
    */
   supply: IGameSupply;

@@ -10,6 +10,30 @@ export interface ITurnStatisticsRaw {
    */
   playerScores: { [playerIndex: number]: number };
   /**
+   * The amount of trade accumulated by each player during the turn
+   */
+  playerTrade: { [playerIndex: number]: number };
+  /**
+   * The amount of combat accumulated by each player during the turn
+   */
+  playerCombat: { [playerIndex: number]: number };
+  /**
+   * The number of cards drawn by each player during the turn
+   */
+  playerCardsDrawn: { [playerIndex: number]: number };
+  /**
+   * The number of cards gained by each player during the turn
+   */
+  playerGains: { [playerIndex: number]: number };
+  /**
+   * The number of cards discarded by each player during the turn
+   */
+  playerDiscards: { [playerIndex: number]: number };
+  /**
+   * The assimilation value of the boss at the end of the turn
+   */
+  bossAssimilation?: number;
+  /**
    * The supply at the end of the turn
    */
   supply: IGameSupply;

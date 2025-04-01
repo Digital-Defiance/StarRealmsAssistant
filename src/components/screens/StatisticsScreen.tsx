@@ -49,7 +49,8 @@ type PlayerStatKey =
   | 'playerCombat'
   | 'playerGains'
   | 'playerDiscards'
-  | 'playerCardsDrawn';
+  | 'playerCardsDrawn'
+  | 'bossAssimilation';
 
 // Define a more specific type for the option flags
 type OptionFlag = keyof IGameOptions;
@@ -69,6 +70,11 @@ const playerStatConfigs: StatConfig[] = [
     key: 'playerCardsDrawn',
     label: 'Cards Drawn',
     optionFlag: 'trackCardCounts',
+  },
+  {
+    key: 'bossAssimilation',
+    label: 'Boss Assimilation',
+    optionFlag: 'trackAssimilation',
   },
 ];
 
@@ -155,21 +161,50 @@ export default function StatisticsScreen() {
         const currentPlayerTurn = playerTurnCounters[playerIndex];
 
         playerStatConfigs.forEach((config) => {
-          // Check if the stat key exists and the corresponding array exists for the player
-          if (stat[config.key] && stats[config.key]?.[playerIndex]) {
-            const value = stat[config.key]?.[playerIndex] ?? null; // Get value or null
-            stats[config.key][playerIndex].push({
-              playerTurn: currentPlayerTurn,
-              gameTurn: stat.turn,
-              value: value,
-            });
+          if (config.key === 'bossAssimilation') {
+            // Special handling for bossAssimilation
+            if (
+              playerIndex === 0 && // Only for the boss (player 0)
+              players[0].boss && // Ensure the player is a boss
+              options.trackAssimilation && // Check if tracking is enabled
+              stat.bossAssimilation !== undefined && // Ensure the value exists
+              stat.bossAssimilation !== null &&
+              stats.bossAssimilation?.[0] // Ensure the target array exists
+            ) {
+              stats.bossAssimilation[0].push({
+                playerTurn: currentPlayerTurn,
+                gameTurn: stat.turn,
+                value: stat.bossAssimilation,
+              });
+            }
+          } else {
+            // Existing logic for other player-specific stats
+            // Check if the stat key exists and the corresponding array exists for the player
+            if (stat[config.key] && stats[config.key]?.[playerIndex]) {
+              const playerStatValue =
+                stat[config.key as keyof Omit<ITurnStatistics, 'bossAssimilation'>];
+              // Check if it's a non-null object (which covers the indexable types)
+              if (playerStatValue && typeof playerStatValue === 'object') {
+                // Cast to the expected indexable type
+                const indexableStat = playerStatValue as { [key: number]: number };
+                // Check if the specific playerIndex exists as a key
+                if (playerIndex in indexableStat) {
+                  const value = indexableStat[playerIndex] ?? null;
+                  stats[config.key][playerIndex].push({
+                    playerTurn: currentPlayerTurn,
+                    gameTurn: stat.turn,
+                    value: value,
+                  });
+                }
+              }
+            }
           }
         });
       }
     });
 
     return stats;
-  }, [turnStatisticsCache, players]); // Dependencies: recalculate if cache or players change
+  }, [turnStatisticsCache, players, options.trackAssimilation]); // Dependencies: recalculate if cache or players change
 
   // --- Prepare Chart Data ---
   const scoreData = {
@@ -214,8 +249,9 @@ export default function StatisticsScreen() {
 
       acc[config.key] = {
         labels: playerTurnLabels, // Use player turn numbers as labels
-        datasets: players
+        datasets: (config.key === 'bossAssimilation' ? players.slice(0, 1) : players) // Only use player 0 for assimilation graph
           .map((player, index) => {
+            // For assimilation, index will always be 0, but check visibility anyway
             if (!visiblePlayers[index] || !playerTurnStats[config.key]?.[index]) {
               return null; // Skip dataset if player is hidden or no data
             }
@@ -272,7 +308,10 @@ export default function StatisticsScreen() {
         x: {
           title: {
             display: true,
-            text: "Player's Nth Turn (Hover for Game Turn)", // Updated X-axis title
+            text:
+              currentConfig.key === 'bossAssimilation'
+                ? "Boss' Nth Turn (Hover for Game Turn)"
+                : "Player's Nth Turn (Hover for Game Turn)", // Updated X-axis title
           },
         },
       },
@@ -332,7 +371,13 @@ export default function StatisticsScreen() {
             <Typography variant="h6">Player Statistics Graphs by player turn</Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
               {playerStatConfigs.map((config) => {
-                const showCheckbox = isOptionEnabled(config.optionFlag);
+                // Determine if the checkbox should be shown
+                let showCheckbox = isOptionEnabled(config.optionFlag);
+                // Special condition for Boss Assimilation: requires option AND boss player
+                if (config.key === 'bossAssimilation') {
+                  showCheckbox = showCheckbox && !!players[0]?.boss; // Check if player 0 is a boss
+                }
+
                 return (
                   showCheckbox && (
                     <FormControlLabel
@@ -379,7 +424,10 @@ export default function StatisticsScreen() {
                 showGraphs[config.key] && (
                   <Box key={config.key}>
                     {/* Updated graph title */}
-                    <Typography variant="h6">{config.label} per Player Turn</Typography>
+                    <Typography variant="h6">
+                      {config.label}{' '}
+                      {config.key === 'bossAssimilation' ? 'per Turn' : 'per Player Turn'}
+                    </Typography>
                     <Box className="graph-container">
                       {/* Use new data and generate options dynamically */}
                       <Line

@@ -506,6 +506,10 @@ export function addLogEntry(
         },
         {} as { [playerIndex: number]: number }
       ),
+      bossAssimilation:
+        game.players[0].boss && game.options.trackAssimilation
+          ? game.players[0].authority.assimilation
+          : undefined,
     };
     game.turnStatisticsCache.push(turnStatisticsEntry);
   }
@@ -620,6 +624,10 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
         },
         {} as { [idx: number]: number }
       ),
+      bossAssimilation:
+        game.players[0].boss && game.options.trackAssimilation
+          ? game.players[0].authority.assimilation
+          : undefined,
     };
     // --- End Calculate stats ---
 
@@ -720,6 +728,10 @@ export function applyLogAction(game: IGame, logEntry: ILogEntry): IGame {
         },
         {} as { [idx: number]: number }
       ),
+      bossAssimilation:
+        updatedGame.players[0].boss && updatedGame.options.trackAssimilation
+          ? updatedGame.players[0].authority.assimilation
+          : undefined,
       // playerDiscards already included above
     };
     updatedGame.turnStatisticsCache.push(endTurnStatisticsEntry);
@@ -1147,6 +1159,10 @@ export function rebuildTurnStatisticsCache(game: IGame): Array<ITurnStatistics> 
           },
           {} as { [playerIndex: number]: number }
         ),
+        bossAssimilation:
+          reconstructedGame.players[0].boss && reconstructedGame.options.trackAssimilation
+            ? reconstructedGame.players[0].authority.assimilation
+            : undefined,
       });
       turnStart = entry.timestamp;
       turnStartGameTime = entry.gameTime;
@@ -1197,6 +1213,10 @@ export function rebuildTurnStatisticsCache(game: IGame): Array<ITurnStatistics> 
           },
           {} as { [playerIndex: number]: number }
         ),
+        bossAssimilation:
+          reconstructedGame.players[0].boss && reconstructedGame.options.trackAssimilation
+            ? reconstructedGame.players[0].authority.assimilation
+            : undefined,
       });
       turnStartGameTime = entry.gameTime;
       break;
