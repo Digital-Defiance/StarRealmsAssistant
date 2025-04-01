@@ -210,6 +210,13 @@ Join our community of developers.
 
 ## Changelog
 
+### Mon Mar 31 18:40:00 2025
+
+- Version 0.0.8
+
+  - Android/ios build
+  - New game statistics options
+
 ### Sat Mar 14 10:44:00 2025
 
 - Version 0.0.7
