@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Link, Paper, List, ListItem, ListItemText } from '@mui/material';
-import StarRealmsTransparentLogo from '@/assets/images/star-realms-logo.png';
+import StarRealmsAssistantLogo from '@/assets/images/star-realms-assistant-logo.svg';
 import SuperCapsText from '@/components/SuperCapsText';
 import {
   APP_FEATURES,
@@ -74,8 +74,8 @@ export default function AboutScreen() {
                 }}
               >
                 <img
-                  src={StarRealmsTransparentLogo}
-                  alt="Star Realms Logo"
+                  src={StarRealmsAssistantLogo}
+                  alt="Star Realms Assistant Logo"
                   style={{
                     width: '100%',
                     height: '100%',
