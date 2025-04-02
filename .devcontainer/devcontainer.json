@@ -16,14 +16,17 @@
         "Orta.vscode-jest",
         "firsttris.vscode-jest-runner",
         "github.vscode-github-actions"
-      ]
+      ],
+      "settings": {
+        "dotenv.enableAutocloaking": true
+      }
     }
   },
-  "containerEnv": {
-    "DEFAULT_NVM_VERSION": "22",
-    "PLAYWRIGHT_HTML_HOST": "0.0.0.0",
-    "DEFAULT_YARN_VERSION": "4.7.0"
-  },
+  // "containerEnv": {
+  //   "DEFAULT_NVM_VERSION": "22",
+  //   "PLAYWRIGHT_HTML_HOST": "0.0.0.0",
+  //   "DEFAULT_YARN_VERSION": "4.7.0"
+  // },
   "remoteEnv": {
     "DOTENV_CONFIG_PATH": "/workspaces/starrealms-assistant/.env"
   },
@@ -38,7 +41,7 @@
   "forwardPorts": [],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "export $(grep -v '^#' /workspaces/starrealms-assistant/.env | xargs) && ./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh && ./setup-shell-config.sh && export $(grep -v '^#' ${DOTENV_CONFIG_PATH} | xargs) && npx nx reset && npx playwright install && npx playwright install-deps"
+  "postCreateCommand": "set -a; . /workspaces/starrealms-assistant/.env; set +a; ./recover-yarn.sh && ./ensure-yarnrc.sh && ./setup-nvm.sh && yarn install && ./install-globals.sh && ./install-copilot-cli.sh && ./setup-shell-config.sh && npx nx reset && ./ensure-git-globals.sh"
 
   // Configure tool-specific properties.
   // "customizations": {},
