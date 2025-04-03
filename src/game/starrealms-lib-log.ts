@@ -1089,15 +1089,13 @@ export function rebuildTurnStatisticsCache(game: IGame): Array<ITurnStatistics> 
     return [];
   }
 
-  const newTurnStatisticsCache: Array<ITurnStatistics> = [];
+  // Initialize a new game state based on the original game's setup
+  // but start with an empty log and turn statistics cache.
+  // The applyLogAction function will populate these as we iterate.
   let reconstructedGame = NewGameState(game, game.log[0].timestamp);
-  // clear the log
   reconstructedGame.log = [];
+  reconstructedGame.turnStatisticsCache = []; // Start with an empty cache
 
-  let turnStart: Date = game.log[0].timestamp;
-  let turnStartGameTime = 0;
-  let turnEnd: Date | null = null;
-  let currentTurn = 0;
   for (let i = 0; i < game.log.length; i++) {
     const entry = game.log[i];
 
@@ -1108,122 +1106,14 @@ export function rebuildTurnStatisticsCache(game: IGame): Array<ITurnStatistics> 
       console.error('Log and time cache out of sync after applying', entry.action);
       throw new Error(`Log and time cache out of sync after applying ${entry.action}`);
     }
-
-    if (entry.action === GameLogAction.START_GAME) {
-      turnStart = entry.timestamp;
-      turnEnd = null;
-      currentTurn = 1;
-    } else if (entry.action === GameLogAction.NEXT_TURN) {
-      turnEnd = entry.timestamp;
-      newTurnStatisticsCache.push({
-        turn: currentTurn,
-        start: turnStart,
-        end: turnEnd,
-        supply: reconstructedGame.supply,
-        playerScores: reconstructedGame.players.map((player) => player.authority.authority),
-        playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex, // Use original game's currentPlayerIndex for consistency? No, use entry's prevPlayerIndex.
-        turnDuration: entry.gameTime - turnStartGameTime,
-        // Populate new per-player stats from reconstructed state
-        playerTrade: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.trade;
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerCombat: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.combat;
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerCardsDrawn: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.cards; // Map to player.turn.cards
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerGains: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.gains;
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerDiscards: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.discard; // Map to player.turn.discard
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        bossAssimilation:
-          reconstructedGame.players[0].boss && reconstructedGame.options.trackAssimilation
-            ? reconstructedGame.players[0].authority.assimilation
-            : undefined,
-      });
-      turnStart = entry.timestamp;
-      turnStartGameTime = entry.gameTime;
-      currentTurn++;
-    } else if (entry.action === GameLogAction.END_GAME) {
-      turnEnd = entry.timestamp;
-      newTurnStatisticsCache.push({
-        turn: currentTurn,
-        start: turnStart,
-        end: turnEnd,
-        supply: reconstructedGame.supply,
-        playerScores: reconstructedGame.players.map((player) => player.authority.authority),
-        playerIndex: entry.prevPlayerIndex ?? game.currentPlayerIndex, // Use original game's currentPlayerIndex for consistency? No, use entry's prevPlayerIndex.
-        turnDuration: entry.gameTime - turnStartGameTime,
-        // Populate new per-player stats from reconstructed state
-        playerTrade: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.trade;
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerCombat: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.combat;
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerCardsDrawn: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.cards; // Map to player.turn.cards
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerGains: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.gains;
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        playerDiscards: reconstructedGame.players.reduce(
-          (acc, player, index) => {
-            acc[index] = player.turn.discard; // Map to player.turn.discard
-            return acc;
-          },
-          {} as { [playerIndex: number]: number }
-        ),
-        bossAssimilation:
-          reconstructedGame.players[0].boss && reconstructedGame.options.trackAssimilation
-            ? reconstructedGame.players[0].authority.assimilation
-            : undefined,
-      });
-      turnStartGameTime = entry.gameTime;
-      break;
-    }
+    // applyLogAction internally handles adding entries to reconstructedGame.turnStatisticsCache
+    // when NEXT_TURN or END_GAME actions are processed.
+    // We don't need to manually create/push entries here.
   }
 
-  return newTurnStatisticsCache;
+  // After iterating through all log entries, the reconstructedGame's cache
+  // should contain the correctly calculated statistics.
+  return reconstructedGame.turnStatisticsCache;
 }
 
 /**

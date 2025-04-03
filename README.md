@@ -210,6 +210,12 @@ Join our community of developers.
 
 ## Changelog
 
+### Wed Apr 03 10:57:00 2025
+
+- Version 0.0.9
+
+  - Fix statistics on save game load
+
 ### Mon Mar 31 18:40:00 2025
 
 - Version 0.0.8
