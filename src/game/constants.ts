@@ -248,6 +248,8 @@ export const DefaultPlayerColorsWithBoss = [
   '#4db6ac', // Teal
 ] as const;
 
+export const APP_NAME = "Star Realms Assistant";
+export const APP_TAGLINE = "Dominate Space, Track Your Authority";
 export const APP_FEATURES = [
   'Player Management: Add, remove, and track multiple players',
   'Dynamic Scoring: Real-time calculation and leaderboard',
