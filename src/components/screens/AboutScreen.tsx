@@ -135,19 +135,23 @@ export default function AboutScreen() {
                 <Typography variant="body1" component="p">
                   This application is created by{' '}
                   <Link
-                    href="https://digitaldefiance.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Digital Defiance
-                  </Link>{' '}
-                  and{' '}
-                  <Link
                     href="https://github.com/JessicaMulein"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Jessica Mulein
+                  </Link>{' '}
+                  of{' '}
+                  <Link href="https://muleinstudios.com" target="_blank" rel="noopener noreferrer">
+                    Mulein Studios
+                  </Link>{' '}
+                  in conjunction with{' '}
+                  <Link
+                    href="https://digitaldefiance.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Digital Defiance
                   </Link>
                   . {APP_MINI_DISCLAIMER}
                 </Typography>

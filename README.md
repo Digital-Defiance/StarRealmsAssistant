@@ -17,6 +17,8 @@ Based on the original [**Unofficial Dominion Assistant**](https://github.com/Dig
 Unofficial Star Realms Assistant is a free tool which aimed to support the main features of the game and the ones we used personally. Many of the specfific expansions and cards are not specifically supported but should allow for manual adjustment to accommodate them.
 Please see our GitHub [issues](https://github.com/Digital-Defiance/StarRealmsAssistant/issues) page for our roadmap/upcoming features and to make requests. Also see the [backlog](https://github.com/orgs/Digital-Defiance/projects/14).
 
+Created by [Jessica Mulein](https://github.com/JessicaMulein) of [Mulein Studios](https://muleinstudios.com) in conjunction with [Digital Defiance](https://digitaldefiance.org). All rights reserved.
+
 ## Disclaimer for End Users
 
 This software runs entirely in the browser and should not affect the local machine, but game state may not be accurately tracked and may affect the outcome of games. This tool should not (yet?) be relied upon for tournaments or anything where it is not being used for personal use. The project is provided "as-is" without any warranties or guarantees. Use at your own risk. The authors are not responsible for any damage or data loss that may occur from using this software.
@@ -209,6 +211,12 @@ Join our community of developers.
 - [Digital Defiance](https://digitaldefiance.org): 501c3 Non Profit Open Source Engineering Guild, with our own Discord.
 
 ## Changelog
+
+### Tue Aug 06 11:28:00 2025
+
+- Version 0.0.10
+
+  - Update about to include Mulein Studios
 
 ### Wed Apr 03 10:57:00 2025
 
