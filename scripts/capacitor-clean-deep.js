@@ -74,7 +74,7 @@ const configContent = `
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.starrealmsassistant.app',
+  appId: 'com.digitaldefiance.starrealmsassistant',
   appName: 'StarRealmsAssistant',
   webDir: 'dist/capacitor-app',
   bundledWebRuntime: false,

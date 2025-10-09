@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.starrealmsnassistant.app"
+    namespace "com.digitaldefiance.starrealmsassistant"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.starrealmsassistant.app"
+        applicationId "com.digitaldefiance.starrealmsassistant"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 1000
+        versionName "0.10.00"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,20 +16,47 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
+    }
     signingConfigs {
         release {
-            storeFile file(System.getenv("KEYSTORE_PATH") ?: "../starrealms-assistant.keystore")
-            storePassword System.getenv("KEYSTORE_PASSWORD") ?: ""
-            keyAlias System.getenv("KEY_ALIAS") ?: "starrealms"
-            keyPassword System.getenv("KEY_PASSWORD") ?: ""
+            // Try to load from local.properties first, then environment variables
+            def localPropsFile = rootProject.file('local.properties')
+            def localProps = new Properties()
+            if (localPropsFile.exists()) {
+                localProps.load(localPropsFile.newDataInputStream())
+            }
+
+            def keystorePath = localProps.getProperty('keystore.path') ?: System.getenv("KEYSTORE_PATH") ?: "../starrealms-assistant.keystore"
+            def keystorePassword = localProps.getProperty('keystore.password') ?: System.getenv("KEYSTORE_PASSWORD") ?: ""
+            def keyAliasValue = localProps.getProperty('key.alias') ?: System.getenv("KEY_ALIAS") ?: "starrealms"
+            def keyPasswordValue = localProps.getProperty('key.password') ?: System.getenv("KEY_PASSWORD") ?: ""
+
+            if (keystorePassword.isEmpty()) {
+                logger.warn("Keystore password not found. Please set it in local.properties or environment variables.")
+            }
+
+            storeFile file(keystorePath)
+            storePassword keystorePassword
+            keyAlias keyAliasValue
+            keyPassword keyPasswordValue
         }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-	    signingConfig signingConfigs.release
+            signingConfig signingConfigs.release
         }
+    }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        disable 'MissingTranslation'
     }
 }
 

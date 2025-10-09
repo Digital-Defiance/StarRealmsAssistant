@@ -10,15 +10,15 @@ console.log('Removing debug overlay from Capacitor app...');
 
 if (fs.existsSync(indexPath)) {
   let indexHtml = fs.readFileSync(indexPath, 'utf8');
-  
+
   // Remove the debug helper script
   const debugScriptRegex = /\s*<script>\s*\/\/ Debug helper[\s\S]*?logToScreen[\s\S]*?<\/script>/;
   indexHtml = indexHtml.replace(debugScriptRegex, '');
-  
+
   // Save the modified file
   fs.writeFileSync(indexPath, indexHtml);
   console.log('Debug overlay removed from index.html');
-  
+
   // Run capacitor sync
   const { execSync } = require('child_process');
   try {

@@ -58,17 +58,31 @@ export class GameDebug extends Component<GameDebugProps, GameDebugState> {
     const lines = this.props.value.split('\n');
     return (
       <ScrollableContainer>
-        <AutoSizer>
-          {({ height, width }) => (
-            <List
-              height={height}
-              width={width}
-              rowCount={lines.length}
-              rowHeight={20}
-              rowRenderer={this.renderRow}
-            />
-          )}
-        </AutoSizer>
+        {/* eslint-disable-next-line react/no-children-prop */}
+        {React.createElement(
+          AutoSizer as unknown as React.ComponentType<{
+            children: (props: { height: number; width: number }) => React.ReactElement;
+          }>,
+          {
+            children: ({ height, width }: { height: number; width: number }) =>
+              React.createElement(
+                List as unknown as React.ComponentType<{
+                  height: number;
+                  width: number;
+                  rowCount: number;
+                  rowHeight: number;
+                  rowRenderer: (props: ListRowProps) => React.ReactElement;
+                }>,
+                {
+                  height,
+                  width,
+                  rowCount: lines.length,
+                  rowHeight: 20,
+                  rowRenderer: this.renderRow,
+                }
+              ),
+          }
+        )}
       </ScrollableContainer>
     );
   }

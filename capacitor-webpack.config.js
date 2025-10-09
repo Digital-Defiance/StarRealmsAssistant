@@ -16,20 +16,24 @@ module.exports = composePlugins(withNx(), (config) => {
     config.output.publicPath = '';
   }
 
-  // Check if HtmlWebpackPlugin is already configured
-  const hasHtmlPlugin = config.plugins.some(
-    (plugin) => plugin.constructor.name === 'HtmlWebpackPlugin'
+  // Explicitly configure HtmlWebpackPlugin for Capacitor build
+  // Remove existing HtmlWebpackPlugin instance if NxAppWebpackPlugin added one
+  config.plugins = config.plugins.filter(
+    (plugin) => plugin.constructor.name !== 'HtmlWebpackPlugin'
   );
-
-  // Add HtmlWebpackPlugin if not already present
-  if (!hasHtmlPlugin) {
-    config.plugins.push(
-      new HtmlWebpackPlugin({
-        template: './src/index.html',
-        filename: 'index.html',
-      })
-    );
-  }
+  // Add our own instance
+  config.plugins.push(
+    new HtmlWebpackPlugin({
+      template: './src/index.html', // Ensure this path is correct
+      filename: 'index.html',
+      // Ensure chunks are injected. 'all' includes vendor, main, runtime, etc.
+      chunks: 'all',
+      // Necessary for Capacitor: prevents base href injection if NxAppWebpackPlugin tries it
+      baseHref: '/',
+      // Ensure script loading is standard, not deferred or async unless intended
+      scriptLoading: 'blocking',
+    })
+  );
 
   return config;
 });

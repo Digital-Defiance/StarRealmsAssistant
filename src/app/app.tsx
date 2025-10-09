@@ -93,11 +93,36 @@ function AppRoutes() {
     {
       path: '/',
       element: <TabView ref={tabViewRef} tabs={tabs} />,
-      children: tabs.map((tab) => ({
-        index: tab.index,
-        path: tab.index ? undefined : tab.path,
-        element: tab.content,
-      })),
+      children: [
+        {
+          index: true,
+          element: <AboutScreen />,
+        },
+        {
+          path: 'assistant',
+          element: <StarRealmsAssistantScreen />,
+        },
+        {
+          path: 'log',
+          element: <GameLogScreen tabViewRef={tabViewRef} />,
+        },
+        {
+          path: 'load-save',
+          element: <LoadSaveGameScreen />,
+        },
+        {
+          path: 'statistics',
+          element: <StatisticsScreen />,
+        },
+        ...(utilsEnabled
+          ? [
+              {
+                path: 'utils',
+                element: <UtilsScreen />,
+              },
+            ]
+          : []),
+      ],
     },
   ]);
 }

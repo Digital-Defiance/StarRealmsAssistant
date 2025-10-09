@@ -114,16 +114,16 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
             <Box>Game Time</Box>
             <Box>Action</Box>
           </Box>
-          <FixedSizeList
-            ref={listRef}
-            height={listHeight}
-            width={listWidth}
-            itemCount={gameState.log.length}
-            itemSize={35}
-            style={{ width: '100%' }}
-          >
-            {Row}
-          </FixedSizeList>
+          {/* eslint-disable-next-line react/no-children-prop, @typescript-eslint/no-explicit-any */}
+          {React.createElement(FixedSizeList as unknown as React.ComponentType<any>, {
+            ref: listRef,
+            height: listHeight,
+            width: listWidth,
+            itemCount: gameState.log.length,
+            itemSize: 35,
+            style: { width: '100%' },
+            children: Row,
+          })}
         </TableContainer>
       ) : (
         <Typography variant="body1" color="textSecondary" align="center" style={{ marginTop: 20 }}>

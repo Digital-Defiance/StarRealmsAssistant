@@ -2,6 +2,7 @@
 
 /.env
 /.npmrc
+/android/local.properties
 
 # game storage
 /game-storage/

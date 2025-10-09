@@ -1,3 +1,4 @@
+@use 'sass:meta';
 $spacing-unit: 8px;
 
 // Font sizes
@@ -122,5 +123,5 @@ canvas {
   transition: background-color 0.3s ease;
 }
 
-@import 'handel-gothic';
-@import 'typography';
+@include meta.load-css('handel-gothic');
+@include meta.load-css('typography');

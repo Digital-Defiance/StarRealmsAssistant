@@ -1,0 +1,8 @@
+# Local Android keystore configuration
+# DO NOT commit this file to version control
+# Copy this to android/local.properties and fill in your actual values
+
+keystore.path=../starrealms-assistant.keystore
+keystore.password=YOUR_KEYSTORE_PASSWORD_HERE
+key.alias=starrealms
+key.password=YOUR_KEY_PASSWORD_HERE

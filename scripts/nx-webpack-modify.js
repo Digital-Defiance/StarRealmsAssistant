@@ -189,7 +189,7 @@ const updatePackageJson = (workspaceRoot) => {
     packageJson.scripts['cap:nx-build'] = 'node scripts/nx-compatible-capacitor.js';
     packageJson.scripts['cap:build'] = 'nx build --configuration=capacitor && npx cap sync';
     packageJson.scripts['cap:init'] =
-      'npx cap init StarRealmsAssistant com.starrealmsassistant.app';
+      'npx cap init StarRealmsAssistant com.digitaldefiance.starrealmsassistant';
     packageJson.scripts['cap:add:android'] = 'npx cap add android';
     packageJson.scripts['cap:add:ios'] = 'npx cap add ios';
     packageJson.scripts['cap:open:android'] = 'npx cap open android';

@@ -215,26 +215,22 @@ Join our community of developers.
 ### Tue Aug 06 11:28:00 2025
 
 - Version 0.0.10
-
   - Update about to include Mulein Studios
 
 ### Wed Apr 03 10:57:00 2025
 
 - Version 0.0.9
-
   - Fix statistics on save game load
 
 ### Mon Mar 31 18:40:00 2025
 
 - Version 0.0.8
-
   - Android/ios build
   - New game statistics options
 
 ### Sat Mar 14 10:44:00 2025
 
 - Version 0.0.7
-
   - Minor fixes to subtracting current player combat (action linking)
   - Minor fix to undo logic to fix a bug
 
