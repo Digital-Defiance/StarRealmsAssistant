@@ -45,10 +45,10 @@ if (fs.existsSync(nxBuildDir) && fs.readdirSync(nxBuildDir).length > 0) {
   console.log('Copying Nx build output to Capacitor web directory...');
   copyDirRecursive(nxBuildDir, capacitorWebDir);
 
-  // Modify index.html to add debugging
+  // Modify index.html to add CSP if needed
   const indexPath = path.join(capacitorWebDir, 'index.html');
+
   if (fs.existsSync(indexPath)) {
-    console.log('Adding debug tools to index.html...');
     let indexHtml = fs.readFileSync(indexPath, 'utf8');
 
     // Add CSP meta tag if needed
@@ -60,62 +60,6 @@ if (fs.existsSync(nxBuildDir) && fs.readdirSync(nxBuildDir).length > 0) {
           "\n  <meta http-equiv=\"Content-Security-Policy\" content=\"default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:\">\n" +
           indexHtml.slice(headEnd);
       }
-    }
-
-    // Add debug script
-    const bodyEnd = indexHtml.indexOf('</body>');
-    if (bodyEnd !== -1) {
-      indexHtml =
-        indexHtml.slice(0, bodyEnd) +
-        `\n  <script>
-  // Debug helper
-  function logToScreen(message) {
-    const debugDiv = document.getElementById('debug-output') || 
-      (function() {
-        const div = document.createElement('div');
-        div.id = 'debug-output';
-        div.style.position = 'fixed';
-        div.style.bottom = '0';
-        div.style.left = '0';
-        div.style.right = '0';
-        div.style.backgroundColor = 'rgba(0,0,0,0.7)';
-        div.style.color = 'white';
-        div.style.padding = '8px';
-        div.style.fontFamily = 'monospace';
-        div.style.fontSize = '12px';
-        div.style.maxHeight = '30%';
-        div.style.overflow = 'auto';
-        div.style.zIndex = '10000';
-        document.body.appendChild(div);
-        return div;
-      })();
-    
-    const logItem = document.createElement('div');
-    logItem.textContent = new Date().toISOString() + ': ' + message;
-    debugDiv.appendChild(logItem);
-    debugDiv.scrollTop = debugDiv.scrollHeight;
-    console.log(message);
-  }
-
-  logToScreen('App initializing...');
-  
-  document.addEventListener('DOMContentLoaded', function() {
-    logToScreen('DOM content loaded');
-  });
-  
-  document.addEventListener('deviceready', function() {
-    logToScreen('Device ready event fired');
-    if (window.Capacitor) {
-      logToScreen('Running in Capacitor environment');
-    }
-  });
-  
-  window.onerror = function(message, source, lineno, colno, error) {
-    logToScreen('ERROR: ' + message + ' at ' + source + ':' + lineno);
-    return false;
-  };
-  </script>\n` +
-        indexHtml.slice(bodyEnd);
     }
 
     fs.writeFileSync(indexPath, indexHtml);
@@ -138,10 +82,10 @@ if (fs.existsSync(nxBuildDir) && fs.readdirSync(nxBuildDir).length > 0) {
   <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
   <title>Star Realms Assistant</title>
   <style>
-    body { 
-      font-family: Arial, sans-serif; 
-      margin: 0; 
-      padding: 16px; 
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
       background-color: #f5f5f5;
     }
     h1 { color: #6200ee; }
@@ -160,56 +104,12 @@ if (fs.existsSync(nxBuildDir) && fs.readdirSync(nxBuildDir).length > 0) {
   <h1>Star Realms Assistant</h1>
   <p>This is a minimal version of the app for testing. Nx build was not successful.</p>
   <button id="testBtn">Test Button</button>
-  
   <script>
-    // Debug helper
-    function logToScreen(message) {
-      const debugDiv = document.getElementById('debug-output') || 
-        (function() {
-          const div = document.createElement('div');
-          div.id = 'debug-output';
-          div.style.position = 'fixed';
-          div.style.bottom = '0';
-          div.style.left = '0';
-          div.style.right = '0';
-          div.style.backgroundColor = 'rgba(0,0,0,0.7)';
-          div.style.color: 'white';
-          div.style.padding = '8px';
-          div.style.fontFamily = 'monospace';
-          div.style.fontSize = '12px';
-          div.style.maxHeight = '30%';
-          div.style.overflow = 'auto';
-          div.style.zIndex = '10000';
-          document.body.appendChild(div);
-          return div;
-        })();
-      
-      const logItem = document.createElement('div');
-      logItem.textContent = new Date().toISOString() + ': ' + message;
-      debugDiv.appendChild(logItem);
-      debugDiv.scrollTop = debugDiv.scrollHeight;
-      console.log(message);
-    }
-
-    logToScreen('App initializing...');
-    
     document.addEventListener('DOMContentLoaded', function() {
-      logToScreen('DOM content loaded');
-      
       document.getElementById('testBtn').addEventListener('click', function() {
-        logToScreen('Button clicked!');
         alert('Button works!');
       });
     });
-    
-    document.addEventListener('deviceready', function() {
-      logToScreen('Device ready event fired');
-    });
-    
-    window.onerror = function(message, source, lineno, colno, error) {
-      logToScreen('ERROR: ' + message + ' at ' + source + ':' + lineno);
-      return false;
-    };
   </script>
 </body>
 </html>`;

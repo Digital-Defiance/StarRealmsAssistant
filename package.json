@@ -29,7 +29,6 @@
     "cap:open:ios": "npx cap open ios",
     "cap:clean": "node scripts/capacitor-clean.js",
     "cap:build": "NODE_ENV=production nx build --configuration=capacitor && npx cap sync",
-    "cap:remove-debug": "node scripts/remove-debug-overlay.js",
     "cap:sync": "npx cap copy",
     "keytool:list": "keytool -list -v -keystore starrealms-assistant.keystore -alias starrealms",
     "cap:release:assemble": "cd android && ./gradlew assembleRelease",
