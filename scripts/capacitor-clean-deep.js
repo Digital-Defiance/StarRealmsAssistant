@@ -130,8 +130,8 @@ android {
     defaultConfig {
         minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 23
         targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 33
-        versionCode 1
-        versionName "1.0"
+        versionCode 1003
+        versionName "0.10.3"
     }
     buildTypes {
         release {

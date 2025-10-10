@@ -33,6 +33,7 @@
     "keytool:list": "keytool -list -v -keystore starrealms-assistant.keystore -alias starrealms",
     "cap:release:assemble": "cd android && ./gradlew assembleRelease",
     "cap:release:bundle": "cd android && ./gradlew bundleRelease",
+    "ci:build": "./reset.sh && yarn build && yarn test:jest && yarn test:playwright && yarn cap:nx-build && yarn cap:release:assemble && yarn cap:release:bundle",
     "keytool:newkey": "keytool -genkey -v -keystore ./android/starrealms-assistant.keystore -alias starrealms -keyalg RSA -keysize 2048 -validity 10000",
     "jre:install": "wget https://download.oracle.com/java/21/archive/jdk-21.0.5_linux-x64_bin.deb && sudo dpkg -i jdk-21.0.5_linux-x64_bin.deb && rm jdk-21.0.5_linux-x64_bin.deb"
   },

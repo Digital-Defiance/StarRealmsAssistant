@@ -1,12 +1,14 @@
-import React, { RefObject } from 'react';
+import * as React from 'react';
+import { RefObject } from 'react';
 import { render } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import GameLog from '@/components/GameLog';
 import { generateLargeGame } from '@/game/starrealms-lib-simulate';
 import { useGameContext } from '@/components/GameContext';
 import theme from '@/components/theme';
 import { ThemeProvider } from '@mui/material';
 import { TabViewHandle } from '@/components/TabView';
+
+import GameLog from '@/components/GameLog';
 
 // Mock the game state with a large game
 const largeGameState = generateLargeGame();

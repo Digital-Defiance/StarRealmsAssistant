@@ -1,20 +1,10 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  memo,
-  CSSProperties,
-  RefObject,
-  FC,
-  useCallback,
-} from 'react';
+import React, { useEffect, useRef, useState, RefObject, FC, useCallback, memo } from 'react';
 import { Paper, TableContainer, Typography, Box, Dialog, DialogContent } from '@mui/material';
 import { useGameContext } from '@/components/GameContext';
 import GameLogEntry from '@/components/GameLogEntry';
 import TabTitle from '@/components/TabTitle';
 import { CurrentStep } from '@/game/enumerations/current-step';
 import TurnAdjustmentsSummary from '@/components/TurnAdjustments';
-import { FixedSizeList } from 'react-window';
 import { TabViewHandle } from '@/components/TabView';
 
 interface GameLogProps {
@@ -28,14 +18,13 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
   const [openTurnAdjustmentsDialog, setOpenTurnAdjustmentsDialog] = useState(false);
   const [selectedTurn, setSelectedTurn] = useState<number | null>(null);
   const [listHeight, setListHeight] = useState<number>(window.innerHeight);
-  const [listWidth, setListWidth] = useState<number>(window.innerWidth);
   const [dialogHeight, setDialogHeight] = useState<number>(0);
   const headerRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<FixedSizeList>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (listRef.current) {
-      listRef.current.scrollToItem(gameState.log.length - 1, 'end');
+      listRef.current.scrollTop = listRef.current.scrollHeight;
     }
   }, [gameState.log.length]);
 
@@ -62,7 +51,6 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
         parseFloat(headerStyles.borderTopWidth) + parseFloat(headerStyles.borderBottomWidth);
       const totalHeaderHeight = headerHeight + headerMargin + headerPadding + headerBorder;
       setListHeight(window.innerHeight - totalHeaderHeight - tabBarHeight - 16);
-      setListWidth(window.innerWidth);
       updateDialogHeight();
     };
 
@@ -75,6 +63,7 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
   }, [tabViewRef, updateDialogHeight]);
 
   const handleOpenTurnAdjustmentsDialog = (turn: number) => {
+    console.log('Opening turn adjustments dialog for turn:', turn);
     setSelectedTurn(turn);
     setOpenTurnAdjustmentsDialog(true);
     updateDialogHeight();
@@ -84,17 +73,6 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
     setOpenTurnAdjustmentsDialog(false);
     setSelectedTurn(null);
   };
-
-  const Row = ({ index, style }: { index: number; style: CSSProperties }) => (
-    <div style={style}>
-      <MemoizedGameLogEntry
-        key={gameState.log[index].id}
-        logIndex={index}
-        entry={gameState.log[index]}
-        onOpenTurnAdjustmentsDialog={handleOpenTurnAdjustmentsDialog}
-      />
-    </div>
-  );
 
   return (
     <>
@@ -114,16 +92,16 @@ const GameLog: FC<GameLogProps> = ({ tabViewRef }) => {
             <Box>Game Time</Box>
             <Box>Action</Box>
           </Box>
-          {/* eslint-disable-next-line react/no-children-prop, @typescript-eslint/no-explicit-any */}
-          {React.createElement(FixedSizeList as unknown as React.ComponentType<any>, {
-            ref: listRef,
-            height: listHeight,
-            width: listWidth,
-            itemCount: gameState.log.length,
-            itemSize: 35,
-            style: { width: '100%' },
-            children: Row,
-          })}
+          <Box ref={listRef} sx={{ height: listHeight, overflow: 'auto' }}>
+            {gameState.log.map((entry, index) => (
+              <MemoizedGameLogEntry
+                key={entry.id || index}
+                logIndex={index}
+                entry={entry}
+                onOpenTurnAdjustmentsDialog={handleOpenTurnAdjustmentsDialog}
+              />
+            ))}
+          </Box>
         </TableContainer>
       ) : (
         <Typography variant="body1" color="textSecondary" align="center" style={{ marginTop: 20 }}>

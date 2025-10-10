@@ -115,7 +115,15 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
   };
 
   useEffect(() => {
+    let highlightTimeout: NodeJS.Timeout | null = null;
+
     const handleHashChange = () => {
+      // Clear any existing timeout
+      if (highlightTimeout) {
+        clearTimeout(highlightTimeout);
+        highlightTimeout = null;
+      }
+
       const id = window.location.hash.replace('#', '');
       const element = document.getElementById(`log-entry-${id}`);
       const escapedId = CSS.escape(id);
@@ -133,11 +141,12 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
         // Scroll the main element into view
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         // Remove the highlight after 2 seconds
-        setTimeout(() => {
+        highlightTimeout = setTimeout(() => {
           element.classList.remove('highlighted');
           elements.forEach((el) => {
             el.classList.remove('highlighted');
           });
+          highlightTimeout = null;
         }, 2000);
       }
     };
@@ -149,6 +158,10 @@ const GameLogEntry: FC<GameLogEntryProps> = ({ logIndex, entry, onOpenTurnAdjust
     }
     return () => {
       window.removeEventListener('hashchange', handleHashChange);
+      // Clean up any pending timeout
+      if (highlightTimeout) {
+        clearTimeout(highlightTimeout);
+      }
     };
   }, []);
 

@@ -217,7 +217,7 @@ Join our community of developers.
 
 ### Thu Aug 09 19:12:30 2025
 
-- Version 0.10.02
+- Version 0.10.2
   - Minor fix to android build/change to capacitor debug overlay
 
 ### Thu Aug 09 16:44:30 2025

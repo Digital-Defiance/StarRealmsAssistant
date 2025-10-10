@@ -49,7 +49,9 @@ const ScrollableContainer = styled(Box)({
 const TurnAdjustmentsSummary: FC<TurnAdjustmentProps> = ({ turn, containerHeight }) => {
   const { gameState } = useGameContext();
   const gameTurn = turn ?? gameState.currentTurn;
+  console.log('TurnAdjustmentsSummary received turn:', turn, 'using gameTurn:', gameTurn);
   const adjustments = getTurnAdjustments(gameState, gameTurn);
+  console.log('Found adjustments for turn', gameTurn, ':', adjustments);
   const groupedAdjustments = groupTurnAdjustmentsByPlayer(adjustments);
   const player = getPlayerForTurn(gameState, gameTurn);
   const adjustedPlayers = Array.from(groupedAdjustments.keys());
